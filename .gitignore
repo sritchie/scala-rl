@@ -50,5 +50,8 @@ project/plugins/target/
 project/plugins/lib_managed/
 project/plugins/src_managed/
 
+# Generated Images
+images/
+
 # Auto-copied by sbt-microsites
 docs/src/main/tut/contributing.md
