@@ -4,6 +4,7 @@ val breezeVersion = "1.0"
 
 /* dependency versions */
 lazy val V = new {
+  val algebird = "0.13.5"
   val breeze = "1.0"
   val cats = "1.1.0"
   val evilplot = "0.6.0"
@@ -25,9 +26,20 @@ lazy val root = (project in file(".")).
 mainClass in (Compile, run) := Some("io.samritchie.rl.Main")
 
 libraryDependencies ++= Seq(
+  // For the probability monad.
   "com.stripe" %% "rainier-core" % V.rainier,
+
+  // For the monoids and implementations.
+  "com.twitter" %% "algebird-core" % V.algebird,
+
+  // For graphs... but evilplot looks way better. I'm sure I'll want
+  // to replace breeze-viz with that.
   "org.scalanlp" %% "breeze-viz" % V.breeze,
+
+  // For its typeclasses, Monad specifically.
   "org.typelevel" %% "cats-core" % V.cats,
+
+  // Testing.
   "org.scalatest" %% "scalatest" % V.scalatest % Test,
   "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
 )

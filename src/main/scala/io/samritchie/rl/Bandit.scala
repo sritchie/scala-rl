@@ -1,30 +1,7 @@
+/**
+  * Code to implement a bandit.
+  */
 package io.samritchie.rl
-
-import com.stripe.rainier.core._
-import com.stripe.rainier.compute.{Evaluator, Real}
-import com.stripe.rainier.sampler.RNG
-import scala.collection.SortedSet
-import scala.util.Try
-
-/**
-  * Extra stuff I'm discovering.
-  */
-
-object Goofing {
-  /**
-    * Example of what COULD be a good thing. We need to get an
-    * epsilon-greedy distribution...
-    */
-  def epsilonGreedy: Categorical[String] =
-    Categorical.normalize(Map("face" -> 2, "cake" -> 10))
-}
-
-
-/**
-  * There is some set of possible places you can get from a given
-  * state. Do we know that in advance?
-  */
-case class Graph[Reward](actions: Set[State[_ <: Action, Reward]])
 
 object Arm {
   implicit val ordering: Ordering[Arm] = Ordering.by(_.i)

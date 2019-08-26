@@ -25,6 +25,12 @@ Want to contribute examples or use this stuff?
 - the book, Reinforcement Learning.
 - https://github.com/ShangtongZhang/reinforcement-learning-an-introduction
 
+## To File
+
+I'm using Rainier's version, but this is a nice article about the
+probability Monad:
+https://www.chrisstucchio.com/blog/2016/probability_the_monad.html
+
 ## License
 
 Copyright 2019 Sam Ritchie. All Rights Reserved.
