@@ -18,8 +18,6 @@ import breeze.plot._
   *
   * Goal is still just to get some shit out.
   *
-  *
-  *
   * WELLLLL maybe evilplot is better!
   * https://cibotech.github.io/evilplot/plot-catalog.html
   *

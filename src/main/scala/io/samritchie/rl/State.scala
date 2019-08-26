@@ -18,18 +18,13 @@ package io.samritchie.rl
 import com.stripe.rainier.core.Generator
 
 /**
-  * Marker trait.
-  */
-trait Action
-
-/**
   * A world should probably have a generator of states and
   * actions... and then you can use that to get to the next
   * bullshit. The state here is going to be useful in the Markov
   * model; for the bandit we only have a single state, not that
   * useful.
   */
-trait State[A <: Action, Reward] {
+trait State[A, Reward] {
 
   /**
     * For every action you could take, returns a generator of the next
@@ -59,24 +54,24 @@ object State {
   /**
     * MDP with state derived from a map.
     */
-  case class MapState[A <: Action, R](dynamics: Map[A, Generator[(R, State[A, R])]]) extends State[A, R]
+  case class MapState[A, R](dynamics: Map[A, Generator[(R, State[A, R])]]) extends State[A, R]
 
   /**
     * MDP with a single state. Supply the dy
     */
-  case class BanditState[A <: Action, R](rewards: Map[A, Generator[R]]) extends State[A, R] {
+  case class BanditState[A, R](rewards: Map[A, Generator[R]]) extends State[A, R] {
     override def dynamics = rewards.mapValues(_.map(r => (r, this)))
   }
 
   /**
     * This creates a State object directly from a dynamics map.
     */
-  def fromMap[A <: Action, R](dynamics: Map[A, Generator[(R, State[A, R])]]): MapState[A, R] =
+  def fromMap[A, R](dynamics: Map[A, Generator[(R, State[A, R])]]): MapState[A, R] =
     MapState[A, R](dynamics)
 
   /**
     * A bandit is just a single state.
     */
-  def bandit[A <: Action: Ordering, R](rewards: Map[A, Generator[R]]): BanditState[A, R] =
+  def bandit[A: Ordering, R](rewards: Map[A, Generator[R]]): BanditState[A, R] =
     BanditState[A, R](rewards)
 }

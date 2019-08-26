@@ -18,7 +18,7 @@ object Game {
     * returns the supplied penalty and sends the agent back to the
     * initial state.
     */
-  def play[A <: Action, R, P <: Policy[A, R, P]](
+  def play[A, R, P <: Policy[A, R, P]](
       state: State[A, R],
       policy: Policy[A, R, P],
       penalty: R

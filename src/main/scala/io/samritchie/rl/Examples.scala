@@ -10,13 +10,13 @@ object Examples {
   /**
     * Returns an incremental implementation.
     */
-  def epsGreedyIncremental[A <: Action](epsilon: Double): EpsilonGreedy[A, AveragedValue] =
+  def epsGreedyIncremental[A](epsilon: Double): EpsilonGreedy[A, AveragedValue] =
     Policy.epsilonGreedy(epsilon, Monoid.zero[AveragedValue])
 
   /**
     * Returns a decaying value.
     */
-  def epsGreedyExponentialDecay[A <: Action](epsilon: Double): EpsilonGreedy[A, DecayedValue] =
+  def epsGreedyExponentialDecay[A](epsilon: Double): EpsilonGreedy[A, DecayedValue] =
     Policy.epsilonGreedy[A, DecayedValue](epsilon, Monoid.zero[DecayedValue])
 }
 
@@ -26,6 +26,9 @@ object EpsilonGreedyGraph {
   val policy: EpsilonGreedy[Arm, AveragedValue] = epsGreedyIncremental(0.1)
   val instrumented: InstrumentedPolicy[Arm, AveragedValue, EpsilonGreedy[Arm, AveragedValue]] =
     InstrumentedPolicy(policy, _.rewards, Map.empty[Arm, List[AveragedValue]])
+
+  // FUCK we do need some type parameter for aggregation.
+  // val state: State[Arm, AveragedValue] = State.bandit()
 
   /**
     * I think I'm in a place where I can actually play that first
@@ -45,8 +48,13 @@ object EpsilonGreedyGraph {
     * - A way to INSTRUMENT my bandit that's independent of
     *   implementation, so I can start to get shit in there. Or
     *   instrument my state. something like that... so that I can see
-    *   how the value of the map is evolving.
+    *   how the value of the map is evolving. (DONE)
+    *
+    * - a way to generate many plays.
     *
     */
-  val main = "cake"
+  def main(items: Array[String]): Unit = {
+    println(instrumented)
+    println("Hello World again!!")
+  }
 }

@@ -8,7 +8,7 @@ import com.stripe.rainier.core.Generator
 object Arm {
   implicit val ordering: Ordering[Arm] = Ordering.by(_.i)
 }
-case class Arm(i: Int) extends Action
+case class Arm(i: Int)
 
 object FakeBandit {
 
