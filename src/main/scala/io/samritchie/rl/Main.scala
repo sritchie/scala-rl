@@ -4,27 +4,27 @@ import breeze.linalg._
 import breeze.plot._
 
 /**
- * The good stuff. Plotting...
- *
- * https://zwild.github.io/posts/plotly-examples-for-scala/
- *
- * Visualization is important for data science and machine
- * learning. Breeze provide breeze-viz for this. However it has only
- * 4 kinds of plots -- line, scatter, histogram and image.
- *
- * Wow, plotly looks way better here...
- *
- * https://zwild.github.io/posts/plotly-examples-for-scala/
- *
- * Goal is still just to get some shit out.
- *
- *
- *
- * WELLLLL maybe evilplot is better!
- * https://cibotech.github.io/evilplot/plot-catalog.html
- *
- *
- */
+  * The good stuff. Plotting...
+  *
+  * https://zwild.github.io/posts/plotly-examples-for-scala/
+  *
+  * Visualization is important for data science and machine
+  * learning. Breeze provide breeze-viz for this. However it has only
+  * 4 kinds of plots -- line, scatter, histogram and image.
+  *
+  * Wow, plotly looks way better here...
+  *
+  * https://zwild.github.io/posts/plotly-examples-for-scala/
+  *
+  * Goal is still just to get some shit out.
+  *
+  *
+  *
+  * WELLLLL maybe evilplot is better!
+  * https://cibotech.github.io/evilplot/plot-catalog.html
+  *
+  *
+  */
 object Main {
   def chartExample(): Unit = {
     val f = Figure()

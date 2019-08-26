@@ -7,17 +7,17 @@ import com.stripe.rainier.sampler.RNG
 object Game {
 
   /**
-   * These are needed to actually call get on anything.
-   */
+    * These are needed to actually call get on anything.
+    */
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
   /**
-   * Plays a single turn and returns a generator that returns the
-   * reward and the next state. If the chosen state's not allowed,
-   * returns the supplied penalty and sends the agent back to the
-   * initial state.
-   */
+    * Plays a single turn and returns a generator that returns the
+    * reward and the next state. If the chosen state's not allowed,
+    * returns the supplied penalty and sends the agent back to the
+    * initial state.
+    */
   def play[A <: Action, R](
       state: State[A, R],
       policy: Policy[A, R],
@@ -34,7 +34,7 @@ object Game {
 object ValueFunction {}
 
 /**
- * TODO Figure out how to make something that tracks action and state
- * values here.
- */
+  * TODO Figure out how to make something that tracks action and state
+  * values here.
+  */
 trait ValueFunction {}

@@ -1,6 +1,6 @@
 /**
- * Extra stuff I'm discovering.
- */
+  * Extra stuff I'm discovering.
+  */
 package io.samritchie.rl
 
 import com.stripe.rainier.compute.Real
@@ -9,10 +9,10 @@ import com.stripe.rainier.core.Categorical
 object Util {
 
   /**
-   * epsilon-greedy distribution, boom.
-   *
-   * This should probably be Real.
-   */
+    * epsilon-greedy distribution, boom.
+    *
+    * This should probably be Real.
+    */
   def epsilonGreedy[A](epsilon: Double, greedy: A, other: Set[A]): Categorical[A] =
     Categorical
       .normalize {

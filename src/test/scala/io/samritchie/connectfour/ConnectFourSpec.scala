@@ -4,9 +4,9 @@ import org.scalacheck.{Arbitrary, Gen, Properties}
 import org.scalacheck.Prop.forAll
 
 /**
- * I haven't written any tests yet, of course. This is a placeholder
- * for laws about Connect Four.
- */
+  * I haven't written any tests yet, of course. This is a placeholder
+  * for laws about Connect Four.
+  */
 object ConnectFourSpec extends Properties("ConnectFour") with ConnectFourArb {
   import Game._
 
@@ -22,8 +22,8 @@ object ConnectFourSpec extends Properties("ConnectFour") with ConnectFourArb {
 }
 
 /**
- * And this is a placeholder for basic tests.
- */
+  * And this is a placeholder for basic tests.
+  */
 class ConnectFourTest extends org.scalatest.FunSuite {
   test("example.test") {
     val digits = List(1, 2, 3)
@@ -32,8 +32,8 @@ class ConnectFourTest extends org.scalatest.FunSuite {
 }
 
 /**
- * Generators and Arbitrary instances live below.
- */
+  * Generators and Arbitrary instances live below.
+  */
 trait ConnectFourGen {
   import Game._
 
