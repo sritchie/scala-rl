@@ -14,7 +14,6 @@ import com.twitter.algebird.Monoid
   * This is how agents actually choose what comes next.
   */
 trait Policy[A <: Action, R, P <: Policy[A, R, P]] {
-  type This <: Policy[A, R, P]
 
   /**
     * This gets me my action.
