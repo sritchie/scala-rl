@@ -9,27 +9,20 @@ import com.stripe.rainier.core.{Categorical, Generator}
 import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.{Aggregator, Monoid}
+import scala.language.higherKinds
 
 /**
-  * Totally bullshit random policy.
+  * Trait for things that can choose. Keeping this monadic for now,
+  * probably too absurd.
   */
-case class RandomPolicy2[A, R]() extends Policy2[R, RandomPolicy2[A, R]] {
-  type Action = A
-  override def choose(state: State[A, R]): Generator[A] =
-    Categorical.list(state.actions.toList).generator
-
-  override def learn(state: State[A, R], action: A, reward: R): RandomPolicy2[A, R] = this
-}
-
-trait Policy2[R, P <: Policy2[R, P]] {
-  type Action
-  type Reward
-
-  /**
+trait Decider[A, R, M[_]] {
+ /**
     * This gets me my action.
     */
-  def choose(state: State[Action, R]): Generator[Action]
+  def choose(state: State[A, R]): M[A]
+}
 
+trait Learner[A, R, This <: Learner[A, R, This]] {
   /**
     * TODO I think this is what we need. A functional way to absorb
     * new information.
@@ -43,35 +36,19 @@ trait Policy2[R, P <: Policy2[R, P]] {
     *
     * SO THIS might not be great.
     */
-  def learn(state: State[Action, R], action: Action, reward: R): P
+  def learn(state: State[A, R], action: A, reward: R): This
 }
-
 
 /**
   * This is how agents actually choose what comes next.
+  *
+  * A - Action
+  * R - reward
+  * P - policy
   */
-trait Policy[A, R, P <: Policy[A, R, P]] {
-
-  /**
-    * This gets me my action.
-    */
-  def choose(state: State[A, R]): Generator[A]
-
-  /**
-    * TODO I think this is what we need. A functional way to absorb
-    * new information.
-    *
-    * OR does this information go later? A particular policy should
-    * get to witness the results of a decision... but instead of a
-    * reward it might be a particular long term return.
-    *
-    * And each of the policies needs to have some array or something
-    * that it is using to track all of these state values.
-    *
-    * SO THIS might not be great.
-    */
-  def learn(state: State[A, R], action: A, reward: R): P
-}
+trait Policy[A, R, This <: Policy[A, R, This]]
+    extends Learner[A, R, This]
+    with Decider[A, R, Generator]
 
 object Policy {
 
@@ -95,24 +72,24 @@ object Policy {
   * Totally bullshit random policy.
   */
 case class RandomPolicy[A, R]() extends Policy[A, R, RandomPolicy[A, R]] {
-  override def choose(state: State[A, R]): Generator[A] =
-    Categorical.list(state.actions.toList).generator
-
+  override def choose(state: State[A, R]): Generator[A] = Categorical.list(state.actions.toList).generator
   override def learn(state: State[A, R], action: A, reward: R): RandomPolicy[A, R] = this
 }
 
-trait AggregatingPolicy[A, R, T, P <: AggregatingPolicy[A, R, T, P]] extends Policy[A, R, P] {
+/**
+  * Hmm, how the fuck is this gonna work...
+  */
+trait AggregatingLearner[A, R, T, This <: AggregatingLearner[A, R, T, This]] extends Learner[A, R, This] {
   def aggregator: Aggregator[R, T, R]
-  def learn(state: State[A, R], action: A, reward: R): P
+  def learn(state: State[A, R], action: A, reward: R): This = ???
+    // val oldV = rewards.getOrElse(action, Monoid.zero)
+    // copy(rewards = rewards + (action -> Monoid.plus(oldV, reward)))
 }
 
-object Face {
-}
-
-trait MonoidPolicy[A, R, T, P <: AggregatingPolicy[A, R, T, P]] extends Policy[A, R, P] {
-  def aggregator: Aggregator[R, T, R]
-  def learn(state: State[A, R], action: A, reward: R): P
-}
+// trait MonoidPolicy[A, R, T, P <: AggregatingPolicy[A, R, T, P]] extends Policy[A, R, P] {
+//   def aggregator: Aggregator[R, T, R]
+//   def learn(state: State[A, R], action: A, reward: R): P
+// }
 
 /**
   * This is a version that accumulates the reward using a monoid.
