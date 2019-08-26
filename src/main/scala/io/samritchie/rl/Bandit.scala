@@ -3,6 +3,8 @@
   */
 package io.samritchie.rl
 
+import com.stripe.rainier.core.Generator
+
 object Arm {
   implicit val ordering: Ordering[Arm] = Ordering.by(_.i)
 }
@@ -16,6 +18,13 @@ object FakeBandit {
     * back to a given "bandit" problem.
     */
   def arms(k: Int): Set[Arm] = (0 to k).map(Arm(_)).toSet
+
+  /**
+    * TODO - implement this thing.
+    */
+  def banditState[R](k: Int, meanGenerator: Generator[R], stdDev: R): State[Arm, R] =
+    // generate a distribution for each of the incoming ints.
+    State.bandit(???)
 }
 
 case class FakeBandit() {

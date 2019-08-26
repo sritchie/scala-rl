@@ -18,9 +18,9 @@ object Game {
     * returns the supplied penalty and sends the agent back to the
     * initial state.
     */
-  def play[A <: Action, R](
+  def play[A <: Action, R, P <: Policy[A, R, P]](
       state: State[A, R],
-      policy: Policy[A, R],
+      policy: Policy[A, R, P],
       penalty: R
   ): Generator[(R, State[A, R])] =
     policy.choose(state).flatMap { a =>
