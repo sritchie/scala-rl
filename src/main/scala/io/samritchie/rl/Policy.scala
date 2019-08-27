@@ -8,7 +8,7 @@
 import com.stripe.rainier.core.{Categorical, Generator}
 import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
-import com.twitter.algebird.{Aggregator, Monoid}
+import com.twitter.algebird.{MonoidAggregator, Monoid}
 import scala.language.higherKinds
 
 /**
@@ -57,15 +57,16 @@ object Policy {
     */
   def uniformRand[A, R]: RandomPolicy[A, R] = RandomPolicy[A, R]
 
-  def epsilonGreedy[A, R: Monoid: Ordering](epsilon: Double): EpsilonGreedy[A, R] =
-    EpsilonGreedy[A, R](epsilon, Map.empty)
+  def epsilonGreedy[A, R: Ordering, T](epsilon: Double, agg: MonoidAggregator[R, T, R]): EpsilonGreedy[A, R, T] =
+    EpsilonGreedy[A, R, T](epsilon, agg, Map.empty)
 
   /**
     * Same as the other arity, but allowed for
     */
-  def epsilonGreedy[A, R: Monoid: Ordering](epsilon: Double, initial: R): EpsilonGreedy[A, R] =
-    EpsilonGreedy[A, R](epsilon, Map.empty.withDefault(_ => initial))
-
+  def epsilonGreedy[A, R: Ordering, T](epsilon: Double, agg: MonoidAggregator[R, T, R], initial: R): EpsilonGreedy[A, R, T] = {
+    val prepped = agg.prepare(initial)
+    EpsilonGreedy[A, R, T](epsilon, agg, Map.empty[A, T].withDefault(k => prepped))
+  }
 }
 
 /**
@@ -77,40 +78,27 @@ case class RandomPolicy[A, R]() extends Policy[A, R, RandomPolicy[A, R]] {
 }
 
 /**
-  * Hmm, how the fuck is this gonna work...
-  */
-trait AggregatingLearner[A, R, T, This <: AggregatingLearner[A, R, T, This]] extends Learner[A, R, This] {
-  def aggregator: Aggregator[R, T, R]
-  def learn(state: State[A, R], action: A, reward: R): This = ???
-    // val oldV = rewards.getOrElse(action, Monoid.zero)
-    // copy(rewards = rewards + (action -> Monoid.plus(oldV, reward)))
-}
-
-// trait MonoidPolicy[A, R, T, P <: AggregatingPolicy[A, R, T, P]] extends Policy[A, R, P] {
-//   def aggregator: Aggregator[R, T, R]
-//   def learn(state: State[A, R], action: A, reward: R): P
-// }
-
-/**
   * This is a version that accumulates the reward using a monoid.
   *
   * @epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[A, R: Monoid: Ordering](epsilon: Double, rewards: Map[A, R])
-    extends Policy[A, R, EpsilonGreedy[A, R]] {
-
+case class EpsilonGreedy[A, R: Ordering, T](
+  epsilon: Double,
+  agg: MonoidAggregator[R, T, R],
+  aggState: Map[A, T]
+) extends Policy[A, R, EpsilonGreedy[A, R, T]] {
   /**
     * This doesn't necessarily break ties consistently. Check, and
     * note that we might want to break them randomly.
     */
-  private def greedyAction: A = rewards.maxBy(_._2)._1
+  private def greedyAction: A = aggState.maxBy({ case (k, v) => agg.present(v) })._1
 
   override def choose(state: State[A, R]): Generator[A] =
     Util.epsilonGreedy(epsilon, greedyAction, state.actions).generator
 
-  override def learn(state: State[A, R], action: A, reward: R): EpsilonGreedy[A, R] = {
-    val oldV = rewards.getOrElse(action, Monoid.zero)
-    copy(rewards = rewards + (action -> Monoid.plus(oldV, reward)))
+  override def learn(state: State[A, R], action: A, reward: R): EpsilonGreedy[A, R, T] = {
+    val oldV = aggState.getOrElse(action, agg.monoid.zero)
+    copy(aggState = aggState + (action -> agg.reduce(oldV, agg.prepare(reward))))
   }
 }
 

@@ -1,31 +1,24 @@
 package io.samritchie.rl
 
-import com.twitter.algebird.{AveragedValue, DecayedValue, Monoid}
+import com.twitter.algebird.{Aggregator, AveragedValue, Monoid}
 
 object Examples {
   // This should be in Algebird.
   implicit val averageValueOrd: Ordering[AveragedValue] = Ordering.by(_.value)
-  implicit val dvMonoid: Monoid[DecayedValue] = DecayedValue.monoidWithEpsilon(0.1)
 
   /**
     * Returns an incremental implementation.
     */
-  def epsGreedyIncremental[A](epsilon: Double): EpsilonGreedy[A, AveragedValue] =
-    Policy.epsilonGreedy(epsilon, Monoid.zero[AveragedValue])
-
-  /**
-    * Returns a decaying value.
-    */
-  def epsGreedyExponentialDecay[A](epsilon: Double): EpsilonGreedy[A, DecayedValue] =
-    Policy.epsilonGreedy[A, DecayedValue](epsilon, Monoid.zero[DecayedValue])
+  def epsGreedyIncremental[A](epsilon: Double): EpsilonGreedy[A, Double, AveragedValue] =
+    Policy.epsilonGreedy(epsilon, Aggregator.prepareMonoid[Double, AveragedValue](d => AveragedValue(d)).andThenPresent(_.value), 0.0)
 }
 
 object EpsilonGreedyGraph {
   import Examples._
 
-  val policy: EpsilonGreedy[Arm, AveragedValue] = epsGreedyIncremental(0.1)
-  val instrumented: InstrumentedPolicy[Arm, AveragedValue, EpsilonGreedy[Arm, AveragedValue]] =
-    InstrumentedPolicy(policy, _.rewards, Map.empty[Arm, List[AveragedValue]])
+  val policy: EpsilonGreedy[Arm, Double, AveragedValue] = epsGreedyIncremental(0.1)
+  val instrumented: InstrumentedPolicy[Arm, Double, EpsilonGreedy[Arm, Double, AveragedValue]] =
+    InstrumentedPolicy(policy, _.aggState.mapValues(_.value), Map.empty[Arm, List[Double]])
 
   // FUCK we do need some type parameter for aggregation.
   // val state: State[Arm, AveragedValue] = State.bandit()
