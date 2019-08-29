@@ -2,7 +2,8 @@
   * Try using this to get rid of the bullshit f-bounded polymorphism:
   * https://tpolecat.github.io/2015/04/29/f-bounds.html
   *
-  * And odersky's response for an even simpler way: https://gist.github.com/odersky/56323c309a186cffe9af
+  * And odersky's response for an even simpler way:
+  * https://gist.github.com/odersky/56323c309a186cffe9af
   */package io.samritchie.rl
 
 import com.stripe.rainier.core.{Categorical, Generator}
@@ -102,6 +103,11 @@ case class EpsilonGreedy[A, R: Ordering, T](
   }
 }
 
+/**
+  * TODO... this is way too specific. Get rid of this bullshit with
+  * the list at the end. Anyway, more on that later once I get these
+  * graphs actually working.
+  */
 case class InstrumentedPolicy[A, R: Monoid: Ordering, P <: Policy[A, R, P]](policy: P, f: P => Map[A, R], acc: Map[A, List[R]])
     extends Policy[A, R, InstrumentedPolicy[A, R, P]] {
   override def choose(state: State[A, R]): Generator[A] = policy.choose(state)
