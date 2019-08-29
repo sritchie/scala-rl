@@ -36,14 +36,16 @@ object EpsilonGreedyGraph {
     *
     * - A way to build the uniformly distributed bandit state that
     *   they use in the example, and get a new one each
-    *   time. (building this in Bandit.scala)
+    *   time. (DONE)
     *
     * - A way to INSTRUMENT my bandit that's independent of
     *   implementation, so I can start to get shit in there. Or
     *   instrument my state. something like that... so that I can see
     *   how the value of the map is evolving. (DONE)
     *
-    * - a way to generate many plays.
+    * - a way to roll a game forward by some number of turns, and then
+    *   example what we've seen... to examine the guts of one of these
+    *   things. (NEXT DO THIS!)
     *
     */
   def main(items: Array[String]): Unit = {
