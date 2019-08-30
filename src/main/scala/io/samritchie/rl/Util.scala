@@ -13,12 +13,15 @@ object Util {
     *
     * This should probably be Real.
     */
-  def epsilonGreedy[A](epsilon: Double, greedy: A, other: Set[A]): Categorical[A] =
+  def epsilonGreedy[A](
+    epsilon: Double,
+    greedy: Option[A],
+    other: Set[A]): Categorical[A] =
     Categorical
       .normalize {
         Map(
-          (other + greedy).toSeq -> epsilon,
-          Seq(greedy) -> (1 - epsilon)
+          (other ++ greedy.toSet).toSeq -> epsilon,
+          greedy.toSeq -> (1 - epsilon)
         )
       }
       .flatMap(Categorical.list(_))

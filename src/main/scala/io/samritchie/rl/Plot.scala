@@ -26,7 +26,7 @@ import com.cibo.evilplot.numeric.{Bounds, Point}
 import com.cibo.evilplot.plot.{FunctionPlot, LinePlot, Overlay}
 import com.cibo.evilplot.plot.aesthetics.DefaultTheme
 
-object Main {
+object Plot {
   import DefaultTheme._
   import HTMLNamedColors._
 
@@ -61,7 +61,8 @@ object Main {
   }
 
   def main(items: Array[String]): Unit = {
-    lineChart()
-    polyPlot()
+    Game.playBandit(nRuns = 1000, timeSteps = 10000)
+    // lineChart()
+    // polyPlot()
   }
 }

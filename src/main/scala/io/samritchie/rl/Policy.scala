@@ -102,7 +102,11 @@ case class EpsilonGreedy[A, R: Ordering, T](
     * This doesn't necessarily break ties consistently. Check, and
     * note that we might want to break them randomly.
     */
-  private def greedyAction: A = aggState.maxBy({ case (k, v) => agg.present(v) })._1
+  private def greedyAction: Option[A] =
+    if (aggState.isEmpty)
+      None
+    else
+      Some(aggState.maxBy({ case (k, v) => agg.present(v) })._1)
 
   override def choose(state: State[A, R]): Generator[A] =
     Util.epsilonGreedy(epsilon, greedyAction, state.actions).generator

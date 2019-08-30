@@ -12,6 +12,11 @@
   *
   *
   * I would use it but I think it's old.
+  *
+  * Then... do we go to the state monad, on TOP of the generator, to
+  * return the reward? Instead of returning the pair directly?
+  *
+  * Let's give it a try!
   */
 package io.samritchie.rl
 
