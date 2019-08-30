@@ -10,7 +10,11 @@ object Examples {
     * Returns an incremental implementation.
     */
   def epsGreedyIncremental[A](epsilon: Double): EpsilonGreedy[A, Double, AveragedValue] =
-    Policy.epsilonGreedy(epsilon, Aggregator.prepareMonoid[Double, AveragedValue](d => AveragedValue(d)).andThenPresent(_.value), 0.0)
+    Policy.epsilonGreedy(
+      epsilon,
+      Aggregator.prepareMonoid[Double, AveragedValue](d => AveragedValue(d)).andThenPresent(_.value),
+      0.0
+    )
 }
 
 object EpsilonGreedyGraph {

@@ -4,12 +4,13 @@
   *
   * And odersky's response for an even simpler way:
   * https://gist.github.com/odersky/56323c309a186cffe9af
-  */package io.samritchie.rl
+  */
+package io.samritchie.rl
 
 import com.stripe.rainier.core.{Categorical, Generator}
 import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
-import com.twitter.algebird.{MonoidAggregator, Monoid}
+import com.twitter.algebird.{Monoid, MonoidAggregator}
 import scala.language.higherKinds
 
 /**
@@ -17,13 +18,15 @@ import scala.language.higherKinds
   * probably too absurd.
   */
 trait Decider[A, R, M[_]] {
- /**
+
+  /**
     * This gets me my action.
     */
   def choose(state: State[A, R]): M[A]
 }
 
 trait Learner[A, R, This <: Learner[A, R, This]] {
+
   /**
     * TODO I think this is what we need. A functional way to absorb
     * new information.
@@ -35,7 +38,8 @@ trait Learner[A, R, This <: Learner[A, R, This]] {
     * And each of the policies needs to have some array or something
     * that it is using to track all of these state values.
     *
-    * SO THIS might not be great.
+    * SO THIS might not be great. But at this state, if you take this
+    * action, you get this reward. That's the note.
     */
   def learn(state: State[A, R], action: A, reward: R): This
 }
@@ -47,9 +51,7 @@ trait Learner[A, R, This <: Learner[A, R, This]] {
   * R - reward
   * P - policy
   */
-trait Policy[A, R, This <: Policy[A, R, This]]
-    extends Learner[A, R, This]
-    with Decider[A, R, Generator]
+trait Policy[A, R, This <: Policy[A, R, This]] extends Learner[A, R, This] with Decider[A, R, Generator]
 
 object Policy {
 
@@ -58,13 +60,20 @@ object Policy {
     */
   def uniformRand[A, R]: RandomPolicy[A, R] = RandomPolicy[A, R]
 
-  def epsilonGreedy[A, R: Ordering, T](epsilon: Double, agg: MonoidAggregator[R, T, R]): EpsilonGreedy[A, R, T] =
+  def epsilonGreedy[A, R: Ordering, T](
+      epsilon: Double,
+      agg: MonoidAggregator[R, T, R]
+  ): EpsilonGreedy[A, R, T] =
     EpsilonGreedy[A, R, T](epsilon, agg, Map.empty)
 
   /**
     * Same as the other arity, but allowed for
     */
-  def epsilonGreedy[A, R: Ordering, T](epsilon: Double, agg: MonoidAggregator[R, T, R], initial: R): EpsilonGreedy[A, R, T] = {
+  def epsilonGreedy[A, R: Ordering, T](
+      epsilon: Double,
+      agg: MonoidAggregator[R, T, R],
+      initial: R
+  ): EpsilonGreedy[A, R, T] = {
     val prepped = agg.prepare(initial)
     EpsilonGreedy[A, R, T](epsilon, agg, Map.empty[A, T].withDefault(k => prepped))
   }
@@ -84,10 +93,11 @@ case class RandomPolicy[A, R]() extends Policy[A, R, RandomPolicy[A, R]] {
   * @epsilon number between 0 and 1.
   */
 case class EpsilonGreedy[A, R: Ordering, T](
-  epsilon: Double,
-  agg: MonoidAggregator[R, T, R],
-  aggState: Map[A, T]
+    epsilon: Double,
+    agg: MonoidAggregator[R, T, R],
+    aggState: Map[A, T]
 ) extends Policy[A, R, EpsilonGreedy[A, R, T]] {
+
   /**
     * This doesn't necessarily break ties consistently. Check, and
     * note that we might want to break them randomly.
@@ -108,8 +118,11 @@ case class EpsilonGreedy[A, R: Ordering, T](
   * the list at the end. Anyway, more on that later once I get these
   * graphs actually working.
   */
-case class InstrumentedPolicy[A, R: Monoid: Ordering, P <: Policy[A, R, P]](policy: P, f: P => Map[A, R], acc: Map[A, List[R]])
-    extends Policy[A, R, InstrumentedPolicy[A, R, P]] {
+case class InstrumentedPolicy[A, R: Monoid: Ordering, P <: Policy[A, R, P]](
+    policy: P,
+    f: P => Map[A, R],
+    acc: Map[A, List[R]]
+) extends Policy[A, R, InstrumentedPolicy[A, R, P]] {
   override def choose(state: State[A, R]): Generator[A] = policy.choose(state)
   override def learn(state: State[A, R], action: A, reward: R): InstrumentedPolicy[A, R, P] = {
     val newPolicy: P = policy.learn(state, action, reward)

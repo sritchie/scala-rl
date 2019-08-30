@@ -7,6 +7,7 @@ import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.Categorical
 
 object Util {
+
   /**
     * epsilon-greedy distribution, boom.
     *
