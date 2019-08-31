@@ -61,7 +61,7 @@ object Plot {
   }
 
   def main(items: Array[String]): Unit = {
-    Game.playBandit(nRuns = 1000, timeSteps = 10000)
+    Game.playBandit(nRuns = 1000, timeSteps = 1000)
     // lineChart()
     // polyPlot()
   }
