@@ -1,12 +1,15 @@
 package io.samritchie.rl
 
 import cats.implicits._
+import cats.Monad
 import com.stripe.rainier.cats._
 import com.stripe.rainier.core.{Categorical, Generator, Normal}
 import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.AveragedValue
 import com.twitter.util.Stopwatch
+
+import scala.language.higherKinds
 
 object Game {
 
@@ -32,18 +35,24 @@ object Game {
       rs <- state.act(a).getOrElse(Generator.constant((penalty, state)))
     } yield (policy.learn(state, a, rs._1), rs._2)
 
+  def iterateM[F[_]: Monad, A](n: Int)(a: A)(f: A => F[A]): F[A] =
+    Monad[F].tailRecM[Tuple2[Int, A], A]((n, a)) {
+      case (k, a) =>
+        if (k <= 0)
+          Monad[F].pure(Right(a))
+        else
+          f(a).map(a2 => Left((k - 1, a2)))
+    }
+
   def playN[A, R, P <: Policy[A, R, P]](
       state: State[A, R],
       policy: P,
       penalty: R,
       nTimes: Int
   ): Generator[(P, State[A, R])] =
-    if (nTimes == 0)
-      Generator.constant((policy, state))
-    else
-      play(state, policy, penalty).flatMap {
-        case (p, s) => playN(s, p, penalty, nTimes - 1)
-      }
+    iterateM(nTimes)((policy, state)) {
+      case (p, s) => play(s, p, penalty)
+    }
 
   // initial state generator.
   val stateGen = FakeBandit.initialBanditStateGenerator(

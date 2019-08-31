@@ -18,3 +18,10 @@ Can I go totally overboard and integrate this with a website where you can inter
 ## Probabilistic Programming
 
 Does this help me at all? https://github.com/stripe/rainier/blob/develop/docs/tour.md
+
+## Next Steps
+
+- Get the graphs working... show that we can aggregate experience
+across games, and get figure 2_2 working
+- implement the different strategies and show off those graphs too
+- lock down nice interfaces, get it all working well.

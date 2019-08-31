@@ -61,7 +61,7 @@ object Plot {
   }
 
   def main(items: Array[String]): Unit =
-    Game.playAndPrintOnce(nRuns = 20, timeSteps = 1000)
+    Game.playAndPrintOnce(nRuns = 1, timeSteps = 10000)
   // lineChart()
   // polyPlot()
 }
