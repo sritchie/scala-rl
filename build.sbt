@@ -21,6 +21,7 @@ lazy val root = (project in file(".")).settings(
   name := "functional-rl-in-scala"
 )
 
+scalafmtOnCompile in ThisBuild := true
 mainClass in (Compile, run) := Some("io.samritchie.rl.Plot")
 
 resolvers += Resolver.bintrayRepo("cibotech", "public")

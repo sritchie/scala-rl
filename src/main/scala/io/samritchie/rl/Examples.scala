@@ -24,9 +24,6 @@ object EpsilonGreedyGraph {
   val instrumented: InstrumentedPolicy[Arm, Double, EpsilonGreedy[Arm, Double, AveragedValue]] =
     InstrumentedPolicy(policy, _.aggState.mapValues(_.value), Map.empty[Arm, List[Double]])
 
-  // FUCK we do need some type parameter for aggregation.
-  // val state: State[Arm, AveragedValue] = State.bandit()
-
   /**
     * I think I'm in a place where I can actually play that first
     * game!

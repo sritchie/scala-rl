@@ -9,6 +9,7 @@ import com.twitter.algebird.AveragedValue
 import com.twitter.util.Stopwatch
 
 object Game {
+
   /**
     * These are needed to actually call get on anything.
     */
@@ -31,12 +32,11 @@ object Game {
       rs <- state.act(a).getOrElse(Generator.constant((penalty, state)))
     } yield (policy.learn(state, a, rs._1), rs._2)
 
-
   def playN[A, R, P <: Policy[A, R, P]](
-    state: State[A, R],
-    policy: P,
-    penalty: R,
-    nTimes: Int
+      state: State[A, R],
+      policy: P,
+      penalty: R,
+      nTimes: Int
   ): Generator[(P, State[A, R])] =
     if (nTimes == 0)
       Generator.constant((policy, state))
@@ -55,10 +55,10 @@ object Game {
   // empty starting policy.
   val policy = EpsilonGreedyGraph.instrumented
 
-  type EG = EpsilonGreedy[Arm,Double,AveragedValue]
-  type IEG = InstrumentedPolicy[Arm,Double,EG]
+  type EG = EpsilonGreedy[Arm, Double, AveragedValue]
+  type IEG = InstrumentedPolicy[Arm, Double, EG]
 
-  def playBandit(nRuns: Int, timeSteps: Int): Generator[List[(IEG, State[Arm,Double])]] = {
+  def playBandit(nRuns: Int, timeSteps: Int): Generator[List[(IEG, State[Arm, Double])]] = {
     // Generates runs of a 100 times.
     val elapsed = Stopwatch.start()
     val runsGenerator = (0 to nRuns).toList.map { _ =>
@@ -71,7 +71,7 @@ object Game {
   }
 
   def playAndPrintOnce(nRuns: Int, timeSteps: Int): Map[Arm, List[Double]] = {
-    val (done, finalState) = playBandit(1, timeSteps).get.head
+    val (done, finalState) = playBandit(nRuns, timeSteps).get.head
 
     println("Initially aggregated state:")
     println(policy.policy.aggState)
@@ -79,11 +79,14 @@ object Game {
     println("acc initial:")
     println(policy.acc)
 
-    println("Initially aggregated state:")
+    println("Final aggregated state:")
     println(done.policy.aggState)
 
-    println("acc initial:")
+    println("acc final:")
     println(done.acc.size)
+
+    println("acc final:")
+    println(finalState.dynamics)
 
     done.acc
   }

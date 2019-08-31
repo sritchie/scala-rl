@@ -60,9 +60,8 @@ object Plot {
     displayPlot(x)
   }
 
-  def main(items: Array[String]): Unit = {
-    Game.playBandit(nRuns = 1000, timeSteps = 1000)
-    // lineChart()
-    // polyPlot()
-  }
+  def main(items: Array[String]): Unit =
+    Game.playAndPrintOnce(nRuns = 20, timeSteps = 1000)
+  // lineChart()
+  // polyPlot()
 }
