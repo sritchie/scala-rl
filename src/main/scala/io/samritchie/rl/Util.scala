@@ -3,10 +3,26 @@
   */
 package io.samritchie.rl
 
+import cats.Monad
 import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.Categorical
+import com.twitter.algebird.{Aggregator, AveragedValue, MonoidAggregator}
+import scala.language.higherKinds
 
 object Util {
+  object Instances {
+    implicit val averageValueOrd: Ordering[AveragedValue] =
+      Ordering.by(_.value)
+  }
+
+  def iterateM[F[_]: Monad, A](n: Int)(a: A)(f: A => F[A]): F[A] =
+    Monad[F].tailRecM[Tuple2[Int, A], A]((n, a)) {
+      case (k, a) =>
+        if (k <= 0)
+          Monad[F].pure(Right(a))
+        else
+          Monad[F].map(f(a))(a2 => Left((k - 1, a2)))
+    }
 
   /**
     * epsilon-greedy distribution, boom.
@@ -27,4 +43,8 @@ object Util {
           .flatMap(Categorical.list(_))
     }
 
+  def averagingAgg: MonoidAggregator[Double, AveragedValue, Double] =
+    Aggregator
+      .prepareMonoid[Double, AveragedValue](d => AveragedValue(d))
+      .andThenPresent(_.value)
 }

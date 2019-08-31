@@ -62,21 +62,8 @@ object State {
   case class MapState[A, R](dynamics: Map[A, Generator[(R, State[A, R])]]) extends State[A, R]
 
   /**
-    * MDP with a single state. Supply the dy
-    */
-  case class BanditState[A, R](rewards: Map[A, Generator[R]]) extends State[A, R] {
-    override def dynamics = rewards.mapValues(_.map(r => (r, this)))
-  }
-
-  /**
     * This creates a State object directly from a dynamics map.
     */
   def fromMap[A, R](dynamics: Map[A, Generator[(R, State[A, R])]]): MapState[A, R] =
     MapState[A, R](dynamics)
-
-  /**
-    * A bandit is just a single state.
-    */
-  def bandit[A: Ordering, R](rewards: Map[A, Generator[R]]): BanditState[A, R] =
-    BanditState[A, R](rewards)
 }

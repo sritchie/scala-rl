@@ -22,7 +22,7 @@ lazy val root = (project in file(".")).settings(
 )
 
 scalafmtOnCompile in ThisBuild := true
-mainClass in (Compile, run) := Some("io.samritchie.rl.Plot")
+mainClass in (Compile, run) := Some("io.samritchie.rl.Game")
 
 resolvers += Resolver.bintrayRepo("cibotech", "public")
 

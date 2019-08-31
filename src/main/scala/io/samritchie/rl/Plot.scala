@@ -1,22 +1,9 @@
 /**
-  * The good stuff. Plotting...
+  * The good stuff. Plotting charts. Options were Plotly and
+  * Breeze-Viz... but then, those are both a little busted. So I
+  * decided to go with Evilplot.
   *
-  * https://zwild.github.io/posts/plotly-examples-for-scala/
-  *
-  * Visualization is important for data science and machine
-  * learning. Breeze provide breeze-viz for this. However it has only
-  * 4 kinds of plots -- line, scatter, histogram and image.
-  *
-  * Wow, plotly looks way better here...
-  *
-  * https://zwild.github.io/posts/plotly-examples-for-scala/
-  *
-  * Goal is still just to get some shit out.
-  *
-  * WELLLLL maybe evilplot is better!
   * https://cibotech.github.io/evilplot/plot-catalog.html
-  *
-  *
   */
 package io.samritchie.rl
 
@@ -30,6 +17,7 @@ object Plot {
   import DefaultTheme._
   import HTMLNamedColors._
 
+  // Example of a linechart, just testing it out.
   def lineChart(): Unit = {
     val data = Seq.tabulate(100) { i =>
       Point(i.toDouble, scala.util.Random.nextDouble())
@@ -46,6 +34,7 @@ object Plot {
     }
   }
 
+  // test of a polynomail plot, again, just an example to work with.
   def polyPlot(): Unit = {
     val x = Overlay(
       FunctionPlot.series(x => x * x, "y = x^2", HTMLNamedColors.dodgerBlue, xbounds = Some(Bounds(-1, 1))),
@@ -60,8 +49,9 @@ object Plot {
     displayPlot(x)
   }
 
-  def main(items: Array[String]): Unit =
+  def main(items: Array[String]): Unit = {
     Game.playAndPrintOnce(nRuns = 1, timeSteps = 10000)
-  // lineChart()
-  // polyPlot()
+    lineChart()
+    polyPlot()
+  }
 }

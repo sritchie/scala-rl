@@ -1,17 +1,25 @@
 /**
-  * Code to implement a bandit.
+  * A bandit is a particular kind of state.
   */
 package io.samritchie.rl
+package state
 
 import com.stripe.rainier.core.{Generator, Normal}
 import com.stripe.rainier.compute.Real
 
-object Arm {
-  implicit val ordering: Ordering[Arm] = Ordering.by(_.i)
+/**
+  * MDP with a single state.
+  */
+case class Bandit[A, R](rewards: Map[A, Generator[R]]) extends State[A, R] {
+  override def dynamics = rewards.mapValues(_.map(r => (r, this)))
 }
-case class Arm(i: Int)
 
-object FakeBandit {
+object Bandit {
+  object Arm {
+    implicit val ordering: Ordering[Arm] = Ordering.by(_.i)
+  }
+
+  case class Arm(i: Int)
 
   /**
     * An "Arm" is something that takes you to a new state. We just
@@ -21,14 +29,14 @@ object FakeBandit {
   def arms(k: Int): Set[Arm] = (0 until k).map(Arm(_)).toSet
 
   /**
-    * Generates a GENERATOR that splits out states for each of the
-    * games to play.
+    * Returns a Generator that splits out states for each of the games
+    * to play.
     */
-  def initialBanditStateGenerator(
+  def initialStateGen(
       k: Int,
       meanGenerator: Generator[Double],
       stdDev: Double
-  ): Generator[State[Arm, Double]] =
+  ): Generator[Bandit[Arm, Double]] =
     meanGenerator.repeat(k).map { means =>
       val m = arms(k).toSeq
         .zip(means)
@@ -36,6 +44,6 @@ object FakeBandit {
           case (m, (i, mean)) =>
             m + (i -> Normal(mean, stdDev).generator)
         }
-      State.bandit(m)
+      Bandit(m)
     }
 }

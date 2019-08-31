@@ -8,9 +8,14 @@ import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.AveragedValue
 import com.twitter.util.Stopwatch
+import io.samritchie.rl.state.Bandit
+import io.samritchie.rl.policy.{EpsilonGreedy, Instrumented}
 
 import scala.language.higherKinds
 
+/**
+  * Playing the game, currently. This is my test harness.
+  */
 object Game {
 
   /**
@@ -19,59 +24,31 @@ object Game {
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
-  /**
-    * Plays a single turn and returns a generator that returns the
-    * reward and the next state. If the chosen state's not allowed,
-    * returns the supplied penalty and sends the agent back to the
-    * initial state.
-    */
-  def play[A, R, P <: Policy[A, R, P]](
-      state: State[A, R],
-      policy: P,
-      penalty: R
-  ): Generator[(P, State[A, R])] =
-    for {
-      a <- policy.choose(state)
-      rs <- state.act(a).getOrElse(Generator.constant((penalty, state)))
-    } yield (policy.learn(state, a, rs._1), rs._2)
-
-  def iterateM[F[_]: Monad, A](n: Int)(a: A)(f: A => F[A]): F[A] =
-    Monad[F].tailRecM[Tuple2[Int, A], A]((n, a)) {
-      case (k, a) =>
-        if (k <= 0)
-          Monad[F].pure(Right(a))
-        else
-          f(a).map(a2 => Left((k - 1, a2)))
-    }
-
-  def playN[A, R, P <: Policy[A, R, P]](
-      state: State[A, R],
-      policy: P,
-      penalty: R,
-      nTimes: Int
-  ): Generator[(P, State[A, R])] =
-    iterateM(nTimes)((policy, state)) {
-      case (p, s) => play(s, p, penalty)
-    }
-
   // initial state generator.
-  val stateGen = FakeBandit.initialBanditStateGenerator(
+  val stateGen = Bandit.initialStateGen(
     10,
     Normal(0.0, 1.0).generator,
     1.0
   )
 
+  import Bandit.Arm
+
   // empty starting policy.
-  val policy = EpsilonGreedyGraph.instrumented
+  val policy: Instrumented[Arm, Double, EpsilonGreedy[Arm, Double, AveragedValue]] =
+    Instrumented(
+      EpsilonGreedy.incremental(0.1),
+      _.aggState.mapValues(_.value),
+      Map.empty[Arm, List[Double]]
+    )
 
   type EG = EpsilonGreedy[Arm, Double, AveragedValue]
-  type IEG = InstrumentedPolicy[Arm, Double, EG]
+  type IEG = Instrumented[Arm, Double, EG]
 
   def playBandit(nRuns: Int, timeSteps: Int): Generator[List[(IEG, State[Arm, Double])]] = {
     // Generates runs of a 100 times.
     val elapsed = Stopwatch.start()
     val runsGenerator = (0 to nRuns).toList.map { _ =>
-      stateGen.flatMap(playN(_, policy, 0.0, timeSteps))
+      stateGen.flatMap(Policy.playN(policy, _, 0.0, timeSteps))
     }.sequence
     runsGenerator.get
     println(s"Time to play $nRuns runs of $timeSteps time steps each: ${elapsed()}")
@@ -99,4 +76,7 @@ object Game {
 
     done.acc
   }
+
+  def main(items: Array[String]): Unit =
+    playAndPrintOnce(nRuns = 1, timeSteps = 10000)
 }
