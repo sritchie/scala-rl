@@ -35,4 +35,6 @@ https://www.chrisstucchio.com/blog/2016/probability_the_monad.html
 
 ## License
 
-Copyright 2019 Sam Ritchie. All Rights Reserved.
+Copyright 2019 Sam Ritchie.
+
+Licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).

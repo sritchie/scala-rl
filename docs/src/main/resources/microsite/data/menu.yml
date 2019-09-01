@@ -1,0 +1,97 @@
+options:
+
+  ###########################
+  # Policies Menu Options #
+  ###########################
+
+  - title: Policies
+    url: policies.html
+    menu_type: policy
+
+  - title: Stochastic
+    url: policies/stochastic.html
+    menu_type: policy
+    menu_section: stochastic
+
+    nested_options:
+     - title: Random
+       url: policies/stochastic/random.html
+       menu_section: stochastic
+
+    nested_options:
+     - title: Epsilon Greedy
+       url: policies/stochastic/epsilon_greedy.html
+       menu_section: stochastic
+
+  - title: Instrumented
+    url: policies/instrumented.html
+    menu_type: policy
+
+  #############################
+  # State Menu Options #
+  #############################
+
+  - title: State
+    url: state.html
+    menu_type: state
+    menu_section: state
+
+  - title: Simple States
+    url: state/simple.html
+    menu_type: state
+    menu_section: simple
+
+    nested_options:
+     - title: Bandit
+       url: state/simple/bandit.html
+       menu_section: simple
+
+  ###########################
+  # Cookbook Menu Options #
+  ###########################
+
+  - title: Cookbook
+    url: cookbook.html
+    menu_type: cookbook
+
+  ###########################
+  # Course Menu Options #
+  ###########################
+
+  - title: Functional RL in Scala
+    url: course.html
+    menu_type: course
+
+  - title: Tabular Methods
+    url: course/tabular.html
+    menu_type: course
+    menu_section: tabular
+
+    nested_options:
+    - title: Multi-armed Bandits
+      url: course/tabular/bandits.html
+      menu_section: tabular
+
+    - title: Finite Markov Decision Processes
+      url: course/tabular/finite_mdps.html
+      menu_section: tabular
+
+    - title: Dynamic Programming
+      url: course/tabular/dynamic_programming.html
+      menu_section: tabular
+
+    - title: Monte Carlo Methods
+      url: course/tabular/monte_carlo.html
+      menu_section: tabular
+
+    - title: Temporal Difference Learning
+      url: course/tabular/td_learning.html
+      menu_section: tabular
+
+    - title: n-step Bootstrapping
+      url: course/tabular/n_step_bootstrapping.html
+      menu_section: tabular
+
+    - title: Planning and Learning with Tabular Methods
+      url: course/tabular/tabular_methods.html
+      menu_section: tabular

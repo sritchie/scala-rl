@@ -10,7 +10,7 @@ import com.twitter.algebird.{AveragedValue, MonoidAggregator}
 /**
   * This is a version that accumulates the reward using a monoid.
   *
-  * @epsilon number between 0 and 1.
+  * @param epsilon number between 0 and 1.
   */
 case class EpsilonGreedy[A, R: Ordering, T](
     epsilon: Double,

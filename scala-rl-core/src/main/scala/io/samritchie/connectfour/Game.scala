@@ -127,11 +127,9 @@ object Game {
     def performMove(move: Move): (Board, Position) = {
       assert(isMoveValid(move), "Move is invalid!")
 
-      /**
-        * Returns position on the board to update with the supplied
-        * move, guaranteed to be valid since isMoveValid only returns
-        * true if at least the top entry in the column is empty.
-        */
+      // Returns position on the board to update with the supplied
+      // move, guaranteed to be valid since isMoveValid only returns
+      // true if at least the top entry in the column is empty.
       def loop(pos: Position, remaining: List[Position]): Position =
         (pieceAt(pos), remaining) match {
           case (None, h :: t) => loop(h, t) // empty spot with remaining positions below.
