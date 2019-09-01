@@ -8,10 +8,8 @@
 package io.samritchie.rl
 
 import com.stripe.rainier.cats._
-import com.stripe.rainier.core.{Categorical, Generator}
-import com.stripe.rainier.compute.{Evaluator, Real}
-import com.stripe.rainier.sampler.RNG
-import com.twitter.algebird.{Monoid, MonoidAggregator}
+import com.stripe.rainier.core.Generator
+
 import scala.language.higherKinds
 
 /**

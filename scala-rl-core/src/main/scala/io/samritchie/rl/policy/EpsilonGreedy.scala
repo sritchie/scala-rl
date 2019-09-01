@@ -5,7 +5,7 @@ package io.samritchie.rl
 package policy
 
 import com.stripe.rainier.core.Generator
-import com.twitter.algebird.{AveragedValue, Monoid, MonoidAggregator}
+import com.twitter.algebird.{AveragedValue, MonoidAggregator}
 
 /**
   * This is a version that accumulates the reward using a monoid.

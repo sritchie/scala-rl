@@ -4,7 +4,6 @@
 package io.samritchie.rl
 
 import cats.Monad
-import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.Categorical
 import com.twitter.algebird.{Aggregator, AveragedValue, MonoidAggregator}
 import scala.language.higherKinds

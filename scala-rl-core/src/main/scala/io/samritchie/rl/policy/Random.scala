@@ -5,7 +5,6 @@ package io.samritchie.rl
 package policy
 
 import com.stripe.rainier.core.{Categorical, Generator}
-import com.twitter.algebird.{Monoid, MonoidAggregator}
 
 /**
   * Totally bullshit random policy.

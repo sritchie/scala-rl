@@ -5,7 +5,6 @@ package io.samritchie.rl
 package state
 
 import com.stripe.rainier.core.{Generator, Normal}
-import com.stripe.rainier.compute.Real
 
 /**
   * MDP with a single state.

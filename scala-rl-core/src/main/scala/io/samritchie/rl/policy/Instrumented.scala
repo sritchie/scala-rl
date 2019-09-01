@@ -2,7 +2,7 @@ package io.samritchie.rl
 package policy
 
 import com.stripe.rainier.core.Generator
-import com.twitter.algebird.{Monoid, MonoidAggregator}
+import com.twitter.algebird.Monoid
 
 /**
   * TODO... this is way too specific. Get rid of this bullshit with

@@ -15,7 +15,6 @@ import com.cibo.evilplot.plot.aesthetics.DefaultTheme
 
 object Plot {
   import DefaultTheme._
-  import HTMLNamedColors._
 
   // Example of a linechart, just testing it out.
   def lineChart(): Unit = {

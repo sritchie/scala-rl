@@ -1,17 +1,14 @@
 package io.samritchie.rl
 
 import cats.implicits._
-import cats.Monad
 import com.stripe.rainier.cats._
-import com.stripe.rainier.core.{Categorical, Generator, Normal}
+import com.stripe.rainier.core.{Generator, Normal}
 import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.AveragedValue
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.state.Bandit
 import io.samritchie.rl.policy.{EpsilonGreedy, Instrumented}
-
-import scala.language.higherKinds
 
 /**
   * Playing the game, currently. This is my test harness.
