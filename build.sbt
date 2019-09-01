@@ -143,12 +143,13 @@ lazy val docSettings = Seq(
   micrositeBaseUrl := "scala-rl",
   micrositeDocumentationUrl := "api",
   micrositeGithubOwner := "sritchie",
-  micrositeExtraMdFiles := Map(file("CONTRIBUTING.md") ->
-    microsites.ExtraMdFileConfig(
-      "contributing.md",
-      "page",
-      Map("title" -> "Contributing", "section" -> "contributing", "position" -> "5")
-    )),
+  micrositeExtraMdFiles := Map(
+    file("CONTRIBUTING.md") ->
+      microsites.ExtraMdFileConfig(
+        "contributing.md",
+        "page",
+        Map("title" -> "Contributing", "section" -> "contributing", "position" -> "5")
+      )),
   micrositeGithubRepo := "scala-rl",
   micrositePalette := Map(
     "brand-primary" -> "#5B5988",
