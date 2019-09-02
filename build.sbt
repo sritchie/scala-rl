@@ -148,7 +148,7 @@ lazy val docSettings = Seq(
   micrositeTwitter := "@scalaRLProject",
   micrositeTwitterCreator := "@sritchie",
 
-  micrositeGitterChannelUrl := "ScalaRL",
+  micrositeGitterChannelUrl := "ScalaRL/community",
   micrositeGithubOwner := "sritchie",
   micrositeGithubRepo := "scala-rl",
 
