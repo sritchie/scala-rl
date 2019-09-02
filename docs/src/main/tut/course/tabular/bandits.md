@@ -11,7 +11,11 @@ Halmos demonstrates some extensions of the concept by introducing the ideas of r
 - symmetric, where $x R y$ implies $y R z$
 - transitive, where $x R y$ and $y R z$ imply $x R z$
 
-
+```scala
+trait Face[A] {
+  def cake[B](x: A): B = ???
+}
+```
 
 This comes from chapter 2 of the RL book, and is part of my series on reinforcement learning.
 

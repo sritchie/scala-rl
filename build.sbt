@@ -153,7 +153,7 @@ lazy val docSettings = Seq(
   micrositeGithubRepo := "scala-rl",
 
   // MIGHT go away soon.
-  micrositeBaseUrl := "scala-rl"
+  micrositeBaseUrl := "scala-rl",
 
   micrositeGithubToken := getEnvVar("GITHUB_TOKEN"),
   micrositePushSiteWith := GitHub4s,
