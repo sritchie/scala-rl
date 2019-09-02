@@ -6,7 +6,7 @@ section: "course"
 
 # Multi-Armed Bandits
 
-Halmos demonstrates some extensions of the concept by introducing the ideas of relations that are:
+Halmos, again, demonstrates some extensions of the concept by introducing the ideas of relations that are:
 - reflexive, where $x R x$, or $(x, x) \in R$, for every $x$ in $X$
 - symmetric, where $x R y$ implies $y R z$
 - transitive, where $x R y$ and $y R z$ imply $x R z$
