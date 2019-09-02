@@ -1,9 +1,10 @@
 # Functional RL in Scala
 
-[![Build status](https://img.shields.io/travis/sritchie/scala-rl/develop.svg)](http://travis-ci.org/sritchie/scala-rl)
+[![Build status](https://img.shields.io/travis/sritchie/scala-rl/develop.svg?maxAge=3600)](http://travis-ci.org/sritchie/scala-rl)
 [![Codecov branch](https://img.shields.io/codecov/c/github/sritchie/scala-rl/develop.svg?maxAge=3600)](https://codecov.io/github/sritchie/scala-rl)
 [![Latest version](https://index.scala-lang.org/sritchie/scala-rl/scala-rl-core/latest.svg?color=orange)](https://index.scala-lang.org/sritchie/scala-rl/scala-rl-core)
 [![Gitter](https://badges.gitter.im/ScalaRL/community.svg)](https://gitter.im/ScalaRL/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Patreon](https://img.shields.io/badge/patreon-donate-blue.svg)](https://www.patreon.com/sritchie)
 
 ### Overview
 
