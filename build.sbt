@@ -152,9 +152,6 @@ lazy val docSettings = Seq(
   micrositeGithubOwner := "sritchie",
   micrositeGithubRepo := "scala-rl",
 
-  // MIGHT go away soon.
-  micrositeBaseUrl := "scala-rl",
-
   micrositeGithubToken := getEnvVar("GITHUB_TOKEN"),
 
   // Enable down the road.
@@ -193,6 +190,13 @@ lazy val docSettings = Seq(
   docsMappingsAPIDir := "api",
   addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), docsMappingsAPIDir),
   ghpagesNoJekyll := false,
+
+  // Don't kill the cname redirect.
+  excludeFilter in ghpagesCleanSite :=
+  new FileFilter{
+    def accept(f: File) = (ghpagesRepository.value / "CNAME").getCanonicalPath == f.getCanonicalPath
+  } || "versions.html",
+
   fork in tut := true,
   fork in (ScalaUnidoc, unidoc) := true,
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
