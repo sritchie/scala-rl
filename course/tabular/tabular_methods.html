@@ -8,7 +8,171 @@ ga('create', 'UA-146772284-1' , 'auto');
 ga('send', 'pageview');
       </script></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"><span>ScalaRL</span></div></a></li>       <li><a href="/course.html" class="">Functional RL in Scala</a></li> <li><a href="/course/tabular.html" class="">Tabular Methods</a> <ul class="sub_section"> <li><a href="/course/tabular/bandits.html" class="">Multi-armed Bandits</a></li> <li><a href="/course/tabular/finite_mdps.html" class="">Finite Markov Decision Processes</a></li> <li><a href="/course/tabular/dynamic_programming.html" class="">Dynamic Programming</a></li> <li><a href="/course/tabular/monte_carlo.html" class="">Monte Carlo Methods</a></li> <li><a href="/course/tabular/td_learning.html" class="">Temporal Difference Learning</a></li> <li><a href="/course/tabular/n_step_bootstrapping.html" class="">n-step Bootstrapping</a></li> <li><a href="/course/tabular/tabular_methods.html" class=" active ">Planning and Learning with Tabular Methods</a></li></ul></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li id="gh-eyes-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="sritchie" data-github-repo="scala-rl"><div class="content-wrapper"><section><h1 id="planning-and-learning-with-tabular-methods">Planning and Learning with Tabular Methods</h1>
 
-<p>Talk about this.</p>
+<h1 id="warning">WARNING!</h1>
+
+<p>Note - this is VERY EARLY DAYS! All of the files in the course with this warning are the raw, totally unprocessed notes that I generated during my first reading of “Reinforcement Learning: An Introduction”.</p>
+
+<p>I’ll be converting these into proper course sections with wonderful embedded code that you can try out. I’m not there yet, but I wanted to develop all of this in the open.</p>
+
+<p>Maybe you’ll find these notes interesting, but don’t expect anything special… yet!</p>
+
+<h2 id="notes">Notes</h2>
+
+<p>iirc this is more of a summary of everything that came before, yes, uniting it into the big approach.</p>
+
+<h2 id="chapter-sketch">Chapter Sketch</h2>
+
+<p>There is a ton in here. Does this unify, or should I chill out and go back to the good stuff? Try to get a feel for what this is introducing… then I can start coding.</p>
+
+<p>We start with tabular dyna-Q, then slowly make it more complicated.</p>
+
+<h2 id="models-and-planning">Models and Planning</h2>
+
+<p>This introduces the idea that models let you plan but updating your state-value or action-value functions based on predictions… the map is not the territory, but you can increase your understanding of the map.</p>
+
+<p>We are now back to the idea of a model, vs an actual environment to interact with. How interesting, similar to consciousness, here… we are always interacting with the model, and then some separate process behind the scenes is updating the model to be more like the real world.</p>
+
+<ul>
+  <li>distribution models</li>
+  <li>sample models</li>
+</ul>
+
+<p>Remember the two?</p>
+
+<p>Can you just draw a reward/state pair? Or do you get the entire distribution to look at? That’s the difference.</p>
+
+<p>Planning - take either a model or (model, policy) and produces an improved policy.</p>
+
+<ul>
+  <li>there is also a thing called a PLAN SPACE MODEL, which we don’t consider further, but this seems super cool. You have functions from plans to plans??</li>
+</ul>
+
+<p>demo - random-sample one-step tabular Q-planning.</p>
+
+<p>planning in very small steps, too. They love online.</p>
+
+<h3 id="dyna-integrated-planning-acting-and-learning">Dyna: Integrated Planning, Acting, and Learning</h3>
+
+<p>Dyna-Q.</p>
+
+<p>There are two functions for real-world experience:</p>
+
+<ul>
+  <li>improve the model</li>
+  <li>directly improve the value function.</li>
+</ul>
+
+<p>What is tabular Dyna-Q? (obviously this is an interface, and we should be able to plug in various versions!)</p>
+
+<ul>
+  <li>planning method? one-step tabular q-planning</li>
+  <li>direct RL? one-step tabular Q-learning</li>
+  <li>The MODEL is super dumb and just assumes a deterministic transition - whatever happened last time will happen again, for (s, a) =&gt; (r, s)</li>
+</ul>
+
+<p>Okay, I’m going to need to implement this to explain it more clearly. Go back here and get the interface going.</p>
+
+<h2 id="when-the-model-is-wrong">When the Model is Wrong</h2>
+
+<p>The model above can be wrong with stochastic info, or with very little info to build a stochastic model.</p>
+
+<p>If you have a fucked up model usually you will run into a clash with reality, and that will correct the model.</p>
+
+<p>A worse thing is when the environment becomes BETTER than it was before, and we don’t get to adjust in time.</p>
+
+<p>Well, we can give a reward bonus. That is a nice way to deal. And implement the measurement i guess that shows how it gets better?</p>
+
+<h2 id="prioritized-sweeping">Prioritized Sweeping</h2>
+
+<p>okay, before we were doing a sweep that just randomly selected states from what we saw before.</p>
+
+<p>We really want to work backward from any state whose value has just changed. That is where we can ripple the updates from.</p>
+
+<p>Does that imply that we want a distance metric? That would help, right?</p>
+
+<p>A function to get the set of states that are blah steps away? A graph model really would be nice in this case.</p>
+
+<p>algorithm on page 170… can we do this better?</p>
+
+<p>“sample updates”, page 171.</p>
+
+<h2 id="expected-vs-sample-updates">Expected vs Sample Updates</h2>
+
+<p>I guess we get here into what sample updates actually are.</p>
+
+<p>Oh, this is at the end… do we want to just sample at the VERY end, or do we use the expectation give the model?</p>
+
+<p>What if we sample within quantiles or something? We don’t weight everything? That is, again, a way to get a sample model…</p>
+
+<p>Do we need to do any testing here?</p>
+
+<p>Maybe just make sure that our code harness COULD test this stuff.</p>
+
+<h2 id="trajectory-sampling">Trajectory Sampling</h2>
+
+<p>Sample according to the current policy, within the model! This is called trajectory sampling.</p>
+
+<p>vast, boring parts of the state-space are ignored.</p>
+
+<h2 id="real-time-dynamic-programming">Real-time Dynamic Programming</h2>
+
+<p>Another algo that we can talk about, complicated, get into it if we decide to show this off. Page 178 shows the goodies.</p>
+
+<h2 id="planning-at-decision-time">Planning at Decision Time</h2>
+
+<p>We’ve been talking about background planning; you can give a budget here and plan away in the background.</p>
+
+<p>Woah… what if we use planning, based on the model, to roll forward? Use the CURRENT STATE in the actual game, like chess or something, to decide what move to do?
+Do you plan at decision time, when given a state? Or do you plan ahead of time, trying to guess what states you’ll be in, and then rapidly get after it?</p>
+
+<h2 id="heuristic-search">Heuristic Search</h2>
+
+<p>Classic decision time algos!</p>
+
+<p>Implement this shit, and save the results.</p>
+
+<h2 id="rollout-algorithms">Rollout Algorithms</h2>
+
+<blockquote>
+  <p>Rollout algorithms are decision-time planning algorithms based on Monte Carlo control applied to simulated trajectories that all begin at the current environment state. (p. 183)</p>
+</blockquote>
+
+<p>They do a ton of monte-carlo guesses and then use that info to decide whether or not to store the value functions.</p>
+
+<p>This comes from Backgammon, where you “roll out” the dice a bunch of times to see what might happen next.</p>
+
+<p>There is a rollout policy…</p>
+
+<p>Figure out how this works, implement once I have my existing goodies.</p>
+
+<p>You want to save info?</p>
+
+<h2 id="monte-carlo-tree-search">Monte Carlo Tree Search</h2>
+
+<p>Well, you should do monte carlo tree search.</p>
+
+<p>This is an amazing one that I definitely can’t wait to implement! And now we are into some serious modern shit.</p>
+
+<h2 id="summary-of-part-1">Summary of Part 1</h2>
+
+<p>Woah, what a haul.</p>
+
+<p>Lots of different dimensions… p.191 covers these. There is so much to cover in this fucking reinforcement learning writeup! I am going to be such a stud if I can tackle all of this. I just need to be coding and writing all the time, now… And getting my neural network stuff down.</p>
+
+<h2 id="programming-exercises">Programming Exercises</h2>
+
+<ul>
+  <li>function to go from a distribution model to a sample model. (these should be graphs so we can do breadth first searches out from areas that have changed.)</li>
+  <li>interfaces for sample and distribution models?</li>
+  <li>q-planning, page 161</li>
+  <li>dyna-Q</li>
+  <li>dyna-Q+, with a bonus that encourages exploration.</li>
+  <li>have the bonus implemented in different spots… just like in ex 8.4</li>
+  <li>trajectory sampling.</li>
+  <li>replicate figure 8,8…I have the code, do it in scala, change b=3.</li>
+  <li>RTDP on the racetrack, show that off!</li>
+  <li>heuristic search.</li>
+</ul>
 </section><div class="edit-button"><a href="https://github.com/sritchie/scala-rl/edit/develop/docs/src/main/tut/course/tabular/tabular_methods.md" class="btn-sm btn-info">Help us improve this page</a></div></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({languages:['scala','java','bash']});
 hljs.initHighlighting();
               </script><script src="/js/mathjax.js"></script><script>((window.gitter = {}).chat = {}).options = {

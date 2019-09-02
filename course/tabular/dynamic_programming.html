@@ -8,7 +8,153 @@ ga('create', 'UA-146772284-1' , 'auto');
 ga('send', 'pageview');
       </script></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"><span>ScalaRL</span></div></a></li>       <li><a href="/course.html" class="">Functional RL in Scala</a></li> <li><a href="/course/tabular.html" class="">Tabular Methods</a> <ul class="sub_section"> <li><a href="/course/tabular/bandits.html" class="">Multi-armed Bandits</a></li> <li><a href="/course/tabular/finite_mdps.html" class="">Finite Markov Decision Processes</a></li> <li><a href="/course/tabular/dynamic_programming.html" class=" active ">Dynamic Programming</a></li> <li><a href="/course/tabular/monte_carlo.html" class="">Monte Carlo Methods</a></li> <li><a href="/course/tabular/td_learning.html" class="">Temporal Difference Learning</a></li> <li><a href="/course/tabular/n_step_bootstrapping.html" class="">n-step Bootstrapping</a></li> <li><a href="/course/tabular/tabular_methods.html" class="">Planning and Learning with Tabular Methods</a></li></ul></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li id="gh-eyes-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="sritchie" data-github-repo="scala-rl"><div class="content-wrapper"><section><h1 id="dynamic-programming">Dynamic Programming</h1>
 
-<p>Talk about this.</p>
+<h1 id="warning">WARNING!</h1>
+
+<p>Note - this is VERY EARLY DAYS! All of the files in the course with this warning are the raw, totally unprocessed notes that I generated during my first reading of “Reinforcement Learning: An Introduction”.</p>
+
+<p>I’ll be converting these into proper course sections with wonderful embedded code that you can try out. I’m not there yet, but I wanted to develop all of this in the open.</p>
+
+<p>Maybe you’ll find these notes interesting, but don’t expect anything special… yet!</p>
+
+<h1 id="notes">Notes</h1>
+
+<p>Dynamic Programming! Remember to stress that we’re just exploring how to flex the various variables:</p>
+
+<ul>
+  <li>world model, dynamics</li>
+  <li>policy</li>
+  <li>value function (state or action)</li>
+</ul>
+
+<p>This fixes the world model, which lets us explore the others.</p>
+
+<p>This also introduces the idea of “bootstrapping”, that we start with something random, or initialized to constants, and then use estimates to update other estimates. The term’s defined on page 89.</p>
+
+<h2 id="notes-1">Notes</h2>
+
+<p>Methods for solving MDPs if we have perfect models. A perfect model means, we know exactly what the odds are of where we’re going to progress as the result of an action. What if we know the dynamics of the system?</p>
+
+<p>(Remember - the whole goal of the reinforcement learning BOOK is to show that all of these pieces can be fiddled with independently. That is why we’re going through all of this, flexing our RL muscles. What is the point of each piece?)</p>
+
+<p>God, I hated that term, Dynamic Programming. But now I get it!</p>
+
+<p><em>BACKGROUND ON THE TERM</em>:  https://en.wikipedia.org/wiki/Dynamic_programming#History He was trying to be impressive and capture the idea that this was about capturing dynamics. Obvious I guess.</p>
+
+<p>This is a way of isolating the problem of… let’s say we know exactly what’s going to happen. Actually, this totally makes sense for something like checkers or chess. We absolutely know, and can play forward in our minds, what the result of each move is going to be. There is no uncertainty even!</p>
+
+<p>Or you might have something with a dice roll, with some randomness. That’s fine, you know how the die works. No problem at all.</p>
+
+<p>Anyway. Once you have the dynamics, this section is about how to <em>compute optimal value functions.</em></p>
+
+<h3 id="policy-evaluation-or-the-prediction-problem">Policy Evaluation, or the Prediction Problem</h3>
+
+<ul>
+  <li>iterative policy evaluation, p. 74 - start with something random and start building up by walking around according to the dynamics and updating.</li>
+  <li>then do you use two arrays? Or just GET SOME!</li>
+  <li>You’re sweeping through the state space… do you visit everything or are there some states that just don’t matter that much?</li>
+</ul>
+
+<p>You accept as input some policy to be evaluated. This will never change. Then you go walk around the state space, updating the value to be the reward you’d get, averaged across</p>
+
+<ul>
+  <li>all actions you could take, weighted by their probability</li>
+  <li>all states and rewards you might end up in or receive from the environment, based on THEIR probability… which is of course totally known.</li>
+  <li>Loop a ton of times until you have this wonderful estimate of the value function, for any state, of the policy you showed up with.</li>
+</ul>
+
+<p>This will converge in the limit, but in practice… you just stop and choose some parameter.</p>
+
+<h2 id="policy-improvement">Policy Improvement</h2>
+
+<p>What changes here?</p>
+
+<p>The goal is to make better policies, of course, as hinted at in chapter 3… not just evaluate ones that we already know about.</p>
+
+<p>introduce the idea of $q_{\pi}(s, a)$, what happens when you FIRST select one action… and then thereafter follow the old policy.</p>
+
+<p>Turns out it is always better to follow the best action locally. And then that gives you a better overall policy, and you can keep iterating on that.</p>
+
+<p>This is called the <em>Policy Improvement Theorem</em> and always results in a better policy… p. 78-79</p>
+
+<blockquote>
+  <p>The process of making a new policy that improves on an original policy, by making it greedy with respect to the value function of the original policy, is called policy improvement. (p. 79)</p>
+</blockquote>
+
+<p>So how to make the best policy? Once you know the value function for all states of some given policy… go through for each state and update the policy to choose the action that gives you the MAX value for that state.</p>
+
+<p>All of the information about the future is in that value! This will always work!</p>
+
+<p>But it’s going to take a ton of time between these updates, since you have to go back and do it again.</p>
+
+<h2 id="policy-iteration">Policy Iteration</h2>
+
+<p>Oh, boom, go back and do it again. Will you get any better? Yes, of course you will. And trading back and forth is called, boom, policy iteration.</p>
+
+<p>This If you ping back and forth you’re going to end up with a monotonically increasing series of policy evaluation and improvements, better policies…</p>
+
+<p>This is called <em>policy iteration</em>.</p>
+
+<h2 id="value-iteration">Value Iteration</h2>
+
+<p>Eventually you’re going to converge to the best, but even in the above examples, we’ve introduced a parameter that stops convergence and just moves the fuck on.</p>
+
+<p>How effective can that be? What if we just did a SINGLE STEP before updating the policy?</p>
+
+<p>This is called <em>value iteration</em>. The code on page 83 bakes in the policy by no longer taking a policy at all, but just by default choosing the max. This means that the “policy update” is now just a function - max across all actions available at a given state - instead of a thing you have to specifically store.</p>
+
+<p>Well, it turns out that these are the two limiting cases, but you can totally play between the two.</p>
+
+<ul>
+  <li>Stop at some convergence, OR</li>
+  <li>stop evaluating after a number of steps.</li>
+</ul>
+
+<p>That’s what we’re dealing with here, and that’s what we should bake into the interface.</p>
+
+<blockquote>
+  <p>Because the max operation in (4.10) is the only difference between these updates, this just means that the max operation is added to some sweeps of policy evaluation.</p>
+</blockquote>
+
+<p>All of these converge!</p>
+<h2 id="async-dynamic-programming">Async Dynamic Programming</h2>
+
+<p>Seductive name, I like it.</p>
+
+<p>This is what happens when you relax the idea that you need to go over the entire state space at once, in a big sweep. What happens if you allow random orders? Allowing some state to be updated multiple times, even?</p>
+
+<p>This doesn’t necessarily make things cheaper… but it helps us with the idea that we can start to focus in on specific states.</p>
+
+<p>Maybe we start near the end of the game? Close to the end state, if we’re on a game board and have some other metric of how close we are to the finish? Well, that is tough to calculate.</p>
+
+<p>Woah, maybe we run the whole thing as the agent is playing! Maybe we have some particular start state?</p>
+
+<blockquote>
+  <p>Asynchronous algorithms also make it easier to intermix computation with real-time interaction. To solve a given MDP, we can run an iterative DP algorithm at the same time that an agent is actually experiencing the MDP. The agent’s experience can be used to determine the states to which the DP algorithm applies its updates. At the same time, the latest value and policy information from the DP algorithm can guide the agent’s decision making. For example, we can apply updates to states as the agent visits them. This makes it possible to focus the DP algorithm’s updates onto parts of the state set that are most relevant to the agent. This kind of focusing is a repeated theme in reinforcement learning. (p. 85)</p>
+</blockquote>
+
+<h2 id="generalized-policy-iteration">Generalized Policy Iteration</h2>
+
+<p>This is the model we presented before, when we just let them interact, improvement and evaluation, and assume that everything is going to be just fine. We’ve already touched on this, but this section is about showing that that will converge.</p>
+
+<p><img src="/img/policy_iteration.png" alt="Policy Iteration." /></p>
+
+<p>application dependent, how you tune this stuff… or you could trust some other learning process to handle it.</p>
+
+<h2 id="programming-exercises">Programming Exercises</h2>
+
+<ul>
+  <li>Show the interface for the world, and then tic-tac-toe or something as an example of a game that you can roll forward.</li>
+  <li>Write a function that implements the idea of policy evaluation</li>
+  <li>policy improvement</li>
+  <li>policy iteration</li>
+  <li>value iteration</li>
+  <li>the overall thing, the overall interface, that allows you to tune when to stop, after a number of steps or after some delta. You take a stopping function, basically and you’re able to kick back the result.</li>
+  <li>Oh, we also want to have some way of choosing what state comes next…</li>
+</ul>
+
+<p>All of these are great ideas and showing how they can just be a function is very nice.</p>
+
+<p>And show off that the goal is a function that produces a value function AND how you’re going to approach it. You want a policy with justification, basically.</p>
 </section><div class="edit-button"><a href="https://github.com/sritchie/scala-rl/edit/develop/docs/src/main/tut/course/tabular/dynamic_programming.md" class="btn-sm btn-info">Help us improve this page</a></div></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({languages:['scala','java','bash']});
 hljs.initHighlighting();
               </script><script src="/js/mathjax.js"></script><script>((window.gitter = {}).chat = {}).options = {
