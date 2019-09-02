@@ -156,7 +156,9 @@ lazy val docSettings = Seq(
   micrositeBaseUrl := "scala-rl",
 
   micrositeGithubToken := getEnvVar("GITHUB_TOKEN"),
-  micrositePushSiteWith := GitHub4s,
+
+  // Enable down the road.
+  // micrositePushSiteWith := GitHub4s,
 
   micrositeAnalyticsToken := "UA-146772284-1",
 
