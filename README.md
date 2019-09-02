@@ -1,5 +1,12 @@
 # Functional RL in Scala
 
+[![Build status](https://img.shields.io/travis/sritchie/scala-rl/develop.svg)](http://travis-ci.org/sritchie/scala-rl)
+[![Codecov branch](https://img.shields.io/codecov/c/github/sritchie/scala-rl/develop.svg?maxAge=3600)](https://codecov.io/github/sritchie/scala-rl)
+[![Latest version](https://index.scala-lang.org/sritchie/scala-rl/scala-rl-core/latest.svg?color=orange)](https://index.scala-lang.org/sritchie/scala-rl/scala-rl-core)
+[![Gitter](https://badges.gitter.im/ScalaRL/community.svg)](https://gitter.im/ScalaRL/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+### Overview
+
 Reinforcement Learning in Scala, the functional way.
 
 I definitely don't need to go fully overboard... but the gold standard is to reimplement a bunch of this stuff:

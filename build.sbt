@@ -1,4 +1,6 @@
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+import microsites.{CdnDirectives, MicrositeEditButton}
+import sbtorgpolicies.utils.getEnvVar
 
 /* dependency versions */
 lazy val V = new {
@@ -138,11 +140,26 @@ lazy val docSettings = Seq(
   micrositeName := "ScalaRL",
   micrositeDescription := "Reinforcement Learning in Scala.",
   micrositeAuthor := "Sam Ritchie",
-  micrositeHighlightTheme := "atom-one-light",
-  micrositeHomepage := "https://sritchie.github.io/scalarl",
-  micrositeBaseUrl := "scala-rl",
-  micrositeDocumentationUrl := "api",
+  micrositeUrl := "http://www.scalarl.com",
+  micrositeDocumentationUrl := "/api",
+
+  micrositeHomepage := "http://www.scalarl.com/",
+  micrositeOrganizationHomepage := "https://www.samritchie.io",
+  micrositeTwitter := "@scalaRLProject",
+  micrositeTwitterCreator := "@sritchie",
+
+  micrositeGitterChannelUrl := "ScalaRL",
   micrositeGithubOwner := "sritchie",
+  micrositeGithubRepo := "scala-rl",
+
+  // MIGHT go away soon.
+  micrositeBaseUrl := "scala-rl"
+
+  micrositeGithubToken := getEnvVar("GITHUB_TOKEN"),
+  micrositePushSiteWith := GitHub4s,
+
+  micrositeAnalyticsToken := "UA-146772284-1",
+
   micrositeExtraMdFiles := Map(
     file("CONTRIBUTING.md") ->
       microsites.ExtraMdFileConfig(
@@ -150,7 +167,14 @@ lazy val docSettings = Seq(
         "page",
         Map("title" -> "Contributing", "section" -> "contributing", "position" -> "5")
       )),
-  micrositeGithubRepo := "scala-rl",
+
+  // Enable once we figure out how to remove the concatenating space.
+  // micrositeEditButton := Some(
+  //   MicrositeEditButton(
+  //     "Help us improve this page",
+  //     "/edit/develop/docs/src/main/tut/{{ page.path }}")),
+
+  micrositeHighlightTheme := "atom-one-light",
   micrositePalette := Map(
     "brand-primary" -> "#5B5988",
     "brand-secondary" -> "#292E53",
@@ -160,6 +184,7 @@ lazy val docSettings = Seq(
     "gray-light" -> "#E5E5E6",
     "gray-lighter" -> "#F4F3F4",
     "white-color" -> "#FFFFFF"),
+
   autoAPIMappings := true,
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
     inProjects(docsSourcesAndProjects:_*),
