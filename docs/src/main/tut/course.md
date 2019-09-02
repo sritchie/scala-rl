@@ -5,10 +5,14 @@ section: "course"
 position: 1
 ---
 
-## Functional RL in Scala
+# Functional RL in Scala
 
-This is the main page for the course.
+{% include_relative course/tabular/warning.md %}
+
+# Notes
+
+This is the main page for the course! Check in periodically for updates; I'm working on the code first, then looping back to the course.
 
 ## Other Resources
 
-Books, etc.
+Books, etc... what to read?
