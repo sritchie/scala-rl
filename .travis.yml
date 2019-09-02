@@ -20,6 +20,7 @@ before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
 
 before_install:
+ - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then bash scripts/decrypt-keys.sh; fi
  - export PATH=${PATH}:./vendor/bundle
 
 install:
@@ -33,15 +34,8 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then
-      if [ "$SBT_VERSION" = "1.2.8" ]; then
-        git reset --hard HEAD;
-        git clean -f;
-        git checkout master;
-        git pull origin master;
-        sbt ^^$SBT_VERSION docs/publishMicrosite;
-      fi
-    fi
+  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then bash scripts/publishMicrosite.sh; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "true" ]; then echo "Not in master branch, skipping deploy and release"; fi
 
 notifications:
   webhooks:
