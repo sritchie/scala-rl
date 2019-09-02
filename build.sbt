@@ -148,7 +148,7 @@ lazy val docSettings = Seq(
   micrositeTwitter := "@scalaRLProject",
   micrositeTwitterCreator := "@sritchie",
 
-  micrositeGitterChannelUrl := "ScalaRL",
+  micrositeGitterChannelUrl := "ScalaRL/community",
   micrositeGithubOwner := "sritchie",
   micrositeGithubRepo := "scala-rl",
 
@@ -167,11 +167,10 @@ lazy val docSettings = Seq(
         Map("title" -> "Contributing", "section" -> "contributing", "position" -> "5")
       )),
 
-  // Enable once we figure out how to remove the concatenating space.
-  // micrositeEditButton := Some(
-  //   MicrositeEditButton(
-  //     "Help us improve this page",
-  //     "/edit/develop/docs/src/main/tut/{{ page.path }}")),
+  micrositeEditButton := Some(
+    MicrositeEditButton(
+      "Help us improve this page",
+      "/edit/develop/docs/src/main/tut/{{ page.path }}")),
 
   micrositeHighlightTheme := "atom-one-light",
   micrositePalette := Map(
