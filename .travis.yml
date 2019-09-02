@@ -28,34 +28,20 @@ install:
   - gem install sass
   - gem install jekyll -v 3.8.5
 
-# deploy:
-#   provider: pages
-#   skip_cleanup: true
-#   github_token: $GITHUB_TOKEN
-#   keep_history: true
-#   on:
-#     branch: gh_pages
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport docs/makeMicrosite
 
-jobs:
-  include:
-    - env:
-        - NAME="COMPILE"
-        - SCALAC_FATAL_WARNINGS=true
-      script:
-        - sbt compile
-
-    - env:
-        - NAME="DOCS"
-        - SCALAC_FATAL_WARNINGS=true
-      script:
-        - sbt tut
-
-    - env:
-        - NAME="TESTS"
-        - SCALAC_FATAL_WARNINGS=true
-      script:
-        - pip install --user codecov
-        - sbt coverage +test coverageReport && codecov
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then
+      if [ "$SBT_VERSION" = "1.2.8" ]; then
+        git reset --hard HEAD;
+        git clean -f;
+        git checkout master;
+        git pull origin master;
+        sbt ^^$SBT_VERSION docs/publishMicrosite;
+      fi
+    fi
 
 notifications:
   webhooks:
