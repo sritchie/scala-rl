@@ -8,12 +8,22 @@ import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.AveragedValue
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.state.Bandit
-import io.samritchie.rl.policy.{EpsilonGreedy, Instrumented}
+import io.samritchie.rl.policy.EpsilonGreedy
 
 /**
   * Playing the game, currently. This is my test harness.
+  *
+  * What we REALLY NEED here is both the top and bottom graphs,
+  * getting it done.
+  *
+  * The top graph is the average reward across GAMES per step.
+  *
+  * So we really want to march them ALL forward and grab the average
+  * reward...
   */
 object Game {
+  import Bandit.Arm
+  type EG = EpsilonGreedy[Arm, Double, AveragedValue]
 
   /**
     * These are needed to actually call get on anything.
@@ -21,59 +31,56 @@ object Game {
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
-  // initial state generator.
+  def average(s: Iterable[Double]): Double = {
+    val (sum, n) = s.foldLeft((0.0, 0)) { case ((sum, n), i) => (sum + i, n + 1) }
+    sum / n
+  }
+
+  def playBandit[A, R, P <: Policy[A, R, P]](
+      policy: P,
+      stateGen: Generator[Bandit[A, R]],
+      nRuns: Int,
+      timeSteps: Int,
+      penalty: R
+  )(reduce: List[R] => R): (List[(P, State[A, R])], List[R]) = {
+    val rewardSeqGen: Generator[(List[(P, State[A, R])], List[R])] =
+      (0 until nRuns).toList
+        .map(i => stateGen.map(s => (policy, s)))
+        .sequence
+        .flatMap { pairs =>
+          Policy.playManyN[A, R, P](
+            pairs,
+            penalty,
+            timeSteps
+          )(reduce)
+        }
+
+    val elapsed = Stopwatch.start()
+    val rewardSeq = rewardSeqGen.get
+    println(s"Time to play $nRuns runs of $timeSteps time steps each: ${elapsed()}")
+
+    rewardSeq
+  }
+
   val stateGen = Bandit.initialStateGen(
     10,
     Normal(0.0, 1.0).generator,
     1.0
   )
 
-  import Bandit.Arm
-
-  // empty starting policy.
-  val policy: Instrumented[Arm, Double, EpsilonGreedy[Arm, Double, AveragedValue]] =
-    Instrumented(
-      EpsilonGreedy.incremental(0.1),
-      _.aggState.mapValues(_.value),
-      Map.empty[Arm, List[Double]]
-    )
-
-  type EG = EpsilonGreedy[Arm, Double, AveragedValue]
-  type IEG = Instrumented[Arm, Double, EG]
-
-  def playBandit(nRuns: Int, timeSteps: Int): Generator[List[(IEG, State[Arm, Double])]] = {
-    // Generates runs of a 100 times.
-    val elapsed = Stopwatch.start()
-    val runsGenerator = (0 to nRuns).toList.map { _ =>
-      stateGen.flatMap(Policy.playN(policy, _, 0.0, timeSteps))
-    }.sequence
-    runsGenerator.get
-    println(s"Time to play $nRuns runs of $timeSteps time steps each: ${elapsed()}")
-
-    runsGenerator
-  }
-
-  def playAndPrintOnce(nRuns: Int, timeSteps: Int): Map[Arm, List[Double]] = {
-    val (done, finalState) = playBandit(nRuns, timeSteps).get.head
-
-    println("Initially aggregated state:")
-    println(policy.policy.aggState)
-
-    println("acc initial:")
-    println(policy.acc)
-
-    println("Final aggregated state:")
-    println(done.policy.aggState)
-
-    println("acc final:")
-    println(done.acc.size)
-
-    println("acc final:")
-    println(finalState.dynamics)
-
-    done.acc
-  }
+  def cake(policy: EG): List[Double] =
+    playBandit(
+      policy,
+      stateGen,
+      nRuns = 20,
+      timeSteps = 1000,
+      penalty = 0.0
+    )(average(_))._2
 
   def main(items: Array[String]): Unit =
-    playAndPrintOnce(nRuns = 1, timeSteps = 10000)
+    Plot.lineChartSeq(
+      (cake(EpsilonGreedy.incremental(0.0)), "0.0"),
+      (cake(EpsilonGreedy.incremental(0.01)), "0.01"),
+      (cake(EpsilonGreedy.incremental(0.1)), "0.1")
+    )
 }

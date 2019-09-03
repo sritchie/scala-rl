@@ -7,6 +7,7 @@
   */
 package io.samritchie.rl
 
+import cats.implicits._
 import com.stripe.rainier.cats._
 import com.stripe.rainier.core.Generator
 
@@ -63,19 +64,58 @@ object Policy {
       policy: P,
       state: State[A, R],
       penalty: R
-  ): Generator[(P, State[A, R])] =
+  ): Generator[(P, R, State[A, R])] =
     for {
       a <- policy.choose(state)
       rs <- state.act(a).getOrElse(Generator.constant((penalty, state)))
-    } yield (policy.learn(state, a, rs._1), rs._2)
+    } yield (policy.learn(state, a, rs._1), rs._1, rs._2)
 
+  /**
+    * Returns the final policy, a sequence of the rewards received and
+    * the final state.
+    */
   def playN[A, R, P <: Policy[A, R, P]](
       policy: P,
       state: State[A, R],
       penalty: R,
       nTimes: Int
-  ): Generator[(P, State[A, R])] =
-    Util.iterateM(nTimes)((policy, state)) {
-      case (p, s) => play(p, s, penalty)
+  ): Generator[(P, Seq[R], State[A, R])] =
+    Util.iterateM(nTimes)((policy, Seq.empty[R], state)) {
+      case (p, rs, s) =>
+        play(p, s, penalty).map {
+          case (newP, r, newS) =>
+            (newP, rs :+ r, newS)
+        }
+    }
+
+  /**
+    * Takes an initial set of policies and a state...
+    */
+  def playMany[A, R, P <: Policy[A, R, P]](
+      pairs: List[(P, State[A, R])],
+      penalty: R
+  )(rewardSum: List[R] => R): Generator[(List[(P, State[A, R])], R)] =
+    pairs.toList
+      .traverse {
+        case (p, s) => play(p, s, penalty)
+      }
+      .map { results =>
+        (results.map { case (a, b, c) => (a, c) }, rewardSum(results.map(_._2)))
+      }
+
+  /**
+    * Takes an initial set of policies and a state...
+    */
+  def playManyN[A, R, P <: Policy[A, R, P]](
+      pairs: List[(P, State[A, R])],
+      penalty: R,
+      nTimes: Int
+  )(rewardSum: List[R] => R): Generator[(List[(P, State[A, R])], List[R])] =
+    Util.iterateM(nTimes)((pairs, List.empty[R])) {
+      case (ps, rs) =>
+        playMany(ps, penalty)(rewardSum).map {
+          case (newPS, r) =>
+            (newPS, rs :+ r)
+        }
     }
 }
