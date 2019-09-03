@@ -19,7 +19,6 @@ case class EpsilonGreedy[A, R, T: Monoid: Ordering](
     initial: T,
     aggState: Map[A, T]
 ) extends Policy[A, R, EpsilonGreedy[A, R, T]] {
-
   lazy val explore: Categorical[Boolean] =
     Categorical.boolean(epsilon)
 
@@ -42,8 +41,10 @@ case class EpsilonGreedy[A, R, T: Monoid: Ordering](
 
   override def choose(state: State[A, R]): Generator[A] =
     explore.flatMap { exploreP =>
-      if (exploreP) allActions(state)
-      else greedy(state)
+      if (exploreP)
+        allActions(state)
+      else
+        greedy(state)
     }.generator
 
   override def learn(state: State[A, R], action: A, reward: R): EpsilonGreedy[A, R, T] = {
