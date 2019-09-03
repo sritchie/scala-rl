@@ -72,7 +72,7 @@ object Game {
     playBandit(
       policy,
       stateGen,
-      nRuns = 20,
+      nRuns = 200,
       timeSteps = 1000,
       penalty = 0.0
     )(average(_))._2
