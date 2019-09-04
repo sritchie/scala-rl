@@ -23,10 +23,6 @@ options:
        url: policies/stochastic/epsilon_greedy.html
        menu_section: stochastic
 
-  - title: Instrumented
-    url: policies/instrumented.html
-    menu_type: policy
-
   #############################
   # State Menu Options #
   #############################
