@@ -7,7 +7,7 @@
   */
 package io.samritchie.rl
 
-import com.cibo.evilplot.colors.{HSL, HTMLNamedColors}
+import com.cibo.evilplot.colors.{HTMLNamedColors, RGB}
 import com.cibo.evilplot.displayPlot
 import com.cibo.evilplot.numeric.{Bounds, Point}
 import com.cibo.evilplot.plot.{FunctionPlot, LinePlot, Overlay}
@@ -17,21 +17,30 @@ object Plot {
   import DefaultTheme._
 
   // Example of a linechart, just testing it out.
-  def lineChart(): Unit = {
-    val data = Seq.tabulate(100) { i =>
-      Point(i.toDouble, scala.util.Random.nextDouble())
-    }
+  def lineChartSeq(pointSeq: (Seq[Double], String)*): Unit =
+    lineChart(
+      pointSeq.map {
+        case (points, title) =>
+          (points.toList.zipWithIndex.map { case (a, i) => Point(i, a) }, title)
+      }
+    )
+
+  def lineChart(data: Seq[(Seq[Point], String)]): Unit =
     displayPlot {
-      LinePlot
-        .series(data, "Line graph", HSL(210, 100, 56))
-        .xAxis()
+      Overlay(
+        data.map {
+          case (points, title) =>
+            LinePlot.series(points, title, RGB.random)
+        }: _*
+      ).xAxis()
         .yAxis()
         .frame()
         .xLabel("x")
         .yLabel("y")
+        .title("Yo!")
+        .overlayLegend()
         .render()
     }
-  }
 
   // test of a polynomail plot, again, just an example to work with.
   def polyPlot(): Unit = {
@@ -49,8 +58,9 @@ object Plot {
   }
 
   def main(items: Array[String]): Unit = {
-    Game.playAndPrintOnce(nRuns = 1, timeSteps = 10000)
-    lineChart()
+    lineChart(Seq(Seq.tabulate(100) { i =>
+      Point(i.toDouble, scala.util.Random.nextDouble())
+    } -> "Title."))
     polyPlot()
   }
 }

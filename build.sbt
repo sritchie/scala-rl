@@ -20,6 +20,15 @@ lazy val docsSourcesAndProjects: Seq[ProjectReference] =
     rlCore
   )
 
+val compilerOptions = Seq(
+  "-unchecked",
+  "-deprecation",
+  "-Xlint",
+  "-language:implicitConversions",
+  "-language:higherKinds",
+  "-language:existentials"
+)
+
 val sharedSettings = Seq(
   organization := "io.samritchie",
   scalaVersion := V.scala,
@@ -38,6 +47,11 @@ val sharedSettings = Seq(
     "-language:implicitConversions",
     "-language:higherKinds",
     "-language:existentials"),
+
+  // The console can't handle these.
+  scalacOptions in (Compile, console) --= Seq(
+    "-Ywarn-unused:imports", "-Xfatal-warnings", "-Xlint"
+  ),
 
   // Publishing options:
   releaseCrossBuild := true,
@@ -114,6 +128,16 @@ def module(name: String) = {
 }
 
 lazy val rlCore = module("core").settings(
+  initialCommands :=
+    """
+import io.samritchie.rl._
+import com.stripe.rainier.sampler.RNG
+import com.stripe.rainier.compute.{Evaluator, Real}
+
+implicit val rng: RNG = RNG.default
+implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
+""".stripMargin('|'),
+
   mainClass in (Compile, run) := Some("io.samritchie.rl.Game"),
   libraryDependencies ++= Seq(
     // Charts.
@@ -141,7 +165,7 @@ lazy val docSettings = Seq(
   micrositeDescription := "Reinforcement Learning in Scala.",
   micrositeAuthor := "Sam Ritchie",
   micrositeUrl := "http://www.scalarl.com",
-  micrositeDocumentationUrl := "/api",
+  micrositeDocumentationUrl := "/api/io/samritchie/rl/index.html",
 
   micrositeHomepage := "http://www.scalarl.com/",
   micrositeOrganizationHomepage := "https://www.samritchie.io",
