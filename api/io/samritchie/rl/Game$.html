@@ -229,7 +229,9 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Playing the game, currently. This is my test harness.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Playing the game, currently. This is my test harness.</p><p>What we REALLY NEED here is both the top and bottom graphs,
+getting it done.</p><p>The top graph is the average reward across GAMES per step.</p><p>So we really want to march them ALL forward and grab the average
+reward...
 </p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/Game.scala" target="_blank">Game.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
@@ -295,22 +297,6 @@
       </span>
       <span class="symbol">
         <span class="name">EG</span><span class="result alias"> = <a href="policy/EpsilonGreedy.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy">EpsilonGreedy</a>[<a href="state/Bandit$$Arm.html" class="extype" name="io.samritchie.rl.state.Bandit.Arm">Arm</a>, <span class="extype" name="scala.Double">Double</span>, <span class="extype" name="com.twitter.algebird.AveragedValue">AveragedValue</span>]</span>
-      </span>
-      
-      
-    </li><li name="io.samritchie.rl.Game.IEG" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="IEG=io.samritchie.rl.policy.Instrumented[io.samritchie.rl.state.Bandit.Arm,Double,io.samritchie.rl.Game.EG]"></a><a id="IEG:IEG"></a>
-      <span class="permalink">
-      <a href="../../../io/samritchie/rl/Game$.html#IEG=io.samritchie.rl.policy.Instrumented[io.samritchie.rl.state.Bandit.Arm,Double,io.samritchie.rl.Game.EG]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">IEG</span><span class="result alias"> = <a href="policy/Instrumented.html" class="extype" name="io.samritchie.rl.policy.Instrumented">Instrumented</a>[<a href="state/Bandit$$Arm.html" class="extype" name="io.samritchie.rl.state.Bandit.Arm">Arm</a>, <span class="extype" name="scala.Double">Double</span>, <a href="#EG=io.samritchie.rl.policy.EpsilonGreedy[io.samritchie.rl.state.Bandit.Arm,Double,com.twitter.algebird.AveragedValue]" class="extmbr" name="io.samritchie.rl.Game.EG">EG</a>]</span>
       </span>
       
       
@@ -386,6 +372,38 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.samritchie.rl.Game#average" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="average(s:Iterable[Double]):Double"></a><a id="average(Iterable[Double]):Double"></a>
+      <span class="permalink">
+      <a href="../../../io/samritchie/rl/Game$.html#average(s:Iterable[Double]):Double" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">average</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+      </span>
+      
+      
+    </li><li name="io.samritchie.rl.Game#cake" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cake(policy:io.samritchie.rl.Game.EG):List[Double]"></a><a id="cake(EG):List[Double]"></a>
+      <span class="permalink">
+      <a href="../../../io/samritchie/rl/Game$.html#cake(policy:io.samritchie.rl.Game.EG):List[Double]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cake</span><span class="params">(<span name="policy">policy: <a href="#EG=io.samritchie.rl.policy.EpsilonGreedy[io.samritchie.rl.state.Bandit.Arm,Double,com.twitter.algebird.AveragedValue]" class="extmbr" name="io.samritchie.rl.Game.EG">EG</a></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -604,26 +622,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="io.samritchie.rl.Game#playAndPrintOnce" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="playAndPrintOnce(nRuns:Int,timeSteps:Int):Map[io.samritchie.rl.state.Bandit.Arm,List[Double]]"></a><a id="playAndPrintOnce(Int,Int):Map[Arm,List[Double]]"></a>
-      <span class="permalink">
-      <a href="../../../io/samritchie/rl/Game$.html#playAndPrintOnce(nRuns:Int,timeSteps:Int):Map[io.samritchie.rl.state.Bandit.Arm,List[Double]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">playAndPrintOnce</span><span class="params">(<span name="nRuns">nRuns: <span class="extype" name="scala.Int">Int</span></span>, <span name="timeSteps">timeSteps: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="state/Bandit$$Arm.html" class="extype" name="io.samritchie.rl.state.Bandit.Arm">Arm</a>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
-      </span>
-      
-      
     </li><li name="io.samritchie.rl.Game#playBandit" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="playBandit(nRuns:Int,timeSteps:Int):com.stripe.rainier.core.Generator[List[(io.samritchie.rl.Game.IEG,io.samritchie.rl.State[io.samritchie.rl.state.Bandit.Arm,Double])]]"></a><a id="playBandit(Int,Int):Generator[List[(IEG,State[Arm,Double])]]"></a>
+      <a id="playBandit[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,stateGen:com.stripe.rainier.core.Generator[io.samritchie.rl.state.Bandit[A,R]],nRuns:Int,timeSteps:Int,penalty:R)(reduce:List[R]=&gt;R):(List[(P,io.samritchie.rl.State[A,R])],List[R])"></a><a id="playBandit[A,R,P&lt;:Policy[A,R,P]](P,Generator[Bandit[A,R]],Int,Int,R)((List[R])⇒R):(List[(P,State[A,R])],List[R])"></a>
       <span class="permalink">
-      <a href="../../../io/samritchie/rl/Game$.html#playBandit(nRuns:Int,timeSteps:Int):com.stripe.rainier.core.Generator[List[(io.samritchie.rl.Game.IEG,io.samritchie.rl.State[io.samritchie.rl.state.Bandit.Arm,Double])]]" title="Permalink">
+      <a href="../../../io/samritchie/rl/Game$.html#playBandit[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,stateGen:com.stripe.rainier.core.Generator[io.samritchie.rl.state.Bandit[A,R]],nRuns:Int,timeSteps:Int,penalty:R)(reduce:List[R]=&gt;R):(List[(P,io.samritchie.rl.State[A,R])],List[R])" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -632,23 +634,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">playBandit</span><span class="params">(<span name="nRuns">nRuns: <span class="extype" name="scala.Int">Int</span></span>, <span name="timeSteps">timeSteps: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[<span class="extype" name="scala.List">List</span>[(<a href="#IEG=io.samritchie.rl.policy.Instrumented[io.samritchie.rl.state.Bandit.Arm,Double,io.samritchie.rl.Game.EG]" class="extmbr" name="io.samritchie.rl.Game.IEG">IEG</a>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<a href="state/Bandit$$Arm.html" class="extype" name="io.samritchie.rl.state.Bandit.Arm">Arm</a>, <span class="extype" name="scala.Double">Double</span>])]]</span>
-      </span>
-      
-      
-    </li><li name="io.samritchie.rl.Game#policy" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="policy:io.samritchie.rl.policy.Instrumented[io.samritchie.rl.state.Bandit.Arm,Double,io.samritchie.rl.policy.EpsilonGreedy[io.samritchie.rl.state.Bandit.Arm,Double,com.twitter.algebird.AveragedValue]]"></a><a id="policy:Instrumented[Arm,Double,EpsilonGreedy[Arm,Double,AveragedValue]]"></a>
-      <span class="permalink">
-      <a href="../../../io/samritchie/rl/Game$.html#policy:io.samritchie.rl.policy.Instrumented[io.samritchie.rl.state.Bandit.Arm,Double,io.samritchie.rl.policy.EpsilonGreedy[io.samritchie.rl.state.Bandit.Arm,Double,com.twitter.algebird.AveragedValue]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">policy</span><span class="result">: <a href="policy/Instrumented.html" class="extype" name="io.samritchie.rl.policy.Instrumented">Instrumented</a>[<a href="state/Bandit$$Arm.html" class="extype" name="io.samritchie.rl.state.Bandit.Arm">Arm</a>, <span class="extype" name="scala.Double">Double</span>, <a href="policy/EpsilonGreedy.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy">EpsilonGreedy</a>[<a href="state/Bandit$$Arm.html" class="extype" name="io.samritchie.rl.state.Bandit.Arm">Arm</a>, <span class="extype" name="scala.Double">Double</span>, <span class="extype" name="com.twitter.algebird.AveragedValue">AveragedValue</span>]]</span>
+        <span class="name">playBandit</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="P">P &lt;: <a href="Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.Game.playBandit.A">A</span>, <span class="extype" name="io.samritchie.rl.Game.playBandit.R">R</span>, <span class="extype" name="io.samritchie.rl.Game.playBandit.P">P</span>]</span>]</span><span class="params">(<span name="policy">policy: <span class="extype" name="io.samritchie.rl.Game.playBandit.P">P</span></span>, <span name="stateGen">stateGen: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[<a href="state/Bandit.html" class="extype" name="io.samritchie.rl.state.Bandit">Bandit</a>[<span class="extype" name="io.samritchie.rl.Game.playBandit.A">A</span>, <span class="extype" name="io.samritchie.rl.Game.playBandit.R">R</span>]]</span>, <span name="nRuns">nRuns: <span class="extype" name="scala.Int">Int</span></span>, <span name="timeSteps">timeSteps: <span class="extype" name="scala.Int">Int</span></span>, <span name="penalty">penalty: <span class="extype" name="io.samritchie.rl.Game.playBandit.R">R</span></span>)</span><span class="params">(<span name="reduce">reduce: (<span class="extype" name="scala.List">List</span>[<span class="extype" name="io.samritchie.rl.Game.playBandit.R">R</span>]) ⇒ <span class="extype" name="io.samritchie.rl.Game.playBandit.R">R</span></span>)</span><span class="result">: (<span class="extype" name="scala.List">List</span>[(<span class="extype" name="io.samritchie.rl.Game.playBandit.P">P</span>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Game.playBandit.A">A</span>, <span class="extype" name="io.samritchie.rl.Game.playBandit.R">R</span>])], <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.samritchie.rl.Game.playBandit.R">R</span>])</span>
       </span>
       
       

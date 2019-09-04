@@ -539,9 +539,9 @@
               
         </dd></dl></div>
     </li><li name="io.samritchie.rl.Policy#play" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="play[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,state:io.samritchie.rl.State[A,R],penalty:R):com.stripe.rainier.core.Generator[(P,io.samritchie.rl.State[A,R])]"></a><a id="play[A,R,P&lt;:Policy[A,R,P]](P,State[A,R],R):Generator[(P,State[A,R])]"></a>
+      <a id="play[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,state:io.samritchie.rl.State[A,R],penalty:R):com.stripe.rainier.core.Generator[(P,R,io.samritchie.rl.State[A,R])]"></a><a id="play[A,R,P&lt;:Policy[A,R,P]](P,State[A,R],R):Generator[(P,R,State[A,R])]"></a>
       <span class="permalink">
-      <a href="../../../io/samritchie/rl/Policy$.html#play[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,state:io.samritchie.rl.State[A,R],penalty:R):com.stripe.rainier.core.Generator[(P,io.samritchie.rl.State[A,R])]" title="Permalink">
+      <a href="../../../io/samritchie/rl/Policy$.html#play[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,state:io.samritchie.rl.State[A,R],penalty:R):com.stripe.rainier.core.Generator[(P,R,io.samritchie.rl.State[A,R])]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -550,7 +550,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">play</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="P">P &lt;: <a href="Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.Policy.play.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span>, <span class="extype" name="io.samritchie.rl.Policy.play.P">P</span>]</span>]</span><span class="params">(<span name="policy">policy: <span class="extype" name="io.samritchie.rl.Policy.play.P">P</span></span>, <span name="state">state: <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.play.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span>]</span>, <span name="penalty">penalty: <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span></span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[(<span class="extype" name="io.samritchie.rl.Policy.play.P">P</span>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.play.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span>])]</span>
+        <span class="name">play</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="P">P &lt;: <a href="Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.Policy.play.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span>, <span class="extype" name="io.samritchie.rl.Policy.play.P">P</span>]</span>]</span><span class="params">(<span name="policy">policy: <span class="extype" name="io.samritchie.rl.Policy.play.P">P</span></span>, <span name="state">state: <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.play.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span>]</span>, <span name="penalty">penalty: <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span></span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[(<span class="extype" name="io.samritchie.rl.Policy.play.P">P</span>, <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.play.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.play.R">R</span>])]</span>
       </span>
       
       <p class="shortcomment cmt">Plays a single turn and returns a generator that returns the
@@ -559,10 +559,10 @@ reward and the next state. If the chosen state's not allowed,
 returns the supplied penalty and sends the agent back to the
 initial state.
 </p></div></div>
-    </li><li name="io.samritchie.rl.Policy#playN" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="playN[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,state:io.samritchie.rl.State[A,R],penalty:R,nTimes:Int):com.stripe.rainier.core.Generator[(P,io.samritchie.rl.State[A,R])]"></a><a id="playN[A,R,P&lt;:Policy[A,R,P]](P,State[A,R],R,Int):Generator[(P,State[A,R])]"></a>
+    </li><li name="io.samritchie.rl.Policy#playMany" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="playMany[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](pairs:List[(P,io.samritchie.rl.State[A,R])],penalty:R)(rewardSum:List[R]=&gt;R):com.stripe.rainier.core.Generator[(List[(P,io.samritchie.rl.State[A,R])],R)]"></a><a id="playMany[A,R,P&lt;:Policy[A,R,P]](List[(P,State[A,R])],R)((List[R])⇒R):Generator[(List[(P,State[A,R])],R)]"></a>
       <span class="permalink">
-      <a href="../../../io/samritchie/rl/Policy$.html#playN[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,state:io.samritchie.rl.State[A,R],penalty:R,nTimes:Int):com.stripe.rainier.core.Generator[(P,io.samritchie.rl.State[A,R])]" title="Permalink">
+      <a href="../../../io/samritchie/rl/Policy$.html#playMany[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](pairs:List[(P,io.samritchie.rl.State[A,R])],penalty:R)(rewardSum:List[R]=&gt;R):com.stripe.rainier.core.Generator[(List[(P,io.samritchie.rl.State[A,R])],R)]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -571,10 +571,43 @@ initial state.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">playN</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="P">P &lt;: <a href="Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.Policy.playN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span>, <span class="extype" name="io.samritchie.rl.Policy.playN.P">P</span>]</span>]</span><span class="params">(<span name="policy">policy: <span class="extype" name="io.samritchie.rl.Policy.playN.P">P</span></span>, <span name="state">state: <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.playN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span>]</span>, <span name="penalty">penalty: <span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span></span>, <span name="nTimes">nTimes: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[(<span class="extype" name="io.samritchie.rl.Policy.playN.P">P</span>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.playN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span>])]</span>
+        <span class="name">playMany</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="P">P &lt;: <a href="Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.Policy.playMany.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playMany.R">R</span>, <span class="extype" name="io.samritchie.rl.Policy.playMany.P">P</span>]</span>]</span><span class="params">(<span name="pairs">pairs: <span class="extype" name="scala.List">List</span>[(<span class="extype" name="io.samritchie.rl.Policy.playMany.P">P</span>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.playMany.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playMany.R">R</span>])]</span>, <span name="penalty">penalty: <span class="extype" name="io.samritchie.rl.Policy.playMany.R">R</span></span>)</span><span class="params">(<span name="rewardSum">rewardSum: (<span class="extype" name="scala.List">List</span>[<span class="extype" name="io.samritchie.rl.Policy.playMany.R">R</span>]) ⇒ <span class="extype" name="io.samritchie.rl.Policy.playMany.R">R</span></span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[(<span class="extype" name="scala.List">List</span>[(<span class="extype" name="io.samritchie.rl.Policy.playMany.P">P</span>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.playMany.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playMany.R">R</span>])], <span class="extype" name="io.samritchie.rl.Policy.playMany.R">R</span>)]</span>
       </span>
       
+      <p class="shortcomment cmt">Takes an initial set of policies and a state...</p>
+    </li><li name="io.samritchie.rl.Policy#playManyN" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="playManyN[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](pairs:List[(P,io.samritchie.rl.State[A,R])],penalty:R,nTimes:Int)(rewardSum:List[R]=&gt;R):com.stripe.rainier.core.Generator[(List[(P,io.samritchie.rl.State[A,R])],List[R])]"></a><a id="playManyN[A,R,P&lt;:Policy[A,R,P]](List[(P,State[A,R])],R,Int)((List[R])⇒R):Generator[(List[(P,State[A,R])],List[R])]"></a>
+      <span class="permalink">
+      <a href="../../../io/samritchie/rl/Policy$.html#playManyN[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](pairs:List[(P,io.samritchie.rl.State[A,R])],penalty:R,nTimes:Int)(rewardSum:List[R]=&gt;R):com.stripe.rainier.core.Generator[(List[(P,io.samritchie.rl.State[A,R])],List[R])]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">playManyN</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="P">P &lt;: <a href="Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.Policy.playManyN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playManyN.R">R</span>, <span class="extype" name="io.samritchie.rl.Policy.playManyN.P">P</span>]</span>]</span><span class="params">(<span name="pairs">pairs: <span class="extype" name="scala.List">List</span>[(<span class="extype" name="io.samritchie.rl.Policy.playManyN.P">P</span>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.playManyN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playManyN.R">R</span>])]</span>, <span name="penalty">penalty: <span class="extype" name="io.samritchie.rl.Policy.playManyN.R">R</span></span>, <span name="nTimes">nTimes: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="rewardSum">rewardSum: (<span class="extype" name="scala.List">List</span>[<span class="extype" name="io.samritchie.rl.Policy.playManyN.R">R</span>]) ⇒ <span class="extype" name="io.samritchie.rl.Policy.playManyN.R">R</span></span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[(<span class="extype" name="scala.List">List</span>[(<span class="extype" name="io.samritchie.rl.Policy.playManyN.P">P</span>, <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.playManyN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playManyN.R">R</span>])], <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.samritchie.rl.Policy.playManyN.R">R</span>])]</span>
+      </span>
       
+      <p class="shortcomment cmt">Takes an initial set of policies and a state...</p>
+    </li><li name="io.samritchie.rl.Policy#playN" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="playN[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,state:io.samritchie.rl.State[A,R],penalty:R,nTimes:Int):com.stripe.rainier.core.Generator[(P,Seq[R],io.samritchie.rl.State[A,R])]"></a><a id="playN[A,R,P&lt;:Policy[A,R,P]](P,State[A,R],R,Int):Generator[(P,Seq[R],State[A,R])]"></a>
+      <span class="permalink">
+      <a href="../../../io/samritchie/rl/Policy$.html#playN[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,state:io.samritchie.rl.State[A,R],penalty:R,nTimes:Int):com.stripe.rainier.core.Generator[(P,Seq[R],io.samritchie.rl.State[A,R])]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">playN</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="P">P &lt;: <a href="Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.Policy.playN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span>, <span class="extype" name="io.samritchie.rl.Policy.playN.P">P</span>]</span>]</span><span class="params">(<span name="policy">policy: <span class="extype" name="io.samritchie.rl.Policy.playN.P">P</span></span>, <span name="state">state: <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.playN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span>]</span>, <span name="penalty">penalty: <span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span></span>, <span name="nTimes">nTimes: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[(<span class="extype" name="io.samritchie.rl.Policy.playN.P">P</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span>], <a href="State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.Policy.playN.A">A</span>, <span class="extype" name="io.samritchie.rl.Policy.playN.R">R</span>])]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns the final policy, a sequence of the rewards received and
+the final state.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

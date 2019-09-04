@@ -334,6 +334,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.samritchie.rl.Util#allMaxBy" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="allMaxBy[A,B](as:Set[A])(f:A=&gt;B)(implicitevidence$1:Ordering[B]):Set[A]"></a><a id="allMaxBy[A,B](Set[A])((A)⇒B)(Ordering[B]):Set[A]"></a>
+      <span class="permalink">
+      <a href="../../../io/samritchie/rl/Util$.html#allMaxBy[A,B](as:Set[A])(f:A=&gt;B)(implicitevidence$1:Ordering[B]):Set[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">allMaxBy</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="as">as: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="io.samritchie.rl.Util.allMaxBy.A">A</span>]</span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.samritchie.rl.Util.allMaxBy.A">A</span>) ⇒ <span class="extype" name="io.samritchie.rl.Util.allMaxBy.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.Util.allMaxBy.B">B</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="io.samritchie.rl.Util.allMaxBy.A">A</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -350,10 +366,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.samritchie.rl.Util#averagingAgg" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="averagingAgg:com.twitter.algebird.MonoidAggregator[Double,com.twitter.algebird.AveragedValue,Double]"></a><a id="averagingAgg:MonoidAggregator[Double,AveragedValue,Double]"></a>
+    </li><li name="io.samritchie.rl.Util#categoricalFromSet" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="categoricalFromSet[T](ts:Set[T]):com.stripe.rainier.core.Categorical[T]"></a><a id="categoricalFromSet[T](Set[T]):Categorical[T]"></a>
       <span class="permalink">
-      <a href="../../../io/samritchie/rl/Util$.html#averagingAgg:com.twitter.algebird.MonoidAggregator[Double,com.twitter.algebird.AveragedValue,Double]" title="Permalink">
+      <a href="../../../io/samritchie/rl/Util$.html#categoricalFromSet[T](ts:Set[T]):com.stripe.rainier.core.Categorical[T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -362,7 +378,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">averagingAgg</span><span class="result">: <span class="extype" name="com.twitter.algebird.MonoidAggregator">MonoidAggregator</span>[<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="com.twitter.algebird.AveragedValue">AveragedValue</span>, <span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">categoricalFromSet</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="ts">ts: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="io.samritchie.rl.Util.categoricalFromSet.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Categorical">Categorical</span>[<span class="extype" name="io.samritchie.rl.Util.categoricalFromSet.T">T</span>]</span>
       </span>
       
       
@@ -390,23 +406,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.samritchie.rl.Util#epsilonGreedy" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="epsilonGreedy[A](epsilon:Double,optGreedy:Option[A],other:Set[A]):com.stripe.rainier.core.Categorical[A]"></a><a id="epsilonGreedy[A](Double,Option[A],Set[A]):Categorical[A]"></a>
-      <span class="permalink">
-      <a href="../../../io/samritchie/rl/Util$.html#epsilonGreedy[A](epsilon:Double,optGreedy:Option[A],other:Set[A]):com.stripe.rainier.core.Categorical[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">epsilonGreedy</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="optGreedy">optGreedy: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.samritchie.rl.Util.epsilonGreedy.A">A</span>]</span>, <span name="other">other: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="io.samritchie.rl.Util.epsilonGreedy.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Categorical">Categorical</span>[<span class="extype" name="io.samritchie.rl.Util.epsilonGreedy.A">A</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">epsilon-greedy distribution, boom.</p><div class="fullcomment"><div class="comment cmt"><p>epsilon-greedy distribution, boom.</p><p>This should probably be Real.
-</p></div></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -516,9 +515,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="io.samritchie.rl.Util#iterateM" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="iterateM[F[_],A](n:Int)(a:A)(f:A=&gt;F[A])(implicitevidence$1:cats.Monad[F]):F[A]"></a><a id="iterateM[F[_],A](Int)(A)((A)⇒F[A])(Monad[F]):F[A]"></a>
+      <a id="iterateM[F[_],A](n:Int)(a:A)(f:A=&gt;F[A])(implicitevidence$2:cats.Monad[F]):F[A]"></a><a id="iterateM[F[_],A](Int)(A)((A)⇒F[A])(Monad[F]):F[A]"></a>
       <span class="permalink">
-      <a href="../../../io/samritchie/rl/Util$.html#iterateM[F[_],A](n:Int)(a:A)(f:A=&gt;F[A])(implicitevidence$1:cats.Monad[F]):F[A]" title="Permalink">
+      <a href="../../../io/samritchie/rl/Util$.html#iterateM[F[_],A](n:Int)(a:A)(f:A=&gt;F[A])(implicitevidence$2:cats.Monad[F]):F[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
