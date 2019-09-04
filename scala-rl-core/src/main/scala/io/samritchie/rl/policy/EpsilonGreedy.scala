@@ -25,18 +25,13 @@ case class EpsilonGreedy[A, R, T: Monoid: Ordering](
   private def allActions(state: State[A, R]): Categorical[A] =
     Categorical.list(state.actions.toList)
 
-  private def greedy(state: State[A, R]): Categorical[A] = {
+  private def greedy(state: State[A, R]): Categorical[(A, T)] = {
     val pairs = state.actions.map { a =>
       (a, aggState.getOrElse(a, initial))
     }
-    val max = pairs.maxBy(_._2)._2
-    Categorical
-      .list(
-        pairs
-          .filter { case (a, t) => Ordering[T].equiv(max, t) }
-          .map(_._1)
-          .toList
-      )
+    Util.categoricalFromSet(
+      Util.allMaxBy(pairs)(_._2)
+    )
   }
 
   override def choose(state: State[A, R]): Generator[A] =
@@ -44,7 +39,7 @@ case class EpsilonGreedy[A, R, T: Monoid: Ordering](
       if (exploreP)
         allActions(state)
       else
-        greedy(state)
+        greedy(state).map(_._1)
     }.generator
 
   override def learn(state: State[A, R], action: A, reward: R): EpsilonGreedy[A, R, T] = {
