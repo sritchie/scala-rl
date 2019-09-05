@@ -4,10 +4,10 @@
 package io.samritchie.rl
 package policy
 
-import com.twitter.algebird.Semigroup
+import com.twitter.algebird.Aggregator
 import com.stripe.rainier.core.Generator
 
-case class UCB[A, R, T: Ordering](
+case class UCB[A, R, T](
     config: UCB.Config[R, T],
     actionValues: Map[A, UCB.Choice[T]],
     time: Time
@@ -28,46 +28,71 @@ case class UCB[A, R, T: Ordering](
 }
 
 object UCB {
-  case class Config[R, T: Ordering: Semigroup](
+
+  /**
+    * Generates a Config instance from an algebird Aggregator and a
+    * UCB parameter.
+    */
+  def fromAggregator[R, T: Ordering](param: Param, agg: Aggregator[R, T, Double]): Config[R, T] =
+    Config(param, agg.prepare _, agg.semigroup.plus _, agg.present _)
+
+  case class Config[R, T: Ordering](
       param: Param,
       prepare: R => T,
-      fromDouble: Double => T
+      plus: (T, T) => T,
+      present: T => Double
   ) {
+
+    /**
+      * Returns a fresh policy instance using this config.
+      */
     def policy[A]: UCB[A, R, T] = UCB(this, Map.empty, Time.zero)
 
-    private[rl] def merge(choice: Choice[T], r: R) = choice + prepare(r)
+    // These are private and embedded in the config to make it easy to
+    // share the fns without crossing the beams.
+    private[rl] def merge(choice: Choice[T], r: R) = choice.update(plus(_, prepare(r)))
     private[rl] def choice(r: R): Choice[T] =
-      UCB.Choice.one(prepare(r), param)(fromDouble)
+      UCB.Choice.one(prepare(r), param)(present)
   }
 
+  /**
+    * Tunes how important the upper confidence bound business is.
+    */
   case class Param(c: Int) extends AnyVal
 
   object Choice {
-    def one[A: Ordering: Semigroup](a: A, param: Param)(fromDouble: Double => A): Choice[A] =
-      Choice(a, 1L, param, fromDouble)
+    def one[T: Ordering](t: T, param: Param)(toDouble: T => Double): Choice[T] =
+      Choice(t, 1L, param, toDouble)
   }
 
-  case class Choice[T: Ordering: Semigroup](t: T, visits: Long, param: Param, fromDouble: Double => T) {
-    def +(delta: T): Choice[T] =
-      copy(Semigroup.plus[T](t, delta), visits + 1, param, fromDouble)
+  /**
+    * Tracks the info required for the UCB calculation.
+    */
+  case class Choice[T](t: T, visits: Long, param: Param, toDouble: T => Double) {
 
-    def totalValue(time: Time): T =
-      if (visits <= 0) t
-      else Semigroup.plus(t, bonus(time))
+    /**
+      * Updates the contained value, increments the visits.
+      */
+    def update(f: T => T): Choice[T] =
+      copy(f(t), visits + 1, param, toDouble)
+
+    def totalValue(time: Time): Double =
+      if (visits <= 0) toDouble(t)
+      else toDouble(t) + bonus(time)
 
     def compare(other: Choice[T], time: Time): Int = (this.visits, other.visits) match {
       case (0L, 0L) => 0
       case (0L, _)  => 1
       case (_, 0L)  => -1
       case _ =>
-        Ordering[T].compare(
+        Ordering[Double].compare(
           totalValue(time),
           other.totalValue(time)
         )
     }
 
     // Only called if visits is > 0.
-    private def bonus(time: Time): T =
-      fromDouble(param.c * math.sqrt(math.log(time.value + 1)) / visits)
+    private def bonus(time: Time): Double =
+      param.c * math.sqrt(math.log(time.value + 1)) / visits
   }
 }
