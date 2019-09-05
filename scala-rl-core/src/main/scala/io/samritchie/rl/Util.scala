@@ -38,6 +38,9 @@ object Util {
   def generatorFromSet[A](items: Set[A]) =
     categoricalFromSet(items).generator
 
+  def softmax[A, B](m: Map[A, B])(toReal: B => Real): Categorical[A] =
+    Categorical.normalize(m.mapValues(toReal(_).exp))
+
   def iterateM[F[_]: Monad, A](n: Int)(a: A)(f: A => F[A]): F[A] =
     Monad[F].tailRecM[Tuple2[Int, A], A]((n, a)) {
       case (k, a) =>

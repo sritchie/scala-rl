@@ -7,7 +7,7 @@ package policy
 import cats.Monad
 import com.stripe.rainier.core.{Categorical, Generator}
 import com.stripe.rainier.cats._
-import com.twitter.algebird.{AveragedValue, Monoid}
+import com.twitter.algebird.{AveragedValue, Semigroup}
 import Util.Instances._
 
 /**
@@ -15,7 +15,7 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[A, R, T: Monoid: Ordering](
+case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
     config: EpsilonGreedy.Config[R, T],
     actionValues: Map[A, T]
 ) extends Policy[A, R, EpsilonGreedy[A, R, T]] {
@@ -42,8 +42,12 @@ case class EpsilonGreedy[A, R, T: Monoid: Ordering](
     copy(actionValues = Util.mergeV(actionValues, action, config.prepare(reward)))
 }
 
+// Oh boy, this really does look like it needs an aggregator... maybe
+// I build it without, but then include the algebird versions
+// elsewhere? Or maybe I build to the cats interfaces, then I have an
+// algebird package? More for later.
 object EpsilonGreedy {
-  case class Config[R, T: Monoid: Ordering](
+  case class Config[R, T: Semigroup: Ordering](
       epsilon: Double,
       prepare: R => T,
       initial: T

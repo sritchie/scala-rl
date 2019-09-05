@@ -7,7 +7,7 @@ package policy
 import com.stripe.rainier.core.{Categorical, Generator}
 
 /**
-  * Totally bullshit random policy.
+  * Random policy.
   */
 case class Random[A, R]() extends Policy[A, R, Random[A, R]] {
   override def choose(state: State[A, R]): Generator[A] =

@@ -1,5 +1,8 @@
 /**
   * Policy that accumulates using the UCB algo.
+  *
+  * TODO should we be using Real here instead of Double?
+  * TODO should I make an Empty Choice option with a sealed trait?
   */
 package io.samritchie.rl
 package policy
@@ -13,9 +16,13 @@ case class UCB[A, R, T](
     time: Time
 ) extends Policy[A, R, UCB[A, R, T]] {
 
+  // TODO fix this fuckup!
   override def choose(state: State[A, R]): Generator[A] =
     Util.generatorFromSet(
-      Util.allMaxBy(state.actions)(actionValues(_).totalValue(time))
+      Util
+        .allMaxBy(state.actions)(
+          a => actionValues.getOrElse(a, config.initialChoice).totalValue(time)
+        )
     )
 
   override def learn(state: State[A, R], action: A, reward: R): UCB[A, R, T] = {
@@ -33,11 +40,16 @@ object UCB {
     * Generates a Config instance from an algebird Aggregator and a
     * UCB parameter.
     */
-  def fromAggregator[R, T: Ordering](param: Param, agg: Aggregator[R, T, Double]): Config[R, T] =
-    Config(param, agg.prepare _, agg.semigroup.plus _, agg.present _)
+  def fromAggregator[R, T: Ordering](
+      initial: T,
+      param: Param,
+      agg: Aggregator[R, T, Double]
+  ): Config[R, T] =
+    Config(param, initial, agg.prepare _, agg.semigroup.plus _, agg.present _)
 
   case class Config[R, T: Ordering](
       param: Param,
+      initial: T,
       prepare: R => T,
       plus: (T, T) => T,
       present: T => Double
@@ -53,6 +65,8 @@ object UCB {
     private[rl] def merge(choice: Choice[T], r: R) = choice.update(plus(_, prepare(r)))
     private[rl] def choice(r: R): Choice[T] =
       UCB.Choice.one(prepare(r), param)(present)
+
+    def initialChoice: Choice[T] = UCB.Choice.zero(initial, param)(present)
   }
 
   /**
@@ -61,6 +75,9 @@ object UCB {
   case class Param(c: Int) extends AnyVal
 
   object Choice {
+    def zero[T: Ordering](initial: T, param: Param)(toDouble: T => Double): Choice[T] =
+      Choice(initial, 1L, param, toDouble)
+
     def one[T: Ordering](t: T, param: Param)(toDouble: T => Double): Choice[T] =
       Choice(t, 1L, param, toDouble)
   }
@@ -68,7 +85,12 @@ object UCB {
   /**
     * Tracks the info required for the UCB calculation.
     */
-  case class Choice[T](t: T, visits: Long, param: Param, toDouble: T => Double) {
+  case class Choice[T](
+      t: T,
+      visits: Long,
+      param: Param,
+      toDouble: T => Double
+  ) {
 
     /**
       * Updates the contained value, increments the visits.

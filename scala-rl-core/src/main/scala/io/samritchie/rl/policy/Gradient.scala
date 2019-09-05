@@ -1,9 +1,15 @@
 /**
   * Policy that accumulates using the Gradient.
+  *
+  * TODO get this converted to an actual softmax distro.
+  *
+  * TODO NEXT - Make a softmax distribution, based on the numbers //
+  we're keeping around.
   */
 package io.samritchie.rl
 package policy
 
+import com.stripe.rainier.compute.ToReal
 import com.stripe.rainier.core.Generator
 
 /**
@@ -14,20 +20,30 @@ import com.stripe.rainier.core.Generator
   * - take e^x for each of the actions.
   * - divide each one by the sum of all the exponents... that
   *   generates the probabilities.
+  *
+  * T is the "average" type.
+  *
   */
-case class Gradient[A, R](averageReward: R) extends Policy[A, R, Gradient[A, R]] {
+case class Gradient[A, R, T](
+    config: Gradient.Config[R, T],
+    actionValues: Map[A, T]
+) extends Policy[A, R, Gradient[A, R, T]] {
+
   override def choose(state: State[A, R]): Generator[A] =
-    // state.actions.toList
-    // Categorical.normalize
+    Util
+      .softmax(
+        state.actions.map(a => a -> actionValues.getOrElse(a, config.initial)).toMap
+      )(t => ToReal(config.present(t)))
+      .generator
 
-    // scala.math.exp()
-    // def act_gradient(self):
-    // exp_est = np.exp(self.q_estimation)
-    // self.action_prob = exp_est / np.sum(exp_est)
-    // return np.random.choice(self.indices, p=self.action_prob)
-    ???
 
-  override def learn(state: State[A, R], action: A, reward: R): Gradient[A, R] =
+  // TODO: I THINK this is where the final bit of magic is going to
+  // happen... above we just have the softmax, but below we need to
+  // figure out how to properly update the values.
+
+  // T in this world is the Q estimation, which we're going to track
+  // slightly differently.
+  override def learn(state: State[A, R], action: A, reward: R): Gradient[A, R, T] =
     // This aggregates slightly differently...
 
     // elif self.gradient:
@@ -41,4 +57,13 @@ case class Gradient[A, R](averageReward: R) extends Policy[A, R, Gradient[A, R]]
     ???
 }
 
-object Gradient {}
+object Gradient {
+  case class Config[R, T](
+      initial: T,
+      prepare: R => T,
+      plus: (T, T) => T,
+      present: T => Double
+  ) {
+    def policy[A]: Gradient[A, R, T] = Gradient(this, Map.empty)
+  }
+}

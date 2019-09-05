@@ -25,7 +25,7 @@ import com.stripe.rainier.core.Generator
 /**
   * A world should probably have a generator of states and
   * actions... and then you can use that to get to the next
-  * bullshit. The state here is going to be useful in the Markov
+  * thing. The state here is going to be useful in the Markov
   * model; for the bandit we only have a single state, not that
   * useful.
   */
