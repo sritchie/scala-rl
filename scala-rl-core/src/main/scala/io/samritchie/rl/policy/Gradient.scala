@@ -29,6 +29,12 @@ case class Gradient[A, R, T](
     actionValues: Map[A, T]
 ) extends Policy[A, R, Gradient[A, R, T]] {
 
+  // We need to think here about how to handle the defaults. If
+  // nothing's been visited yet, well, that's a solid initial value!
+  // We need to be able to build these maps based on the action values
+  // and the state set.
+  //
+  // TODO Get a util function for that going.
   override def choose(state: State[A, R]): Generator[A] =
     Util
       .softmax(
