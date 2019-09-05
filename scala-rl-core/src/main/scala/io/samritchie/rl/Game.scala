@@ -68,7 +68,7 @@ object Game {
     1.0
   )
 
-  def cake(policy: EG): List[Double] =
+  def play(policy: EG): List[Double] =
     playBandit(
       policy,
       stateGen,
@@ -79,8 +79,8 @@ object Game {
 
   def main(items: Array[String]): Unit =
     Plot.lineChartSeq(
-      (cake(EpsilonGreedy.incremental(0.0)), "0.0"),
-      (cake(EpsilonGreedy.incremental(0.01)), "0.01"),
-      (cake(EpsilonGreedy.incremental(0.1)), "0.1")
+      (play(EpsilonGreedy.incrementalConfig(0.0).policy), "0.0"),
+      (play(EpsilonGreedy.incrementalConfig(0.01).policy), "0.01"),
+      (play(EpsilonGreedy.incrementalConfig(0.1).policy), "0.1")
     )
 }
