@@ -80,7 +80,7 @@ class ConstantStepTest extends org.scalatest.FunSuite {
   import BaseProperties.approxEq
 
   val EPS: Double = 1e-10
-  val alpha: Double = 1
+  val alpha: Double = 0.1
 
   test("Two steps of the normal increment works as expected") {
     val stepMonoid: ConstantStepMonoid = new ConstantStepMonoid(alpha, EPS)
@@ -89,13 +89,8 @@ class ConstantStepTest extends org.scalatest.FunSuite {
     val r1 = 10
     val r2 = 12
 
-    val stepOne = stepMonoid
-      .reward(zero, r1, zero.time)
-      .decayTo(zero.time + 1, alpha, EPS)
-
-    val stepTwo = stepMonoid
-      .reward(stepOne, r2, stepOne.time)
-      .decayTo(stepOne.time + 1, alpha, EPS)
+    val stepOne = stepMonoid.reward(zero, r1, zero.time)
+    val stepTwo = stepMonoid.reward(stepOne, r2, stepOne.time)
 
     approxEq(EPS)(stepOne.value, alpha * r1)
     assert(approxEq(EPS)(stepOne.value, alpha * r1))
