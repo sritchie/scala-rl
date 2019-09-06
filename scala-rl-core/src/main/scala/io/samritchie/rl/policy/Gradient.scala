@@ -9,7 +9,7 @@
 package io.samritchie.rl
 package policy
 
-import com.stripe.rainier.compute.ToReal
+import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.Generator
 
 /**
@@ -26,7 +26,7 @@ import com.stripe.rainier.core.Generator
   */
 case class Gradient[A, R, T](
     config: Gradient.Config[R, T],
-    actionValues: Map[A, T]
+    actionValues: Map[A, Gradient.Item[T]]
 ) extends Policy[A, R, Gradient[A, R, T]] {
 
   // We need to think here about how to handle the defaults. If
@@ -37,35 +37,49 @@ case class Gradient[A, R, T](
   // TODO Get a util function for that going.
   override def choose(state: State[A, R]): Generator[A] =
     Util
-      .softmax(
-        state.actions.map(a => a -> actionValues.getOrElse(a, config.initial)).toMap
-      )(t => ToReal(config.present(t)))
+      .softmax(state.actions)(
+        a => actionValues.getOrElse(a, config.initial).q
+      )
       .generator
 
+  override def learn(state: State[A, R], action: A, reward: R): Gradient[A, R, T] = {
+    val rewardT = config.prepare(reward)
+    val rewardV = config.present(rewardT)
 
-  // TODO: I THINK this is where the final bit of magic is going to
-  // happen... above we just have the softmax, but below we need to
-  // figure out how to properly update the values.
+    // create a one_hot... array of zeros for each arm, EXCEPT one for each action.
+    val m: Map[A, Real] = state.actions
+      .map(
+        a => a -> actionValues.getOrElse(a, config.initial).q.exp
+      )
+      .toMap
 
-  // T in this world is the Q estimation, which we're going to track
-  // slightly differently.
-  override def learn(state: State[A, R], action: A, reward: R): Gradient[A, R, T] =
-    // This aggregates slightly differently...
+    // This is busted because ALL of the action probabilities get updated...
+    val total: Real = Real.sum(m.values)
+    val actionProb: Real = m(action) / total
 
-    // elif self.gradient:
-    //     one_hot = np.zeros(self.k)
-    //     one_hot[action] = 1
-    //     if self.gradient_baseline:
-    //         baseline = self.average_reward
-    //     else:
-    //         baseline = 0
-    //     self.q_estimation += self.step_size * (reward - baseline) * (one_hot - self.action_prob)
-    ???
+    val updated = Util.updateWith[A, Gradient.Item[T]](actionValues, action) {
+      case None =>
+        val Gradient.Item(q, t) = config.initial
+        Gradient.Item(
+          q + config.stepSize * (rewardV - config.present(t)) * actionProb,
+          config.plus(t, rewardT)
+        )
+      case Some(Gradient.Item(q, t)) =>
+        Gradient.Item(
+          q + config.stepSize * (rewardV - config.present(t)) * actionProb,
+          config.plus(t, rewardT)
+        )
+    }
+    copy(actionValues = updated)
+  }
 }
 
 object Gradient {
+  case class Item[T](q: Real, t: T)
+
   case class Config[R, T](
-      initial: T,
+      initial: Item[T],
+      stepSize: Double,
       prepare: R => T,
       plus: (T, T) => T,
       present: T => Double
