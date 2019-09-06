@@ -4,8 +4,10 @@
 package io.samritchie.rl
 package policy
 
+import cats.Monad
 import com.stripe.rainier.core.{Categorical, Generator}
-import com.twitter.algebird.{AveragedValue, Monoid}
+import com.stripe.rainier.cats._
+import com.twitter.algebird.{AveragedValue, Semigroup}
 import Util.Instances._
 
 /**
@@ -13,57 +15,61 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[A, R, T: Monoid: Ordering](
-    epsilon: Double,
-    prepare: R => T,
-    initial: T,
-    aggState: Map[A, T]
+case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
+    config: EpsilonGreedy.Config[R, T],
+    actionValues: Map[A, T]
 ) extends Policy[A, R, EpsilonGreedy[A, R, T]] {
-  lazy val explore: Categorical[Boolean] =
-    Categorical.boolean(epsilon)
+  private val explore: Categorical[Boolean] =
+    Categorical.boolean(config.epsilon)
 
   private def allActions(state: State[A, R]): Categorical[A] =
     Categorical.list(state.actions.toList)
 
-  private def greedy(state: State[A, R]): Categorical[(A, T)] = {
-    val pairs = state.actions.map { a =>
-      (a, aggState.getOrElse(a, initial))
-    }
-    Util.categoricalFromSet(
-      Util.allMaxBy(pairs)(_._2)
+  private def greedy(state: State[A, R]): Categorical[A] =
+    Categorical.fromSet(
+      Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
     )
-  }
 
   override def choose(state: State[A, R]): Generator[A] =
-    explore.flatMap { exploreP =>
-      if (exploreP)
-        allActions(state)
-      else
-        greedy(state).map(_._1)
-    }.generator
+    Monad[Categorical]
+      .ifM(explore)(
+        allActions(state),
+        greedy(state)
+      )
+      .generator
 
-  override def learn(state: State[A, R], action: A, reward: R): EpsilonGreedy[A, R, T] = {
-    val oldV = aggState.getOrElse(action, Monoid.zero)
-    copy(aggState = aggState + (action -> Monoid.plus(oldV, prepare(reward))))
-  }
+  override def learn(state: State[A, R], action: A, reward: R): EpsilonGreedy[A, R, T] =
+    copy(actionValues = Util.mergeV(actionValues, action, config.prepare(reward)))
 }
 
+// Oh boy, this really does look like it needs an aggregator... maybe
+// I build it without, but then include the algebird versions
+// elsewhere? Or maybe I build to the cats interfaces, then I have an
+// algebird package? More for later.
 object EpsilonGreedy {
-  def policy[A, R, T: Monoid: Ordering](epsilon: Double)(prepare: R => T): EpsilonGreedy[A, R, T] =
-    EpsilonGreedy[A, R, T](epsilon, prepare, Monoid.zero, Map.empty)
-
-  /**
-    * Same as the other arity, but allowed for
-    */
-  def policy[A, R, T: Monoid: Ordering](
+  case class Config[R, T: Semigroup: Ordering](
       epsilon: Double,
+      prepare: R => T,
       initial: T
-  )(prepare: R => T): EpsilonGreedy[A, R, T] =
-    EpsilonGreedy[A, R, T](epsilon, prepare, initial, Map.empty)
+  ) {
+    def policy[A]: EpsilonGreedy[A, R, T] =
+      EpsilonGreedy[A, R, T](this, Map.empty)
+  }
 
   /**
-    * Returns an incremental implementation.
+    * Returns an incremental config.
+    *
+    * TODO we also need a version that uses a constant step size,
+    * instead of sample averages. And maybe a version that uses
+    * exponential decay?
+    *
     */
-  def incremental[A](epsilon: Double, initial: Double = 0.0): EpsilonGreedy[A, Double, AveragedValue] =
-    EpsilonGreedy(epsilon, AveragedValue(_), AveragedValue(initial), Map.empty)
+  def incrementalConfig(
+      epsilon: Double,
+      initial: Double = 0.0
+  ): Config[Double, AveragedValue] = Config(
+    epsilon,
+    AveragedValue(_),
+    AveragedValue(initial)
+  )
 }
