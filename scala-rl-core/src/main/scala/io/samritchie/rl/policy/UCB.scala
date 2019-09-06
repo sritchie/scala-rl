@@ -1,7 +1,6 @@
 /**
   * Policy that accumulates using the UCB algo.
   *
-  * TODO should we be using Real here instead of Double?
   * TODO should I make an Empty Choice option with a sealed trait?
   */
 package io.samritchie.rl

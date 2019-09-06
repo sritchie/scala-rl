@@ -29,6 +29,11 @@ val compilerOptions = Seq(
   "-language:existentials"
 )
 
+// The console can't handle these.
+val consoleExclusions = Seq(
+  "-Ywarn-unused:imports", "-Xfatal-warnings", "-Xlint"
+)
+
 val sharedSettings = Seq(
   organization := "io.samritchie",
   scalaVersion := V.scala,
@@ -48,10 +53,9 @@ val sharedSettings = Seq(
     "-language:higherKinds",
     "-language:existentials"),
 
-  // The console can't handle these.
-  scalacOptions in (Compile, console) --= Seq(
-    "-Ywarn-unused:imports", "-Xfatal-warnings", "-Xlint"
-  ),
+
+  scalacOptions in (Compile, console) --= consoleExclusions,
+  scalacOptions in (Test, console) --= consoleExclusions,
 
   // Publishing options:
   releaseCrossBuild := true,
@@ -153,6 +157,7 @@ implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
     "org.typelevel" %% "cats-core" % V.cats,
     "org.typelevel" %% "cats-free" % V.cats,
     // Testing.
+    "com.twitter" %% "algebird-test" % V.algebird % Test,
     "org.scalatest" %% "scalatest" % V.scalatest % Test,
     "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
   ) ++ Seq(compilerPlugin("org.typelevel" %% "kind-projector" % V.kindProjector)),
