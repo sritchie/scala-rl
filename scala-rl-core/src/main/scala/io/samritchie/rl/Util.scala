@@ -4,13 +4,18 @@
 package io.samritchie.rl
 
 import cats.Monad
-import com.twitter.algebird.{AveragedValue, Semigroup}
+import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
 
 import scala.language.higherKinds
 
 object Util {
+  def prepareMonoid[A, B: Monoid: ToReal](
+      prepare: A => B
+  ): MonoidAggregator[A, B, Real] =
+    Aggregator.prepareMonoid(prepare).andThenPresent(ToReal(_))
+
   object Instances {
     implicit val averageValueOrd: Ordering[AveragedValue] =
       Ordering.by(_.value)
