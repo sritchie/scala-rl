@@ -26,7 +26,7 @@ case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
     Categorical.list(state.actions.toList)
 
   private def greedy(state: State[A, R]): Categorical[A] =
-    Util.categoricalFromSet(
+    Categorical.fromSet(
       Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
     )
 

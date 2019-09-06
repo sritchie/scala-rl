@@ -1,15 +1,15 @@
 /**
   * Policy that accumulates using the Gradient.
   *
-  * TODO get this converted to an actual softmax distro.
+  * TODO figure out how the types can be not so goofed. Do we really
+  * want a separate aggregate type?
   *
-  * TODO NEXT - Make a softmax distribution, based on the numbers //
-  we're keeping around.
+  * TODO support NO gradient baseline,
   */
 package io.samritchie.rl
 package policy
 
-import com.stripe.rainier.compute.Real
+import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Generator
 
 /**
@@ -17,73 +17,67 @@ import com.stripe.rainier.core.Generator
   * if we have the gradient baseline set, use that thing to generate
   * the notes.
   *
-  * - take e^x for each of the actions.
-  * - divide each one by the sum of all the exponents... that
-  *   generates the probabilities.
-  *
   * T is the "average" type.
   *
   */
-case class Gradient[A, R, T](
+case class Gradient[A: Equiv, R: Numeric, T: Numeric](
     config: Gradient.Config[R, T],
     actionValues: Map[A, Gradient.Item[T]]
 ) extends Policy[A, R, Gradient[A, R, T]] {
 
-  // We need to think here about how to handle the defaults. If
-  // nothing's been visited yet, well, that's a solid initial value!
-  // We need to be able to build these maps based on the action values
-  // and the state set.
-  //
-  // TODO Get a util function for that going.
+  /**
+    * Let's try out this style for a bit. This gives us a way to
+    * convert an action directly into a probability, using our
+    * actionValue Map above.
+    */
+  implicit val aToReal: ToReal[A] =
+    implicitly[ToReal[Gradient.Item[T]]].contramap(
+      actionValues.getOrElse(_, config.initial)
+    )
+
   override def choose(state: State[A, R]): Generator[A] =
-    Util
-      .softmax(state.actions)(
-        a => actionValues.getOrElse(a, config.initial).q
-      )
-      .generator
+    Util.softmax(state.actions).generator
 
   override def learn(state: State[A, R], action: A, reward: R): Gradient[A, R, T] = {
-    val rewardT = config.prepare(reward)
-    val rewardV = config.present(rewardT)
+    val pmf = Util.softmax(state.actions).pmf
 
-    // create a one_hot... array of zeros for each arm, EXCEPT one for each action.
-    val m: Map[A, Real] = state.actions
-      .map(
-        a => a -> actionValues.getOrElse(a, config.initial).q.exp
-      )
-      .toMap
-
-    // This is busted because ALL of the action probabilities get updated...
-    val total: Real = Real.sum(m.values)
-    val actionProb: Real = m(action) / total
-
-    val updated = Util.updateWith[A, Gradient.Item[T]](actionValues, action) {
-      case None =>
-        val Gradient.Item(q, t) = config.initial
-        Gradient.Item(
-          q + config.stepSize * (rewardV - config.present(t)) * actionProb,
-          config.plus(t, rewardT)
-        )
-      case Some(Gradient.Item(q, t)) =>
-        Gradient.Item(
-          q + config.stepSize * (rewardV - config.present(t)) * actionProb,
-          config.plus(t, rewardT)
-        )
+    val updated = state.actions.foldLeft(Map.empty[A, Gradient.Item[T]]) {
+      case (m, a) =>
+        val old = actionValues.getOrElse(a, config.initial)
+        val newV =
+          if (Equiv[A].equiv(a, action))
+            config.combine(old, reward, pmf(a))
+          else
+            config.combine(old, reward, 1 - probs(a))
+        m.updated(a, newV)
     }
     copy(actionValues = updated)
   }
 }
 
 object Gradient {
-  case class Item[T](q: Real, t: T)
+  object Item {
+    implicit def toReal[T]: ToReal[Item[T]] =
+      ToReal.fromReal.contramap(_.q)
+  }
 
-  case class Config[R, T](
+  /**
+    * Represents an action value AND an average in progress.
+    */
+  case class Item[T](q: Real, t: T) {}
+
+  case class Config[R: Numeric, T: Numeric](
       initial: Item[T],
-      stepSize: Double,
+      stepSize: Real,
       prepare: R => T,
-      plus: (T, T) => T,
-      present: T => Double
+      plus: (T, T) => T
   ) {
     def policy[A]: Gradient[A, R, T] = Gradient(this, Map.empty)
+
+    private[rl] def combine(item: Item[T], reward: R, actionProb: Real): Item[T] =
+      Gradient.Item(
+        item.q + (stepSize * (ToReal(reward) - item.t) * actionProb),
+        plus(item.t, prepare(reward))
+      )
   }
 }

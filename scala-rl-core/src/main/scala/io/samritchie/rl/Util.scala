@@ -5,7 +5,7 @@ package io.samritchie.rl
 
 import cats.Monad
 import com.twitter.algebird.{AveragedValue, Semigroup}
-import com.stripe.rainier.compute.Real
+import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
 
 import scala.language.higherKinds
@@ -14,7 +14,22 @@ object Util {
   object Instances {
     implicit val averageValueOrd: Ordering[AveragedValue] =
       Ordering.by(_.value)
+
+    implicit val avToReal: ToReal[AveragedValue] =
+      implicitly[ToReal[Double]].contramap(_.value)
   }
+
+  def makeMap[K, V](keys: Set[K])(default: => V)(f: K => Option[V]): Map[K, V] =
+    keys.foldLeft(Map.empty[K, V]) {
+      case (m, k) =>
+        m.updated(k, f(k).getOrElse(default))
+    }
+
+  def makeMap[K, V](keys: Set[K])(f: K => V): Map[K, V] =
+    keys.foldLeft(Map.empty[K, V]) {
+      case (m, k) =>
+        m.updated(k, f(k))
+    }
 
   def updateWith[K, V](m: Map[K, V], k: K)(f: Option[V] => V): Map[K, V] =
     m.updated(k, f(m.get(k)))
@@ -30,21 +45,16 @@ object Util {
     as.filter(a => Ordering[B].equiv(maxB, f(a)))
   }
 
-  def categoricalFromSet[A](items: Set[A]): Categorical[A] =
-    Categorical.normalize(
-      items.foldLeft(Map.empty[A, Real])((m, a) => m.updated(a, Real.one))
-    )
-
   def generatorFromSet[A](items: Set[A]) =
-    categoricalFromSet(items).generator
+    Categorical.fromSet(items).generator
 
   def softmax[A, B](m: Map[A, Real]): Categorical[A] =
     Categorical.normalize(m.mapValues(_.exp))
 
-  def softmax[A](as: Set[A])(f: A => Real): Categorical[A] = {
+  def softmax[A: ToReal](as: Set[A]): Categorical[A] = {
     val (pmf, sum) = as.foldLeft((Map.empty[A, Real], Real.zero)) {
       case ((m, r), a) =>
-        val realExp = f(a).exp
+        val realExp = ToReal(a).exp
         (m.updated(a, realExp), r + realExp)
     }
     Categorical.normalize(pmf.mapValues(_ / sum))
