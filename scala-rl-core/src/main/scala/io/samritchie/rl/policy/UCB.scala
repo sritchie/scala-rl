@@ -57,7 +57,7 @@ object UCB {
     /**
       * Returns a fresh policy instance using this config.
       */
-    def policy[A]: UCB[A, R, T] = UCB(this, Map.empty, Time.zero)
+    def policy[A]: UCB[A, R, T] = UCB(this, Map.empty, Time.Zero)
 
     // These are private and embedded in the config to make it easy to
     // share the fns without crossing the beams.

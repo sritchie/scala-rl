@@ -8,19 +8,21 @@ import com.twitter.algebird.Monoid
   * weighted average, but instead of weighting by the count, it uses a
   * constant weighting factor.
   */
-case class ConstantStep(value: Double, time: Long) extends Ordered[ConstantStep] {
+case class ConstantStep(value: Double, time: Time) extends Ordered[ConstantStep] {
+  import ConstantStep.{Alpha, Epsilon}
+
   def compare(that: ConstantStep): Int =
     time.compareTo(that.time) match {
       case 0     => value.compare(that.value)
       case other => other
     }
 
-  def decayTo(t2: Long, alpha: Double, eps: Double): ConstantStep =
+  def decayTo(t2: Time, alpha: Alpha, eps: Epsilon): ConstantStep =
     if (t2 <= time)
       this
     else {
-      val newV = value * math.pow(1 - alpha, t2 - time)
-      if (newV > eps)
+      val newV = value * math.pow(1 - alpha.toDouble, t2 - time)
+      if (math.abs(newV) > eps.toDouble)
         ConstantStep(newV, t2)
       else
         ConstantStep.zero
@@ -28,19 +30,33 @@ case class ConstantStep(value: Double, time: Long) extends Ordered[ConstantStep]
 }
 
 object ConstantStep {
-  val zero: ConstantStep = ConstantStep(0.0, Long.MinValue)
+  case class Alpha(toDouble: Double) extends AnyVal {
+    def *(r: Double): Double = toDouble * r
+  }
+  case class Epsilon(toDouble: Double) extends AnyVal
 
-  def build[T](value: T)(implicit num: Numeric[T]): ConstantStep =
-    build(value, Long.MinValue)
+  val zero: ConstantStep = ConstantStep(0.0, Time.Min)
 
-  def build[T](value: T, time: Long)(implicit num: Numeric[T]): ConstantStep =
+  def buildAggregate[T](value: T)(implicit num: Numeric[T]): ConstantStep =
+    buildAggregate(value, Time.Min)
+
+  def buildAggregate[T](value: T, time: Time)(implicit num: Numeric[T]): ConstantStep =
     ConstantStep(num.toDouble(value), time)
 
-  def monoid(alpha: Double, eps: Double): Monoid[ConstantStep] =
+  /**
+    * Rewards can only be assigned to time one tick in the future.
+    */
+  def buildReward[T](reward: T, alpha: Alpha, time: Time)(implicit num: Numeric[T]): ConstantStep =
+    ConstantStep(alpha * num.toDouble(reward), time.tick)
+
+  def monoid(alpha: Alpha, eps: Epsilon): Monoid[ConstantStep] =
     new ConstantStepMonoid(alpha, eps)
 }
 
-class ConstantStepMonoid(alpha: Double, eps: Double) extends Monoid[ConstantStep] {
+case class ConstantStepMonoid(
+    alpha: ConstantStep.Alpha,
+    eps: ConstantStep.Epsilon
+) extends Monoid[ConstantStep] {
   override val zero: ConstantStep = ConstantStep.zero
 
   override def isNonZero(cs: ConstantStep) = (cs.value != 0L)
@@ -59,18 +75,26 @@ class ConstantStepMonoid(alpha: Double, eps: Double) extends Monoid[ConstantStep
     * Returns the value if the timestamp is less than the time of the
     * supplied ConstantStep instance.
     */
-  def valueAsOf(v: ConstantStep, time: Long): Double =
+  def valueAsOf(v: ConstantStep, time: Time): Double =
     v.decayTo(time, alpha, eps).value
 
   /**
     * This assigns the reward at the current time, which forces the
     * timestamp forward.
+    *
+    * If you didn't bump the time you could do this:
+    *
+    * modern + (reward * (alpha / (1.0 - alpha)))
+    *
+    * And force the alpha to be less than one.
+    *
     */
-  def reward(v: ConstantStep, reward: Double, time: Long): ConstantStep = {
-    val modern = v.decayTo(time, alpha, eps).value
+  def reward(v: ConstantStep, reward: Double, time: Time): ConstantStep = {
+    val newTime = time.tick
+    val updatedV = v.decayTo(newTime, alpha, eps).value
     ConstantStep(
-      modern + alpha * (reward - modern),
-      time + 1
+      updatedV + alpha * reward,
+      newTime
     )
   }
 }
