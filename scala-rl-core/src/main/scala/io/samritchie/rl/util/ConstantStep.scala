@@ -37,11 +37,17 @@ object ConstantStep {
 
   val zero: ConstantStep = ConstantStep(0.0, Long.MinValue)
 
-  def build[T](value: T)(implicit num: Numeric[T]): ConstantStep =
-    build(value, Long.MinValue)
+  def buildAggregate[T](value: T)(implicit num: Numeric[T]): ConstantStep =
+    buildAggregate(value, Long.MinValue)
 
-  def build[T](value: T, time: Long)(implicit num: Numeric[T]): ConstantStep =
+  def buildAggregate[T](value: T, time: Long)(implicit num: Numeric[T]): ConstantStep =
     ConstantStep(num.toDouble(value), time)
+
+  /**
+    * Rewards can only be assigned to time one tick in the future.
+    */
+  def buildReward[T](reward: T, alpha: Alpha, time: Long)(implicit num: Numeric[T]): ConstantStep =
+    ConstantStep(alpha * num.toDouble(reward), time + 1)
 
   def monoid(alpha: Alpha, eps: Epsilon): Monoid[ConstantStep] =
     new ConstantStepMonoid(alpha, eps)
@@ -84,10 +90,11 @@ case class ConstantStepMonoid(
     *
     */
   def reward(v: ConstantStep, reward: Double, time: Long): ConstantStep = {
-    val modern = v.decayTo(time, alpha, eps).value
+    val newTime = time + 1
+    val updatedV = v.decayTo(newTime, alpha, eps).value
     ConstantStep(
-      modern + alpha * (reward - modern),
-      time + 1
+      updatedV + alpha * reward,
+      newTime
     )
   }
 }

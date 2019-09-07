@@ -5,5 +5,7 @@ case class Time(value: Long) extends AnyVal {
 }
 
 object Time {
+  val min: Time = Time(Long.MinValue)
+  val max: Time = Time(Long.MaxValue)
   val zero: Time = Time(0L)
 }

@@ -65,10 +65,19 @@ class ConstantStepLaws extends PropSpec with Checkers with ConstantStepArb {
   })
 
   property("adding a reward works the same as adding an instance one tick later.")(check {
-    forAll { (cs: ConstantStep, reward: Float) =>
+    forAll { (cs: ConstantStep, reward: Double) =>
       approxEq(EPS.toDouble)(
         stepMonoid.reward(cs, reward, cs.time).value,
-        stepMonoid.plus(cs, ConstantStep.build(reward, cs.time + 1)).value
+        stepMonoid.plus(cs, ConstantStep.buildAggregate(alpha * reward, cs.time + 1)).value
+      )
+    }
+  })
+
+  property("A reward is an aggregate * alpha, one step in the future.")(check {
+    forAll { (reward: Double, time: Int) =>
+      approxEq(EPS.toDouble)(
+        ConstantStep.buildReward(reward, alpha, time).value,
+        ConstantStep.buildAggregate(alpha * reward, time + 1).value
       )
     }
   })
@@ -113,6 +122,15 @@ class ConstantStepTest extends org.scalatest.FunSuite {
 
     assert(approxEq(EPS.toDouble)(stepOne.value, alpha * r1))
     assert(approxEq(EPS.toDouble)(stepTwo.value, (alpha * r1) + alpha * (r2 - (alpha * r1))))
+  }
+
+  test("Adding an instance with (alpha * reward) one tick in the future equals a reward now.") {
+    val r: Double = 10.0
+
+    val rewarded = stepMonoid.reward(zero, r, zero.time)
+    val stepped = stepMonoid.plus(zero, ConstantStep(alpha * r, zero.time + 1))
+
+    assert(approxEq(EPS.toDouble)(rewarded.value, stepped.value))
   }
 }
 
