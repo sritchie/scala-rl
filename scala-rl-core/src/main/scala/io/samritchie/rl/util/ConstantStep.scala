@@ -20,7 +20,7 @@ case class ConstantStep(value: Double, time: Long) extends Ordered[ConstantStep]
       this
     else {
       val newV = value * math.pow(1 - alpha, t2 - time)
-      if (newV > eps)
+      if (math.abs(newV) > eps)
         ConstantStep(newV, t2)
       else
         ConstantStep.zero
@@ -28,6 +28,9 @@ case class ConstantStep(value: Double, time: Long) extends Ordered[ConstantStep]
 }
 
 object ConstantStep {
+  case class Alpha(toDouble: Double) extends AnyVal
+  case class Epsilon(toDouble: Double) extends AnyVal
+
   val zero: ConstantStep = ConstantStep(0.0, Long.MinValue)
 
   def build[T](value: T)(implicit num: Numeric[T]): ConstantStep =
@@ -40,7 +43,7 @@ object ConstantStep {
     new ConstantStepMonoid(alpha, eps)
 }
 
-class ConstantStepMonoid(alpha: Double, eps: Double) extends Monoid[ConstantStep] {
+case class ConstantStepMonoid(alpha: Double, eps: Double) extends Monoid[ConstantStep] {
   override val zero: ConstantStep = ConstantStep.zero
 
   override def isNonZero(cs: ConstantStep) = (cs.value != 0L)
@@ -65,6 +68,13 @@ class ConstantStepMonoid(alpha: Double, eps: Double) extends Monoid[ConstantStep
   /**
     * This assigns the reward at the current time, which forces the
     * timestamp forward.
+    *
+    * If you didn't bump the time you could do this:
+    *
+    * modern + (reward * (alpha / (1.0 - alpha)))
+    *
+    * And force the alpha to be less than one.
+    *
     */
   def reward(v: ConstantStep, reward: Double, time: Long): ConstantStep = {
     val modern = v.decayTo(time, alpha, eps).value

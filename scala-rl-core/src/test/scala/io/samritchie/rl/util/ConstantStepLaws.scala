@@ -11,6 +11,9 @@ import org.scalacheck.Prop.forAll
 
 class ConstantStepLaws extends PropSpec with Checkers with ConstantStepArb {
   import BaseProperties._
+  import ConstantStep.zero
+  import ConstantStepLaws.fill
+
   val EPS: Double = 1e-10
   val alpha: Double = 0.1
 
@@ -24,35 +27,25 @@ class ConstantStepLaws extends PropSpec with Checkers with ConstantStepArb {
       }
     }
 
-  def fill(monoid: ConstantStepMonoid, init: ConstantStep, rewards: List[Double]): ConstantStep =
-    (rewards
-      .foldLeft((init, init.time)) {
-        case ((acc, ts), r) =>
-          (stepMonoid.reward(acc, r, ts), ts + 1)
-      })
-      ._1
-
   property("ConstantStep forms a commutative monoid")(check {
     monoidLaws[ConstantStep] && isCommutative[ConstantStep]
   })
 
   property("ConstantStep's monoid works like the single-step version")(check {
-    forAll { (rewards: List[Double]) =>
+    forAll { (rewards: List[Float]) =>
+      val (csAccumulator, t) = fill(stepMonoid, zero, rewards)
       val simpleAcc = rewards.foldLeft(0.0) {
         case (acc, reward) =>
           acc + alpha * (reward - acc)
       }
-      val csAcc = fill(stepMonoid, ConstantStep.zero, rewards)
-
-      approxEq(EPS)(simpleAcc, csAcc.value)
+      approxEq(EPS)(simpleAcc, csAccumulator.decayTo(t, alpha, EPS).value)
     }
   })
 
   property("Adding two instances together acts like a single instance with double rewards")(check {
-    forAll { (rewards: List[Double]) =>
-      val zero = ConstantStep.zero
-      val acc = fill(stepMonoid, zero, rewards)
-      val doubleAcc = fill(stepMonoid, zero, rewards.map(_ * 2))
+    forAll { (rewards: List[Float]) =>
+      val (acc, ts1) = fill(stepMonoid, zero, rewards)
+      val (doubleAcc, ts2) = fill(stepMonoid, zero, rewards.map(_.toDouble * 2))
 
       approxEq(EPS)(stepMonoid.plus(acc, acc).value, doubleAcc.value)
     }
@@ -60,7 +53,6 @@ class ConstantStepLaws extends PropSpec with Checkers with ConstantStepArb {
 
   property("With an alpha of one, all weight's placed on the latest reward.")(check {
     val oneMonoid = new ConstantStepMonoid(1.0, EPS)
-    val zero = ConstantStep.zero
 
     forAll { (rewards: List[Int]) =>
       val instances = rewards.scanLeft((zero, zero.time)) {
@@ -74,25 +66,50 @@ class ConstantStepLaws extends PropSpec with Checkers with ConstantStepArb {
       }
     }
   })
+
+  property("adding a reward works the same as adding an instance one tick later.")(check {
+    forAll { (cs: ConstantStep, reward: Float) =>
+      approxEq(EPS)(
+        stepMonoid.reward(cs, reward, cs.time).value,
+        stepMonoid.plus(cs, ConstantStep.build(reward, cs.time + 1)).value
+      )
+    }
+  })
+}
+
+object ConstantStepLaws {
+  def fill[T: Numeric](
+      monoid: ConstantStepMonoid,
+      init: ConstantStep,
+      rewards: List[T]
+  ): (ConstantStep, Long) =
+    rewards
+      .foldLeft((init, init.time)) {
+        case ((acc, ts), r) =>
+          (
+            monoid
+              .reward(acc, implicitly[Numeric[T]].toDouble(r), ts)
+              .decayTo(ts + 1, monoid.alpha, monoid.eps),
+            ts + 1
+          )
+      }
 }
 
 class ConstantStepTest extends org.scalatest.FunSuite {
   import BaseProperties.approxEq
+  import ConstantStep.zero
 
   val EPS: Double = 1e-10
   val alpha: Double = 0.1
+  val stepMonoid: ConstantStepMonoid = new ConstantStepMonoid(alpha, EPS)
 
   test("Two steps of the normal increment works as expected") {
-    val stepMonoid: ConstantStepMonoid = new ConstantStepMonoid(alpha, EPS)
-    val zero = ConstantStep.zero
-
     val r1 = 10
     val r2 = 12
 
     val stepOne = stepMonoid.reward(zero, r1, zero.time)
     val stepTwo = stepMonoid.reward(stepOne, r2, stepOne.time)
 
-    approxEq(EPS)(stepOne.value, alpha * r1)
     assert(approxEq(EPS)(stepOne.value, alpha * r1))
     assert(approxEq(EPS)(stepTwo.value, (alpha * r1) + alpha * (r2 - (alpha * r1))))
   }
