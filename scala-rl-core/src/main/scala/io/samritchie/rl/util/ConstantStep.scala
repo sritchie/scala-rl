@@ -9,18 +9,20 @@ import com.twitter.algebird.Monoid
   * constant weighting factor.
   */
 case class ConstantStep(value: Double, time: Long) extends Ordered[ConstantStep] {
+  import ConstantStep.{Alpha, Epsilon}
+
   def compare(that: ConstantStep): Int =
     time.compareTo(that.time) match {
       case 0     => value.compare(that.value)
       case other => other
     }
 
-  def decayTo(t2: Long, alpha: Double, eps: Double): ConstantStep =
+  def decayTo(t2: Long, alpha: Alpha, eps: Epsilon): ConstantStep =
     if (t2 <= time)
       this
     else {
-      val newV = value * math.pow(1 - alpha, t2 - time)
-      if (math.abs(newV) > eps)
+      val newV = value * math.pow(1 - alpha.toDouble, t2 - time)
+      if (math.abs(newV) > eps.toDouble)
         ConstantStep(newV, t2)
       else
         ConstantStep.zero
@@ -28,7 +30,9 @@ case class ConstantStep(value: Double, time: Long) extends Ordered[ConstantStep]
 }
 
 object ConstantStep {
-  case class Alpha(toDouble: Double) extends AnyVal
+  case class Alpha(toDouble: Double) extends AnyVal {
+    def *(r: Double): Double = toDouble * r
+  }
   case class Epsilon(toDouble: Double) extends AnyVal
 
   val zero: ConstantStep = ConstantStep(0.0, Long.MinValue)
@@ -39,11 +43,14 @@ object ConstantStep {
   def build[T](value: T, time: Long)(implicit num: Numeric[T]): ConstantStep =
     ConstantStep(num.toDouble(value), time)
 
-  def monoid(alpha: Double, eps: Double): Monoid[ConstantStep] =
+  def monoid(alpha: Alpha, eps: Epsilon): Monoid[ConstantStep] =
     new ConstantStepMonoid(alpha, eps)
 }
 
-case class ConstantStepMonoid(alpha: Double, eps: Double) extends Monoid[ConstantStep] {
+case class ConstantStepMonoid(
+    alpha: ConstantStep.Alpha,
+    eps: ConstantStep.Epsilon
+) extends Monoid[ConstantStep] {
   override val zero: ConstantStep = ConstantStep.zero
 
   override def isNonZero(cs: ConstantStep) = (cs.value != 0L)
