@@ -16,9 +16,7 @@ lazy val V = new {
 }
 
 lazy val docsSourcesAndProjects: Seq[ProjectReference] =
-  Seq(
-    rlCore
-  )
+  Seq(rlCore, rlPlot, rlBook)
 
 val compilerOptions = Seq(
   "-unchecked",
@@ -121,7 +119,7 @@ lazy val rl = Project(
   base = file("."))
   .settings(sharedSettings)
   .settings(noPublishSettings)
-  .aggregate(rlCore)
+  .aggregate(rlCore, rlBook, rlPlot)
 
 def module(name: String) = {
   val id = "scala-rl-%s".format(name)
@@ -132,21 +130,7 @@ def module(name: String) = {
 }
 
 lazy val rlCore = module("core").settings(
-  initialCommands :=
-    """
-import io.samritchie.rl._
-import com.stripe.rainier.sampler.RNG
-import com.stripe.rainier.compute.{Evaluator, Real}
-
-implicit val rng: RNG = RNG.default
-implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
-""".stripMargin('|'),
-
-  mainClass in (Compile, run) := Some("io.samritchie.rl.Game"),
   libraryDependencies ++= Seq(
-    // Charts.
-    "com.cibo" %% "evilplot" % V.evilplot,
-    "com.cibo" %% "evilplot-repl" % V.evilplot,
     // For the probability monad.
     "com.stripe" %% "rainier-cats" % V.rainier,
     "com.stripe" %% "rainier-core" % V.rainier,
@@ -162,6 +146,27 @@ implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
     "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
   ) ++ Seq(compilerPlugin("org.typelevel" %% "kind-projector" % V.kindProjector)),
 )
+
+lazy val rlPlot = module("plot").settings(
+  libraryDependencies ++= Seq(
+    // Charts.
+    "com.cibo" %% "evilplot" % V.evilplot,
+    "com.cibo" %% "evilplot-repl" % V.evilplot,
+  )
+).dependsOn(rlCore)
+
+lazy val rlBook = module("book").settings(
+  initialCommands :=
+    """
+import io.samritchie.rl._
+import com.stripe.rainier.sampler.RNG
+import com.stripe.rainier.compute.{Evaluator, Real}
+
+implicit val rng: RNG = RNG.default
+implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
+""".stripMargin('|'),
+  mainClass in (Compile, run) := Some("io.samritchie.rl.Game"),
+).dependsOn(rlCore, rlPlot)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
 
@@ -245,4 +250,4 @@ lazy val docs = project
   .settings(noPublishSettings)
   .settings(docSettings)
   .settings((scalacOptions in Tut) ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
-  .dependsOn(rlCore)
+  .dependsOn(rlCore, rlPlot, rlBook)
