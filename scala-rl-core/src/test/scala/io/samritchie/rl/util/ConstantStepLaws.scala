@@ -29,13 +29,13 @@ class ConstantStepLaws extends PropSpec with Checkers with ConstantStepArb {
   })
 
   property("ConstantStep's monoid works like the single-step version")(check {
-    forAll { (rewards: List[Float]) =>
+    forAll { (rewards: List[Int]) =>
       val (csAccumulator, t) = fill(stepMonoid, zero, rewards)
       val simpleAcc = rewards.foldLeft(0.0) {
         case (acc, reward) =>
           acc + alpha * (reward - acc)
       }
-      approxEq(EPS.toDouble)(simpleAcc, csAccumulator.decayTo(t, alpha, EPS).value)
+      approxEq(EPS.toDouble)(simpleAcc, csAccumulator.value)
     }
   })
 
@@ -99,12 +99,7 @@ object ConstantStepLaws {
     rewards
       .foldLeft((init, init.time)) {
         case ((acc, ts), r) =>
-          (
-            monoid
-              .reward(acc, implicitly[Numeric[T]].toDouble(r), ts)
-              .decayTo(ts.tick, monoid.alpha, monoid.eps),
-            ts.tick
-          )
+          (monoid.reward(acc, implicitly[Numeric[T]].toDouble(r), ts), ts.tick)
       }
 }
 
@@ -125,18 +120,14 @@ class ConstantStepTest extends org.scalatest.FunSuite {
   }
 
   test("monoid works like the single-step version") {
-    val rewards = List(5.1671178e-20, -1.671406e-38)
+    val rewards = List[Double](10, 50, 40, 32, 1.0)
     val (csAccumulator, t) = ConstantStepLaws.fill(stepMonoid, zero, rewards)
     val simpleAcc = rewards.foldLeft(0.0) {
       case (acc, reward) =>
         acc + alpha * (reward - acc)
     }
 
-    // TODO check here for some overflow bullshit and fix up the tests
-    // to not do that.
-    println(simpleAcc)
-    println(csAccumulator.decayTo(t, alpha, EPS))
-    assert(approxEq(EPS.toDouble)(simpleAcc, csAccumulator.decayTo(t, alpha, EPS).value))
+    assert(approxEq(EPS.toDouble)(csAccumulator.value, simpleAcc))
   }
 
   test("Adding an instance with (alpha * reward) one tick in the future equals a reward now.") {
