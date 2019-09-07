@@ -134,11 +134,11 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.samritchie.rl">rl</a></dd></dl></div>
     </li><li class="current-entities indented4">
-                        <a class="object" href="" title=""></a>
+                        <a class="object" href="EpsilonGreedy$.html" title=""></a>
                         <a class="class" href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid."></a>
                         <a href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid.">EpsilonGreedy</a>
                       </li><li class="current-entities indented4">
-                        <a class="object" href="Gradient$.html" title=""></a>
+                        <a class="object" href="" title=""></a>
                         <a class="class" href="Gradient.html" title="This thing needs to track its average reward internally..."></a>
                         <a href="Gradient.html" title="This thing needs to track its average reward internally...">Gradient</a>
                       </li><li class="current-entities indented4">
@@ -156,15 +156,15 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <a href="EpsilonGreedy.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
+        <a href="Gradient.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
         <p id="owner"><a href="../../../index.html" class="extype" name="io">io</a>.<a href="../../index.html" class="extype" name="io.samritchie">samritchie</a>.<a href="../index.html" class="extype" name="io.samritchie.rl">rl</a>.<a href="index.html" class="extype" name="io.samritchie.rl.policy">policy</a></p>
-        <h1><a href="EpsilonGreedy.html" title="See companion class">EpsilonGreedy</a><span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html" title="Permalink">
+        <h1><a href="Gradient.html" title="See companion class">Gradient</a><span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
         <h3><span class="morelinks"><div>
-            Companion <a href="EpsilonGreedy.html" title="See companion class">class EpsilonGreedy</a>
+            Companion <a href="Gradient.html" title="See companion class">class Gradient</a>
           </div></span></h3>
       </div>
 
@@ -174,12 +174,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">EpsilonGreedy</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Gradient</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/EpsilonGreedy.scala" target="_blank">EpsilonGreedy.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/Gradient.scala" target="_blank">Gradient.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -209,7 +209,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.samritchie.rl.policy.EpsilonGreedy"><span>EpsilonGreedy</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.samritchie.rl.policy.Gradient"><span>Gradient</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -231,10 +231,10 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.samritchie.rl.policy.EpsilonGreedy.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.samritchie.rl.policy.Gradient.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Config[R,T]extendsProductwithSerializable"></a><a id="Config[R,T]:Config[R,T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#Config[R,T]extendsProductwithSerializable" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#Config[R,T]extendsProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -243,10 +243,26 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="EpsilonGreedy$$Config.html"><span class="name">Config</span></a><span class="tparams">[<span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$3">evidence$3: <span class="extype" name="com.twitter.algebird.Semigroup">Semigroup</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span>]</span>, <span name="evidence$4">evidence$4: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Holds properties necessary to run the gradient algorithm." href="Gradient$$Config.html"><span class="name">Config</span></a><span class="tparams">[<span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="initial">initial: <a href="Gradient$$Item.html" class="extype" name="io.samritchie.rl.policy.Gradient.Item">Item</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.Config.T">T</span>]</span>, <span name="stepSize">stepSize: <span class="extype" name="com.stripe.rainier.compute.Real">Real</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.Gradient.Config.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.Gradient.Config.T">T</span></span>, <span name="plus">plus: (<span class="extype" name="io.samritchie.rl.policy.Gradient.Config.T">T</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.Config.T">T</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.Gradient.Config.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$4">evidence$4: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.Config.R">R</span>]</span>, <span name="evidence$5">evidence$5: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.Config.T">T</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
+      <p class="shortcomment cmt">Holds properties necessary to run the gradient algorithm.</p>
+    </li><li name="io.samritchie.rl.policy.Gradient.Item" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Item[T]extendsProductwithSerializable"></a><a id="Item[T]:Item[T]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#Item[T]extendsProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents an action value AND some sort of accumulated value." href="Gradient$$Item.html"><span class="name">Item</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="q">q: <span class="extype" name="com.stripe.rainier.compute.Real">Real</span></span>, <span name="t">t: <span class="extype" name="io.samritchie.rl.policy.Gradient.Item.T">T</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
       
+      <p class="shortcomment cmt">Represents an action value AND some sort of accumulated value.</p>
     </li></ol>
             </div>
 
@@ -258,7 +274,7 @@
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -274,7 +290,7 @@
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html###():Int" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -290,7 +306,7 @@
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -306,7 +322,7 @@
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -322,7 +338,7 @@
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#clone():Object" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -346,7 +362,7 @@
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -362,7 +378,7 @@
     </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#equals(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#equals(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -378,7 +394,7 @@
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#finalize():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -397,10 +413,26 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.Gradient#fromAggregator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fromAggregator[R,T](stepSize:com.stripe.rainier.compute.Real,initial:T,agg:com.twitter.algebird.Aggregator[R,T,com.stripe.rainier.compute.Real])(implicitevidence$6:com.stripe.rainier.compute.ToReal[R]):io.samritchie.rl.policy.Gradient.Config[R,T]"></a><a id="fromAggregator[R,T](Real,T,Aggregator[R,T,Real])(ToReal[R]):Config[R,T]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#fromAggregator[R,T](stepSize:com.stripe.rainier.compute.Real,initial:T,agg:com.twitter.algebird.Aggregator[R,T,com.stripe.rainier.compute.Real])(implicitevidence$6:com.stripe.rainier.compute.ToReal[R]):io.samritchie.rl.policy.Gradient.Config[R,T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromAggregator</span><span class="tparams">[<span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="stepSize">stepSize: <span class="extype" name="com.stripe.rainier.compute.Real">Real</span></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.Gradient.fromAggregator.T">T</span></span>, <span name="agg">agg: <span class="extype" name="com.twitter.algebird.Aggregator">Aggregator</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.fromAggregator.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.fromAggregator.T">T</span>, <span class="extype" name="com.stripe.rainier.compute.Real">Real</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.fromAggregator.R">R</span>]</span>)</span><span class="result">: <a href="Gradient$$Config.html" class="extype" name="io.samritchie.rl.policy.Gradient.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.fromAggregator.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.fromAggregator.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Generate this gradient from some aggregator.</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -419,7 +451,7 @@
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#hashCode():Int" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -435,10 +467,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#incrementalConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="incrementalConfig(epsilon:Double,initial:Double):io.samritchie.rl.policy.EpsilonGreedy.Config[Double,com.twitter.algebird.AveragedValue]"></a><a id="incrementalConfig(Double,Double):Config[Double,AveragedValue]"></a>
+    </li><li name="io.samritchie.rl.policy.Gradient#incrementalConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="incrementalConfig(stepSize:com.stripe.rainier.compute.Real,initial:Double):io.samritchie.rl.policy.Gradient.Config[Double,com.twitter.algebird.AveragedValue]"></a><a id="incrementalConfig(Real,Double):Config[Double,AveragedValue]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#incrementalConfig(epsilon:Double,initial:Double):io.samritchie.rl.policy.EpsilonGreedy.Config[Double,com.twitter.algebird.AveragedValue]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#incrementalConfig(stepSize:com.stripe.rainier.compute.Real,initial:Double):io.samritchie.rl.policy.Gradient.Config[Double,com.twitter.algebird.AveragedValue]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -447,16 +479,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">incrementalConfig</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="initial">initial: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">0.0</span></span>)</span><span class="result">: <a href="EpsilonGreedy$$Config.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config">Config</a>[<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="com.twitter.algebird.AveragedValue">AveragedValue</span>]</span>
+        <span class="name">incrementalConfig</span><span class="params">(<span name="stepSize">stepSize: <span class="extype" name="com.stripe.rainier.compute.Real">Real</span></span>, <span name="initial">initial: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">0.0</span></span>)</span><span class="result">: <a href="Gradient$$Config.html" class="extype" name="io.samritchie.rl.policy.Gradient.Config">Config</a>[<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="com.twitter.algebird.AveragedValue">AveragedValue</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Returns an incremental config.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an incremental config.</p><p>TODO we also need a version that uses a constant step size,
-instead of sample averages. And maybe a version that uses
-exponential decay?</p></div></div>
+      <p class="shortcomment cmt">Hand-selected version that uses AveragedValue to accumulate
+internally.</p>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -472,7 +503,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -485,10 +516,26 @@ exponential decay?</p></div></div>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.Gradient#noBaseline" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="noBaseline(stepSize:com.stripe.rainier.compute.Real):io.samritchie.rl.policy.Gradient.Config[Double,Unit]"></a><a id="noBaseline(Real):Config[Double,Unit]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#noBaseline(stepSize:com.stripe.rainier.compute.Real):io.samritchie.rl.policy.Gradient.Config[Double,Unit]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">noBaseline</span><span class="params">(<span name="stepSize">stepSize: <span class="extype" name="com.stripe.rainier.compute.Real">Real</span></span>)</span><span class="result">: <a href="Gradient$$Config.html" class="extype" name="io.samritchie.rl.policy.Gradient.Config">Config</a>[<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Uses NO averaging baseline.</p>
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#notify():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -507,7 +554,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -526,7 +573,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -542,7 +589,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#toString():String" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -558,7 +605,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -580,7 +627,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -602,7 +649,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -623,6 +670,22 @@ exponential decay?</p></div></div>
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.Gradient.Item" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Item"></a><a id="Item:Item"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient$.html#Item" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Gradient$$Item$.html"><span class="name">Item</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li>
               </ol>
             </div>

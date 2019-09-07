@@ -165,6 +165,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.samritchie.rl">rl</a></dd></dl></div>
+    </li><li name="io.samritchie.rl.util" visbl="pub" class="indented4 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="util"></a><a id="util:util"></a>
+      <span class="permalink">
+      <a href="../../../io/samritchie/rl/index.html#util" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="util/index.html"><span class="name">util</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.samritchie.rl">rl</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="Decider.html" title="Trait for things that can choose some Monadic result."></a>
@@ -193,6 +209,10 @@
                         <span class="separator"></span>
                         <a class="trait" href="StochasticDecider.html" title=""></a>
                         <a href="StochasticDecider.html" title="">StochasticDecider</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="Time$.html" title=""></a>
+                        <a class="class" href="Time.html" title=""></a>
+                        <a href="Time.html" title="">Time</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="Util$.html" title=""></a>
@@ -232,7 +252,7 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Playing the game, currently. This is my test harness.</p><p>What we REALLY NEED here is both the top and bottom graphs,
 getting it done.</p><p>The top graph is the average reward across GAMES per step.</p><p>So we really want to march them ALL forward and grab the average
 reward...
-</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/Game.scala" target="_blank">Game.scala</a></dd></dl><div class="toggleContainer block">
+</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-book/src/main/scala/io/samritchie/rl/Game.scala" target="_blank">Game.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -385,22 +405,6 @@ reward...
       </span>
       <span class="symbol">
         <span class="name">average</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
-      </span>
-      
-      
-    </li><li name="io.samritchie.rl.Game#cake" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="cake(policy:io.samritchie.rl.Game.EG):List[Double]"></a><a id="cake(EG):List[Double]"></a>
-      <span class="permalink">
-      <a href="../../../io/samritchie/rl/Game$.html#cake(policy:io.samritchie.rl.Game.EG):List[Double]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">cake</span><span class="params">(<span name="policy">policy: <a href="#EG=io.samritchie.rl.policy.EpsilonGreedy[io.samritchie.rl.state.Bandit.Arm,Double,com.twitter.algebird.AveragedValue]" class="extmbr" name="io.samritchie.rl.Game.EG">EG</a></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       
       
@@ -622,6 +626,22 @@ reward...
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="io.samritchie.rl.Game#play" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="play(policy:io.samritchie.rl.Game.EG):List[Double]"></a><a id="play(EG):List[Double]"></a>
+      <span class="permalink">
+      <a href="../../../io/samritchie/rl/Game$.html#play(policy:io.samritchie.rl.Game.EG):List[Double]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">play</span><span class="params">(<span name="policy">policy: <a href="#EG=io.samritchie.rl.policy.EpsilonGreedy[io.samritchie.rl.state.Bandit.Arm,Double,com.twitter.algebird.AveragedValue]" class="extmbr" name="io.samritchie.rl.Game.EG">EG</a></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+      </span>
+      
+      
     </li><li name="io.samritchie.rl.Game#playBandit" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="playBandit[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]](policy:P,stateGen:com.stripe.rainier.core.Generator[io.samritchie.rl.state.Bandit[A,R]],nRuns:Int,timeSteps:Int,penalty:R)(reduce:List[R]=&gt;R):(List[(P,io.samritchie.rl.State[A,R])],List[R])"></a><a id="playBandit[A,R,P&lt;:Policy[A,R,P]](P,Generator[Bandit[A,R]],Int,Int,R)((List[R])⇒R):(List[(P,State[A,R])],List[R])"></a>
       <span class="permalink">

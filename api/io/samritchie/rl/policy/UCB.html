@@ -134,7 +134,7 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.samritchie.rl">rl</a></dd></dl></div>
     </li><li class="current-entities indented4">
-                        <a class="object" href="" title=""></a>
+                        <a class="object" href="EpsilonGreedy$.html" title=""></a>
                         <a class="class" href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid."></a>
                         <a href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid.">EpsilonGreedy</a>
                       </li><li class="current-entities indented4">
@@ -147,44 +147,54 @@
                         <a href="Random.html" title="Random policy.">Random</a>
                       </li><li class="current-entities indented4">
                         <a class="object" href="UCB$.html" title=""></a>
-                        <a class="class" href="UCB.html" title=""></a>
-                        <a href="UCB.html" title="">UCB</a>
+                        <a class="class" href="" title=""></a>
+                        <a href="" title="">UCB</a>
                       </li>
               </ul>
             </div>
           </div>
           <div id="content">
-            <body class="object value">
+            <body class="class type">
       <div id="definition">
-        <a href="EpsilonGreedy.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
+        <a href="UCB$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
         <p id="owner"><a href="../../../index.html" class="extype" name="io">io</a>.<a href="../../index.html" class="extype" name="io.samritchie">samritchie</a>.<a href="../index.html" class="extype" name="io.samritchie.rl">rl</a>.<a href="index.html" class="extype" name="io.samritchie.rl.policy">policy</a></p>
-        <h1><a href="EpsilonGreedy.html" title="See companion class">EpsilonGreedy</a><span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html" title="Permalink">
+        <h1><a href="UCB$.html" title="See companion object">UCB</a><span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
         <h3><span class="morelinks"><div>
-            Companion <a href="EpsilonGreedy.html" title="See companion class">class EpsilonGreedy</a>
+            Companion <a href="UCB$.html" title="See companion object">object UCB</a>
           </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">object</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">EpsilonGreedy</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">UCB</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="config">config: <a href="UCB$$Config.html" class="extype" name="io.samritchie.rl.policy.UCB.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <a href="UCB$$Choice.html" class="extype" name="io.samritchie.rl.policy.UCB.Choice">Choice</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]]</span>, <span name="time">time: <a href="../Time.html" class="extype" name="io.samritchie.rl.Time">Time</a></span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/EpsilonGreedy.scala" target="_blank">EpsilonGreedy.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/UCB.scala" target="_blank">UCB.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
-        </div></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]], <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>], <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
+                <span class="toggle diagram-link">
+                  Type Hierarchy
+                </span>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 333.50 118.00" height="118pt" width="334pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 114)" class="graph" id="page0,1_graph0"><polygon points="-4,4 -4,-114 329.5,-114 329.5,4 -4,4" stroke="transparent" fill="#ffffff"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="io.samritchie.rl.policy.UCB (this class)" xlink:href="#inheritance-diagram"><path d="M224.6667,-49C224.6667,-49 152.3333,-49 152.3333,-49 148.1667,-49 144,-44.8333 144,-40.6667 144,-40.6667 144,-32.3333 144,-32.3333 144,-28.1667 148.1667,-24 152.3333,-24 152.3333,-24 224.6667,-24 224.6667,-24 228.8333,-24 233,-28.1667 233,-32.3333 233,-32.3333 233,-40.6667 233,-40.6667 233,-44.8333 228.8333,-49 224.6667,-49" stroke="#418565" fill="#418565"></path><image xlink:href="../../../../lib/class_diagram.png" y="-43.5" x="154.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-33.6" x="175.3457" text-anchor="start">UCB[A, R, T]</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="io.samritchie.rl.Policy" xlink:href="../Policy.html#inheritance-diagram"><path d="M126.6667,-110C126.6667,-110 8.3333,-110 8.3333,-110 4.1667,-110 0,-105.8333 0,-101.6667 0,-101.6667 0,-93.3333 0,-93.3333 0,-89.1667 4.1667,-85 8.3333,-85 8.3333,-85 126.6667,-85 126.6667,-85 130.8333,-85 135,-89.1667 135,-93.3333 135,-93.3333 135,-101.6667 135,-101.6667 135,-105.8333 130.8333,-110 126.6667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="10.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="31.4512" text-anchor="start">Policy[A, R, UCB[A, R, T]]</text></a></g></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><g id="a_inheritance|graph1_1_0"><a xlink:title="UCB[A, R, T] is a subtype of Policy[A, R, UCB[A, R, T]]"><path d="M98.8852,-81.6777C118.9912,-71.5416 144.7302,-58.5657 163.4608,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="97.719,-79.5218 92.5713,-84.8608 99.9248,-83.8973 97.719,-79.5218" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="scala.Product"><path d="M215.1667,-110C215.1667,-110 161.8333,-110 161.8333,-110 157.6667,-110 153.5,-105.8333 153.5,-101.6667 153.5,-101.6667 153.5,-93.3333 153.5,-93.3333 153.5,-89.1667 157.6667,-85 161.8333,-85 161.8333,-85 215.1667,-85 215.1667,-85 219.3333,-85 223.5,-89.1667 223.5,-93.3333 223.5,-93.3333 223.5,-101.6667 223.5,-101.6667 223.5,-105.8333 219.3333,-110 215.1667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="163.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="184.1035" text-anchor="start">Product</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="UCB[A, R, T] is a subtype of Product"><path d="M188.5,-77.7386C188.5,-68.3393 188.5,-57.3803 188.5,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="186.0501,-77.8607 188.5,-84.8608 190.9501,-77.8608 186.0501,-77.8607" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="scala.Serializable"><path d="M317.1667,-110C317.1667,-110 249.8333,-110 249.8333,-110 245.6667,-110 241.5,-105.8333 241.5,-101.6667 241.5,-101.6667 241.5,-93.3333 241.5,-93.3333 241.5,-89.1667 245.6667,-85 249.8333,-85 249.8333,-85 317.1667,-85 317.1667,-85 321.3333,-85 325.5,-89.1667 325.5,-93.3333 325.5,-93.3333 325.5,-101.6667 325.5,-101.6667 325.5,-105.8333 321.3333,-110 317.1667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="251.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="272.2109" text-anchor="start">Serializable</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="UCB[A, R, T] is a subtype of Serializable"><path d="M257.8275,-81.0156C242.2008,-70.9816 222.5464,-58.3614 208.1588,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="256.6019,-83.1401 263.8159,-84.8608 259.2494,-79.0169 256.6019,-83.1401" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
+                <div id="diagram-controls" class="hiddenContent">
+                  <button id="diagram-zoom-out" class="diagram-btn"><i class="material-icons"></i></button>
+                  <button id="diagram-zoom-in" class="diagram-btn"><i class="material-icons"></i></button>
+                  <button title="Toggle full-screen" id="diagram-fs" class="diagram-btn to-full"><i class="material-icons"></i></button>
+                </div>
+              </div></div>
         
 
       <div id="mbrsel">
@@ -209,7 +219,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.samritchie.rl.policy.EpsilonGreedy"><span>EpsilonGreedy</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.samritchie.rl.policy.UCB"><span>UCB</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="io.samritchie.rl.Policy"><span>Policy</span></li><li class="in" name="io.samritchie.rl.Decider"><span>Decider</span></li><li class="in" name="io.samritchie.rl.Learner"><span>Learner</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -227,28 +237,28 @@
 
       <div id="template">
         <div id="allMembers">
-        
-
-        <div id="types" class="types members">
-              <h3>Type Members</h3>
-              <ol><li name="io.samritchie.rl.policy.EpsilonGreedy.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Config[R,T]extendsProductwithSerializable"></a><a id="Config[R,T]:Config[R,T]"></a>
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="io.samritchie.rl.policy.UCB#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(config:io.samritchie.rl.policy.UCB.Config[R,T],actionValues:Map[A,io.samritchie.rl.policy.UCB.Choice[T]],time:io.samritchie.rl.Time):io.samritchie.rl.policy.UCB[A,R,T]"></a><a id="&lt;init&gt;:UCB[A,R,T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#Config[R,T]extendsProductwithSerializable" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#&lt;init&gt;(config:io.samritchie.rl.policy.UCB.Config[R,T],actionValues:Map[A,io.samritchie.rl.policy.UCB.Choice[T]],time:io.samritchie.rl.Time):io.samritchie.rl.policy.UCB[A,R,T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <a title="" href="EpsilonGreedy$$Config.html"><span class="name">Config</span></a><span class="tparams">[<span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$3">evidence$3: <span class="extype" name="com.twitter.algebird.Semigroup">Semigroup</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span>]</span>, <span name="evidence$4">evidence$4: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">UCB</span><span class="params">(<span name="config">config: <a href="UCB$$Config.html" class="extype" name="io.samritchie.rl.policy.UCB.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <a href="UCB$$Choice.html" class="extype" name="io.samritchie.rl.policy.UCB.Choice">Choice</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]]</span>, <span name="time">time: <a href="../Time.html" class="extype" name="io.samritchie.rl.Time">Time</a></span>)</span>
       </span>
       
       
     </li></ol>
             </div>
+
+        
 
         
 
@@ -258,7 +268,7 @@
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -274,7 +284,7 @@
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html###():Int" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -290,7 +300,7 @@
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -303,10 +313,26 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.UCB#actionValues" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="actionValues:Map[A,io.samritchie.rl.policy.UCB.Choice[T]]"></a><a id="actionValues:Map[A,Choice[T]]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#actionValues:Map[A,io.samritchie.rl.policy.UCB.Choice[T]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">actionValues</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <a href="UCB$$Choice.html" class="extype" name="io.samritchie.rl.policy.UCB.Choice">Choice</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]]</span>
+      </span>
+      
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -319,10 +345,26 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.UCB#choose" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="choose(state:io.samritchie.rl.State[A,R]):com.stripe.rainier.core.Generator[A]"></a><a id="choose(State[A,R]):Generator[A]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#choose(state:io.samritchie.rl.State[A,R]):com.stripe.rainier.core.Generator[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">choose</span><span class="params">(<span name="state">state: <a href="../State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a> → <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#clone():Object" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -343,10 +385,26 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.UCB#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="config:io.samritchie.rl.policy.UCB.Config[R,T]"></a><a id="config:Config[R,T]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#config:io.samritchie.rl.policy.UCB.Config[R,T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">config</span><span class="result">: <a href="UCB$$Config.html" class="extype" name="io.samritchie.rl.policy.UCB.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -359,26 +417,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
-      <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#equals(x$1:Any):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#finalize():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -400,7 +442,7 @@
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -416,47 +458,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#hashCode():Int" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
-        </dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#incrementalConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="incrementalConfig(epsilon:Double,initial:Double):io.samritchie.rl.policy.EpsilonGreedy.Config[Double,com.twitter.algebird.AveragedValue]"></a><a id="incrementalConfig(Double,Double):Config[Double,AveragedValue]"></a>
-      <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#incrementalConfig(epsilon:Double,initial:Double):io.samritchie.rl.policy.EpsilonGreedy.Config[Double,com.twitter.algebird.AveragedValue]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">incrementalConfig</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="initial">initial: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">0.0</span></span>)</span><span class="result">: <a href="EpsilonGreedy$$Config.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config">Config</a>[<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="com.twitter.algebird.AveragedValue">AveragedValue</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Returns an incremental config.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an incremental config.</p><p>TODO we also need a version that uses a constant step size,
-instead of sample averages. And maybe a version that uses
-exponential decay?</p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -469,10 +474,32 @@ exponential decay?</p></div></div>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.UCB#learn" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="learn(state:io.samritchie.rl.State[A,R],action:A,reward:R):io.samritchie.rl.policy.UCB[A,R,T]"></a><a id="learn(State[A,R],A,R):UCB[A,R,T]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#learn(state:io.samritchie.rl.State[A,R],action:A,reward:R):io.samritchie.rl.policy.UCB[A,R,T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">learn</span><span class="params">(<span name="state">state: <a href="../State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>]</span>, <span name="action">action: <span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span></span>, <span name="reward">reward: <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span></span>)</span><span class="result">: <a href="" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">OR does this information go later? A particular policy should
+get to witness the results of a decision...</p><div class="fullcomment"><div class="comment cmt"><p>OR does this information go later? A particular policy should
+get to witness the results of a decision... but instead of a
+reward it might be a particular long term return.</p><p>And each of the policies needs to have some array or something
+that it is using to track all of these state values.</p><p>SO THIS might not be great. But at this state, if you take this
+action, you get this reward. That's the note.</p><p>This of course might need to be a monadic response.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a> → <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -488,7 +515,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#notify():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -507,7 +534,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -526,7 +553,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -539,26 +566,26 @@ exponential decay?</p></div></div>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
+    </li><li name="io.samritchie.rl.policy.UCB#time" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="time:io.samritchie.rl.Time"></a><a id="time:Time"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#toString():String" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#time:io.samritchie.rl.Time" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+        <span class="name">time</span><span class="result">: <a href="../Time.html" class="extype" name="io.samritchie.rl.Time">Time</a></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -580,7 +607,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -602,7 +629,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -637,6 +664,16 @@ exponential decay?</p></div></div>
               <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
             </div><div class="parent" name="java.io.Serializable">
               <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="io.samritchie.rl.Policy">
+              <h3>Inherited from <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]]</h3>
+            </div><div class="parent" name="io.samritchie.rl.Decider">
+              <h3>Inherited from <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>]</h3>
+            </div><div class="parent" name="io.samritchie.rl.Learner">
+              <h3>Inherited from <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

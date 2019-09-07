@@ -117,10 +117,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="io.samritchie">samritchie</a></dd></dl></div>
-    </li><li name="io.samritchie.rl.policy" visbl="pub" class="indented4 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="policy"></a><a id="policy:policy"></a>
+    </li><li name="io.samritchie.rl.util" visbl="pub" class="indented4 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="util"></a><a id="util:util"></a>
       <span class="permalink">
-      <a href="../../../io/samritchie/rl/index.html#policy" title="Permalink">
+      <a href="../../../io/samritchie/rl/index.html#util" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -129,26 +129,18 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="index.html"><span class="name">policy</span></a>
+        <a title="" href="index.html"><span class="name">util</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.samritchie.rl">rl</a></dd></dl></div>
     </li><li class="current-entities indented4">
                         <a class="object" href="" title=""></a>
-                        <a class="class" href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid."></a>
-                        <a href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid.">EpsilonGreedy</a>
+                        <a class="class" href="ConstantStep.html" title="Exponential recency-weighted average."></a>
+                        <a href="ConstantStep.html" title="Exponential recency-weighted average.">ConstantStep</a>
                       </li><li class="current-entities indented4">
-                        <a class="object" href="Gradient$.html" title=""></a>
-                        <a class="class" href="Gradient.html" title="This thing needs to track its average reward internally..."></a>
-                        <a href="Gradient.html" title="This thing needs to track its average reward internally...">Gradient</a>
-                      </li><li class="current-entities indented4">
-                        <a class="object" href="Random$.html" title=""></a>
-                        <a class="class" href="Random.html" title="Random policy."></a>
-                        <a href="Random.html" title="Random policy.">Random</a>
-                      </li><li class="current-entities indented4">
-                        <a class="object" href="UCB$.html" title=""></a>
-                        <a class="class" href="UCB.html" title=""></a>
-                        <a href="UCB.html" title="">UCB</a>
+                        <span class="separator"></span>
+                        <a class="class" href="ConstantStepMonoid.html" title=""></a>
+                        <a href="ConstantStepMonoid.html" title="">ConstantStepMonoid</a>
                       </li>
               </ul>
             </div>
@@ -156,15 +148,15 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <a href="EpsilonGreedy.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
-        <p id="owner"><a href="../../../index.html" class="extype" name="io">io</a>.<a href="../../index.html" class="extype" name="io.samritchie">samritchie</a>.<a href="../index.html" class="extype" name="io.samritchie.rl">rl</a>.<a href="index.html" class="extype" name="io.samritchie.rl.policy">policy</a></p>
-        <h1><a href="EpsilonGreedy.html" title="See companion class">EpsilonGreedy</a><span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html" title="Permalink">
+        <a href="ConstantStep.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
+        <p id="owner"><a href="../../../index.html" class="extype" name="io">io</a>.<a href="../../index.html" class="extype" name="io.samritchie">samritchie</a>.<a href="../index.html" class="extype" name="io.samritchie.rl">rl</a>.<a href="index.html" class="extype" name="io.samritchie.rl.util">util</a></p>
+        <h1><a href="ConstantStep.html" title="See companion class">ConstantStep</a><span class="permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
         <h3><span class="morelinks"><div>
-            Companion <a href="EpsilonGreedy.html" title="See companion class">class EpsilonGreedy</a>
+            Companion <a href="ConstantStep.html" title="See companion class">class ConstantStep</a>
           </div></span></h3>
       </div>
 
@@ -174,12 +166,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">EpsilonGreedy</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ConstantStep</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/EpsilonGreedy.scala" target="_blank">EpsilonGreedy.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/util/ConstantStep.scala" target="_blank">ConstantStep.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -209,7 +201,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.samritchie.rl.policy.EpsilonGreedy"><span>EpsilonGreedy</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.samritchie.rl.util.ConstantStep"><span>ConstantStep</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -231,19 +223,35 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.samritchie.rl.policy.EpsilonGreedy.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Config[R,T]extendsProductwithSerializable"></a><a id="Config[R,T]:Config[R,T]"></a>
+              <ol><li name="io.samritchie.rl.util.ConstantStep.Alpha" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AlphaextendsAnyValwithProductwithSerializable"></a><a id="Alpha:Alpha"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#Config[R,T]extendsProductwithSerializable" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#AlphaextendsAnyValwithProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="EpsilonGreedy$$Config.html"><span class="name">Config</span></a><span class="tparams">[<span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$3">evidence$3: <span class="extype" name="com.twitter.algebird.Semigroup">Semigroup</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span>]</span>, <span name="evidence$4">evidence$4: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="ConstantStep$$Alpha.html"><span class="name">Alpha</span></a><span class="params">(<span name="toDouble">toDouble: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="io.samritchie.rl.util.ConstantStep.Epsilon" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="EpsilonextendsAnyValwithProductwithSerializable"></a><a id="Epsilon:Epsilon"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#EpsilonextendsAnyValwithProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="ConstantStep$$Epsilon.html"><span class="name">Epsilon</span></a><span class="params">(<span name="toDouble">toDouble: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -258,7 +266,7 @@
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -274,7 +282,7 @@
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html###():Int" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -290,7 +298,7 @@
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -306,7 +314,7 @@
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -319,10 +327,58 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.samritchie.rl.util.ConstantStep#buildAggregate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="buildAggregate[T](value:T,time:io.samritchie.rl.Time)(implicitnum:Numeric[T]):io.samritchie.rl.util.ConstantStep"></a><a id="buildAggregate[T](T,Time)(Numeric[T]):ConstantStep"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#buildAggregate[T](value:T,time:io.samritchie.rl.Time)(implicitnum:Numeric[T]):io.samritchie.rl.util.ConstantStep" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">buildAggregate</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.samritchie.rl.util.ConstantStep.buildAggregate.T">T</span></span>, <span name="time">time: <a href="../Time.html" class="extype" name="io.samritchie.rl.Time">Time</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="num">num: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="io.samritchie.rl.util.ConstantStep.buildAggregate.T">T</span>]</span>)</span><span class="result">: <a href="ConstantStep.html" class="extype" name="io.samritchie.rl.util.ConstantStep">ConstantStep</a></span>
+      </span>
+      
+      
+    </li><li name="io.samritchie.rl.util.ConstantStep#buildAggregate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="buildAggregate[T](value:T)(implicitnum:Numeric[T]):io.samritchie.rl.util.ConstantStep"></a><a id="buildAggregate[T](T)(Numeric[T]):ConstantStep"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#buildAggregate[T](value:T)(implicitnum:Numeric[T]):io.samritchie.rl.util.ConstantStep" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">buildAggregate</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.samritchie.rl.util.ConstantStep.buildAggregate.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="num">num: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="io.samritchie.rl.util.ConstantStep.buildAggregate.T">T</span>]</span>)</span><span class="result">: <a href="ConstantStep.html" class="extype" name="io.samritchie.rl.util.ConstantStep">ConstantStep</a></span>
+      </span>
+      
+      
+    </li><li name="io.samritchie.rl.util.ConstantStep#buildReward" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="buildReward[T](reward:T,alpha:io.samritchie.rl.util.ConstantStep.Alpha,time:io.samritchie.rl.Time)(implicitnum:Numeric[T]):io.samritchie.rl.util.ConstantStep"></a><a id="buildReward[T](T,Alpha,Time)(Numeric[T]):ConstantStep"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#buildReward[T](reward:T,alpha:io.samritchie.rl.util.ConstantStep.Alpha,time:io.samritchie.rl.Time)(implicitnum:Numeric[T]):io.samritchie.rl.util.ConstantStep" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">buildReward</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="reward">reward: <span class="extype" name="io.samritchie.rl.util.ConstantStep.buildReward.T">T</span></span>, <span name="alpha">alpha: <a href="ConstantStep$$Alpha.html" class="extype" name="io.samritchie.rl.util.ConstantStep.Alpha">Alpha</a></span>, <span name="time">time: <a href="../Time.html" class="extype" name="io.samritchie.rl.Time">Time</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="num">num: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="io.samritchie.rl.util.ConstantStep.buildReward.T">T</span>]</span>)</span><span class="result">: <a href="ConstantStep.html" class="extype" name="io.samritchie.rl.util.ConstantStep">ConstantStep</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Rewards can only be assigned to time one tick in the future.</p>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#clone():Object" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -346,7 +402,7 @@
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -362,7 +418,7 @@
     </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#equals(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#equals(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -378,7 +434,7 @@
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#finalize():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -400,7 +456,7 @@
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -419,7 +475,7 @@
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#hashCode():Int" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -435,28 +491,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#incrementalConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="incrementalConfig(epsilon:Double,initial:Double):io.samritchie.rl.policy.EpsilonGreedy.Config[Double,com.twitter.algebird.AveragedValue]"></a><a id="incrementalConfig(Double,Double):Config[Double,AveragedValue]"></a>
-      <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#incrementalConfig(epsilon:Double,initial:Double):io.samritchie.rl.policy.EpsilonGreedy.Config[Double,com.twitter.algebird.AveragedValue]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">incrementalConfig</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="initial">initial: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">0.0</span></span>)</span><span class="result">: <a href="EpsilonGreedy$$Config.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config">Config</a>[<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="com.twitter.algebird.AveragedValue">AveragedValue</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Returns an incremental config.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an incremental config.</p><p>TODO we also need a version that uses a constant step size,
-instead of sample averages. And maybe a version that uses
-exponential decay?</p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -469,10 +507,26 @@ exponential decay?</p></div></div>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.samritchie.rl.util.ConstantStep#monoid" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="monoid(alpha:io.samritchie.rl.util.ConstantStep.Alpha,eps:io.samritchie.rl.util.ConstantStep.Epsilon):com.twitter.algebird.Monoid[io.samritchie.rl.util.ConstantStep]"></a><a id="monoid(Alpha,Epsilon):Monoid[ConstantStep]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#monoid(alpha:io.samritchie.rl.util.ConstantStep.Alpha,eps:io.samritchie.rl.util.ConstantStep.Epsilon):com.twitter.algebird.Monoid[io.samritchie.rl.util.ConstantStep]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monoid</span><span class="params">(<span name="alpha">alpha: <a href="ConstantStep$$Alpha.html" class="extype" name="io.samritchie.rl.util.ConstantStep.Alpha">Alpha</a></span>, <span name="eps">eps: <a href="ConstantStep$$Epsilon.html" class="extype" name="io.samritchie.rl.util.ConstantStep.Epsilon">Epsilon</a></span>)</span><span class="result">: <span class="extype" name="com.twitter.algebird.Monoid">Monoid</span>[<a href="ConstantStep.html" class="extype" name="io.samritchie.rl.util.ConstantStep">ConstantStep</a>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -488,7 +542,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#notify():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -507,7 +561,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -526,7 +580,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -542,7 +596,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#toString():String" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -558,7 +612,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -580,7 +634,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -602,7 +656,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -623,6 +677,22 @@ exponential decay?</p></div></div>
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.samritchie.rl.util.ConstantStep#zero" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="zero:io.samritchie.rl.util.ConstantStep"></a><a id="zero:ConstantStep"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/util/ConstantStep$.html#zero:io.samritchie.rl.util.ConstantStep" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zero</span><span class="result">: <a href="ConstantStep.html" class="extype" name="io.samritchie.rl.util.ConstantStep">ConstantStep</a></span>
+      </span>
+      
+      
     </li>
               </ol>
             </div>

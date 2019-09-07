@@ -134,7 +134,7 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.samritchie.rl">rl</a></dd></dl></div>
     </li><li class="current-entities indented4">
-                        <a class="object" href="" title=""></a>
+                        <a class="object" href="EpsilonGreedy$.html" title=""></a>
                         <a class="class" href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid."></a>
                         <a href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid.">EpsilonGreedy</a>
                       </li><li class="current-entities indented4">
@@ -146,7 +146,7 @@
                         <a class="class" href="Random.html" title="Random policy."></a>
                         <a href="Random.html" title="Random policy.">Random</a>
                       </li><li class="current-entities indented4">
-                        <a class="object" href="UCB$.html" title=""></a>
+                        <a class="object" href="" title=""></a>
                         <a class="class" href="UCB.html" title=""></a>
                         <a href="UCB.html" title="">UCB</a>
                       </li>
@@ -156,15 +156,15 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <a href="EpsilonGreedy.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
+        <a href="UCB.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
         <p id="owner"><a href="../../../index.html" class="extype" name="io">io</a>.<a href="../../index.html" class="extype" name="io.samritchie">samritchie</a>.<a href="../index.html" class="extype" name="io.samritchie.rl">rl</a>.<a href="index.html" class="extype" name="io.samritchie.rl.policy">policy</a></p>
-        <h1><a href="EpsilonGreedy.html" title="See companion class">EpsilonGreedy</a><span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html" title="Permalink">
+        <h1><a href="UCB.html" title="See companion class">UCB</a><span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
         <h3><span class="morelinks"><div>
-            Companion <a href="EpsilonGreedy.html" title="See companion class">class EpsilonGreedy</a>
+            Companion <a href="UCB.html" title="See companion class">class UCB</a>
           </div></span></h3>
       </div>
 
@@ -174,12 +174,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">EpsilonGreedy</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">UCB</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/EpsilonGreedy.scala" target="_blank">EpsilonGreedy.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/UCB.scala" target="_blank">UCB.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -209,7 +209,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.samritchie.rl.policy.EpsilonGreedy"><span>EpsilonGreedy</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.samritchie.rl.policy.UCB"><span>UCB</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -231,10 +231,10 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.samritchie.rl.policy.EpsilonGreedy.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Config[R,T]extendsProductwithSerializable"></a><a id="Config[R,T]:Config[R,T]"></a>
+              <ol><li name="io.samritchie.rl.policy.UCB.Choice" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Choice[T]extendsProductwithSerializable"></a><a id="Choice[T]:Choice[T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#Config[R,T]extendsProductwithSerializable" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#Choice[T]extendsProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -243,10 +243,42 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="EpsilonGreedy$$Config.html"><span class="name">Config</span></a><span class="tparams">[<span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$3">evidence$3: <span class="extype" name="com.twitter.algebird.Semigroup">Semigroup</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span>]</span>, <span name="evidence$4">evidence$4: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config.T">T</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Tracks the info required for the UCB calculation." href="UCB$$Choice.html"><span class="name">Choice</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="t">t: <span class="extype" name="io.samritchie.rl.policy.UCB.Choice.T">T</span></span>, <span name="visits">visits: <span class="extype" name="scala.Long">Long</span></span>, <span name="param">param: <a href="UCB$$Param.html" class="extype" name="io.samritchie.rl.policy.UCB.Param">Param</a></span>, <span name="toDouble">toDouble: (<span class="extype" name="io.samritchie.rl.policy.UCB.Choice.T">T</span>) ⇒ <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Tracks the info required for the UCB calculation.</p>
+    </li><li name="io.samritchie.rl.policy.UCB.Config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Config[R,T]extendsProductwithSerializable"></a><a id="Config[R,T]:Config[R,T]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#Config[R,T]extendsProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="UCB$$Config.html"><span class="name">Config</span></a><span class="tparams">[<span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="param">param: <a href="UCB$$Param.html" class="extype" name="io.samritchie.rl.policy.UCB.Param">Param</a></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.UCB.Config.T">T</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.UCB.Config.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.UCB.Config.T">T</span></span>, <span name="plus">plus: (<span class="extype" name="io.samritchie.rl.policy.UCB.Config.T">T</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.Config.T">T</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.UCB.Config.T">T</span></span>, <span name="present">present: (<span class="extype" name="io.samritchie.rl.policy.UCB.Config.T">T</span>) ⇒ <span class="extype" name="scala.Double">Double</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$2">evidence$2: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.UCB.Config.T">T</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
+    </li><li name="io.samritchie.rl.policy.UCB.Param" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParamextendsAnyValwithProductwithSerializable"></a><a id="Param:Param"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#ParamextendsAnyValwithProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Tunes how important the upper confidence bound business is." href="UCB$$Param.html"><span class="name">Param</span></a><span class="params">(<span name="c">c: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Tunes how important the upper confidence bound business is.</p>
     </li></ol>
             </div>
 
@@ -258,7 +290,7 @@
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -274,7 +306,7 @@
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html###():Int" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -290,7 +322,7 @@
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -306,7 +338,7 @@
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -322,7 +354,7 @@
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#clone():Object" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -346,7 +378,7 @@
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -362,7 +394,7 @@
     </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#equals(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#equals(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -378,7 +410,7 @@
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#finalize():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -397,10 +429,27 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.UCB#fromAggregator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fromAggregator[R,T](initial:T,param:io.samritchie.rl.policy.UCB.Param,agg:com.twitter.algebird.Aggregator[R,T,Double])(implicitevidence$1:Ordering[T]):io.samritchie.rl.policy.UCB.Config[R,T]"></a><a id="fromAggregator[R,T](T,Param,Aggregator[R,T,Double])(Ordering[T]):Config[R,T]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#fromAggregator[R,T](initial:T,param:io.samritchie.rl.policy.UCB.Param,agg:com.twitter.algebird.Aggregator[R,T,Double])(implicitevidence$1:Ordering[T]):io.samritchie.rl.policy.UCB.Config[R,T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromAggregator</span><span class="tparams">[<span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.UCB.fromAggregator.T">T</span></span>, <span name="param">param: <a href="UCB$$Param.html" class="extype" name="io.samritchie.rl.policy.UCB.Param">Param</a></span>, <span name="agg">agg: <span class="extype" name="com.twitter.algebird.Aggregator">Aggregator</span>[<span class="extype" name="io.samritchie.rl.policy.UCB.fromAggregator.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.fromAggregator.T">T</span>, <span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.UCB.fromAggregator.T">T</span>]</span>)</span><span class="result">: <a href="UCB$$Config.html" class="extype" name="io.samritchie.rl.policy.UCB.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.fromAggregator.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.fromAggregator.T">T</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Generates a Config instance from an algebird Aggregator and a
+UCB parameter.</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -419,7 +468,7 @@
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#hashCode():Int" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -435,28 +484,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#incrementalConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="incrementalConfig(epsilon:Double,initial:Double):io.samritchie.rl.policy.EpsilonGreedy.Config[Double,com.twitter.algebird.AveragedValue]"></a><a id="incrementalConfig(Double,Double):Config[Double,AveragedValue]"></a>
-      <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#incrementalConfig(epsilon:Double,initial:Double):io.samritchie.rl.policy.EpsilonGreedy.Config[Double,com.twitter.algebird.AveragedValue]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">incrementalConfig</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="initial">initial: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">0.0</span></span>)</span><span class="result">: <a href="EpsilonGreedy$$Config.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config">Config</a>[<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="com.twitter.algebird.AveragedValue">AveragedValue</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Returns an incremental config.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an incremental config.</p><p>TODO we also need a version that uses a constant step size,
-instead of sample averages. And maybe a version that uses
-exponential decay?</p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -472,7 +503,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -488,7 +519,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#notify():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -507,7 +538,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -526,7 +557,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -542,7 +573,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#toString():String" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -558,7 +589,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -580,7 +611,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -602,7 +633,7 @@ exponential decay?</p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy$.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -623,6 +654,22 @@ exponential decay?</p></div></div>
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.UCB.Choice" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Choice"></a><a id="Choice:Choice"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/UCB$.html#Choice" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="UCB$$Choice$.html"><span class="name">Choice</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li>
               </ol>
             </div>

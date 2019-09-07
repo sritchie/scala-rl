@@ -138,13 +138,17 @@
                         <a class="class" href="" title="This is a version that accumulates the reward using a monoid."></a>
                         <a href="" title="This is a version that accumulates the reward using a monoid.">EpsilonGreedy</a>
                       </li><li class="current-entities indented4">
-                        <span class="separator"></span>
-                        <a class="class" href="Instrumented.html" title="TODO..."></a>
-                        <a href="Instrumented.html" title="TODO...">Instrumented</a>
+                        <a class="object" href="Gradient$.html" title=""></a>
+                        <a class="class" href="Gradient.html" title="This thing needs to track its average reward internally..."></a>
+                        <a href="Gradient.html" title="This thing needs to track its average reward internally...">Gradient</a>
                       </li><li class="current-entities indented4">
                         <a class="object" href="Random$.html" title=""></a>
-                        <a class="class" href="Random.html" title="Totally bullshit random policy."></a>
-                        <a href="Random.html" title="Totally bullshit random policy.">Random</a>
+                        <a class="class" href="Random.html" title="Random policy."></a>
+                        <a href="Random.html" title="Random policy.">Random</a>
+                      </li><li class="current-entities indented4">
+                        <a class="object" href="UCB$.html" title=""></a>
+                        <a class="class" href="UCB.html" title=""></a>
+                        <a href="UCB.html" title="">UCB</a>
                       </li>
               </ul>
             </div>
@@ -170,13 +174,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">EpsilonGreedy</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span></span>, <span name="aggState">aggState: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <span class="extype" name="com.twitter.algebird.Monoid">Monoid</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy">EpsilonGreedy</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">EpsilonGreedy</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="config">config: <a href="EpsilonGreedy$$Config.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <span class="extype" name="com.twitter.algebird.Semigroup">Semigroup</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy">EpsilonGreedy</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This is a version that accumulates the reward using a monoid.
-</p></div><dl class="paramcmts block"><dt class="param">epsilon</dt><dd class="cmt"><p>number between 0 and 1.</p></dd></dl><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/EpsilonGreedy.scala" target="_blank">EpsilonGreedy.scala</a></dd></dl><div class="toggleContainer block">
+</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/EpsilonGreedy.scala" target="_blank">EpsilonGreedy.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -236,10 +240,10 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="io.samritchie.rl.policy.EpsilonGreedy#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(epsilon:Double,prepare:R=&gt;T,initial:T,aggState:Map[A,T])(implicitevidence$1:com.twitter.algebird.Monoid[T],implicitevidence$2:Ordering[T]):io.samritchie.rl.policy.EpsilonGreedy[A,R,T]"></a><a id="&lt;init&gt;:EpsilonGreedy[A,R,T]"></a>
+              <ol><li name="io.samritchie.rl.policy.EpsilonGreedy#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(config:io.samritchie.rl.policy.EpsilonGreedy.Config[R,T],actionValues:Map[A,T])(implicitevidence$1:com.twitter.algebird.Semigroup[T],implicitevidence$2:Ordering[T]):io.samritchie.rl.policy.EpsilonGreedy[A,R,T]"></a><a id="&lt;init&gt;:EpsilonGreedy[A,R,T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#&lt;init&gt;(epsilon:Double,prepare:R=&gt;T,initial:T,aggState:Map[A,T])(implicitevidence$1:com.twitter.algebird.Monoid[T],implicitevidence$2:Ordering[T]):io.samritchie.rl.policy.EpsilonGreedy[A,R,T]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#&lt;init&gt;(config:io.samritchie.rl.policy.EpsilonGreedy.Config[R,T],actionValues:Map[A,T])(implicitevidence$1:com.twitter.algebird.Semigroup[T],implicitevidence$2:Ordering[T]):io.samritchie.rl.policy.EpsilonGreedy[A,R,T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -248,10 +252,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">EpsilonGreedy</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span></span>, <span name="aggState">aggState: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="com.twitter.algebird.Monoid">Monoid</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span>
+        <span class="name">EpsilonGreedy</span><span class="params">(<span name="config">config: <a href="EpsilonGreedy$$Config.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="com.twitter.algebird.Semigroup">Semigroup</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">epsilon</dt><dd class="cmt"><p>number between 0 and 1.</p></dd></dl></div>
+      <p class="shortcomment cmt"></p>
     </li></ol>
             </div>
 
@@ -310,10 +314,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#aggState" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="aggState:Map[A,T]"></a>
+    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#actionValues" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="actionValues:Map[A,T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#aggState:Map[A,T]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#actionValues:Map[A,T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -322,7 +326,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">aggState</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>
+        <span class="name">actionValues</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>
       </span>
       
       
@@ -382,10 +386,10 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#epsilon" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="epsilon:Double"></a>
+    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="config:io.samritchie.rl.policy.EpsilonGreedy.Config[R,T]"></a><a id="config:Config[R,T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#epsilon:Double" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#config:io.samritchie.rl.policy.EpsilonGreedy.Config[R,T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -394,7 +398,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">epsilon</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+        <span class="name">config</span><span class="result">: <a href="EpsilonGreedy$$Config.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>
       </span>
       
       
@@ -414,22 +418,6 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#explore" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="explore:com.stripe.rainier.core.Categorical[Boolean]"></a><a id="explore:Categorical[Boolean]"></a>
-      <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#explore:com.stripe.rainier.core.Categorical[Boolean]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">explore</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Categorical">Categorical</span>[<span class="extype" name="scala.Boolean">Boolean</span>]</span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -471,22 +459,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#initial" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="initial:T"></a>
-      <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#initial:T" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">initial</span><span class="result">: <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span></span>
-      </span>
-      
-      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -579,22 +551,6 @@ action, you get this reward. That's the note.</p><p>This of course might need to
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.EpsilonGreedy#prepare" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="prepare:R=&gt;T"></a><a id="prepare:(R)⇒T"></a>
-      <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/EpsilonGreedy.html#prepare:R=&gt;T" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">prepare</span><span class="result">: (<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span></span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

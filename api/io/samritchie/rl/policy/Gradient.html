@@ -139,12 +139,12 @@
                         <a href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid.">EpsilonGreedy</a>
                       </li><li class="current-entities indented4">
                         <a class="object" href="Gradient$.html" title=""></a>
-                        <a class="class" href="Gradient.html" title="This thing needs to track its average reward internally..."></a>
-                        <a href="Gradient.html" title="This thing needs to track its average reward internally...">Gradient</a>
+                        <a class="class" href="" title="This thing needs to track its average reward internally..."></a>
+                        <a href="" title="This thing needs to track its average reward internally...">Gradient</a>
                       </li><li class="current-entities indented4">
                         <a class="object" href="Random$.html" title=""></a>
-                        <a class="class" href="" title="Random policy."></a>
-                        <a href="" title="Random policy.">Random</a>
+                        <a class="class" href="Random.html" title="Random policy."></a>
+                        <a href="Random.html" title="Random policy.">Random</a>
                       </li><li class="current-entities indented4">
                         <a class="object" href="UCB$.html" title=""></a>
                         <a class="class" href="UCB.html" title=""></a>
@@ -156,15 +156,15 @@
           <div id="content">
             <body class="class type">
       <div id="definition">
-        <a href="Random$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
+        <a href="Gradient$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
         <p id="owner"><a href="../../../index.html" class="extype" name="io">io</a>.<a href="../../index.html" class="extype" name="io.samritchie">samritchie</a>.<a href="../index.html" class="extype" name="io.samritchie.rl">rl</a>.<a href="index.html" class="extype" name="io.samritchie.rl.policy">policy</a></p>
-        <h1><a href="Random$.html" title="See companion object">Random</a><span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html" title="Permalink">
+        <h1><a href="Gradient$.html" title="See companion object">Gradient</a><span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
         <h3><span class="morelinks"><div>
-            Companion <a href="Random$.html" title="See companion object">object Random</a>
+            Companion <a href="Gradient$.html" title="See companion object">object Gradient</a>
           </div></span></h3>
       </div>
 
@@ -174,22 +174,23 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Random</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>]</span><span class="params">()</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Random">Random</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Gradient</span><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="config">config: <a href="Gradient$$Config.html" class="extype" name="io.samritchie.rl.policy.Gradient.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <a href="Gradient$$Item.html" class="extype" name="io.samritchie.rl.policy.Gradient.Item">Item</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <span class="extype" name="scala.Equiv">Equiv</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>]</span>, <span name="evidence$3">evidence$3: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]</span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Random policy.
-</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/Random.scala" target="_blank">Random.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This thing needs to track its average reward internally... then,
+if we have the gradient baseline set, use that thing to generate
+the notes.</p><p>T is the &quot;average&quot; type.</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/sritchie/scala-rl/tree/develop/scala-rl-core/src/main/scala/io/samritchie/rl/policy/Gradient.scala" target="_blank">Gradient.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Random">Random</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]], <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>], <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Random">Random</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]], <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>], <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
                 <span class="toggle diagram-link">
                   Type Hierarchy
                 </span>
-                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 337.50 118.00" height="118pt" width="338pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 114)" class="graph" id="page0,1_graph0"><polygon points="-4,4 -4,-114 333.5,-114 333.5,4 -4,4" stroke="transparent" fill="#ffffff"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="io.samritchie.rl.policy.Random (this class)" xlink:href="#inheritance-diagram"><path d="M230.6667,-49C230.6667,-49 154.3333,-49 154.3333,-49 150.1667,-49 146,-44.8333 146,-40.6667 146,-40.6667 146,-32.3333 146,-32.3333 146,-28.1667 150.1667,-24 154.3333,-24 154.3333,-24 230.6667,-24 230.6667,-24 234.8333,-24 239,-28.1667 239,-32.3333 239,-32.3333 239,-40.6667 239,-40.6667 239,-44.8333 234.8333,-49 230.6667,-49" stroke="#418565" fill="#418565"></path><image xlink:href="../../../../lib/class_diagram.png" y="-43.5" x="156.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-33.6" x="177.2676" text-anchor="start">Random[A, R]</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="io.samritchie.rl.Policy" xlink:href="../Policy.html#inheritance-diagram"><path d="M130.6667,-110C130.6667,-110 8.3333,-110 8.3333,-110 4.1667,-110 0,-105.8333 0,-101.6667 0,-101.6667 0,-93.3333 0,-93.3333 0,-89.1667 4.1667,-85 8.3333,-85 8.3333,-85 130.6667,-85 130.6667,-85 134.8333,-85 139,-89.1667 139,-93.3333 139,-93.3333 139,-101.6667 139,-101.6667 139,-105.8333 134.8333,-110 130.6667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="10.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="31.373" text-anchor="start">Policy[A, R, Random[A, R]]</text></a></g></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><g id="a_inheritance|graph1_1_0"><a xlink:title="Random[A, R] is a subtype of Policy[A, R, Random[A, R]]"><path d="M101.404,-81.6777C121.8423,-71.5416 148.0068,-58.5657 167.047,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="100.1683,-79.5557 94.9857,-84.8608 102.3454,-83.9455 100.1683,-79.5557" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="scala.Product"><path d="M219.1667,-110C219.1667,-110 165.8333,-110 165.8333,-110 161.6667,-110 157.5,-105.8333 157.5,-101.6667 157.5,-101.6667 157.5,-93.3333 157.5,-93.3333 157.5,-89.1667 161.6667,-85 165.8333,-85 165.8333,-85 219.1667,-85 219.1667,-85 223.3333,-85 227.5,-89.1667 227.5,-93.3333 227.5,-93.3333 227.5,-101.6667 227.5,-101.6667 227.5,-105.8333 223.3333,-110 219.1667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="167.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="188.1035" text-anchor="start">Product</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="Random[A, R] is a subtype of Product"><path d="M192.5,-77.7386C192.5,-68.3393 192.5,-57.3803 192.5,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="190.0501,-77.8607 192.5,-84.8608 194.9501,-77.8608 190.0501,-77.8607" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="scala.Serializable"><path d="M321.1667,-110C321.1667,-110 253.8333,-110 253.8333,-110 249.6667,-110 245.5,-105.8333 245.5,-101.6667 245.5,-101.6667 245.5,-93.3333 245.5,-93.3333 245.5,-89.1667 249.6667,-85 253.8333,-85 253.8333,-85 321.1667,-85 321.1667,-85 325.3333,-85 329.5,-89.1667 329.5,-93.3333 329.5,-93.3333 329.5,-101.6667 329.5,-101.6667 329.5,-105.8333 325.3333,-110 321.1667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="255.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="276.2109" text-anchor="start">Serializable</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="Random[A, R] is a subtype of Serializable"><path d="M261.8275,-81.0156C246.2008,-70.9816 226.5464,-58.3614 212.1588,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="260.6019,-83.1401 267.8159,-84.8608 263.2494,-79.0169 260.6019,-83.1401" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 346.00 118.00" height="118pt" width="346pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 114)" class="graph" id="page0,1_graph0"><polygon points="-4,4 -4,-114 342,-114 342,4 -4,4" stroke="transparent" fill="#ffffff"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="io.samritchie.rl.policy.Gradient (this class)" xlink:href="#inheritance-diagram"><path d="M244.1667,-49C244.1667,-49 157.8333,-49 157.8333,-49 153.6667,-49 149.5,-44.8333 149.5,-40.6667 149.5,-40.6667 149.5,-32.3333 149.5,-32.3333 149.5,-28.1667 153.6667,-24 157.8333,-24 157.8333,-24 244.1667,-24 244.1667,-24 248.3333,-24 252.5,-28.1667 252.5,-32.3333 252.5,-32.3333 252.5,-40.6667 252.5,-40.6667 252.5,-44.8333 248.3333,-49 244.1667,-49" stroke="#418565" fill="#418565"></path><image xlink:href="../../../../lib/class_diagram.png" y="-43.5" x="160" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-33.6" x="180.9492" text-anchor="start">Gradient[A, R, T]</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="io.samritchie.rl.Policy" xlink:href="../Policy.html#inheritance-diagram"><path d="M139.6667,-110C139.6667,-110 8.3333,-110 8.3333,-110 4.1667,-110 0,-105.8333 0,-101.6667 0,-101.6667 0,-93.3333 0,-93.3333 0,-89.1667 4.1667,-85 8.3333,-85 8.3333,-85 139.6667,-85 139.6667,-85 143.8333,-85 148,-89.1667 148,-93.3333 148,-93.3333 148,-101.6667 148,-101.6667 148,-105.8333 143.8333,-110 139.6667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="10" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="30.5547" text-anchor="start">Policy[A, R, Gradient[A, R, T]]</text></a></g></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><g id="a_inheritance|graph1_1_0"><a xlink:title="Gradient[A, R, T] is a subtype of Policy[A, R, Gradient[A, R, T]]"><path d="M106.6678,-81.8092C127.8104,-71.654 154.9747,-58.6066 174.7192,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="105.5636,-79.6215 100.3145,-84.8608 107.6852,-84.0384 105.5636,-79.6215" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="scala.Product"><path d="M227.6667,-110C227.6667,-110 174.3333,-110 174.3333,-110 170.1667,-110 166,-105.8333 166,-101.6667 166,-101.6667 166,-93.3333 166,-93.3333 166,-89.1667 170.1667,-85 174.3333,-85 174.3333,-85 227.6667,-85 227.6667,-85 231.8333,-85 236,-89.1667 236,-93.3333 236,-93.3333 236,-101.6667 236,-101.6667 236,-105.8333 231.8333,-110 227.6667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="176" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="196.6035" text-anchor="start">Product</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="Gradient[A, R, T] is a subtype of Product"><path d="M201,-77.7386C201,-68.3393 201,-57.3803 201,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="198.5501,-77.8607 201,-84.8608 203.4501,-77.8608 198.5501,-77.8607" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="scala.Serializable"><path d="M329.6667,-110C329.6667,-110 262.3333,-110 262.3333,-110 258.1667,-110 254,-105.8333 254,-101.6667 254,-101.6667 254,-93.3333 254,-93.3333 254,-89.1667 258.1667,-85 262.3333,-85 262.3333,-85 329.6667,-85 329.6667,-85 333.8333,-85 338,-89.1667 338,-93.3333 338,-93.3333 338,-101.6667 338,-101.6667 338,-105.8333 333.8333,-110 329.6667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="264" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="284.7109" text-anchor="start">Serializable</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="Gradient[A, R, T] is a subtype of Serializable"><path d="M270.3275,-81.0156C254.7008,-70.9816 235.0464,-58.3614 220.6588,-49.123" stroke="#d4d4d4" fill="none"></path><polygon points="269.1019,-83.1401 276.3159,-84.8608 271.7494,-79.0169 269.1019,-83.1401" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
                 <div id="diagram-controls" class="hiddenContent">
                   <button id="diagram-zoom-out" class="diagram-btn"><i class="material-icons"></i></button>
                   <button id="diagram-zoom-in" class="diagram-btn"><i class="material-icons"></i></button>
@@ -220,7 +221,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.samritchie.rl.policy.Random"><span>Random</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="io.samritchie.rl.Policy"><span>Policy</span></li><li class="in" name="io.samritchie.rl.Decider"><span>Decider</span></li><li class="in" name="io.samritchie.rl.Learner"><span>Learner</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.samritchie.rl.policy.Gradient"><span>Gradient</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="io.samritchie.rl.Policy"><span>Policy</span></li><li class="in" name="io.samritchie.rl.Decider"><span>Decider</span></li><li class="in" name="io.samritchie.rl.Learner"><span>Learner</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -240,10 +241,10 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="io.samritchie.rl.policy.Random#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;():io.samritchie.rl.policy.Random[A,R]"></a><a id="&lt;init&gt;:Random[A,R]"></a>
+              <ol><li name="io.samritchie.rl.policy.Gradient#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(config:io.samritchie.rl.policy.Gradient.Config[R,T],actionValues:Map[A,io.samritchie.rl.policy.Gradient.Item[T]])(implicitevidence$1:Equiv[A],implicitevidence$2:com.stripe.rainier.compute.ToReal[R],implicitevidence$3:com.stripe.rainier.compute.ToReal[T]):io.samritchie.rl.policy.Gradient[A,R,T]"></a><a id="&lt;init&gt;:Gradient[A,R,T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#&lt;init&gt;():io.samritchie.rl.policy.Random[A,R]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#&lt;init&gt;(config:io.samritchie.rl.policy.Gradient.Config[R,T],actionValues:Map[A,io.samritchie.rl.policy.Gradient.Item[T]])(implicitevidence$1:Equiv[A],implicitevidence$2:com.stripe.rainier.compute.ToReal[R],implicitevidence$3:com.stripe.rainier.compute.ToReal[T]):io.samritchie.rl.policy.Gradient[A,R,T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -252,7 +253,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Random</span><span class="params">()</span>
+        <span class="name">Gradient</span><span class="params">(<span name="config">config: <a href="Gradient$$Config.html" class="extype" name="io.samritchie.rl.policy.Gradient.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <a href="Gradient$$Item.html" class="extype" name="io.samritchie.rl.policy.Gradient.Item">Item</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Equiv">Equiv</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>]</span>, <span name="arg1">arg1: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>]</span>, <span name="arg2">arg2: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]</span>)</span>
       </span>
       
       
@@ -269,7 +270,7 @@
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -285,7 +286,7 @@
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html###():Int" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -301,7 +302,7 @@
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -314,10 +315,45 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.Gradient#aToReal" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aToReal:com.stripe.rainier.compute.ToReal[A]"></a><a id="aToReal:ToReal[A]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#aToReal:com.stripe.rainier.compute.ToReal[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aToReal</span><span class="result">: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Let's try out this style for a bit.</p><div class="fullcomment"><div class="comment cmt"><p>Let's try out this style for a bit. This gives us a way to
+convert an action directly into a probability, using our
+actionValue Map above.
+</p></div></div>
+    </li><li name="io.samritchie.rl.policy.Gradient#actionValues" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="actionValues:Map[A,io.samritchie.rl.policy.Gradient.Item[T]]"></a><a id="actionValues:Map[A,Item[T]]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#actionValues:Map[A,io.samritchie.rl.policy.Gradient.Item[T]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">actionValues</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <a href="Gradient$$Item.html" class="extype" name="io.samritchie.rl.policy.Gradient.Item">Item</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]]</span>
+      </span>
+      
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -330,10 +366,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.Random#choose" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.samritchie.rl.policy.Gradient#choose" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="choose(state:io.samritchie.rl.State[A,R]):com.stripe.rainier.core.Generator[A]"></a><a id="choose(State[A,R]):Generator[A]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#choose(state:io.samritchie.rl.State[A,R]):com.stripe.rainier.core.Generator[A]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#choose(state:io.samritchie.rl.State[A,R]):com.stripe.rainier.core.Generator[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -342,14 +378,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">choose</span><span class="params">(<span name="state">state: <a href="../State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>]</span>
+        <span class="name">choose</span><span class="params">(<span name="state">state: <a href="../State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>]</span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.samritchie.rl.policy.Random">Random</a> → <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a> → <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#clone():Object" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -370,10 +406,26 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.samritchie.rl.policy.Gradient#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="config:io.samritchie.rl.policy.Gradient.Config[R,T]"></a><a id="config:Config[R,T]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#config:io.samritchie.rl.policy.Gradient.Config[R,T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">config</span><span class="result">: <a href="Gradient$$Config.html" class="extype" name="io.samritchie.rl.policy.Gradient.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -389,7 +441,7 @@
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#finalize():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -411,7 +463,7 @@
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -430,7 +482,7 @@
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -443,10 +495,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.Random#learn" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="learn(state:io.samritchie.rl.State[A,R],action:A,reward:R):io.samritchie.rl.policy.Random[A,R]"></a><a id="learn(State[A,R],A,R):Random[A,R]"></a>
+    </li><li name="io.samritchie.rl.policy.Gradient#learn" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="learn(state:io.samritchie.rl.State[A,R],action:A,reward:R):io.samritchie.rl.policy.Gradient[A,R,T]"></a><a id="learn(State[A,R],A,R):Gradient[A,R,T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#learn(state:io.samritchie.rl.State[A,R],action:A,reward:R):io.samritchie.rl.policy.Random[A,R]" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#learn(state:io.samritchie.rl.State[A,R],action:A,reward:R):io.samritchie.rl.policy.Gradient[A,R,T]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -455,7 +507,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">learn</span><span class="params">(<span name="state">state: <a href="../State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]</span>, <span name="action">action: <span class="extype" name="io.samritchie.rl.policy.Random.A">A</span></span>, <span name="reward">reward: <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span></span>)</span><span class="result">: <a href="" class="extype" name="io.samritchie.rl.policy.Random">Random</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]</span>
+        <span class="name">learn</span><span class="params">(<span name="state">state: <a href="../State.html" class="extype" name="io.samritchie.rl.State">State</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>]</span>, <span name="action">action: <span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span></span>, <span name="reward">reward: <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span></span>)</span><span class="result">: <a href="" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]</span>
       </span>
       
       <p class="shortcomment cmt">OR does this information go later? A particular policy should
@@ -464,11 +516,11 @@ get to witness the results of a decision... but instead of a
 reward it might be a particular long term return.</p><p>And each of the policies needs to have some array or something
 that it is using to track all of these state values.</p><p>SO THIS might not be great. But at this state, if you take this
 action, you get this reward. That's the note.</p><p>This of course might need to be a monadic response.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.samritchie.rl.policy.Random">Random</a> → <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a> → <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -484,7 +536,7 @@ action, you get this reward. That's the note.</p><p>This of course might need to
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#notify():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -503,7 +555,7 @@ action, you get this reward. That's the note.</p><p>This of course might need to
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -522,7 +574,7 @@ action, you get this reward. That's the note.</p><p>This of course might need to
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -538,7 +590,7 @@ action, you get this reward. That's the note.</p><p>This of course might need to
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#wait():Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -560,7 +612,7 @@ action, you get this reward. That's the note.</p><p>This of course might need to
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -582,7 +634,7 @@ action, you get this reward. That's the note.</p><p>This of course might need to
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/Random.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/Gradient.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -622,11 +674,11 @@ action, you get this reward. That's the note.</p><p>This of course might need to
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
             </div><div class="parent" name="io.samritchie.rl.Policy">
-              <h3>Inherited from <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Random">Random</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]]</h3>
+              <h3>Inherited from <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]]</h3>
             </div><div class="parent" name="io.samritchie.rl.Decider">
-              <h3>Inherited from <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>]</h3>
+              <h3>Inherited from <a href="../Decider.html" class="extype" name="io.samritchie.rl.Decider">Decider</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="com.stripe.rainier.core.Generator">Generator</span>]</h3>
             </div><div class="parent" name="io.samritchie.rl.Learner">
-              <h3>Inherited from <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Random">Random</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]]</h3>
+              <h3>Inherited from <a href="../Learner.html" class="extype" name="io.samritchie.rl.Learner">Learner</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <a href="" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

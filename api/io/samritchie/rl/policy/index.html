@@ -138,13 +138,17 @@
                         <a class="class" href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid."></a>
                         <a href="EpsilonGreedy.html" title="This is a version that accumulates the reward using a monoid.">EpsilonGreedy</a>
                       </li><li class="current-entities indented4">
-                        <span class="separator"></span>
-                        <a class="class" href="Instrumented.html" title="TODO..."></a>
-                        <a href="Instrumented.html" title="TODO...">Instrumented</a>
+                        <a class="object" href="Gradient$.html" title=""></a>
+                        <a class="class" href="Gradient.html" title="This thing needs to track its average reward internally..."></a>
+                        <a href="Gradient.html" title="This thing needs to track its average reward internally...">Gradient</a>
                       </li><li class="current-entities indented4">
                         <a class="object" href="Random$.html" title=""></a>
-                        <a class="class" href="Random.html" title="Totally bullshit random policy."></a>
-                        <a href="Random.html" title="Totally bullshit random policy.">Random</a>
+                        <a class="class" href="Random.html" title="Random policy."></a>
+                        <a href="Random.html" title="Random policy.">Random</a>
+                      </li><li class="current-entities indented4">
+                        <a class="object" href="UCB$.html" title=""></a>
+                        <a class="class" href="UCB.html" title=""></a>
+                        <a href="UCB.html" title="">UCB</a>
                       </li><li name="io.samritchie.rl.staging" visbl="pub" class="indented4 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="staging"></a><a id="staging:staging"></a>
       <span class="permalink">
@@ -174,6 +178,22 @@
       </span>
       <span class="symbol">
         <a title="" href="../state/index.html"><span class="name">state</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.samritchie.rl">rl</a></dd></dl></div>
+    </li><li name="io.samritchie.rl.util" visbl="pub" class="indented4 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="util"></a><a id="util:util"></a>
+      <span class="permalink">
+      <a href="../../../io/samritchie/rl/index.html#util" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../util/index.html"><span class="name">util</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.samritchie.rl">rl</a></dd></dl></div>
@@ -240,7 +260,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.samritchie.rl.policy.EpsilonGreedy" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="io.samritchie.rl.policy.EpsilonGreedy" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="EpsilonGreedy[A,R,T]extendsPolicy[A,R,io.samritchie.rl.policy.EpsilonGreedy[A,R,T]]withProductwithSerializable"></a><a id="EpsilonGreedy[A,R,T]:EpsilonGreedy[A,R,T]"></a>
       <span class="permalink">
       <a href="../../../../io/samritchie/rl/policy/index.html#EpsilonGreedy[A,R,T]extendsPolicy[A,R,io.samritchie.rl.policy.EpsilonGreedy[A,R,T]]withProductwithSerializable" title="Permalink">
@@ -252,15 +272,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="This is a version that accumulates the reward using a monoid." href="EpsilonGreedy.html"><span class="name">EpsilonGreedy</span></a><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="epsilon">epsilon: <span class="extype" name="scala.Double">Double</span></span>, <span name="prepare">prepare: (<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>) ⇒ <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span></span>, <span name="initial">initial: <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span></span>, <span name="aggState">aggState: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <span class="extype" name="com.twitter.algebird.Monoid">Monoid</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <a href="EpsilonGreedy.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy">EpsilonGreedy</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="This is a version that accumulates the reward using a monoid." href="EpsilonGreedy.html"><span class="name">EpsilonGreedy</span></a><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="config">config: <a href="EpsilonGreedy$$Config.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <span class="extype" name="com.twitter.algebird.Semigroup">Semigroup</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]</span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <a href="EpsilonGreedy.html" class="extype" name="io.samritchie.rl.policy.EpsilonGreedy">EpsilonGreedy</a>[<span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.EpsilonGreedy.T">T</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">This is a version that accumulates the reward using a monoid.</p><div class="fullcomment"><div class="comment cmt"><p>This is a version that accumulates the reward using a monoid.
-</p></div><dl class="paramcmts block"><dt class="param">epsilon</dt><dd class="cmt"><p>number between 0 and 1.</p></dd></dl></div>
-    </li><li name="io.samritchie.rl.policy.Instrumented" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Instrumented[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]]extendsPolicy[A,R,io.samritchie.rl.policy.Instrumented[A,R,P]]withProductwithSerializable"></a><a id="Instrumented[A,R,P&lt;:Policy[A,R,P]]:Instrumented[A,R,P]"></a>
+      <p class="shortcomment cmt">This is a version that accumulates the reward using a monoid.</p>
+    </li><li name="io.samritchie.rl.policy.Gradient" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Gradient[A,R,T]extendsPolicy[A,R,io.samritchie.rl.policy.Gradient[A,R,T]]withProductwithSerializable"></a><a id="Gradient[A,R,T]:Gradient[A,R,T]"></a>
       <span class="permalink">
-      <a href="../../../../io/samritchie/rl/policy/index.html#Instrumented[A,R,P&lt;:io.samritchie.rl.Policy[A,R,P]]extendsPolicy[A,R,io.samritchie.rl.policy.Instrumented[A,R,P]]withProductwithSerializable" title="Permalink">
+      <a href="../../../../io/samritchie/rl/policy/index.html#Gradient[A,R,T]extendsPolicy[A,R,io.samritchie.rl.policy.Gradient[A,R,T]]withProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -269,13 +288,12 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="TODO..." href="Instrumented.html"><span class="name">Instrumented</span></a><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="P">P &lt;: <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Instrumented.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Instrumented.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Instrumented.P">P</span>]</span>]</span><span class="params">(<span name="policy">policy: <span class="extype" name="io.samritchie.rl.policy.Instrumented.P">P</span></span>, <span name="f">f: (<span class="extype" name="io.samritchie.rl.policy.Instrumented.P">P</span>) ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.Instrumented.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Instrumented.R">R</span>]</span>, <span name="acc">acc: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.Instrumented.A">A</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.samritchie.rl.policy.Instrumented.R">R</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <span class="extype" name="com.twitter.algebird.Monoid">Monoid</span>[<span class="extype" name="io.samritchie.rl.policy.Instrumented.R">R</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.Ordering">Ordering</span>[<span class="extype" name="io.samritchie.rl.policy.Instrumented.R">R</span>]</span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Instrumented.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Instrumented.R">R</span>, <a href="Instrumented.html" class="extype" name="io.samritchie.rl.policy.Instrumented">Instrumented</a>[<span class="extype" name="io.samritchie.rl.policy.Instrumented.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Instrumented.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Instrumented.P">P</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="This thing needs to track its average reward internally..." href="Gradient.html"><span class="name">Gradient</span></a><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="config">config: <a href="Gradient$$Config.html" class="extype" name="io.samritchie.rl.policy.Gradient.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <a href="Gradient$$Item.html" class="extype" name="io.samritchie.rl.policy.Gradient.Item">Item</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <span class="extype" name="scala.Equiv">Equiv</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>]</span>, <span name="evidence$3">evidence$3: <span class="extype" name="com.stripe.rainier.compute.ToReal">ToReal</span>[<span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]</span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <a href="Gradient.html" class="extype" name="io.samritchie.rl.policy.Gradient">Gradient</a>[<span class="extype" name="io.samritchie.rl.policy.Gradient.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.Gradient.T">T</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">TODO...</p><div class="fullcomment"><div class="comment cmt"><p>TODO... this is way too specific. Get rid of this bullshit with
-the list at the end. Anyway, more on that later once I get these
-graphs actually working.
-</p></div></div>
+      <p class="shortcomment cmt">This thing needs to track its average reward internally...</p><div class="fullcomment"><div class="comment cmt"><p>This thing needs to track its average reward internally... then,
+if we have the gradient baseline set, use that thing to generate
+the notes.</p><p>T is the &quot;average&quot; type.</p></div></div>
     </li><li name="io.samritchie.rl.policy.Random" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Random[A,R]extendsPolicy[A,R,io.samritchie.rl.policy.Random[A,R]]withProductwithSerializable"></a><a id="Random[A,R]:Random[A,R]"></a>
       <span class="permalink">
@@ -288,10 +306,26 @@ graphs actually working.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Totally bullshit random policy." href="Random.html"><span class="name">Random</span></a><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>]</span><span class="params">()</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <a href="Random.html" class="extype" name="io.samritchie.rl.policy.Random">Random</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Random policy." href="Random.html"><span class="name">Random</span></a><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>]</span><span class="params">()</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>, <a href="Random.html" class="extype" name="io.samritchie.rl.policy.Random">Random</a>[<span class="extype" name="io.samritchie.rl.policy.Random.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.Random.R">R</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt">Totally bullshit random policy.</p>
+      <p class="shortcomment cmt">Random policy.</p>
+    </li><li name="io.samritchie.rl.policy.UCB" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UCB[A,R,T]extendsPolicy[A,R,io.samritchie.rl.policy.UCB[A,R,T]]withProductwithSerializable"></a><a id="UCB[A,R,T]:UCB[A,R,T]"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/index.html#UCB[A,R,T]extendsPolicy[A,R,io.samritchie.rl.policy.UCB[A,R,T]]withProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="UCB.html"><span class="name">UCB</span></a><span class="tparams">[<span name="A">A</span>, <span name="R">R</span>, <span name="T">T</span>]</span><span class="params">(<span name="config">config: <a href="UCB$$Config.html" class="extype" name="io.samritchie.rl.policy.UCB.Config">Config</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]</span>, <span name="actionValues">actionValues: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <a href="UCB$$Choice.html" class="extype" name="io.samritchie.rl.policy.UCB.Choice">Choice</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]]</span>, <span name="time">time: <a href="../Time.html" class="extype" name="io.samritchie.rl.Time">Time</a></span>)</span><span class="result"> extends <a href="../Policy.html" class="extype" name="io.samritchie.rl.Policy">Policy</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <a href="UCB.html" class="extype" name="io.samritchie.rl.policy.UCB">UCB</a>[<span class="extype" name="io.samritchie.rl.policy.UCB.A">A</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.R">R</span>, <span class="extype" name="io.samritchie.rl.policy.UCB.T">T</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li></ol>
             </div>
 
@@ -316,6 +350,22 @@ graphs actually working.
       </span>
       
       
+    </li><li name="io.samritchie.rl.policy.Gradient" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Gradient"></a><a id="Gradient:Gradient"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/index.html#Gradient" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Gradient$.html"><span class="name">Gradient</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="io.samritchie.rl.policy.Random" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Random"></a><a id="Random:Random"></a>
       <span class="permalink">
@@ -329,6 +379,22 @@ graphs actually working.
       </span>
       <span class="symbol">
         <a title="" href="Random$.html"><span class="name">Random</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="io.samritchie.rl.policy.UCB" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UCB"></a><a id="UCB:UCB"></a>
+      <span class="permalink">
+      <a href="../../../../io/samritchie/rl/policy/index.html#UCB" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="UCB$.html"><span class="name">UCB</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
