@@ -86,7 +86,7 @@ object Game {
     Bandit.nonStationary(
       nArms,
       Generator.constant(Normal(mean, stdDev).generator),
-      { case (_, _, rGen) => rGen.flatMap(r => Normal(r, stdDev).generator) }
+      { case (_, r, _) => Normal(r, stdDev).generator }
     )
 
   def play(policy: EG): List[Double] =

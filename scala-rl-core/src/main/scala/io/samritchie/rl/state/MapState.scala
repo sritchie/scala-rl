@@ -54,7 +54,7 @@ object MapState {
   ): Generator[State[A, R]] =
     genMap(actions, gen).map(StaticMapState[A, R](_))
 
-    /**
+  /**
     * The second of two ways to construct a MapState.
     */
   def fromSet[A, R](
