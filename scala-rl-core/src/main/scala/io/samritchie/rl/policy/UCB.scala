@@ -13,10 +13,10 @@ case class UCB[A, R, T](
     config: UCB.Config[R, T],
     actionValues: Map[A, UCB.Choice[T]],
     time: Time
-) extends Policy[A, R, UCB[A, R, T]] {
+) extends Policy[A, Any, R, UCB[A, R, T]] {
 
   // TODO fix this fuckup!
-  override def choose(state: State[A, R]): Generator[A] =
+  override def choose(state: State[A, Any, R]): Generator[A] =
     Util.generatorFromSet(
       Util
         .allMaxBy(state.actions)(
@@ -24,7 +24,7 @@ case class UCB[A, R, T](
         )
     )
 
-  override def learn(state: State[A, R], action: A, reward: R): UCB[A, R, T] = {
+  override def learn(state: State[A, Any, R], action: A, reward: R): UCB[A, R, T] = {
     val updated = Util.updateWith(actionValues, action) {
       case None    => config.choice(reward)
       case Some(v) => config.merge(v, reward)

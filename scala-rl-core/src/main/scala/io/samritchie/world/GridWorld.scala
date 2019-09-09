@@ -73,10 +73,12 @@ case class GridWorld(
     defaultReward: GridWorld.Reward,
     penalty: GridWorld.Reward,
     jumps: GridWorld.Jumps
-) extends State[GridWorld.Move, GridWorld.Reward] {
+) extends State[GridWorld.Move, Grid.Position, GridWorld.Reward] {
   import GridWorld._
 
-  def dynamics: Map[Move, Generator[(Reward, State[Move, Reward])]] =
+  val observation: Position = grid.position
+
+  def dynamics: Map[Move, Generator[(Reward, State[Move, Position, Reward])]] =
     Util.makeMap(Grid.Move.all)(m => Util.delayedGenerator(actNow(m)))
 
   /**
@@ -90,7 +92,7 @@ case class GridWorld(
     * CAN look ahead, and don't hide it behind a delay, then boom, we
     * have the ability to do the checkers example.
     */
-  def actNow(move: Move): (Reward, State[Move, Reward]) =
+  def actNow(move: Move): (Reward, State[Move, Position, Reward]) =
     grid
       .move(move)
       .map(runJumps(_))
@@ -140,7 +142,14 @@ def draw_image(image):
 
 }
 
-case class GridPolicy() {}
+case class GridPolicy(m: Map[Grid.Position, Double])
+    extends Policy[Grid.Move, Grid.Position, Double, GridPolicy] {
+  import Grid.{Move, Position}
+
+  override def choose(s: State[Move, Position, Double]): Generator[Move] = ???
+
+  override def learn(s: State[Move, Position, Double], move: Move, reward: Double): GridPolicy = this
+}
 
 /**
   * This next bit generates the value if we go by the Bellman

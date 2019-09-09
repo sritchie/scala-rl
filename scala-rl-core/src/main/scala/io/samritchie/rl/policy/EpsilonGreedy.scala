@@ -18,19 +18,19 @@ import Util.Instances._
 case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
     config: EpsilonGreedy.Config[R, T],
     actionValues: Map[A, T]
-) extends Policy[A, R, EpsilonGreedy[A, R, T]] {
+) extends Policy[A, Any, R, EpsilonGreedy[A, R, T]] {
   private val explore: Categorical[Boolean] =
     Categorical.boolean(config.epsilon)
 
-  private def allActions(state: State[A, R]): Categorical[A] =
+  private def allActions(state: State[A, Any, R]): Categorical[A] =
     Categorical.list(state.actions.toList)
 
-  private def greedy(state: State[A, R]): Categorical[A] =
+  private def greedy(state: State[A, Any, R]): Categorical[A] =
     Categorical.fromSet(
       Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
     )
 
-  override def choose(state: State[A, R]): Generator[A] =
+  override def choose(state: State[A, Any, R]): Generator[A] =
     Monad[Categorical]
       .ifM(explore)(
         allActions(state),
@@ -38,7 +38,7 @@ case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
       )
       .generator
 
-  override def learn(state: State[A, R], action: A, reward: R): EpsilonGreedy[A, R, T] =
+  override def learn(state: State[A, Any, R], action: A, reward: R): EpsilonGreedy[A, R, T] =
     copy(actionValues = Util.mergeV(actionValues, action, config.prepare(reward)))
 }
 

@@ -1,5 +1,7 @@
 /**
   * A MapState is a particular kind of state.
+  *
+  * TODO - maybe get a way to do observations in here?
   */
 package io.samritchie.rl
 package state
@@ -11,23 +13,28 @@ import com.stripe.rainier.core.Generator
   */
 case class StaticMapState[A, R](
     rewards: Map[A, Generator[R]]
-) extends State[A, R] {
+) extends State[A, Unit, R] {
+  override val observation: Unit = ()
   override lazy val dynamics = rewards.mapValues(_.map(r => (r, this)))
 }
 
 /**
   * MDP with a single state.
   */
-case class MapState[A, R](
+case class MapState[A, Obs, R](
+    observation: Obs,
     rewards: Map[A, Generator[R]],
-    step: (A, R, Generator[R]) => Generator[R]
-) extends State[A, R] {
+    step: (A, Obs, R, Generator[R]) => (Obs, Generator[R])
+) extends State[A, Obs, R] {
 
-  private def updateForA(a: A, r: R): State[A, R] =
+  private def updateForA(a: A, r: R): State[A, Obs, R] = {
+    val (newObservation, newGen) = step(a, observation, r, rewards(a))
     MapState(
-      rewards.updated(a, step(a, r, rewards(a))),
+      newObservation,
+      rewards.updated(a, newGen),
       step
     )
+  }
 
   override lazy val dynamics = rewards.map {
     case (a, g) => (a, g.map(r => (r, updateForA(a, r))))
@@ -48,20 +55,22 @@ object MapState {
   /**
     * One of the two ways to construct a MapState.
     */
-  def fromSet[A, R](
+  def static[A, Obs, R](
       actions: Set[A],
       gen: Generator[Generator[R]]
-  ): Generator[State[A, R]] =
+  ): Generator[State[A, Unit, R]] =
     genMap(actions, gen).map(StaticMapState[A, R](_))
 
   /**
     * The second of two ways to construct a MapState.
     */
-  def fromSet[A, R](
+  def updating[A, Obs, R](
       actions: Set[A],
+      initialObservation: Obs,
       gen: Generator[Generator[R]],
-      step: (A, R, Generator[R]) => Generator[R]
-  ): Generator[State[A, R]] =
-    genMap(actions, gen).map(MapState[A, R](_, step))
-
+      step: (A, Obs, R, Generator[R]) => (Obs, Generator[R])
+  ): Generator[State[A, Obs, R]] =
+    genMap(actions, gen).map { m =>
+      MapState[A, Obs, R](initialObservation, m, step)
+    }
 }
