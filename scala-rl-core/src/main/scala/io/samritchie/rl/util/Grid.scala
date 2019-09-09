@@ -14,6 +14,8 @@ object Grid {
     case object Right extends Move
     case object Up extends Move
     case object Down extends Move
+
+    val all: Set[Move] = Set(Left, Right, Up, Down)
   }
 
   case class Row(value: Int) extends AnyVal {
@@ -103,5 +105,11 @@ case class Grid(position: Grid.Position, bounds: Grid.Bounds) {
     }
 
   def move(move: Move): Try[Grid] =
-    moveF(move)(position).assertWithin(bounds).map(Grid(_, bounds))
+    teleport(moveF(move)(position))
+
+  def teleportUnsafe(newPosition: Position): Grid =
+    copy(position = newPosition)
+
+  def teleport(newPosition: Position): Try[Grid] =
+    newPosition.assertWithin(bounds).map(Grid(_, bounds))
 }

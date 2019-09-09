@@ -12,7 +12,7 @@ object Chapter3 {
 
   val figureThreeTwoState: State[Move, Reward] =
     GridWorld
-      .config(Bounds(5, 5))
+      .Config(Bounds(5, 5))
       .withJump(Position.of(0, 1), Position.of(4, 1), 10)
       .withJump(Position.of(0, 3), Position.of(2, 3), 5)
       .buildUnsafe(Position.of(0, 0))

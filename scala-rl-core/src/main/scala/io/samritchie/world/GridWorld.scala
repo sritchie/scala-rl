@@ -8,22 +8,41 @@ package world
 
 import com.stripe.rainier.core.Generator
 import io.samritchie.rl.util.Grid
-import scala.util.Try
+import scala.util.{Success, Try}
 
 object GridWorld {
+  type Reward = Double
   type Move = Grid.Move
   type Bounds = Grid.Bounds
   type Position = Grid.Position
-  type Reward = Double
   type JumpMap = Map[Position, (Position, Reward)]
 
-  def config(bounds: Bounds): Config =
-    Config(bounds, Map.empty)
+  object Jumps {
+    def empty: Jumps = Jumps(Map.empty)
+  }
+  case class Jumps(jumps: Map[Position, (Position, Reward)]) {
+    def get(p: Position): Option[(Position, Reward)] = jumps.get(p)
+
+    /**
+      * TODO
+      *
+      * - validate that there are no cycles!
+      * - validate that we're within the bounds for all endpoints!
+      *
+      */
+    def validate(bounds: Bounds): Try[Jumps] = Success(this)
+    def and(from: Position, to: Position, reward: Reward): Jumps =
+      Jumps(jumps.updated(from, (to, reward)))
+  }
 
   case class Config(
       bounds: Bounds,
-      jumps: JumpMap
+      default: Reward = 0.0,
+      penalty: Reward = -1.0,
+      jumps: Jumps = Jumps.empty
   ) {
+    def withJump(from: Position, to: Position, reward: Reward): Config =
+      copy(jumps = jumps.and(from, to, reward))
 
     /**
       * Build by projecting a row or column outside of the specified
@@ -34,12 +53,11 @@ object GridWorld {
 
     /**
       * Build, assuming that everything is legit!
+      *
+      * TODO remove hardcoded penalty,
       */
     def buildUnsafe(start: Position): GridWorld =
-      GridWorld(Grid(start, bounds), jumps)
-
-    def withJump(from: Position, to: Position, withReward: Reward): Config =
-      copy(jumps = jumps.updated(from, (to, withReward)))
+      GridWorld(Grid(start, bounds), default, penalty, jumps)
 
     /**
       * Returns a Try that's successful if supplied position is within
@@ -52,13 +70,49 @@ object GridWorld {
 
 case class GridWorld(
     grid: Grid,
-    jumps: GridWorld.JumpMap
+    defaultReward: GridWorld.Reward,
+    penalty: GridWorld.Reward,
+    jumps: GridWorld.Jumps
 ) extends State[GridWorld.Move, GridWorld.Reward] {
   import GridWorld._
 
-  def render(): Unit = {
-    val x = 10
+  def dynamics: Map[Move, Generator[(Reward, State[Move, Reward])]] =
+    Util.makeMap(Grid.Move.all)(m => Util.delayedGenerator(actNow(m)))
 
+  /**
+    * This is the NON-monadic action, since we can do it
+    * immediately. The dynamics are where it all gets passed down to the user.
+    *
+    * TODO - should this NOT be a stochastic policy, since we really
+    * don't care here and are just using the constant generator?
+    *
+    * There is still a wall, though! The user can't look ahead. If you
+    * CAN look ahead, and don't hide it behind a delay, then boom, we
+    * have the ability to do the checkers example.
+    */
+  def actNow(move: Move): (Reward, State[Move, Reward]) =
+    grid
+      .move(move)
+      .map(runJumps(_))
+      .getOrElse((penalty, this))
+
+  /**
+    * Executes any jumps that may exist in this world.
+    */
+  private def runJumps(newGrid: Grid): (Reward, GridWorld) = {
+    val (r, g) = jumps.get(newGrid.position) match {
+      case None =>
+        (defaultReward, newGrid)
+      case Some((newPosition, reward)) =>
+        (reward, grid.teleportUnsafe(newPosition))
+    }
+    (r, copy(grid = g))
+  }
+
+  /**
+    * Draws a plot.
+    */
+  def render(): Unit =
     /**
 def draw_image(image):
     fig, ax = plt.subplots()
@@ -83,34 +137,7 @@ def draw_image(image):
     ax.add_table(tb)
       */
     ???
-  }
 
-  // Of course we don't actually NEED the generator monad here. But
-  // we do want it to generate an initial state! How does that
-  // bullshit interact? Multiple levels of generation.
-  def dynamics: Map[Move, Generator[(Reward, State[Move, Reward])]] = ???
-
-  /**
-    *
-    def step(state, action):
-    if state == A_POS:
-        return A_PRIME_POS, 10
-    if state == B_POS:
-        return B_PRIME_POS, 5
-
-    next_state = (np.array(state) + action).tolist()
-    x, y = next_state
-    if x < 0 or x >= WORLD_SIZE or y < 0 or y >= WORLD_SIZE:
-        reward = -1.0
-        next_state = state
-    else:
-        reward = 0
-    return next_state, reward
-    */
-  override def act(move: Move): Option[Generator[(Reward, State[Move, Reward])]] =
-    ???
-
-  def toState: State[Move, Reward] = this
 }
 
 case class GridPolicy() {}

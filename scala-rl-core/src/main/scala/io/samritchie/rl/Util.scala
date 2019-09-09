@@ -6,7 +6,7 @@ package io.samritchie.rl
 import cats.Monad
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import com.stripe.rainier.compute.{Real, ToReal}
-import com.stripe.rainier.core.Categorical
+import com.stripe.rainier.core.{Categorical, Generator}
 
 import scala.language.higherKinds
 
@@ -27,7 +27,7 @@ object Util {
   def confine[A](a: A, min: A, max: A)(implicit ord: Ordering[A]): A =
     ord.min(ord.max(a, min), max)
 
-  def makeMap[K, V](keys: Set[K])(default: => V)(f: K => Option[V]): Map[K, V] =
+  def makeMap[K, V](keys: Set[K], default: => V)(f: K => Option[V]): Map[K, V] =
     keys.foldLeft(Map.empty[K, V]) {
       case (m, k) =>
         m.updated(k, f(k).getOrElse(default))
@@ -55,6 +55,9 @@ object Util {
 
   def generatorFromSet[A](items: Set[A]) =
     Categorical.fromSet(items).generator
+
+  def delayedGenerator[A](a: => A) =
+    Generator.from((_, _) => a)
 
   def softmax[A, B](m: Map[A, Real]): Categorical[A] =
     Categorical.normalize(m.mapValues(_.exp))
