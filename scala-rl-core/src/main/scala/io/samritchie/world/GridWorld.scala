@@ -7,85 +7,59 @@ package io.samritchie.rl
 package world
 
 import com.stripe.rainier.core.Generator
+import io.samritchie.rl.util.Grid
+import scala.util.Try
 
 object GridWorld {
+  type Move = Grid.Move
+  type Bounds = Grid.Bounds
+  type Position = Grid.Position
   type Reward = Double
-  case class Position(row: Int, col: Int)
+  type JumpMap = Map[Position, (Position, Reward)]
 
-  sealed trait Move
-  object Move {
-    case object Left extends Move
-    case object Right extends Move
-    case object Up extends Move
-    case object Down extends Move
+  def config(bounds: Bounds): Config =
+    Config(bounds, Map.empty)
+
+  case class Config(
+      bounds: Bounds,
+      jumps: JumpMap
+  ) {
+
+    /**
+      * Build by projecting a row or column outside of the specified
+      * bounds onto the boundary.
+      */
+    def buildConfined(start: Position): GridWorld =
+      buildUnsafe(start.confine(bounds))
+
+    /**
+      * Build, assuming that everything is legit!
+      */
+    def buildUnsafe(start: Position): GridWorld =
+      GridWorld(Grid(start, bounds), jumps)
+
+    def withJump(from: Position, to: Position, withReward: Reward): Config =
+      copy(jumps = jumps.updated(from, (to, withReward)))
+
+    /**
+      * Returns a Try that's successful if supplied position is within
+      * bounds, false otherwise.
+      */
+    def build(start: Position): Try[GridWorld] =
+      start.assertWithin(bounds).map(buildUnsafe(_))
   }
-
-  def apply(width: Int, height: Int): GridWorld =
-    GridWorld(width, height, Map.empty)
 }
 
-/**
-  * TODO maybe we should just extend State here, and override the good
-  * stuff?
-  */
 case class GridWorld(
-    width: Int,
-    height: Int,
-    jumps: Map[GridWorld.Position, (GridWorld.Position, GridWorld.Reward)]
-) {
+    grid: Grid,
+    jumps: GridWorld.JumpMap
+) extends State[GridWorld.Move, GridWorld.Reward] {
   import GridWorld._
 
-  def withJump(from: Position, to: Position, withReward: Reward): GridWorld =
-    copy(jumps = jumps.updated(from, (to, withReward)))
+  def render(): Unit = {
+    val x = 10
 
-  def toState: State[Move, Double] = new State[Move, Double] {
-
-    // Of course we don't actually NEED the generator monad here. But
-    // we do want it to generate an initial state! How does that
-    // bullshit interact? Multiple levels of generation.
-    def dynamics: Map[Move, Generator[(Reward, State[A, Reward])]] = ???
-  }
-}
-
-/**
-import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.table import Table
-
-matplotlib.use('Agg')
-
-WORLD_SIZE = 5
-A_POS = [0, 1]
-A_PRIME_POS = [4, 1]
-B_POS = [0, 3]
-B_PRIME_POS = [2, 3]
-DISCOUNT = 0.9
-
-# left, up, right, down
-ACTIONS = [np.array([0, -1]),
-           np.array([-1, 0]),
-           np.array([0, 1]),
-           np.array([1, 0])]
-ACTION_PROB = 0.25
-
-
-def step(state, action):
-    if state == A_POS:
-        return A_PRIME_POS, 10
-    if state == B_POS:
-        return B_PRIME_POS, 5
-
-    next_state = (np.array(state) + action).tolist()
-    x, y = next_state
-    if x < 0 or x >= WORLD_SIZE or y < 0 or y >= WORLD_SIZE:
-        reward = -1.0
-        next_state = state
-    else:
-        reward = 0
-    return next_state, reward
-
-
+    /**
 def draw_image(image):
     fig, ax = plt.subplots()
     ax.set_axis_off()
@@ -107,8 +81,45 @@ def draw_image(image):
                     edgecolor='none', facecolor='none')
 
     ax.add_table(tb)
+      */
+    ???
+  }
 
+  // Of course we don't actually NEED the generator monad here. But
+  // we do want it to generate an initial state! How does that
+  // bullshit interact? Multiple levels of generation.
+  def dynamics: Map[Move, Generator[(Reward, State[Move, Reward])]] = ???
 
+  /**
+    *
+    def step(state, action):
+    if state == A_POS:
+        return A_PRIME_POS, 10
+    if state == B_POS:
+        return B_PRIME_POS, 5
+
+    next_state = (np.array(state) + action).tolist()
+    x, y = next_state
+    if x < 0 or x >= WORLD_SIZE or y < 0 or y >= WORLD_SIZE:
+        reward = -1.0
+        next_state = state
+    else:
+        reward = 0
+    return next_state, reward
+    */
+  override def act(move: Move): Option[Generator[(Reward, State[Move, Reward])]] =
+    ???
+
+  def toState: State[Move, Reward] = this
+}
+
+case class GridPolicy() {}
+
+/**
+  * This next bit generates the value if we go by the Bellman
+  * equation... weight each move by its chance of happening.
+  *
+  *
 def figure_3_2():
     value = np.zeros((WORLD_SIZE, WORLD_SIZE))
     while True:
@@ -127,7 +138,9 @@ def figure_3_2():
             break
         value = new_value
 
-//
+// THIS now is value iteration. This actually chooses the top value
+for each thing.
+
 def figure_3_5():
     value = np.zeros((WORLD_SIZE, WORLD_SIZE))
     while True:

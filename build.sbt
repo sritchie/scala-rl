@@ -165,7 +165,7 @@ import com.stripe.rainier.compute.{Evaluator, Real}
 implicit val rng: RNG = RNG.default
 implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 """.stripMargin('|'),
-  mainClass in (Compile, run) := Some("io.samritchie.rl.Game"),
+  mainClass in (Compile, run) := Some("io.samritchie.rl.book.Chapter2"),
 ).dependsOn(rlCore, rlPlot)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")

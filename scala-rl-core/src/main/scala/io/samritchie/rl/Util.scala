@@ -24,6 +24,9 @@ object Util {
       implicitly[ToReal[Double]].contramap(_.value)
   }
 
+  def confine[A](a: A, min: A, max: A)(implicit ord: Ordering[A]): A =
+    ord.min(ord.max(a, min), max)
+
   def makeMap[K, V](keys: Set[K])(default: => V)(f: K => Option[V]): Map[K, V] =
     keys.foldLeft(Map.empty[K, V]) {
       case (m, k) =>
