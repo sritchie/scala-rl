@@ -38,7 +38,7 @@ object Game {
 
   def playBandit[A, R, P <: Policy[A, R, P]](
       policy: P,
-      stateGen: Generator[Bandit[A, R]],
+      stateGen: Generator[State[A, R]],
       nRuns: Int,
       timeSteps: Int,
       penalty: R
@@ -62,16 +62,37 @@ object Game {
     rewardSeq
   }
 
-  val stateGen = Bandit.initialStateGen(
-    10,
-    Normal(0.0, 1.0).generator,
-    1.0
+  /**
+    * Generates the n-armed testbed.
+    */
+  def nArmedTestbed(
+      nArms: Int,
+      meanMean: Double,
+      stdDev: Double
+  ): Generator[State[Arm, Double]] = Bandit.stationary(
+    nArms,
+    Normal(meanMean, stdDev).generator
+      .map(mean => Normal(mean, stdDev).generator)
   )
+
+  /**
+    * Generates a non-stationary distribution.
+    */
+  def nonStationaryTestbed(
+      nArms: Int,
+      mean: Double,
+      stdDev: Double
+  ): Generator[State[Arm, Double]] =
+    Bandit.nonStationary(
+      nArms,
+      Generator.constant(Normal(mean, stdDev).generator),
+      { case (_, _, rGen) => rGen.flatMap(r => Normal(r, stdDev).generator) }
+    )
 
   def play(policy: EG): List[Double] =
     playBandit(
       policy,
-      stateGen,
+      nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,
       timeSteps = 1000,
       penalty = 0.0

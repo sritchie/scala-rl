@@ -4,14 +4,7 @@
 package io.samritchie.rl
 package state
 
-import com.stripe.rainier.core.{Generator, Normal}
-
-/**
-  * MDP with a single state.
-  */
-case class Bandit[A, R](rewards: Map[A, Generator[R]]) extends State[A, R] {
-  override def dynamics = rewards.mapValues(_.map(r => (r, this)))
-}
+import com.stripe.rainier.core.Generator
 
 object Bandit {
   object Arm {
@@ -31,18 +24,24 @@ object Bandit {
     * Returns a Generator that splits out states for each of the games
     * to play.
     */
-  def initialStateGen(
-      k: Int,
-      meanGenerator: Generator[Double],
-      stdDev: Double
-  ): Generator[Bandit[Arm, Double]] =
-    meanGenerator.repeat(k).map { means =>
-      val m = arms(k).toSeq
-        .zip(means)
-        .foldLeft(Map.empty[Arm, Generator[Double]]) {
-          case (m, (i, mean)) =>
-            m + (i -> Normal(mean, stdDev).generator)
-        }
-      Bandit(m)
-    }
+  def stationary(
+      nArms: Int,
+      gen: Generator[Generator[Double]]
+  ): Generator[State[Arm, Double]] =
+    MapState.fromSet(arms(nArms), gen)
+
+  /**
+    * Returns a Generator that splits out states for each of the games
+    * to play. This generator evolves in a non-stationary way.
+    *
+    * The set below is totally fucked... it's returning a SINGLE
+    * generator each time, not the good stuff that we need.
+    *
+    */
+  def nonStationary(
+      nArms: Int,
+      gen: Generator[Generator[Double]],
+      updater: (Arm, Double, Generator[Double]) => Generator[Double]
+  ): Generator[State[Arm, Double]] =
+    MapState.fromSet(arms(nArms), gen, updater)
 }
