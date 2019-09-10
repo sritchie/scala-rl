@@ -8,64 +8,53 @@ import cats.Eval
 import io.samritchie.rl.util.Grid
 import com.stripe.rainier.compute.Real
 
+import scala.annotation.tailrec
+
 /**
   * Right now we're not actually creating a policy... we're evaluating
   * an existing policy, which we happen to know has a 25% chance of
   * taking action on any of the supplied objects.
   */
 object GridPolicy {
-  type AVMap = Map[Grid.Position, Map[Grid.Move, GridWorld.Reward]]
 
   /**
     * Runs a single step of policy evaluation.
     *
-    *
     * This next bit generates the value if we go by the Bellman
     * equation... weight each move by its chance of happening.
-    *
-    * The policy that we're evaluating here is the random policy.
-    *
-
-def figure_3_2():
-    value = np.zeros((WORLD_SIZE, WORLD_SIZE))
-    while True:
-        # keep iteration until convergence
-        new_value = np.zeros_like(value)
-        for i in range(WORLD_SIZE):
-            for j in range(WORLD_SIZE):
-                for action in ACTIONS:
-                    (next_i, next_j), reward = step([i, j], action)
-                    # bellman equation
-                    new_value[i, j] += ACTION_PROB * (reward + DISCOUNT * value[next_i, next_j])
-        if np.sum(np.abs(value - new_value)) < 1e-4:
-            draw_image(np.round(new_value, decimals=2))
-            plt.savefig('../images/figure_3_2.png')
-            plt.close()
-            break
-        value = new_value
-
     */
-  def evaluate[P <: BaseCategoricalPolicy[Grid.Move, Any, GridWorld.Reward, Eval, P]](
+  def evaluateState[P <: BaseCategoricalPolicy[Grid.Move, Any, Double, Eval, P]](
       policy: P,
-      av: AVMap,
-      world: NowState[GridWorld.Move, Grid.Position, GridWorld.Reward]
-  ): AVMap = {
-    val pmf = policy.categories(world).pmf
-    val dynamics = world.dynamics
-    Grid.Move.all.foldLeft(Real.zero) { (acc, m) =>
+      state: NowState[GridWorld.Move, Grid.Position, Double],
+      stateValue: Map[Grid.Position, Real],
+      gamma: Double
+  ): Map[Grid.Position, Real] = {
+    val pmf = policy.categories(state).pmf
+    val dynamics = state.dynamics
+    val newV = Grid.Move.all.foldLeft(Real.zero) { (acc, m) =>
       val (r, newState) = dynamics(m).value
       val newPos = newState.observation
-
-      // This is the version that weights by the action probability.
-      acc + (pmf(m) * (r + 0.9 * av(newPos).values.sum))
+      acc + (pmf(m) * (r + gamma * stateValue.getOrElse(newPos, Real.zero)))
     }
-    av
+    stateValue.updated(state.observation, newV)
   }
 
   /**
     *
 // THIS now is value iteration. This actually chooses the top value
 for each thing.
+
+    Okay... so, yeah. We need to split out these ideas, again. We need to handle:
+
+    - estimating the values for each action, and then:
+    - immediately updating the value of the state to be the value of the top one.
+
+    This is equivalent to updating the policy immediately to maximize
+    value, and then updating the value function immediately. But there
+    are really two ideas going on here. This can be a project for
+    tomorrow.
+
+    TODO: Get this cleaned up and coded.
 
 def figure_3_5():
     value = np.zeros((WORLD_SIZE, WORLD_SIZE))
@@ -89,29 +78,35 @@ def figure_3_5():
     */
   def valueIterate[P <: BaseCategoricalPolicy[Grid.Move, Any, GridWorld.Reward, Eval, P]](
       policy: P,
-      av: AVMap,
-      world: NowState[GridWorld.Move, Grid.Position, GridWorld.Reward]
-  ): AVMap = {
-    val dynamics = world.dynamics
+      state: NowState[GridWorld.Move, Grid.Position, Double],
+      stateValue: Map[Grid.Position, Real],
+      gamma: Double
+  ): Map[Grid.Position, Real] = {
+    val dynamics = state.dynamics
     Grid.Move.all.foldLeft(Real.zero) { (acc, m) =>
       val (r, newState) = dynamics(m).value
       val newPos = newState.observation
-      acc + (r + 0.9 * av(newPos).values.sum)
+      acc + (r + gamma * stateValue.getOrElse(newPos, Real.zero))
     }
-    av
+    stateValue
   }
 
+  @tailrec
   def evaluateSweep[P <: BaseCategoricalPolicy[Grid.Move, Any, GridWorld.Reward, Eval, P]](
       policy: P,
-      av: AVMap,
-      worlds: Traversable[GridWorld]
-  ): AVMap =
-    worlds match {
-      case Nil          => av
-      case head :: tail => evaluateSweep(policy, evaluate(policy, av, head), tail)
+      worlds: Traversable[GridWorld],
+      stateValue: Map[Grid.Position, Real],
+      gamma: Double
+  ): Map[Grid.Position, Real] =
+    if (worlds.isEmpty)
+      stateValue
+    else {
+      val newStateValue = evaluateState(policy, worlds.head, stateValue, gamma)
+      evaluateSweep(policy, worlds.tail, newStateValue, gamma)
     }
 }
-case class GridPolicy(m: GridPolicy.AVMap, initialValue: Double)
+
+case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValue: Double)
     extends NowPolicy[Grid.Move, Grid.Position, GridWorld.Reward, GridPolicy] {
   import Grid.{Move, Position}
   import GridWorld.Reward

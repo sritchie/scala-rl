@@ -100,23 +100,15 @@ case class GridWorld(
     * have the ability to do the checkers example.
     */
   def actNow(move: Move): (Reward, NowState[Move, Position, Reward]) =
-    grid
-      .move(move)
-      .map(runJumps(_))
-      .getOrElse((penalty, this))
-
-  /**
-    * Executes any jumps that may exist in this world.
-    */
-  private def runJumps(newGrid: Grid): (Reward, GridWorld) = {
-    val (r, g) = jumps.get(newGrid.position) match {
+    jumps.get(grid.position) match {
       case None =>
-        (defaultReward, newGrid)
+        grid
+          .move(move)
+          .map(g => (defaultReward, copy(grid = g)))
+          .getOrElse((penalty, this))
       case Some((newPosition, reward)) =>
-        (reward, grid.teleportUnsafe(newPosition))
+        (reward, copy(grid = grid.teleportUnsafe(newPosition)))
     }
-    (r, copy(grid = g))
-  }
 
   /**
     * Draws a plot.
