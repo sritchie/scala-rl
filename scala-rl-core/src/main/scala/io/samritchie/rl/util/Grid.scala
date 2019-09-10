@@ -90,7 +90,20 @@ object Grid {
         x <- col.assertWithin(bounds.numColumns)
       } yield this
   }
-  case class Bounds(numRows: Int, numColumns: Int)
+  case class Bounds(numRows: Int, numColumns: Int) {
+    def allPositions: Traversable[Position] =
+      for {
+        r <- (0 until numRows)
+        c <- (0 until numColumns)
+      } yield Position.of(r, c)
+  }
+
+  /**
+    * Produces a traversable instance containing all possible Grid
+    * states.
+    */
+  def allStates(bounds: Bounds): Traversable[Grid] =
+    bounds.allPositions.map(Grid(_, bounds))
 }
 
 case class Grid(position: Grid.Position, bounds: Grid.Bounds) {

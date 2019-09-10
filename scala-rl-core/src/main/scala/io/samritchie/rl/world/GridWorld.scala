@@ -65,8 +65,12 @@ object GridWorld {
       */
     def build(start: Position): Try[GridWorld] =
       start.assertWithin(bounds).map(buildUnsafe(_))
-  }
 
+    def stateSweep: Traversable[GridWorld] =
+      Grid.allStates(bounds).map {
+        GridWorld(_, default, penalty, jumps)
+      }
+  }
 }
 
 /**
@@ -116,10 +120,9 @@ case class GridWorld(
 
   /**
     * Draws a plot.
-    */
-  def render(): Unit =
-    /**
-def draw_image(image):
+    *
+    *
+    def draw_image(image):
     fig, ax = plt.subplots()
     ax.set_axis_off()
     tb = Table(ax, bbox=[0, 0, 1, 1])
@@ -140,86 +143,10 @@ def draw_image(image):
                     edgecolor='none', facecolor='none')
 
     ax.add_table(tb)
-      */
-    ???
-
-}
-
-/**
-  * Right now we're not actually creating a policy... we're evaluating
-  * an existing policy, which we happen to know has a 25% chance of
-  * taking action on any of the supplied objects.
-  *
-  * So this is actually wrong. We need to take in the
-  */
-case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValue: Double)
-    extends NowPolicy[Grid.Move, Grid.Position, Double, GridPolicy] {
-  import Grid.{Move, Position}
-
-  override def choose(s: NowState[Move, Position, Double]): Eval[Move] = {
-    val nMoves = s.actions.size
-    val position = s.observation
-    val subMap: Map[Move, Double] = m.getOrElse(position, Map.empty)
-
-    /**
-    s.actions.foldLeft((Map.empty[Grid.Move, Double], Real.zero)) { (move, sum) =>
-      subMap.getOrElse(initialValue)
-      m.getOrElse((position, move), initialValue)
-    }
-
-    // m.getOrElse((s.observation,
-      */
-    println(s"Current position is ${s.observation}")
-    ???
+    */
+  def render(): Unit = {
+    println("For now, we'll just print a string...")
+    println("Rendered!")
   }
 
-  override def learn(s: NowState[Move, Position, Double], move: Move, reward: Double): GridPolicy = this
 }
-/**
-  * This next bit generates the value if we go by the Bellman
-  * equation... weight each move by its chance of happening.
-  *
-  * The policy that we're evaluating here is the random policy.
-  *
-  *
-def figure_3_2():
-    value = np.zeros((WORLD_SIZE, WORLD_SIZE))
-    while True:
-        # keep iteration until convergence
-        new_value = np.zeros_like(value)
-        for i in range(WORLD_SIZE):
-            for j in range(WORLD_SIZE):
-                for action in ACTIONS:
-                    (next_i, next_j), reward = step([i, j], action)
-                    # bellman equation
-                    new_value[i, j] += ACTION_PROB * (reward + DISCOUNT * value[next_i, next_j])
-        if np.sum(np.abs(value - new_value)) < 1e-4:
-            draw_image(np.round(new_value, decimals=2))
-            plt.savefig('../images/figure_3_2.png')
-            plt.close()
-            break
-        value = new_value
-
-// THIS now is value iteration. This actually chooses the top value
-for each thing.
-
-def figure_3_5():
-    value = np.zeros((WORLD_SIZE, WORLD_SIZE))
-    while True:
-        # keep iteration until convergence
-        new_value = np.zeros_like(value)
-        for i in range(WORLD_SIZE):
-            for j in range(WORLD_SIZE):
-                values = []
-                for action in ACTIONS:
-                    (next_i, next_j), reward = step([i, j], action)
-                    # value iteration
-                    values.append(reward + DISCOUNT * value[next_i, next_j])
-                new_value[i, j] = np.max(values)
-        if np.sum(np.abs(new_value - value)) < 1e-4:
-            draw_image(np.round(new_value, decimals=2))
-            plt.savefig('../images/figure_3_5.png')
-            plt.close()
-            break
-        value = new_value
-  */
