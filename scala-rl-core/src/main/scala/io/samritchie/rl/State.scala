@@ -29,7 +29,7 @@ import com.stripe.rainier.core.Generator
   * model; for the bandit we only have a single state, not that
   * useful.
   */
-trait State[A, +Obs, +Reward] {
+trait BaseState[A, +Obs, +Reward, M[+ _]] {
   def observation: Obs
 
   /**
@@ -38,13 +38,13 @@ trait State[A, +Obs, +Reward] {
     * want the full distribution we're going to have to build out a
     * better interface. Good enough for now.
     */
-  def dynamics: Map[A, Generator[(Reward, State[A, Obs, Reward])]]
+  def dynamics: Map[A, M[(Reward, BaseState[A, Obs, Reward, M])]]
 
   /**
     * Return None if it's an invalid action, otherwise gives us the
     * next state. (Make this better later.)
     */
-  def act(action: A): Option[Generator[(Reward, State[A, Obs, Reward])]] = dynamics.get(action)
+  def act(action: A): Option[M[(Reward, BaseState[A, Obs, Reward, M])]] = dynamics.get(action)
 
   /**
     * Returns a list of possible actions to take from this state.
