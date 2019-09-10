@@ -6,7 +6,7 @@
 package io.samritchie.rl
 package world
 
-import com.stripe.rainier.core.Generator
+import cats.Eval
 import io.samritchie.rl.util.Grid
 import scala.util.{Success, Try}
 
@@ -73,26 +73,23 @@ case class GridWorld(
     defaultReward: GridWorld.Reward,
     penalty: GridWorld.Reward,
     jumps: GridWorld.Jumps
-) extends State[GridWorld.Move, Grid.Position, GridWorld.Reward] {
+) extends NowState[GridWorld.Move, Grid.Position, GridWorld.Reward] {
   import GridWorld._
 
   val observation: Position = grid.position
 
-  def dynamics: Map[Move, Generator[(Reward, State[Move, Position, Reward])]] =
-    Util.makeMap(Grid.Move.all)(m => Util.delayedGenerator(actNow(m)))
+  def dynamics: Map[Move, Eval[(Reward, NowState[Move, Position, Reward])]] =
+    Util.makeMap(Grid.Move.all)(m => Eval.later(actNow(m)))
 
   /**
     * This is the NON-monadic action, since we can do it
     * immediately. The dynamics are where it all gets passed down to the user.
     *
-    * TODO - should this NOT be a stochastic policy, since we really
-    * don't care here and are just using the constant generator?
-    *
     * There is still a wall, though! The user can't look ahead. If you
     * CAN look ahead, and don't hide it behind a delay, then boom, we
     * have the ability to do the checkers example.
     */
-  def actNow(move: Move): (Reward, State[Move, Position, Reward]) =
+  def actNow(move: Move): (Reward, NowState[Move, Position, Reward]) =
     grid
       .move(move)
       .map(runJumps(_))
@@ -143,10 +140,10 @@ def draw_image(image):
 }
 
 case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValue: Double)
-    extends Policy[Grid.Move, Grid.Position, Double, GridPolicy] {
+    extends NowPolicy[Grid.Move, Grid.Position, Double, GridPolicy] {
   import Grid.{Move, Position}
 
-  override def choose(s: State[Move, Position, Double]): Generator[Move] = {
+  override def choose(s: State[Move, Position, Double]): Eval[Move] = {
     val nMoves = s.actions.size
     val position = s.observation
     val subMap: Map[Move, Double] = m.getOrElse(position, Map.empty)
@@ -163,7 +160,7 @@ case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValu
     ???
   }
 
-  override def learn(s: State[Move, Position, Double], move: Move, reward: Double): GridPolicy = this
+  override def learn(s: NowState[Move, Position, Double], move: Move, reward: Double): GridPolicy = this
 }
 
 /**

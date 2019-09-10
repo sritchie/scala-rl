@@ -10,7 +10,7 @@ import io.samritchie.rl.world.GridWorld
 object Chapter3 {
   import GridWorld._
 
-  val figureThreeTwoState: State[Move, Position, Reward] =
+  val figureThreeTwoState: NowState[Move, Position, Reward] =
     GridWorld
       .Config(Bounds(5, 5))
       .withJump(Position.of(0, 1), Position.of(4, 1), 10)

@@ -56,7 +56,7 @@ trait Learner[A, -Obs, -R, M[+ _], This <: Learner[A, Obs, R, M, This]] {
   * R - reward
   * This - policy
   */
-trait BasePolicy[A, Obs, R, M[+ _], This <: BasePolicy[A, Obs, R, M, This]]
+trait BasePolicy[A, -Obs, -R, M[+ _], This <: BasePolicy[A, Obs, R, M, This]]
     extends Learner[A, Obs, R, M, This]
     with Decider[A, Obs, R, M]
 
