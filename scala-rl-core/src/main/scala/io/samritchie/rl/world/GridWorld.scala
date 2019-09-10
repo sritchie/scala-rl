@@ -66,8 +66,14 @@ object GridWorld {
     def build(start: Position): Try[GridWorld] =
       start.assertWithin(bounds).map(buildUnsafe(_))
   }
+
 }
 
+/**
+  * TODO - redo this to store dynamics ALL OVER, so we don't have to
+  * recalculate them? lazily build up the map... but don't REPLACE
+  * once it's there? That should slightly speed us up.
+  */
 case class GridWorld(
     grid: Grid,
     defaultReward: GridWorld.Reward,

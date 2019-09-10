@@ -18,14 +18,6 @@ import scala.language.higherKinds
   */
 trait Decider[A, -Obs, -R, M[+ _]] { self =>
   def choose(state: State[A, Obs, R]): M[A]
-
-  /**
-    * Just an idea to see if I can make stochastic deciders out of
-    * deterministic deciders. We'll see how this develops.
-    */
-  def fmap[N[+ _]](to: M[A] => N[A]): Decider[A, Obs, R, N] = new Decider[A, Obs, R, N] {
-    override def choose(state: State[A, Obs, R]): N[A] = to(self.choose(state))
-  }
 }
 
 trait Learner[A, -Obs, -R, M[+ _], This <: Learner[A, Obs, R, M, This]] {

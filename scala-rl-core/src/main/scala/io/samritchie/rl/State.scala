@@ -20,6 +20,8 @@
   */
 package io.samritchie.rl
 
+import cats.Functor
+import cats.arrow.FunctionK
 import com.stripe.rainier.core.Generator
 
 /**
@@ -29,7 +31,7 @@ import com.stripe.rainier.core.Generator
   * model; for the bandit we only have a single state, not that
   * useful.
   */
-trait BaseState[A, +Obs, +Reward, M[+ _]] {
+trait BaseState[A, +Obs, +R, M[+ _]] { self =>
   def observation: Obs
 
   /**
@@ -38,18 +40,36 @@ trait BaseState[A, +Obs, +Reward, M[+ _]] {
     * want the full distribution we're going to have to build out a
     * better interface. Good enough for now.
     */
-  def dynamics: Map[A, M[(Reward, BaseState[A, Obs, Reward, M])]]
+  def dynamics: Map[A, M[(R, BaseState[A, Obs, R, M])]]
 
   /**
     * Return None if it's an invalid action, otherwise gives us the
     * next state. (Make this better later.)
     */
-  def act(action: A): Option[M[(Reward, BaseState[A, Obs, Reward, M])]] = dynamics.get(action)
+  def act(action: A): Option[M[(R, BaseState[A, Obs, R, M])]] = dynamics.get(action)
 
   /**
     * Returns a list of possible actions to take from this state.
     */
   def actions: Set[A] = dynamics.keySet
+
+  /**
+    * Just an idea to see if I can make stochastic deciders out of
+    * deterministic deciders. We'll see how this develops.
+    */
+  def mapK[N[+ _]: Functor](f: FunctionK[M, N]): BaseState[A, Obs, R, N] = new BaseState[A, Obs, R, N] {
+    private def mapPair(pair: M[(R, BaseState[A, Obs, R, M])]): N[(R, BaseState[A, Obs, R, N])] =
+      Functor[N].map(f(pair)) { case (r, s) => (r, s.mapK(f)) }
+
+    def observation = self.observation
+    def dynamics: Map[A, N[(R, BaseState[A, Obs, R, N])]] =
+      self.dynamics.mapValues(mapPair(_))
+
+    override def act(action: A): Option[N[(R, BaseState[A, Obs, R, N])]] =
+      self.act(action).map(mapPair(_))
+
+    override def actions: Set[A] = self.actions
+  }
 }
 
 /**
