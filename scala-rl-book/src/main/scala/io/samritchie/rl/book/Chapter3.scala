@@ -31,14 +31,9 @@ object Chapter3 {
     val epsilon: Double = 1e-4
     val gamma: Double = 0.9
 
-    Util.loopWhile((ValueFunction.emptyState[Position], 0)) {
+    Util.loopWhile((ValueFunction.emptyState[Position](gamma), 0)) {
       case (m, iterLeft) =>
-        val newM = ValueFunction.evaluateSweep(
-          policy,
-          gridConf.stateSweep,
-          m,
-          gamma
-        )
+        val newM = ValueFunction.evaluateSweep(policy, gridConf.stateSweep, m)
         if ((iterLeft >= allowedIterations) || newM.shouldHalt(m, epsilon))
           Right((newM, iterLeft))
         else
