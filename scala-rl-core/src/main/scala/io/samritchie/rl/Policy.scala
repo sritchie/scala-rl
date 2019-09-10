@@ -16,21 +16,19 @@ import scala.language.higherKinds
 /**
   * Trait for things that can choose some Monadic result.
   */
-trait Decider[A, -Obs, -R, M[_]] { self =>
+trait Decider[A, -Obs, -R, M[+ _]] { self =>
   def choose(state: State[A, Obs, R]): M[A]
 
   /**
     * Just an idea to see if I can make stochastic deciders out of
     * deterministic deciders. We'll see how this develops.
     */
-  def fmap[N[_]](to: M[A] => N[A]): Decider[A, Obs, R, N] = new Decider[A, Obs, R, N] {
+  def fmap[N[+ _]](to: M[A] => N[A]): Decider[A, Obs, R, N] = new Decider[A, Obs, R, N] {
     override def choose(state: State[A, Obs, R]): N[A] = to(self.choose(state))
   }
 }
 
-trait StochasticDecider[A, -Obs, -R] extends Decider[A, Obs, R, Generator]
-
-trait Learner[A, -Obs, -R, This <: Learner[A, Obs, R, This]] {
+trait Learner[A, -Obs, -R, M[+ _], This <: Learner[A, Obs, R, M, This]] {
 
   /**
     * OR does this information go later? A particular policy should
@@ -45,7 +43,7 @@ trait Learner[A, -Obs, -R, This <: Learner[A, Obs, R, This]] {
     *
     * This of course might need to be a monadic response.
     */
-  def learn(state: State[A, Obs, R], action: A, reward: R): This
+  def learn(state: BaseState[A, Obs, R, M], action: A, reward: R): This
 }
 
 /**
@@ -58,9 +56,9 @@ trait Learner[A, -Obs, -R, This <: Learner[A, Obs, R, This]] {
   * R - reward
   * This - policy
   */
-trait Policy[A, Obs, R, This <: Policy[A, Obs, R, This]]
-    extends Learner[A, Obs, R, This]
-    with StochasticDecider[A, Obs, R]
+trait BasePolicy[A, Obs, R, M[+ _], This <: BasePolicy[A, Obs, R, M, This]]
+    extends Learner[A, Obs, R, M, This]
+    with Decider[A, Obs, R, M]
 
 object Policy {
 
