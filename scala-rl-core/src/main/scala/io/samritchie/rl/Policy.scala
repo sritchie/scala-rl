@@ -53,7 +53,12 @@ trait BasePolicy[A, -Obs, -R, M[+ _], This <: BasePolicy[A, Obs, R, M, This]]
     with Decider[A, Obs, R, M]
 
 /**
-  * Policy based on a discrete number of actions.
+  * Policy based on a discrete number of actions. This is a policy
+  * where you can DIRECTLY UNDERSTAND what it's trying to do!
+  *
+  * TODO - note that for a state, it'd be great if you could get a
+  * categorical distribution... but if you have a stochastic state at
+  * least you can sample.
   */
 trait CategoricalPolicy[A, -Obs, -R, This <: CategoricalPolicy[A, Obs, R, This]]
     extends BasePolicy[A, Obs, R, Generator, This] {

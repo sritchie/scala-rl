@@ -175,10 +175,11 @@ case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValu
 
   override def learn(s: NowState[Move, Position, Double], move: Move, reward: Double): GridPolicy = this
 }
-
 /**
   * This next bit generates the value if we go by the Bellman
   * equation... weight each move by its chance of happening.
+  *
+  * The policy that we're evaluating here is the random policy.
   *
   *
 def figure_3_2():
