@@ -26,12 +26,12 @@ object Chapter3 {
     * This is Figure 3.2, with proper stopping conditions and
     * everything. Lots of work to go.
     *   */
-  def figureThreeTwo: (Map[Position, Real], Long) = {
+  def figureThreeTwo: (StateValue[Position], Long) = {
     val allowedIterations: Long = 10000
     val epsilon: Double = 1e-4
     val gamma: Double = 0.9
 
-    Util.loopWhile((Map.empty[Position, Real], 0)) {
+    Util.loopWhile((ValueFunction.emptyState[Position], 0)) {
       case (m, iterLeft) =>
         val newM = ValueFunction.evaluateSweep(
           policy,
@@ -39,7 +39,7 @@ object Chapter3 {
           m,
           gamma
         )
-        if ((iterLeft >= allowedIterations) || ValueFunction.Util.shouldHalt(m, newM, epsilon))
+        if ((iterLeft >= allowedIterations) || newM.shouldHalt(m, epsilon))
           Right((newM, iterLeft))
         else
           Left((newM, iterLeft + 1))
@@ -47,7 +47,8 @@ object Chapter3 {
   }
 
   def main(items: Array[String]): Unit = {
-    val (done, iterations) = figureThreeTwo
+    val (doneStateValue, iterations) = figureThreeTwo
+    val done = doneStateValue.m
 
     gridConf.stateSweep.foreach { gw =>
       println(s"Position: ${gw.grid.position}, Value: ${done.getOrElse(gw.grid.position, Real.zero)}")

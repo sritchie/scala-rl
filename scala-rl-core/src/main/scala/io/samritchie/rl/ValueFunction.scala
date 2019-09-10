@@ -7,11 +7,16 @@ import com.stripe.rainier.compute.{Real, ToReal}
 import scala.annotation.tailrec
 
 /**
-  * TODO Figure out how to make something that tracks action and state
-  * values here.
+  * Trait for state or action value functions.
   */
-sealed trait ValueFunction[Obs] {}
-case class StateValue[Obs]() extends ValueFunction[Obs]
+sealed trait ValueFunction[Obs] {
+  def value()
+}
+case class StateValue[Obs](m: Map[Obs, Real]) extends ValueFunction[Obs] {
+  def shouldHalt(previous: StateValue[Obs], epsilon: Double): Boolean =
+    ValueFunction.Util.shouldHalt(previous.m, m, epsilon)
+}
+
 case class ActionValue[Obs]() extends ValueFunction[Obs]
 
 /**
@@ -21,6 +26,7 @@ case class ActionValue[Obs]() extends ValueFunction[Obs]
   * setup.
   */
 object ValueFunction {
+  def emptyState[Obs]: StateValue[Obs] = StateValue(Map.empty)
 
   /**
     * Runs a single step of policy evaluation.
@@ -31,26 +37,29 @@ object ValueFunction {
   def evaluateState[A, Obs, R: ToReal, P <: BaseCategoricalPolicy[A, Obs, R, Eval, P]](
       policy: P,
       state: NowState[A, Obs, R],
-      stateValue: Map[Obs, Real],
+      stateValue: StateValue[Obs],
       gamma: Double
-  )(): Map[Obs, Real] = {
+  ): StateValue[Obs] = {
     val pmf = policy.categories(state).pmf
     val dynamics = state.dynamics
     val newV = state.actions.foldLeft(Real.zero) { (acc, m) =>
       val (r, newState) = dynamics(m).value
       val newPos = newState.observation
-      acc + (pmf(m) * (ToReal(r) + gamma * stateValue.getOrElse(newPos, Real.zero)))
+
+      // This evaluates the state using the Bellman equation. This
+      // needs to get absorbed into the value calculation.
+      acc + (pmf(m) * (ToReal(r) + gamma * stateValue.m.getOrElse(newPos, Real.zero)))
     }
-    stateValue.updated(state.observation, newV)
+    StateValue(stateValue.m.updated(state.observation, newV))
   }
 
   @tailrec
   def evaluateSweep[A, Obs, R: ToReal, P <: BaseCategoricalPolicy[A, Obs, R, Eval, P]](
       policy: P,
       states: Traversable[NowState[A, Obs, R]],
-      stateValue: Map[Obs, Real],
+      stateValue: StateValue[Obs],
       gamma: Double
-  ): Map[Obs, Real] =
+  ): StateValue[Obs] =
     if (states.isEmpty)
       stateValue
     else {
