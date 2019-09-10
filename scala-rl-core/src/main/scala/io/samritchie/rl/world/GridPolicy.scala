@@ -8,36 +8,12 @@ import cats.Eval
 import io.samritchie.rl.util.Grid
 import com.stripe.rainier.compute.Real
 
-import scala.annotation.tailrec
-
 /**
   * Right now we're not actually creating a policy... we're evaluating
   * an existing policy, which we happen to know has a 25% chance of
   * taking action on any of the supplied objects.
   */
 object GridPolicy {
-
-  /**
-    * Runs a single step of policy evaluation.
-    *
-    * This next bit generates the value if we go by the Bellman
-    * equation... weight each move by its chance of happening.
-    */
-  def evaluateState[P <: BaseCategoricalPolicy[Grid.Move, Any, Double, Eval, P]](
-      policy: P,
-      state: NowState[GridWorld.Move, Grid.Position, Double],
-      stateValue: Map[Grid.Position, Real],
-      gamma: Double
-  ): Map[Grid.Position, Real] = {
-    val pmf = policy.categories(state).pmf
-    val dynamics = state.dynamics
-    val newV = Grid.Move.all.foldLeft(Real.zero) { (acc, m) =>
-      val (r, newState) = dynamics(m).value
-      val newPos = newState.observation
-      acc + (pmf(m) * (r + gamma * stateValue.getOrElse(newPos, Real.zero)))
-    }
-    stateValue.updated(state.observation, newV)
-  }
 
   /**
     *
@@ -76,42 +52,27 @@ def figure_3_5():
             break
         value = new_value
     */
-  def valueIterate[P <: BaseCategoricalPolicy[Grid.Move, Any, GridWorld.Reward, Eval, P]](
+  def valueIterate[A, Obs, P <: BaseCategoricalPolicy[A, Obs, Double, Eval, P]](
       policy: P,
-      state: NowState[GridWorld.Move, Grid.Position, Double],
-      stateValue: Map[Grid.Position, Real],
+      state: NowState[A, Obs, Double],
+      stateValue: Map[Obs, Real],
       gamma: Double
-  ): Map[Grid.Position, Real] = {
+  ): Map[Obs, Real] = {
     val dynamics = state.dynamics
-    Grid.Move.all.foldLeft(Real.zero) { (acc, m) =>
+    state.actions.foldLeft(Real.zero) { (acc, m) =>
       val (r, newState) = dynamics(m).value
       val newPos = newState.observation
       acc + (r + gamma * stateValue.getOrElse(newPos, Real.zero))
     }
     stateValue
   }
-
-  @tailrec
-  def evaluateSweep[P <: BaseCategoricalPolicy[Grid.Move, Any, GridWorld.Reward, Eval, P]](
-      policy: P,
-      worlds: Traversable[GridWorld],
-      stateValue: Map[Grid.Position, Real],
-      gamma: Double
-  ): Map[Grid.Position, Real] =
-    if (worlds.isEmpty)
-      stateValue
-    else {
-      val newStateValue = evaluateState(policy, worlds.head, stateValue, gamma)
-      evaluateSweep(policy, worlds.tail, newStateValue, gamma)
-    }
 }
 
 case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValue: Double)
-    extends NowPolicy[Grid.Move, Grid.Position, GridWorld.Reward, GridPolicy] {
+    extends NowPolicy[Grid.Move, Grid.Position, Double, GridPolicy] {
   import Grid.{Move, Position}
-  import GridWorld.Reward
 
-  override def choose(s: NowState[Move, Position, Reward]): Eval[Move] = {
+  override def choose(s: NowState[Move, Position, Double]): Eval[Move] = {
     val position = s.observation
     val subMap: Map[Move, Double] = m.getOrElse(position, Map.empty)
 
@@ -128,8 +89,8 @@ case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValu
   }
 
   override def learn(
-      s: NowState[Move, Position, Reward],
+      s: NowState[Move, Position, Double],
       move: Move,
-      reward: Reward
+      reward: Double
   ): GridPolicy = this
 }

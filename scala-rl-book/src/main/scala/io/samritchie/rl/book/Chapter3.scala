@@ -1,22 +1,16 @@
 package io.samritchie.rl
 package book
 
-import com.stripe.rainier.compute.{Evaluator, Real}
-import com.stripe.rainier.sampler.RNG
+import com.stripe.rainier.compute.Real
 import io.samritchie.rl.policy.Random
 import io.samritchie.rl.util.Grid
-import io.samritchie.rl.world.{GridPolicy, GridWorld}
-
-import scala.annotation.tailrec
+import io.samritchie.rl.world.GridWorld
 
 /**
   * This chapter plays a couple of gridworld games.
   */
 object Chapter3 {
   import io.samritchie.rl.util.Grid.{Bounds, Move, Position}
-
-  implicit val rng: RNG = RNG.default
-  implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
   val gridConf = GridWorld
     .Config(Bounds(5, 5))
@@ -28,13 +22,6 @@ object Chapter3 {
 
   val policy = Random.eval[Grid.Move, Double]
 
-  @tailrec
-  def loopWhile[A, B](init: A)(f: A => Either[A, B]): B =
-    f(init) match {
-      case Left(a)  => loopWhile(a)(f)
-      case Right(b) => b
-    }
-
   /**
     * This is Figure 3.2, with proper stopping conditions and
     * everything. Lots of work to go.
@@ -44,15 +31,15 @@ object Chapter3 {
     val epsilon: Double = 1e-4
     val gamma: Double = 0.9
 
-    loopWhile((Map.empty[Position, Real], 0)) {
+    Util.loopWhile((Map.empty[Position, Real], 0)) {
       case (m, iterLeft) =>
-        val newM = GridPolicy.evaluateSweep(
+        val newM = ValueFunction.evaluateSweep(
           policy,
           gridConf.stateSweep,
           m,
           gamma
         )
-        if ((iterLeft >= allowedIterations) || ValueFunction.shouldWeStop(m, newM, epsilon))
+        if ((iterLeft >= allowedIterations) || ValueFunction.Util.shouldHalt(m, newM, epsilon))
           Right((newM, iterLeft))
         else
           Left((newM, iterLeft + 1))
