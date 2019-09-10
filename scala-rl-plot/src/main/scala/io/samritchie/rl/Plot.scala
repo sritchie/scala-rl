@@ -4,6 +4,11 @@
   * decided to go with Evilplot.
   *
   * https://cibotech.github.io/evilplot/plot-catalog.html
+  *
+  * Here's a great example of the kinds of things we can do with this
+  * plotting library:
+  *
+  * https://www.cibotechnologies.com/about/blog/scalastan-and-evilplot-bayesian-statistics-meets-combinator-based-visualization/
   */
 package io.samritchie.rl
 

@@ -1,4 +1,5 @@
 package io.samritchie.rl
+package book
 
 import cats.implicits._
 import com.stripe.rainier.cats._
@@ -21,7 +22,7 @@ import io.samritchie.rl.policy.EpsilonGreedy
   * So we really want to march them ALL forward and grab the average
   * reward...
   */
-object Game {
+object Chapter2 {
   import Bandit.Arm
   type EG = EpsilonGreedy[Arm, Double, AveragedValue]
 
@@ -36,19 +37,19 @@ object Game {
     sum / n
   }
 
-  def playBandit[A, R, P <: Policy[A, R, P]](
+  def playBandit[A, Obs, R, P <: Policy[A, Obs, R, P]](
       policy: P,
-      stateGen: Generator[State[A, R]],
+      stateGen: Generator[State[A, Obs, R]],
       nRuns: Int,
       timeSteps: Int,
       penalty: R
-  )(reduce: List[R] => R): (List[(P, State[A, R])], List[R]) = {
-    val rewardSeqGen: Generator[(List[(P, State[A, R])], List[R])] =
+  )(reduce: List[R] => R): (List[(P, State[A, Obs, R])], List[R]) = {
+    val rewardSeqGen: Generator[(List[(P, State[A, Obs, R])], List[R])] =
       (0 until nRuns).toList
         .map(i => stateGen.map(s => (policy, s)))
         .sequence
         .flatMap { pairs =>
-          Policy.playManyN[A, R, P](
+          Policy.playManyN[A, Obs, R, P](
             pairs,
             penalty,
             timeSteps
@@ -69,7 +70,7 @@ object Game {
       nArms: Int,
       meanMean: Double,
       stdDev: Double
-  ): Generator[State[Arm, Double]] = Bandit.stationary(
+  ): Generator[State[Arm, Unit, Double]] = Bandit.stationary(
     nArms,
     Normal(meanMean, stdDev).generator
       .map(mean => Normal(mean, stdDev).generator)
@@ -82,7 +83,7 @@ object Game {
       nArms: Int,
       mean: Double,
       stdDev: Double
-  ): Generator[State[Arm, Double]] =
+  ): Generator[State[Arm, Unit, Double]] =
     Bandit.nonStationary(
       nArms,
       Generator.constant(Normal(mean, stdDev).generator),
@@ -90,7 +91,7 @@ object Game {
     )
 
   def play(policy: EG): List[Double] =
-    playBandit(
+    playBandit[Arm, Any, Double, EG](
       policy,
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,

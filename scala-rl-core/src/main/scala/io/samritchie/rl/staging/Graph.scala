@@ -14,4 +14,4 @@ package staging
   * There is some set of possible places you can get from a given
   * state. Do we know that in advance?
   */
-case class Graph[A, Reward](actions: Set[State[A, Reward]])
+case class Graph[A, Obs, Reward](actions: Set[State[A, Obs, Reward]])

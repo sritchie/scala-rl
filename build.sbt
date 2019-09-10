@@ -8,7 +8,7 @@ lazy val V = new {
   val cats = "1.1.0"
   val evilplot = "0.6.3"
   val kindProjector = "0.10.3"
-  val rainier = "0.2.3-rc1-SNAPSHOT"
+  val rainier = "0.2.3-rc5-SNAPSHOT"
   val scala = "2.12.8"
   val scalacheck = "1.14.0"
   val scalatest = "3.0.8"
@@ -165,7 +165,7 @@ import com.stripe.rainier.compute.{Evaluator, Real}
 implicit val rng: RNG = RNG.default
 implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 """.stripMargin('|'),
-  mainClass in (Compile, run) := Some("io.samritchie.rl.Game"),
+  mainClass in (Compile, run) := Some("io.samritchie.rl.book.Chapter2"),
 ).dependsOn(rlCore, rlPlot)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")

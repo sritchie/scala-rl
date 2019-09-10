@@ -3,10 +3,11 @@
   */
 package io.samritchie.rl
 
-import cats.Monad
+import cats.{Eval, Monad, Now}
+import cats.arrow.FunctionK
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import com.stripe.rainier.compute.{Real, ToReal}
-import com.stripe.rainier.core.Categorical
+import com.stripe.rainier.core.{Categorical, Generator}
 
 import scala.language.higherKinds
 
@@ -24,7 +25,10 @@ object Util {
       implicitly[ToReal[Double]].contramap(_.value)
   }
 
-  def makeMap[K, V](keys: Set[K])(default: => V)(f: K => Option[V]): Map[K, V] =
+  def confine[A](a: A, min: A, max: A)(implicit ord: Ordering[A]): A =
+    ord.min(ord.max(a, min), max)
+
+  def makeMap[K, V](keys: Set[K], default: => V)(f: K => Option[V]): Map[K, V] =
     keys.foldLeft(Map.empty[K, V]) {
       case (m, k) =>
         m.updated(k, f(k).getOrElse(default))
@@ -50,9 +54,6 @@ object Util {
     as.filter(a => Ordering[B].equiv(maxB, f(a)))
   }
 
-  def generatorFromSet[A](items: Set[A]) =
-    Categorical.fromSet(items).generator
-
   def softmax[A, B](m: Map[A, Real]): Categorical[A] =
     Categorical.normalize(m.mapValues(_.exp))
 
@@ -73,4 +74,12 @@ object Util {
         else
           Monad[F].map(f(a))(a2 => Left((k - 1, a2)))
     }
+
+  // Cats instances and functions.
+  def evalToGen[A](a: Eval[A]): Generator[A] = a match {
+    case Now(a) => Generator.constant(a)
+    case _      => Generator.from((r, n) => a.value)
+
+  }
+  val evalToGenK: FunctionK[Eval, Generator] = FunctionK.lift(evalToGen)
 }

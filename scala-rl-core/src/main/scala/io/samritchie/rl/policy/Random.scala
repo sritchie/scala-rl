@@ -4,16 +4,24 @@
 package io.samritchie.rl
 package policy
 
+import cats.Eval
+import cats.arrow.FunctionK
 import com.stripe.rainier.core.{Categorical, Generator}
 
 /**
   * Random policy.
   */
-case class Random[A, R]() extends Policy[A, R, Random[A, R]] {
-  override def choose(state: State[A, R]): Generator[A] =
-    Categorical.list(state.actions.toList).generator
+case class Random[A, R, S[+ _]](fk: FunctionK[S, Generator])
+    extends BaseCategoricalPolicy[A, Any, R, S, Random[A, R, S]] {
 
-  override def learn(state: State[A, R], action: A, reward: R): Random[A, R] = this
+  def categories(state: BaseState[A, Any, R, S]): Categorical[A] =
+    Categorical.list(state.actions.toSeq)
+
+  override def learn(
+      state: BaseState[A, Any, R, S],
+      action: A,
+      reward: R
+  ): Random[A, R, S] = this
 }
 
 object Random {
@@ -21,5 +29,6 @@ object Random {
   /**
     * Returns a policy that does NOT learn.
     */
-  def uniform[A, R]: Random[A, R] = Random[A, R]
+  def generator[A, R]: Random[A, R, Generator] = Random(FunctionK.id)
+  def eval[A, R]: Random[A, R, Eval] = Random(Util.evalToGenK)
 }
