@@ -145,11 +145,18 @@ def draw_image(image):
 
 }
 
+/**
+  * Right now we're not actually creating a policy... we're evaluating
+  * an existing policy, which we happen to know has a 25% chance of
+  * taking action on any of the supplied objects.
+  *
+  * So this is actually wrong. We need to take in the
+  */
 case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValue: Double)
     extends NowPolicy[Grid.Move, Grid.Position, Double, GridPolicy] {
   import Grid.{Move, Position}
 
-  override def choose(s: State[Move, Position, Double]): Eval[Move] = {
+  override def choose(s: NowState[Move, Position, Double]): Eval[Move] = {
     val nMoves = s.actions.size
     val position = s.observation
     val subMap: Map[Move, Double] = m.getOrElse(position, Map.empty)

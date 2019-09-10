@@ -7,17 +7,17 @@ package io.samritchie.rl
 package policy
 
 import com.twitter.algebird.Aggregator
-import com.stripe.rainier.core.Generator
+import com.stripe.rainier.core.Categorical
 
 case class UCB[A, R, T](
     config: UCB.Config[R, T],
     actionValues: Map[A, UCB.Choice[T]],
     time: Time
-) extends Policy[A, Any, R, UCB[A, R, T]] {
+) extends CategoricalPolicy[A, Any, R, UCB[A, R, T]] {
 
-  // TODO fix this fuckup!
-  override def choose(state: State[A, Any, R]): Generator[A] =
-    Util.generatorFromSet(
+  // TODO fix this fuckup! (what is the fuckup?)
+  override def categories(state: State[A, Any, R]): Categorical[A] =
+    Categorical.fromSet(
       Util
         .allMaxBy(state.actions)(
           a => actionValues.getOrElse(a, config.initialChoice).totalValue(time)

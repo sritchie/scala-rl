@@ -9,7 +9,7 @@ package io.samritchie.rl
 
 import cats.implicits._
 import com.stripe.rainier.cats._
-import com.stripe.rainier.core.Generator
+import com.stripe.rainier.core.{Categorical, Generator}
 
 import scala.language.higherKinds
 
@@ -17,7 +17,7 @@ import scala.language.higherKinds
   * Trait for things that can choose some Monadic result.
   */
 trait Decider[A, -Obs, -R, M[+ _]] { self =>
-  def choose(state: State[A, Obs, R]): M[A]
+  def choose(state: BaseState[A, Obs, R, M]): M[A]
 }
 
 trait Learner[A, -Obs, -R, M[+ _], This <: Learner[A, Obs, R, M, This]] {
@@ -51,6 +51,17 @@ trait Learner[A, -Obs, -R, M[+ _], This <: Learner[A, Obs, R, M, This]] {
 trait BasePolicy[A, -Obs, -R, M[+ _], This <: BasePolicy[A, Obs, R, M, This]]
     extends Learner[A, Obs, R, M, This]
     with Decider[A, Obs, R, M]
+
+/**
+  * Policy based on a discrete number of actions.
+  */
+trait CategoricalPolicy[A, -Obs, -R, This <: CategoricalPolicy[A, Obs, R, This]]
+    extends BasePolicy[A, Obs, R, Generator, This] {
+  def categories(state: BaseState[A, Obs, R, Generator]): Categorical[A]
+
+  def choose(state: BaseState[A, Obs, R, Generator]): Generator[A] =
+    categories(state).generator
+}
 
 object Policy {
 

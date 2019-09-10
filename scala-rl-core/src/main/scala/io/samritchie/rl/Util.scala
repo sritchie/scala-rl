@@ -53,12 +53,6 @@ object Util {
     as.filter(a => Ordering[B].equiv(maxB, f(a)))
   }
 
-  def generatorFromSet[A](items: Set[A]) =
-    Categorical.fromSet(items).generator
-
-  def delayedGenerator[A](a: => A) =
-    Generator.from((_, _) => a)
-
   def softmax[A, B](m: Map[A, Real]): Categorical[A] =
     Categorical.normalize(m.mapValues(_.exp))
 

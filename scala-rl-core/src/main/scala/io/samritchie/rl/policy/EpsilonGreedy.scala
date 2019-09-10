@@ -5,7 +5,7 @@ package io.samritchie.rl
 package policy
 
 import cats.Monad
-import com.stripe.rainier.core.{Categorical, Generator}
+import com.stripe.rainier.core.Categorical
 import com.stripe.rainier.cats._
 import com.twitter.algebird.{AveragedValue, Semigroup}
 import Util.Instances._
@@ -18,7 +18,7 @@ import Util.Instances._
 case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
     config: EpsilonGreedy.Config[R, T],
     actionValues: Map[A, T]
-) extends Policy[A, Any, R, EpsilonGreedy[A, R, T]] {
+) extends CategoricalPolicy[A, Any, R, EpsilonGreedy[A, R, T]] {
   private val explore: Categorical[Boolean] =
     Categorical.boolean(config.epsilon)
 
@@ -30,13 +30,12 @@ case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
       Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
     )
 
-  override def choose(state: State[A, Any, R]): Generator[A] =
+  override def categories(state: State[A, Any, R]): Categorical[A] =
     Monad[Categorical]
       .ifM(explore)(
         allActions(state),
         greedy(state)
       )
-      .generator
 
   override def learn(state: State[A, Any, R], action: A, reward: R): EpsilonGreedy[A, R, T] =
     copy(actionValues = Util.mergeV(actionValues, action, config.prepare(reward)))

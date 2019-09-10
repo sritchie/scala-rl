@@ -1,7 +1,7 @@
 package io.samritchie
 
 import cats.Eval
-import com.stripe.rainier.core.Generator
+import com.stripe.rainier.core.{Categorical, Generator}
 
 package object rl {
   type State[A, +Obs, +Reward] = BaseState[A, Obs, Reward, Generator]
