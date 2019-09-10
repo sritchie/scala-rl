@@ -34,7 +34,7 @@ case class MapStateV[Obs](
 ) extends StateValue[Obs] {
   def evaluate[A, R: ToReal, P <: BaseCategoricalPolicy[A, Obs, R, Eval, P]](
       policy: P,
-      state: BaseState[A, Obs, R, Eval]
+      state: NowState[A, Obs, R]
   ): MapStateV[Obs] = {
     val pmf = policy.categories(state).pmf
     val dynamics = state.dynamics
@@ -47,6 +47,60 @@ case class MapStateV[Obs](
       acc + (pmf(action) * (ToReal(r) + gamma * m.getOrElse(newPos, Real.zero)))
     }
     MapStateV(m.updated(state.observation, newV), gamma)
+  }
+}
+
+/**
+  *
+// THIS now is value iteration. This actually chooses the top value
+for each thing.
+
+    Okay... so, yeah. We need to split out these ideas, again. We need to handle:
+
+    - estimating the values for each action, and then:
+    - immediately updating the value of the state to be the value of the top one.
+
+    This is equivalent to updating the policy immediately to maximize
+    value, and then updating the value function immediately. But there
+    are really two ideas going on here. This can be a project for
+    tomorrow.
+
+    TODO: Get this cleaned up and coded.
+
+        new_value = np.zeros_like(value)
+        for i in range(WORLD_SIZE):
+            for j in range(WORLD_SIZE):
+                values = []
+                for action in ACTIONS:
+                    (next_i, next_j), reward = step([i, j], action)
+                    # value iteration
+                    values.append(reward + DISCOUNT * value[next_i, next_j])
+                new_value[i, j] = np.max(values)
+        value = new_value
+  */
+/**
+  * So this sort of has to update the POLICY too, so that the next
+  * time around we evaluate it better.
+  *
+  * Maybe make a method on policy that takes in a value function and
+  * updates?
+  */
+case class ValueIteration[Obs](
+    m: Map[Obs, Real],
+    gamma: Double
+) extends StateValue[Obs] {
+  def evaluate[A, R: ToReal, P <: BaseCategoricalPolicy[A, Obs, R, Eval, P]](
+      policy: P,
+      state: NowState[A, Obs, R]
+  ): ValueIteration[Obs] = {
+    val pmf = policy.categories(state).pmf
+    val dynamics = state.dynamics
+    val newV = state.actions.foldLeft(Real.zero) { (acc, action) =>
+      val (r, newState) = dynamics(action).value
+      val newPos = newState.observation
+      acc + (pmf(action) * (ToReal(r) + gamma * m.getOrElse(newPos, Real.zero)))
+    }
+    ValueIteration(m.updated(state.observation, newV), gamma)
   }
 }
 
