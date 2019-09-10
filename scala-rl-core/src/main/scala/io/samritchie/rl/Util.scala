@@ -3,7 +3,8 @@
   */
 package io.samritchie.rl
 
-import cats.Monad
+import cats.{Eval, Monad, Now}
+import cats.arrow.FunctionK
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.{Categorical, Generator}
@@ -73,4 +74,12 @@ object Util {
         else
           Monad[F].map(f(a))(a2 => Left((k - 1, a2)))
     }
+
+  // Cats instances and functions.
+  def evalToGen[A](a: Eval[A]): Generator[A] = a match {
+    case Now(a) => Generator.constant(a)
+    case _      => Generator.from((r, n) => a.value)
+
+  }
+  val evalToGenK: FunctionK[Eval, Generator] = FunctionK.lift(evalToGen)
 }

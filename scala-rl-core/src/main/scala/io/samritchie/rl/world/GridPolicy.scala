@@ -6,76 +6,26 @@ package world
 
 import cats.Eval
 import io.samritchie.rl.util.Grid
+import com.stripe.rainier.compute.Real
 
 /**
   * Right now we're not actually creating a policy... we're evaluating
   * an existing policy, which we happen to know has a 25% chance of
   * taking action on any of the supplied objects.
-  *
-  * So this is actually wrong. We need to take in the
   */
 object GridPolicy {
   type AVMap = Map[Grid.Position, Map[Grid.Move, GridWorld.Reward]]
 
   /**
-  * Runs a single step of policy evaluation.
+    * Runs a single step of policy evaluation.
+    *
+    *
+    * This next bit generates the value if we go by the Bellman
+    * equation... weight each move by its chance of happening.
+    *
+    * The policy that we're evaluating here is the random policy.
+    *
 
-  def evaluate[P <: CategoricalPolicy[Grid.Move, Any, GridWorld.Reward, P]](
-      policy: P,
-      av: AVMap,
-      world: GridWorld
-  ): AVMap = {
-    val pmf = policy.categories(world).pmf
-    av
-  }
-
-  def evaluateAll[P <: CategoricalPolicy[Grid.Move, Any, GridWorld.Reward, P]](
-      policy: P,
-      av: AVMap,
-      worlds: Traversable[GridWorld]
-  ): AVMap =
-    worlds match {
-      case Nil          => av
-      case head :: tail => evaluateAll(policy, evaluate(policy, av, head), tail)
-    }
-  */
-}
-case class GridPolicy(m: GridPolicy.AVMap, initialValue: Double)
-    extends NowPolicy[Grid.Move, Grid.Position, GridWorld.Reward, GridPolicy] {
-  import Grid.{Move, Position}
-  import GridWorld.Reward
-
-  override def choose(s: NowState[Move, Position, Reward]): Eval[Move] = {
-    val nMoves = s.actions.size
-    val position = s.observation
-
-    val subMap: Map[Move, Double] = m.getOrElse(position, Map.empty)
-
-    /**
-    s.actions.foldLeft((Map.empty[Grid.Move, Double], Real.zero)) { (move, sum) =>
-      subMap.getOrElse(initialValue)
-      m.getOrElse((position, move), initialValue)
-    }
-
-    // m.getOrElse((s.observation,
-      */
-    println(s"Current position is ${s.observation}")
-    ???
-  }
-
-  override def learn(
-      s: NowState[Move, Position, Reward],
-      move: Move,
-      reward: Reward
-  ): GridPolicy = this
-}
-/**
-  * This next bit generates the value if we go by the Bellman
-  * equation... weight each move by its chance of happening.
-  *
-  * The policy that we're evaluating here is the random policy.
-  *
-  *
 def figure_3_2():
     value = np.zeros((WORLD_SIZE, WORLD_SIZE))
     while True:
@@ -94,6 +44,26 @@ def figure_3_2():
             break
         value = new_value
 
+    */
+  def evaluate[P <: BaseCategoricalPolicy[Grid.Move, Any, GridWorld.Reward, Eval, P]](
+      policy: P,
+      av: AVMap,
+      world: NowState[GridWorld.Move, Grid.Position, GridWorld.Reward]
+  ): AVMap = {
+    val pmf = policy.categories(world).pmf
+    val dynamics = world.dynamics
+    Grid.Move.all.foldLeft(Real.zero) { (acc, m) =>
+      val (r, newState) = dynamics(m).value
+      val newPos = newState.observation
+
+      // This is the version that weights by the action probability.
+      acc + (pmf(m) * (r + 0.9 * av(newPos).values.sum))
+    }
+    av
+  }
+
+  /**
+    *
 // THIS now is value iteration. This actually chooses the top value
 for each thing.
 
@@ -116,4 +86,55 @@ def figure_3_5():
             plt.close()
             break
         value = new_value
-  */
+    */
+  def valueIterate[P <: BaseCategoricalPolicy[Grid.Move, Any, GridWorld.Reward, Eval, P]](
+      policy: P,
+      av: AVMap,
+      world: NowState[GridWorld.Move, Grid.Position, GridWorld.Reward]
+  ): AVMap = {
+    val dynamics = world.dynamics
+    Grid.Move.all.foldLeft(Real.zero) { (acc, m) =>
+      val (r, newState) = dynamics(m).value
+      val newPos = newState.observation
+      acc + (r + 0.9 * av(newPos).values.sum)
+    }
+    av
+  }
+
+  def evaluateSweep[P <: BaseCategoricalPolicy[Grid.Move, Any, GridWorld.Reward, Eval, P]](
+      policy: P,
+      av: AVMap,
+      worlds: Traversable[GridWorld]
+  ): AVMap =
+    worlds match {
+      case Nil          => av
+      case head :: tail => evaluateSweep(policy, evaluate(policy, av, head), tail)
+    }
+}
+case class GridPolicy(m: GridPolicy.AVMap, initialValue: Double)
+    extends NowPolicy[Grid.Move, Grid.Position, GridWorld.Reward, GridPolicy] {
+  import Grid.{Move, Position}
+  import GridWorld.Reward
+
+  override def choose(s: NowState[Move, Position, Reward]): Eval[Move] = {
+    val position = s.observation
+    val subMap: Map[Move, Double] = m.getOrElse(position, Map.empty)
+
+    /**
+    s.actions.foldLeft((Map.empty[Grid.Move, Double], Real.zero)) { (move, sum) =>
+      subMap.getOrElse(initialValue)
+      m.getOrElse((position, move), initialValue)
+    }
+
+    // m.getOrElse((s.observation,
+      */
+    println(s"Current position is ${s.observation}, $subMap")
+    ???
+  }
+
+  override def learn(
+      s: NowState[Move, Position, Reward],
+      move: Move,
+      reward: Reward
+  ): GridPolicy = this
+}

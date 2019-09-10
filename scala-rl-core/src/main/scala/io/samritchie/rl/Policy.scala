@@ -4,10 +4,15 @@
   *
   * And odersky's response for an even simpler way:
   * https://gist.github.com/odersky/56323c309a186cffe9af
+  *
+  * TODO - think about if we want to just have a Policy be a
+  * composition of a learner and a decider, not a full thing. Lots of
+  * interesting ideas coming to the fore...
   */
 package io.samritchie.rl
 
 import cats.implicits._
+import cats.arrow.FunctionK
 import com.stripe.rainier.cats._
 import com.stripe.rainier.core.{Categorical, Generator}
 
@@ -16,11 +21,12 @@ import scala.language.higherKinds
 /**
   * Trait for things that can choose some Monadic result.
   */
-trait Decider[A, -Obs, -R, M[+ _]] { self =>
-  def choose(state: BaseState[A, Obs, R, M]): M[A]
+trait Decider[A, -Obs, -R, M[+ _], S[+ _]] { self =>
+  def fk: FunctionK[S, M]
+  def choose(state: BaseState[A, Obs, R, S]): M[A]
 }
 
-trait Learner[A, -Obs, -R, M[+ _], This <: Learner[A, Obs, R, M, This]] {
+trait Learner[A, -Obs, -R, S[+ _], This <: Learner[A, Obs, R, S, This]] {
 
   /**
     * OR does this information go later? A particular policy should
@@ -35,7 +41,7 @@ trait Learner[A, -Obs, -R, M[+ _], This <: Learner[A, Obs, R, M, This]] {
     *
     * This of course might need to be a monadic response.
     */
-  def learn(state: BaseState[A, Obs, R, M], action: A, reward: R): This
+  def learn(state: BaseState[A, Obs, R, S], action: A, reward: R): This
 }
 
 /**
@@ -48,9 +54,14 @@ trait Learner[A, -Obs, -R, M[+ _], This <: Learner[A, Obs, R, M, This]] {
   * R - reward
   * This - policy
   */
-trait BasePolicy[A, -Obs, -R, M[+ _], This <: BasePolicy[A, Obs, R, M, This]]
-    extends Learner[A, Obs, R, M, This]
-    with Decider[A, Obs, R, M]
+trait BasePolicy[A, -Obs, -R, M[+ _], S[+ _], This <: BasePolicy[A, Obs, R, M, S, This]]
+    extends Learner[A, Obs, R, S, This]
+    with Decider[A, Obs, R, M, S]
+
+trait SoloPolicy[A, -Obs, -R, M[+ _], This <: SoloPolicy[A, Obs, R, M, This]]
+    extends BasePolicy[A, Obs, R, M, M, This] {
+  val fk = FunctionK.id
+}
 
 /**
   * Policy based on a discrete number of actions. This is a policy
@@ -59,13 +70,20 @@ trait BasePolicy[A, -Obs, -R, M[+ _], This <: BasePolicy[A, Obs, R, M, This]]
   * TODO - note that for a state, it'd be great if you could get a
   * categorical distribution... but if you have a stochastic state at
   * least you can sample.
+  *
+  * TODO - this really just needs to extend Decider... not Learner. If
+  * it's not learning, you can just lock it in.
   */
-trait CategoricalPolicy[A, -Obs, -R, This <: CategoricalPolicy[A, Obs, R, This]]
-    extends BasePolicy[A, Obs, R, Generator, This] {
-  def categories(state: BaseState[A, Obs, R, Generator]): Categorical[A]
-
-  def choose(state: BaseState[A, Obs, R, Generator]): Generator[A] =
+trait BaseCategoricalPolicy[A, -Obs, -R, S[+ _], This <: BaseCategoricalPolicy[A, Obs, R, S, This]]
+    extends BasePolicy[A, Obs, R, Generator, S, This] {
+  def categories(state: BaseState[A, Obs, R, S]): Categorical[A]
+  def choose(state: BaseState[A, Obs, R, S]): Generator[A] =
     categories(state).generator
+}
+
+trait CategoricalPolicy[A, -Obs, -R, This <: CategoricalPolicy[A, Obs, R, This]]
+    extends BaseCategoricalPolicy[A, Obs, R, Generator, This] {
+  val fk = FunctionK.id
 }
 
 object Policy {
