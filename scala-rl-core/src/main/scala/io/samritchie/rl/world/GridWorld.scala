@@ -142,11 +142,26 @@ def draw_image(image):
 
 }
 
-case class GridPolicy(m: Map[Grid.Position, Double])
+case class GridPolicy(m: Map[Grid.Position, Map[Grid.Move, Double]], initialValue: Double)
     extends Policy[Grid.Move, Grid.Position, Double, GridPolicy] {
   import Grid.{Move, Position}
 
-  override def choose(s: State[Move, Position, Double]): Generator[Move] = ???
+  override def choose(s: State[Move, Position, Double]): Generator[Move] = {
+    val nMoves = s.actions.size
+    val position = s.observation
+    val subMap: Map[Move, Double] = m.getOrElse(position, Map.empty)
+
+    /**
+    s.actions.foldLeft((Map.empty[Grid.Move, Double], Real.zero)) { (move, sum) =>
+      subMap.getOrElse(initialValue)
+      m.getOrElse((position, move), initialValue)
+    }
+
+    // m.getOrElse((s.observation,
+      */
+    println(s"Current position is ${s.observation}")
+    ???
+  }
 
   override def learn(s: State[Move, Position, Double], move: Move, reward: Double): GridPolicy = this
 }
