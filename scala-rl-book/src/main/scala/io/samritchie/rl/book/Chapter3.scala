@@ -41,14 +41,46 @@ object Chapter3 {
     }
   }
 
-  def main(items: Array[String]): Unit = {
-    val (doneStateValue, iterations) = figureThreeTwo
-    val done = doneStateValue.m
+  /**
+    * This is Figure 3.5.
+    *   */
+  def figureThreeFive: (MapStateV[Position], Long) = {
+    val allowedIterations: Long = 10000
+    val epsilon: Double = 1e-4
+    val gamma: Double = 0.9
 
-    gridConf.stateSweep.foreach { gw =>
-      println(s"Position: ${gw.grid.position}, Value: ${done.getOrElse(gw.grid.position, Real.zero)}")
+    Util.loopWhile((ValueFunction.emptyState[Position](gamma), 0)) {
+      case (m, iterLeft) =>
+        val newM = ValueFunction.evaluateSweepIter(gridConf.stateSweep, m)
+        if ((iterLeft >= allowedIterations) || newM.shouldHalt(m, epsilon))
+          Right((newM, iterLeft))
+        else
+          Left((newM, iterLeft + 1))
     }
-    println(s"That took $iterations iterations, for the record.")
   }
 
+  /**
+    * Obviously horrible, just getting it working for now.
+    */
+  def main(items: Array[String]): Unit = {
+    val (threeTwo, iter) = figureThreeTwo
+
+    // Display stats for threeTwo...
+    gridConf.stateSweep.foreach { gw =>
+      println(
+        s"Position: ${gw.grid.position}, 3.2 Value: ${threeTwo.m.getOrElse(gw.grid.position, Real.zero)}"
+      )
+    }
+    println(s"That took $iter iterations, for the record.")
+
+    val (threeFive, iter2) = figureThreeFive
+
+    // Display stats for threeTwo...
+    gridConf.stateSweep.foreach { gw =>
+      println(
+        s"Position: ${gw.grid.position}, 3.5 Value: ${threeFive.m.getOrElse(gw.grid.position, Real.zero)}"
+      )
+    }
+    println(s"That took $iter2 iterations, for the record.")
+  }
 }
