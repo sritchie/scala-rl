@@ -40,6 +40,7 @@ val sharedSettings = Seq(
   cancelable in Global := true,
   parallelExecution in Test := true,
   scalafmtOnCompile in ThisBuild := true,
+  unmanagedBase in Global := baseDirectory.value / "lib",
   resolvers ++= Seq(
     Resolver.bintrayRepo("cibotech", "public")
   ),
@@ -131,9 +132,12 @@ def module(name: String) = {
 
 lazy val rlCore = module("core").settings(
   libraryDependencies ++= Seq(
-    // For the probability monad.
-    "com.stripe" %% "rainier-cats" % V.rainier,
-    "com.stripe" %% "rainier-core" % V.rainier,
+    // For the probability monad. TODO enable and kill
+    // scala-rl-core/lib jars once Avi does a release.
+
+    // "com.stripe" %% "rainier-cats" % V.rainier,
+    // "com.stripe" %% "rainier-core" % V.rainier,
+
     // For the monoids and implementations.
     "com.twitter" %% "algebird-core" % V.algebird,
     "com.twitter" %% "util-core" % V.util,
@@ -156,6 +160,10 @@ lazy val rlPlot = module("plot").settings(
 ).dependsOn(rlCore)
 
 lazy val rlBook = module("book").settings(
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % V.scalatest % Test,
+    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
+  ),
   initialCommands :=
     """
 import io.samritchie.rl._

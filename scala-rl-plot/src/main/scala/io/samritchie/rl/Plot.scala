@@ -12,10 +12,13 @@
   */
 package io.samritchie.rl
 
+import com.cibo.evilplot.plot.aesthetics.Theme
 import com.cibo.evilplot.colors.{HTMLNamedColors, RGB}
 import com.cibo.evilplot.displayPlot
+import com.cibo.evilplot.geometry.Line
 import com.cibo.evilplot.numeric.{Bounds, Point}
-import com.cibo.evilplot.plot.{FunctionPlot, LinePlot, Overlay}
+import com.cibo.evilplot.plot.renderers.GridLineRenderer
+import com.cibo.evilplot.plot.{FunctionPlot, LinePlot, Overlay, ScatterPlot}
 import com.cibo.evilplot.plot.aesthetics.DefaultTheme
 
 object Plot {
@@ -62,10 +65,43 @@ object Plot {
     displayPlot(x)
   }
 
-  def main(items: Array[String]): Unit = {
-    lineChart(Seq(Seq.tabulate(100) { i =>
+  def gridPlot(): Unit = {
+    val data = Seq.tabulate(100) { i =>
       Point(i.toDouble, scala.util.Random.nextDouble())
-    } -> "Title."))
-    polyPlot()
+    }
+    val theme = implicitly[Theme]
+
+    import com.cibo.evilplot.demo.DemoPlots
+
+    displayPlot(DemoPlots.axesTesting)
+    // displayPlot(
+
+    //   ScatterPlot(data)
+    //     .frame()
+    //     .xLabel("x")
+    //     .yLabel("y")
+    //     .xGrid(lineCount = Some(8))
+    //     // lineRenderer = Some(GridLineRenderer.custom { (extent, label) =>
+    //     //   Line(extent.height, theme.elements.gridLineSize)
+    //     //     .colored(HTMLNamedColors.black)
+    //     //     .rotated(90)
+    //     // }))
+    //     .yGrid(
+    //       lineCount = Some(8),
+    //       lineRenderer = Some(GridLineRenderer.custom { (extent, label) =>
+    //         Line(extent.width, theme.elements.gridLineSize)
+    //           .colored(HTMLNamedColors.black)
+    //       })
+    //     )
+    //     .render()
+    // )
   }
+
+  def main(items: Array[String]): Unit =
+    // lineChart(Seq(Seq.tabulate(100) { i =>
+    //   Point(i.toDouble, scala.util.Random.nextDouble())
+    // } -> "Title."))
+
+    // polyPlot()
+    gridPlot()
 }

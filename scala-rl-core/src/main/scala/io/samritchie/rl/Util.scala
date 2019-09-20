@@ -9,6 +9,7 @@ import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.{Categorical, Generator}
 
+import scala.annotation.tailrec
 import scala.language.higherKinds
 
 object Util {
@@ -82,4 +83,11 @@ object Util {
 
   }
   val evalToGenK: FunctionK[Eval, Generator] = FunctionK.lift(evalToGen)
+
+  @tailrec
+  def loopWhile[A, B](init: A)(f: A => Either[A, B]): B =
+    f(init) match {
+      case Left(a)  => loopWhile(a)(f)
+      case Right(b) => b
+    }
 }

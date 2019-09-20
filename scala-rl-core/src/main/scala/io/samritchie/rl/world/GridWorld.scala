@@ -11,17 +11,14 @@ import io.samritchie.rl.util.Grid
 import scala.util.{Success, Try}
 
 object GridWorld {
-  type Reward = Double
-  type Move = Grid.Move
-  type Bounds = Grid.Bounds
-  type Position = Grid.Position
-  type JumpMap = Map[Position, (Position, Reward)]
+  import Grid.{Bounds, Position}
 
   object Jumps {
     def empty: Jumps = Jumps(Map.empty)
   }
-  case class Jumps(jumps: Map[Position, (Position, Reward)]) {
-    def get(p: Position): Option[(Position, Reward)] = jumps.get(p)
+
+  case class Jumps(jumps: Map[Position, (Position, Double)]) {
+    def get(p: Position): Option[(Position, Double)] = jumps.get(p)
 
     /**
       * TODO
@@ -31,17 +28,17 @@ object GridWorld {
       *
       */
     def validate(bounds: Bounds): Try[Jumps] = Success(this)
-    def and(from: Position, to: Position, reward: Reward): Jumps =
+    def and(from: Position, to: Position, reward: Double): Jumps =
       Jumps(jumps.updated(from, (to, reward)))
   }
 
   case class Config(
       bounds: Bounds,
-      default: Reward = 0.0,
-      penalty: Reward = -1.0,
+      default: Double = 0.0,
+      penalty: Double = -1.0,
       jumps: Jumps = Jumps.empty
   ) {
-    def withJump(from: Position, to: Position, reward: Reward): Config =
+    def withJump(from: Position, to: Position, reward: Double): Config =
       copy(jumps = jumps.and(from, to, reward))
 
     /**
@@ -80,15 +77,15 @@ object GridWorld {
   */
 case class GridWorld(
     grid: Grid,
-    defaultReward: GridWorld.Reward,
-    penalty: GridWorld.Reward,
+    defaultReward: Double,
+    penalty: Double,
     jumps: GridWorld.Jumps
-) extends NowState[GridWorld.Move, Grid.Position, GridWorld.Reward] {
-  import GridWorld._
+) extends NowState[Grid.Move, Grid.Position, Double] {
+  import Grid.{Move, Position}
 
   val observation: Position = grid.position
 
-  def dynamics: Map[Move, Eval[(Reward, NowState[Move, Position, Reward])]] =
+  def dynamics: Map[Move, Eval[(Double, NowState[Move, Position, Double])]] =
     Util.makeMap(Grid.Move.all)(m => Eval.later(actNow(m)))
 
   /**
@@ -99,7 +96,7 @@ case class GridWorld(
     * CAN look ahead, and don't hide it behind a delay, then boom, we
     * have the ability to do the checkers example.
     */
-  def actNow(move: Move): (Reward, NowState[Move, Position, Reward]) =
+  def actNow(move: Move): (Double, NowState[Move, Position, Double]) =
     jumps.get(grid.position) match {
       case None =>
         grid
