@@ -41,10 +41,6 @@ case class MapState[A, Obs, R](
   }
 }
 
-/**
-  * TODO - make Generator contravariant, and change these back to
-  * returning MapState.
-  */
 object MapState {
   private def genMap[A, R](
       actions: Set[A],
@@ -58,7 +54,7 @@ object MapState {
   def static[A, Obs, R](
       actions: Set[A],
       gen: Generator[Generator[R]]
-  ): Generator[State[A, Unit, R, Generator]] =
+  ): Generator[StaticMapState[A, R]] =
     genMap(actions, gen).map(StaticMapState[A, R](_))
 
   /**
@@ -69,7 +65,7 @@ object MapState {
       initialObservation: Obs,
       gen: Generator[Generator[R]],
       step: (A, Obs, R, Generator[R]) => (Obs, Generator[R])
-  ): Generator[State[A, Obs, R, Generator]] =
+  ): Generator[MapState[A, Obs, R]] =
     genMap(actions, gen).map { m =>
       MapState[A, Obs, R](initialObservation, m, step)
     }
