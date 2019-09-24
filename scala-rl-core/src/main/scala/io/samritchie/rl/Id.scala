@@ -5,7 +5,7 @@ import cats.{Monad, StackSafeMonad}
 /**
   Identity type with its own Monad.
   */
-case class Id[+A](value: A) extends AnyVal
+case class Id[+A](value: A)
 
 object Id {
   implicit val idMonad: Monad[Id] = new StackSafeMonad[Id] {

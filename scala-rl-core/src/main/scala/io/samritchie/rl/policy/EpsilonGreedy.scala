@@ -18,7 +18,7 @@ import Util.Instances._
 case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
     config: EpsilonGreedy.Config[R, T],
     actionValues: Map[A, T]
-) extends CategoricalPolicy[A, Any, R, Generator, EpsilonGreedy[A, R, T]] {
+) extends CategoricalPolicy[A, Any, R, Generator] {
   private val explore: Categorical[Boolean] =
     Categorical.boolean(config.epsilon)
 
@@ -37,7 +37,11 @@ case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
         greedy(state)
       )
 
-  override def learn(state: State[A, Any, R, Generator], action: A, reward: R): EpsilonGreedy[A, R, T] =
+  override def learn(
+      state: State[A, Any, R, Generator],
+      action: A,
+      reward: R
+  ): EpsilonGreedy[A, R, T] =
     copy(actionValues = Util.mergeV(actionValues, action, config.prepare(reward)))
 }
 

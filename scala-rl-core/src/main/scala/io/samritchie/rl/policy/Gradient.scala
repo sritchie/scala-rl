@@ -19,7 +19,7 @@ import com.twitter.algebird.{Aggregator, AveragedValue}
 case class Gradient[A: Equiv, R: ToReal, T: ToReal](
     config: Gradient.Config[R, T],
     actionValues: Map[A, Gradient.Item[T]]
-) extends CategoricalPolicy[A, Any, R, Generator, Gradient[A, R, T]] {
+) extends CategoricalPolicy[A, Any, R, Generator] {
 
   /**
     * Let's try out this style for a bit. This gives us a way to

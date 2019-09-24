@@ -37,19 +37,21 @@ object Chapter2 {
     sum / n
   }
 
-  def playBandit[A, Obs, R, P <: Policy[A, Obs, R, Generator, Generator, P]](
-      policy: P,
+  def playBandit[A, Obs, R](
+      policy: Policy[A, Obs, R, Generator, Generator],
       stateGen: Generator[State[A, Obs, R, Generator]],
       nRuns: Int,
       timeSteps: Int,
       penalty: R
-  )(reduce: List[R] => R): (List[(P, State[A, Obs, R, Generator])], List[R]) = {
-    val rewardSeqGen: Generator[(List[(P, State[A, Obs, R, Generator])], List[R])] =
+  )(
+      reduce: List[R] => R
+  ): (List[(Policy[A, Obs, R, Generator, Generator], State[A, Obs, R, Generator])], List[R]) = {
+    val rewardSeqGen =
       (0 until nRuns).toList
         .map(i => stateGen.map(s => (policy, s)))
         .sequence
         .flatMap { pairs =>
-          Policy.playManyN[A, Obs, R, P](
+          Policy.playManyN[A, Obs, R, Generator](
             pairs,
             penalty,
             timeSteps
@@ -91,7 +93,7 @@ object Chapter2 {
     )
 
   def play(policy: EG): List[Double] =
-    playBandit[Arm, Any, Double, EG](
+    playBandit[Arm, Any, Double](
       policy,
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,

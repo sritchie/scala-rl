@@ -78,8 +78,8 @@ case class MapStateV[Obs](
     This implements iterative policy evaluation. This is on page 75 in the RL
     textbook.
     */
-  def evaluate[A, R: ToReal, P <: CategoricalPolicy[A, Obs, R, Id, P]](
-      policy: P,
+  def evaluate[A, R: ToReal](
+      policy: CategoricalPolicy[A, Obs, R, Id],
       state: NowState[A, Obs, R]
   ): MapStateV[Obs] = {
     val pmf = policy.categories(state).pmf
@@ -97,8 +97,8 @@ object ValueFunction {
     completely based on the current policy. There is no change in policy
     happening here.
     */
-  @tailrec def evaluateSweep[A, Obs, R: ToReal, P <: CategoricalPolicy[A, Obs, R, Id, P]](
-      policy: P,
+  @tailrec def evaluateSweep[A, Obs, R: ToReal](
+      policy: CategoricalPolicy[A, Obs, R, Id],
       states: Traversable[NowState[A, Obs, R]],
       stateValue: MapStateV[Obs]
   ): MapStateV[Obs] =
