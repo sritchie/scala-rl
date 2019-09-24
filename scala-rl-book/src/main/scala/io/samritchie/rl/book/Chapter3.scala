@@ -18,7 +18,7 @@ object Chapter3 {
     .withJump(Position.of(0, 1), Position.of(4, 1), 10)
     .withJump(Position.of(0, 3), Position.of(2, 3), 5)
 
-  val figureThreeTwoState: NowState[Move, Position, Double] =
+  val figureThreeTwoState: State[Move, Position, Double, Id] =
     gridConf.buildUnsafe(Position.of(0, 0))
 
   val policy = Random.id[Grid.Move, Double]

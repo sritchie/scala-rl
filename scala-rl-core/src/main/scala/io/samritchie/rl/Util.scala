@@ -77,6 +77,13 @@ object Util {
           Monad[F].map(f(a))(a2 => Left((k - 1, a2)))
     }
 
+  @tailrec
+  def loopWhile[A, B](init: A)(f: A => Either[A, B]): B =
+    f(init) match {
+      case Left(a)  => loopWhile(a)(f)
+      case Right(b) => b
+    }
+
   /**
     Helpful Cats utilities in case we want to mapK these policies and states to
     something new.
@@ -94,10 +101,11 @@ object Util {
       def apply[A](a: Generator[A]) = Eval.always(a.get)
     }
 
-  @tailrec
-  def loopWhile[A, B](init: A)(f: A => Either[A, B]): B =
-    f(init) match {
-      case Left(a)  => loopWhile(a)(f)
-      case Right(b) => b
+  /**
+    Cats helpers.
+    */
+  val categoricalToGen: FunctionK[Categorical, Generator] =
+    new FunctionK[Categorical, Generator] {
+      def apply[A](ca: Categorical[A]): Generator[A] = ca.generator
     }
 }

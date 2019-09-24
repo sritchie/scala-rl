@@ -42,7 +42,7 @@ case class MapStateV[Obs](
     action. But this assumes you get to see what to do next.
     */
   def newV[A, R: ToReal](
-      state: NowState[A, Obs, R],
+      state: State[A, Obs, R, Id],
       weight: A => Real,
       combine: (Real, Real) => Real
   ): Real = {
@@ -69,7 +69,7 @@ case class MapStateV[Obs](
     * This is equivalent to updating the policy immediately to maximize
     * value, and then updating the value function immediately.
     */
-  def evaluateIter[A, R: ToReal](state: NowState[A, Obs, R]): MapStateV[Obs] = {
+  def evaluateIter[A, R: ToReal](state: State[A, Obs, R, Id]): MapStateV[Obs] = {
     val value = newV(state, (_: A) => Real.one, _.max(_))
     MapStateV(m.updated(state.observation, value), gamma)
   }
@@ -80,7 +80,7 @@ case class MapStateV[Obs](
     */
   def evaluate[A, R: ToReal](
       policy: CategoricalPolicy[A, Obs, R, Id],
-      state: NowState[A, Obs, R]
+      state: State[A, Obs, R, Id]
   ): MapStateV[Obs] = {
     val pmf = policy.categories(state).pmf
     val value = newV(state, pmf(_), _ + _)
@@ -99,7 +99,7 @@ object ValueFunction {
     */
   @tailrec def evaluateSweep[A, Obs, R: ToReal](
       policy: CategoricalPolicy[A, Obs, R, Id],
-      states: Traversable[NowState[A, Obs, R]],
+      states: Traversable[State[A, Obs, R, Id]],
       stateValue: MapStateV[Obs]
   ): MapStateV[Obs] =
     if (states.isEmpty)
@@ -122,7 +122,7 @@ object ValueFunction {
     - TODO make a function that sweeps, but picks which to do... figure 4.1 might hold the secrets here.
     */
   @tailrec def evaluateSweepIter[A, Obs, R: ToReal](
-      states: Traversable[NowState[A, Obs, R]],
+      states: Traversable[State[A, Obs, R, Id]],
       stateValue: MapStateV[Obs]
   ): MapStateV[Obs] =
     if (states.isEmpty)
