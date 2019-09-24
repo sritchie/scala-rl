@@ -16,7 +16,7 @@ import com.twitter.algebird.{Aggregator, AveragedValue}
   * T is the "average" type.
   *
   */
-case class Gradient[A: Equiv, R: ToReal, T: ToReal, S[+ _]](
+case class Gradient[A: Equiv, R: ToReal, T: ToReal, S[_]](
     config: Gradient.Config[R, T],
     actionValues: Map[A, Gradient.Item[T]]
 ) extends CategoricalPolicy[A, Any, R, S] {
@@ -77,7 +77,7 @@ object Gradient {
     /**
       * Generates an actual policy from the supplied config.
       */
-    def policy[A, S[+ _]]: Gradient[A, R, T, S] = Gradient(this, Map.empty[A, Item[T]])
+    def policy[A, S[_]]: Gradient[A, R, T, S] = Gradient(this, Map.empty[A, Item[T]])
 
     /**
       * This performs the gradient update step.

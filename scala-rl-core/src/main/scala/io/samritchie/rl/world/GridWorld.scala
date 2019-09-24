@@ -82,7 +82,7 @@ case class GridWorld(
 
   val observation: Position = grid.position
 
-  def dynamics: Map[Move, Id[(Double, State[Move, Position, Double, Id])]] =
+  def dynamics[O2 >: Grid.Position]: Map[Move, Id[(Double, State[Move, O2, Double, Id])]] =
     Util.makeMap(Grid.Move.all)(m => Id(actNow(m)))
 
   /**

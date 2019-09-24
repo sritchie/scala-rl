@@ -15,7 +15,7 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[A, R, T: Semigroup: Ordering, S[+ _]](
+case class EpsilonGreedy[A, R, T: Semigroup: Ordering, S[_]](
     config: EpsilonGreedy.Config[R, T],
     actionValues: Map[A, T]
 ) extends CategoricalPolicy[A, Any, R, S] {
@@ -55,7 +55,7 @@ object EpsilonGreedy {
       prepare: R => T,
       initial: T
   ) {
-    def policy[A, S[+ _]]: EpsilonGreedy[A, R, T, S] =
+    def policy[A, S[_]]: EpsilonGreedy[A, R, T, S] =
       EpsilonGreedy(this, Map.empty)
   }
 

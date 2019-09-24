@@ -15,7 +15,9 @@ case class StaticMapState[A, R](
     rewards: Map[A, Generator[R]]
 ) extends State[A, Unit, R, Generator] {
   override val observation: Unit = ()
-  override lazy val dynamics = rewards.mapValues(_.map(r => (r, this)))
+
+  override def dynamics[O2 >: Unit]: Map[A, Generator[(R, State[A, O2, R, Generator])]] =
+    rewards.mapValues(_.map(r => (r, this)))
 }
 
 /**
@@ -27,7 +29,7 @@ case class MapState[A, Obs, R](
     step: (A, Obs, R, Generator[R]) => (Obs, Generator[R])
 ) extends State[A, Obs, R, Generator] {
 
-  private def updateForA(a: A, r: R): State[A, Obs, R, Generator] = {
+  private def updateForA[O2 >: Obs](a: A, r: R): State[A, O2, R, Generator] = {
     val (newObservation, newGen) = step(a, observation, r, rewards(a))
     MapState(
       newObservation,
@@ -36,9 +38,10 @@ case class MapState[A, Obs, R](
     )
   }
 
-  override lazy val dynamics = rewards.map {
-    case (a, g) => (a, g.map(r => (r, updateForA(a, r))))
-  }
+  override def dynamics[O2 >: Obs]: Map[A, Generator[(R, State[A, O2, R, Generator])]] =
+    rewards.map {
+      case (a, g) => (a, g.map(r => (r, updateForA[O2](a, r))))
+    }
 }
 
 object MapState {

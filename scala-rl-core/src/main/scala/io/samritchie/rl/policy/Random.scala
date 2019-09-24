@@ -9,7 +9,7 @@ import com.stripe.rainier.core.{Categorical, Generator}
 /**
   * Random policy.
   */
-case class Random[A, R, S[+ _]]() extends CategoricalPolicy[A, Any, R, S] {
+case class Random[A, R, S[_]]() extends CategoricalPolicy[A, Any, R, S] {
   def categories(state: State[A, Any, R, S]): Categorical[A] =
     Categorical.list(state.actions.toSeq)
 }

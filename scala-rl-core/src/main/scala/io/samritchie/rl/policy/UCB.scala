@@ -9,7 +9,7 @@ package policy
 import com.twitter.algebird.Aggregator
 import com.stripe.rainier.core.Categorical
 
-case class UCB[A, R, T, S[+ _]](
+case class UCB[A, R, T, S[_]](
     config: UCB.Config[R, T],
     actionValues: Map[A, UCB.Choice[T]],
     time: Time
@@ -60,7 +60,7 @@ object UCB {
     /**
       * Returns a fresh policy instance using this config.
       */
-    def policy[A, S[+ _]]: UCB[A, R, T, S] = UCB(this, Map.empty, Time.Zero)
+    def policy[A, S[_]]: UCB[A, R, T, S] = UCB(this, Map.empty, Time.Zero)
 
     // These are private and embedded in the config to make it easy to
     // share the fns without crossing the beams.

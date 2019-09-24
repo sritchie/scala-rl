@@ -18,7 +18,7 @@ package policy
 
   TODO should this be called something like GreedyLookahead?
   */
-case class Greedy[A, Obs, R, T, S[+ _]](
+case class Greedy[A, Obs, R, T, S[_]](
     stateValue: StateValue[Obs],
     epsilon: Double,
     initial: T
