@@ -11,6 +11,7 @@
   */
 package io.samritchie.rl
 
+import cats.Eval
 import cats.implicits._
 import cats.arrow.FunctionK
 import com.stripe.rainier.cats._
@@ -22,7 +23,6 @@ import scala.language.higherKinds
   * Trait for things that can choose some Monadic result.
   */
 trait Decider[A, -Obs, -R, M[+ _], S[+ _]] { self =>
-  def fk: FunctionK[S, M]
   def choose(state: BaseState[A, Obs, R, S]): M[A]
 }
 
@@ -84,6 +84,14 @@ trait BaseCategoricalPolicy[A, -Obs, -R, S[+ _], This <: BaseCategoricalPolicy[A
 trait CategoricalPolicy[A, -Obs, -R, This <: CategoricalPolicy[A, Obs, R, This]]
     extends BaseCategoricalPolicy[A, Obs, R, Generator, This] {
   val fk = FunctionK.id
+}
+
+trait CategoricalNowPolicy[A, -Obs, -R, This <: CategoricalNowPolicy[A, Obs, R, This]]
+    extends BaseCategoricalPolicy[A, Obs, R, Eval, This] {
+  val fk: FunctionK[Eval, Generator] = new FunctionK[Eval, Generator] {
+    def apply[B](ev: Eval[B]): Generator[B] =
+      Generator.constant(ev.value)
+  }
 }
 
 object Policy {
