@@ -3,7 +3,7 @@
   */
 package io.samritchie.rl
 
-import cats.{Eq, Eval}
+import cats.Eq
 import com.stripe.rainier.cats._
 import com.stripe.rainier.compute.{Real, ToReal}
 
@@ -78,7 +78,7 @@ case class MapStateV[Obs](
     This implements iterative policy evaluation. This is on page 75 in the RL
     textbook.
     */
-  def evaluate[A, R: ToReal, P <: CategoricalPolicy[A, Obs, R, Eval, P]](
+  def evaluate[A, R: ToReal, P <: CategoricalPolicy[A, Obs, R, Id, P]](
       policy: P,
       state: NowState[A, Obs, R]
   ): MapStateV[Obs] = {
@@ -97,7 +97,7 @@ object ValueFunction {
     completely based on the current policy. There is no change in policy
     happening here.
     */
-  @tailrec def evaluateSweep[A, Obs, R: ToReal, P <: CategoricalPolicy[A, Obs, R, Eval, P]](
+  @tailrec def evaluateSweep[A, Obs, R: ToReal, P <: CategoricalPolicy[A, Obs, R, Id, P]](
       policy: P,
       states: Traversable[NowState[A, Obs, R]],
       stateValue: MapStateV[Obs]

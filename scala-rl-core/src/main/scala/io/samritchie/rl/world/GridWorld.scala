@@ -6,7 +6,6 @@
 package io.samritchie.rl
 package world
 
-import cats.Eval
 import io.samritchie.rl.util.Grid
 import scala.util.{Success, Try}
 
@@ -83,8 +82,8 @@ case class GridWorld(
 
   val observation: Position = grid.position
 
-  def dynamics: Map[Move, Eval[(Double, NowState[Move, Position, Double])]] =
-    Util.makeMap(Grid.Move.all)(m => Eval.later(actNow(m)))
+  def dynamics: Map[Move, Id[(Double, NowState[Move, Position, Double])]] =
+    Util.makeMap(Grid.Move.all)(m => Id(actNow(m)))
 
   /**
     * This is the NON-monadic action, since we can do it

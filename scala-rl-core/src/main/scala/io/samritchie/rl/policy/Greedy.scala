@@ -24,7 +24,7 @@ case class Greedy[A, Obs, R, T](
     stateValue: StateValue[Obs],
     epsilon: Double,
     initial: T
-) extends Policy[A, Obs, R, Eval, Eval, Greedy[A, Obs, R, T]] {
-  override def choose(state: NowState[A, Obs, R]): Eval[A] = ???
-  override def learn(state: NowState[A, Obs, R], action: A, reward: R): Greedy[A, Obs, R, T] = ???
+) extends Policy[A, Obs, R, Eval, Id, Greedy[A, Obs, R, T]] {
+  override def choose(state: State[A, Obs, R, Id]): Eval[A] = ???
+  override def learn(state: State[A, Obs, R, Id], action: A, reward: R): Greedy[A, Obs, R, T] = ???
 }
