@@ -11,5 +11,5 @@ package object rl {
     BasePolicy[A, Obs, R, Generator, Generator, This]
 
   type NowPolicy[A, -Obs, -R, This <: NowPolicy[A, Obs, R, This]] =
-    SoloPolicy[A, Obs, R, Eval, This]
+    BasePolicy[A, Obs, R, Eval, Eval, This]
 }

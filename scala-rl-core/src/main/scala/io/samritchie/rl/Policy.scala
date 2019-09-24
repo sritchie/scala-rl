@@ -5,9 +5,6 @@
   * And odersky's response for an even simpler way:
   * https://gist.github.com/odersky/56323c309a186cffe9af
   *
-  * TODO - think about if we want to just have a Policy be a
-  * composition of a learner and a decider, not a full thing. Lots of
-  * interesting ideas coming to the fore...
   */
 package io.samritchie.rl
 
@@ -20,47 +17,26 @@ import com.stripe.rainier.core.{Categorical, Generator}
 import scala.language.higherKinds
 
 /**
-  * Trait for things that can choose some Monadic result.
-  */
-trait Decider[A, -Obs, -R, M[+ _], S[+ _]] { self =>
-  def choose(state: BaseState[A, Obs, R, S]): M[A]
-}
-
-trait Learner[A, -Obs, -R, S[+ _], This <: Learner[A, Obs, R, S, This]] {
-
-  /**
-    * OR does this information go later? A particular policy should
-    * get to witness the results of a decision... but instead of a
-    * reward it might be a particular long term return.
-    *
-    * And each of the policies needs to have some array or something
-    * that it is using to track all of these state values.
-    *
-    * SO THIS might not be great. But at this state, if you take this
-    * action, you get this reward. That's the note.
-    *
-    * This of course might need to be a monadic response.
-    */
-  def learn(state: BaseState[A, Obs, R, S], action: A, reward: R): This
-}
-
-/**
   * This is how agents actually choose what comes next. This is a
   * stochastic policy. We have to to be able to match this up with a
   * state that has the same monadic return type, but for now it's
   * hardcoded.
   *
   * A - Action
+  * Obs - the observation offered by this state.
   * R - reward
+  * M - the monadic type offered by the policy.
+  * S - the monad for the state.
   * This - policy
   */
-trait BasePolicy[A, -Obs, -R, M[+ _], S[+ _], This <: BasePolicy[A, Obs, R, M, S, This]]
-    extends Learner[A, Obs, R, S, This]
-    with Decider[A, Obs, R, M, S]
+trait BasePolicy[A, -Obs, -R, M[+ _], S[+ _], This <: BasePolicy[A, Obs, R, M, S, This]] { self =>
+  def choose(state: BaseState[A, Obs, R, S]): M[A]
 
-trait SoloPolicy[A, -Obs, -R, M[+ _], This <: SoloPolicy[A, Obs, R, M, This]]
-    extends BasePolicy[A, Obs, R, M, M, This] {
-  val fk = FunctionK.id
+  /**
+    TODO Note - I can imagine that we wouldn't want to present a reward,
+    necessarily, but some aggregated thing.
+    */
+  def learn(state: BaseState[A, Obs, R, S], action: A, reward: R): This
 }
 
 /**
