@@ -82,7 +82,7 @@ case class MapStateV[Obs](
       policy: CategoricalPolicy[A, Obs, R, Id],
       state: State[A, Obs, R, Id]
   ): MapStateV[Obs] = {
-    val pmf = policy.categories(state).pmf
+    val pmf = policy.choose(state).pmf
     val value = newV(state, pmf(_), _ + _)
     MapStateV(m.updated(state.observation, value), gamma)
   }

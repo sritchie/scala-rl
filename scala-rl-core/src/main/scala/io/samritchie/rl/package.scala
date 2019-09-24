@@ -11,5 +11,5 @@ package object rl {
   type StochasticState[A, +Obs, Reward] = State[A, Obs, Reward, Generator]
   type NowState[A, +Obs, Reward] = State[A, Obs, Reward, Id]
 
-  // typeCategoricalPolicy[A, -Obs, R, S[_]] extends Policy[A, Obs, R, Categorical, S]
+  type CategoricalPolicy[A, -Obs, R, S[_]] = Policy[A, Obs, R, Categorical, S]
 }

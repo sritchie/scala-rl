@@ -30,7 +30,7 @@ case class EpsilonGreedy[A, R, T: Semigroup: Ordering, S[_]](
       Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
     )
 
-  override def categories(state: State[A, Any, R, S]): Categorical[A] =
+  override def choose(state: State[A, Any, R, S]): Categorical[A] =
     Monad[Categorical]
       .ifM(explore)(
         allActions(state),

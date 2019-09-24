@@ -31,7 +31,7 @@ case class Gradient[A: Equiv, R: ToReal, T: ToReal, S[_]](
       actionValues.getOrElse(_, config.initial)
     )
 
-  override def categories(state: State[A, Any, R, S]): Categorical[A] =
+  override def choose(state: State[A, Any, R, S]): Categorical[A] =
     Util.softmax(state.actions)
 
   override def learn(state: State[A, Any, R, S], action: A, reward: R): Gradient[A, R, T, S] = {

@@ -28,7 +28,7 @@ case class Greedy[A, Obs](
     epsilon: Double
 ) extends CategoricalPolicy[A, Obs, Real, Id] {
 
-  override def categories(state: State[A, Obs, Real, Id]): Categorical[A] = {
+  override def choose(state: State[A, Obs, Real, Id]): Categorical[A] = {
     val candidates = Util.allMaxBy[A, Real](state.actions) { a =>
       state.act(a) match {
         case None => Real.negInfinity

@@ -15,7 +15,7 @@ case class UCB[A, R, T, S[_]](
     time: Time
 ) extends CategoricalPolicy[A, Any, R, S] {
 
-  override def categories(state: State[A, Any, R, S]): Categorical[A] =
+  override def choose(state: State[A, Any, R, S]): Categorical[A] =
     Categorical.fromSet(
       Util
         .allMaxBy(state.actions)(
