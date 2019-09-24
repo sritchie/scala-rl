@@ -3,13 +3,12 @@
   */
 package io.samritchie.rl
 
-import cats.{Eq, Eval, Monad, Now}
+import cats.{Eq, Monad}
 import cats.arrow.FunctionK
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import com.stripe.rainier.cats._
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.{Categorical, Generator}
-import com.stripe.rainier.sampler.RNG
 
 import scala.annotation.tailrec
 import scala.language.higherKinds
@@ -91,23 +90,6 @@ object Util {
     f(init) match {
       case Left(a)  => loopWhile(a)(f)
       case Right(b) => b
-    }
-
-  /**
-    Helpful Cats utilities in case we want to mapK these policies and states to
-    something new.
-    */
-  def evalToGen[A](a: Eval[A]): Generator[A] = a match {
-    case Now(a) => Generator.constant(a)
-    case _      => Generator.from((r, n) => a.value)
-
-  }
-
-  val evalToGenK: FunctionK[Eval, Generator] = FunctionK.lift(evalToGen)
-
-  def genToEvalK(implicit r: RNG, n: Numeric[Real]): FunctionK[Generator, Eval] =
-    new FunctionK[Generator, Eval] {
-      def apply[A](a: Generator[A]) = Eval.always(a.get)
     }
 
   /**
