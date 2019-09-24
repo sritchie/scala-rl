@@ -8,9 +8,7 @@
   */
 package io.samritchie.rl
 
-import cats.Eval
 import cats.implicits._
-import cats.arrow.FunctionK
 import com.stripe.rainier.cats._
 import com.stripe.rainier.core.{Categorical, Generator}
 
@@ -29,14 +27,14 @@ import scala.language.higherKinds
   * S - the monad for the state.
   * This - policy
   */
-trait BasePolicy[A, -Obs, -R, M[+ _], S[+ _], This <: BasePolicy[A, Obs, R, M, S, This]] { self =>
-  def choose(state: BaseState[A, Obs, R, S]): M[A]
+trait Policy[A, -Obs, -R, M[+ _], S[+ _], This <: Policy[A, Obs, R, M, S, This]] { self =>
+  def choose(state: State[A, Obs, R, S]): M[A]
 
   /**
     TODO Note - I can imagine that we wouldn't want to present a reward,
     necessarily, but some aggregated thing.
     */
-  def learn(state: BaseState[A, Obs, R, S], action: A, reward: R): This
+  def learn(state: State[A, Obs, R, S], action: A, reward: R): This
 }
 
 /**
@@ -46,28 +44,12 @@ trait BasePolicy[A, -Obs, -R, M[+ _], S[+ _], This <: BasePolicy[A, Obs, R, M, S
   * TODO - note that for a state, it'd be great if you could get a
   * categorical distribution... but if you have a stochastic state at
   * least you can sample.
-  *
-  * TODO - this really just needs to extend Decider... not Learner. If
-  * it's not learning, you can just lock it in.
   */
-trait BaseCategoricalPolicy[A, -Obs, -R, S[+ _], This <: BaseCategoricalPolicy[A, Obs, R, S, This]]
-    extends BasePolicy[A, Obs, R, Generator, S, This] {
-  def categories(state: BaseState[A, Obs, R, S]): Categorical[A]
-  def choose(state: BaseState[A, Obs, R, S]): Generator[A] =
+trait CategoricalPolicy[A, -Obs, -R, S[+ _], This <: CategoricalPolicy[A, Obs, R, S, This]]
+    extends Policy[A, Obs, R, Generator, S, This] {
+  def categories(state: State[A, Obs, R, S]): Categorical[A]
+  def choose(state: State[A, Obs, R, S]): Generator[A] =
     categories(state).generator
-}
-
-trait CategoricalPolicy[A, -Obs, -R, This <: CategoricalPolicy[A, Obs, R, This]]
-    extends BaseCategoricalPolicy[A, Obs, R, Generator, This] {
-  val fk = FunctionK.id
-}
-
-trait CategoricalNowPolicy[A, -Obs, -R, This <: CategoricalNowPolicy[A, Obs, R, This]]
-    extends BaseCategoricalPolicy[A, Obs, R, Eval, This] {
-  val fk: FunctionK[Eval, Generator] = new FunctionK[Eval, Generator] {
-    def apply[B](ev: Eval[B]): Generator[B] =
-      Generator.constant(ev.value)
-  }
 }
 
 object Policy {
@@ -78,11 +60,11 @@ object Policy {
     * returns the supplied penalty and sends the agent back to the
     * initial state.
     */
-  def play[A, Obs, R, P <: Policy[A, Obs, R, P]](
+  def play[A, Obs, R, P <: Policy[A, Obs, R, Generator, Generator, P]](
       policy: P,
-      state: State[A, Obs, R],
+      state: State[A, Obs, R, Generator],
       penalty: R
-  ): Generator[(P, R, State[A, Obs, R])] =
+  ): Generator[(P, R, State[A, Obs, R, Generator])] =
     for {
       a <- policy.choose(state)
       rs <- state.act(a).getOrElse(Generator.constant((penalty, state)))
@@ -92,12 +74,12 @@ object Policy {
     * Returns the final policy, a sequence of the rewards received and
     * the final state.
     */
-  def playN[A, Obs, R, P <: Policy[A, Obs, R, P]](
+  def playN[A, Obs, R, P <: Policy[A, Obs, R, Generator, Generator, P]](
       policy: P,
-      state: State[A, Obs, R],
+      state: State[A, Obs, R, Generator],
       penalty: R,
       nTimes: Int
-  ): Generator[(P, Seq[R], State[A, Obs, R])] =
+  ): Generator[(P, Seq[R], State[A, Obs, R, Generator])] =
     Util.iterateM(nTimes)((policy, Seq.empty[R], state)) {
       case (p, rs, s) =>
         play(p, s, penalty).map {
@@ -109,10 +91,10 @@ object Policy {
   /**
     * Takes an initial set of policies and a state...
     */
-  def playMany[A, Obs, R, P <: Policy[A, Obs, R, P]](
-      pairs: List[(P, State[A, Obs, R])],
+  def playMany[A, Obs, R, P <: Policy[A, Obs, R, Generator, Generator, P]](
+      pairs: List[(P, State[A, Obs, R, Generator])],
       penalty: R
-  )(rewardSum: List[R] => R): Generator[(List[(P, State[A, Obs, R])], R)] =
+  )(rewardSum: List[R] => R): Generator[(List[(P, State[A, Obs, R, Generator])], R)] =
     pairs.toList
       .traverse {
         case (p, s) => play(p, s, penalty)
@@ -124,11 +106,11 @@ object Policy {
   /**
     * Takes an initial set of policies and a state...
     */
-  def playManyN[A, Obs, R, P <: Policy[A, Obs, R, P]](
-      pairs: List[(P, State[A, Obs, R])],
+  def playManyN[A, Obs, R, P <: Policy[A, Obs, R, Generator, Generator, P]](
+      pairs: List[(P, State[A, Obs, R, Generator])],
       penalty: R,
       nTimes: Int
-  )(rewardSum: List[R] => R): Generator[(List[(P, State[A, Obs, R])], List[R])] =
+  )(rewardSum: List[R] => R): Generator[(List[(P, State[A, Obs, R, Generator])], List[R])] =
     Util.iterateM(nTimes)((pairs, List.empty[R])) {
       case (ps, rs) =>
         playMany(ps, penalty)(rewardSum).map {

@@ -12,13 +12,13 @@ import com.stripe.rainier.core.{Categorical, Generator}
   * Random policy.
   */
 case class Random[A, R, S[+ _]](fk: FunctionK[S, Generator])
-    extends BaseCategoricalPolicy[A, Any, R, S, Random[A, R, S]] {
+    extends CategoricalPolicy[A, Any, R, S, Random[A, R, S]] {
 
-  def categories(state: BaseState[A, Any, R, S]): Categorical[A] =
+  def categories(state: State[A, Any, R, S]): Categorical[A] =
     Categorical.list(state.actions.toSeq)
 
   override def learn(
-      state: BaseState[A, Any, R, S],
+      state: State[A, Any, R, S],
       action: A,
       reward: R
   ): Random[A, R, S] = this

@@ -27,7 +27,7 @@ object Bandit {
   def stationary(
       nArms: Int,
       gen: Generator[Generator[Double]]
-  ): Generator[State[Arm, Unit, Double]] =
+  ): Generator[State[Arm, Unit, Double, Generator]] =
     MapState.static(arms(nArms), gen)
 
   /**
@@ -42,7 +42,7 @@ object Bandit {
       nArms: Int,
       gen: Generator[Generator[Double]],
       updater: (Arm, Double, Generator[Double]) => Generator[Double]
-  ): Generator[State[Arm, Unit, Double]] =
+  ): Generator[State[Arm, Unit, Double, Generator]] =
     MapState.updating[Arm, Unit, Double](arms(nArms), (), gen, { (a, obs, r, gen) =>
       ((), updater(a, r, gen))
     })
