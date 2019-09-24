@@ -50,8 +50,6 @@ object GridWorld {
 
     /**
       * Build, assuming that everything is legit!
-      *
-      * TODO remove hardcoded penalty,
       */
     def buildUnsafe(start: Position): GridWorld =
       GridWorld(Grid(start, bounds), default, penalty, jumps)

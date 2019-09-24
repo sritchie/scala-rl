@@ -3,11 +3,12 @@ package book
 
 import com.stripe.rainier.compute.Real
 import io.samritchie.rl.policy.Random
-import io.samritchie.rl.util.Grid
+import io.samritchie.rl.util.{Grid, Tabulator}
 import io.samritchie.rl.world.GridWorld
 
 /**
-  * This chapter plays a couple of gridworld games.
+  * This chapter plays a couple of gridworld games. Current goal is to get this
+  * all building, and printing nicely.
   */
 object Chapter3 {
   import io.samritchie.rl.util.Grid.{Bounds, Move, Position}
@@ -42,8 +43,8 @@ object Chapter3 {
   }
 
   /**
-    * This is Figure 3.5.
-    *   */
+    * This is Figure 3.5. This is currently working!
+    */
   def figureThreeFive: (MapStateV[Position], Long) = {
     val allowedIterations: Long = 10000
     val epsilon: Double = 1e-4
@@ -59,28 +60,34 @@ object Chapter3 {
     }
   }
 
+  def toTable(conf: GridWorld.Config, f: Position => Real): Iterable[Iterable[Real]] =
+    Grid
+      .allStates(conf.bounds)
+      .map(g => f(g.position))
+      .toArray
+      .grouped(conf.bounds.numRows)
+      .toSeq
+      .map(_.toSeq)
+
   /**
     * Obviously horrible, just getting it working for now.
+    *
+    * This currently works, and displays rough tables for each of the required
+    * bits.
     */
   def main(items: Array[String]): Unit = {
     val (threeTwo, iter) = figureThreeTwo
 
     // Display stats for threeTwo...
-    gridConf.stateSweep.foreach { gw =>
-      println(
-        s"Position: ${gw.grid.position}, 3.2 Value: ${threeTwo.m.getOrElse(gw.grid.position, Real.zero)}"
-      )
-    }
+    println("Figure 3.2:")
+    println(Tabulator.format(toTable(gridConf, threeTwo.m.getOrElse(_, Real.zero))))
     println(s"That took $iter iterations, for the record.")
 
     val (threeFive, iter2) = figureThreeFive
 
-    // Display stats for threeTwo...
-    gridConf.stateSweep.foreach { gw =>
-      println(
-        s"Position: ${gw.grid.position}, 3.5 Value: ${threeFive.m.getOrElse(gw.grid.position, Real.zero)}"
-      )
-    }
+    // Display stats for threeFive...
+    println("Figure 3.5:")
+    println(Tabulator.format(toTable(gridConf, threeFive.m.getOrElse(_, Real.zero))))
     println(s"That took $iter2 iterations, for the record.")
   }
 }
