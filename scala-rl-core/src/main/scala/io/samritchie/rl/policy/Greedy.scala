@@ -1,8 +1,12 @@
 /**
-  * First crack at a policy that is actually greedy with respect to some action
-  * value function.
+  First crack at a policy that is actually greedy with respect to some action
+  value function.
 
   SOOOO to work this actually needs some insight into what comes next.
+
+  TODO Eval is actually a nice interface for only being able to look ahead so
+  far. If it's a Now, you can look directly in. But then you can't look further.
+  That'll come in handy later when we try to make games, etc.
   */
 package io.samritchie.rl
 package policy
@@ -31,6 +35,8 @@ case class Greedy[A, Obs](
   override def choose(state: State[A, Obs, Real, Id]): Categorical[A] = {
     val candidates = Util.allMaxBy[A, Real](state.actions) { a =>
       state.act(a) match {
+        // This should NOT happen, since we're getting our list directly from
+        // the state.
         case None => Real.negInfinity
         case Some(Id((r, newS))) =>
           r + (stateValue.m.getOrElse(newS.observation, Real.zero) * epsilon)
