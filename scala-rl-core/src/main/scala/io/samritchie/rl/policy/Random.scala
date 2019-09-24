@@ -15,10 +15,6 @@ case class Random[A, R, S[+ _]]() extends CategoricalPolicy[A, Any, R, S] {
 }
 
 object Random {
-
-  /**
-    * Returns a policy that does NOT learn.
-    */
   def generator[A, R]: Random[A, R, Generator] = Random()
   def id[A, R]: Random[A, R, Id] = Random()
 }

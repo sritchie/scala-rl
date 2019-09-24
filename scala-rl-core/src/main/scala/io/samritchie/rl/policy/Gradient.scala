@@ -5,7 +5,7 @@ package io.samritchie.rl
 package policy
 
 import com.stripe.rainier.compute.{Real, ToReal}
-import com.stripe.rainier.core.{Categorical, Generator}
+import com.stripe.rainier.core.Categorical
 import com.twitter.algebird.{Aggregator, AveragedValue}
 
 /**
@@ -16,10 +16,10 @@ import com.twitter.algebird.{Aggregator, AveragedValue}
   * T is the "average" type.
   *
   */
-case class Gradient[A: Equiv, R: ToReal, T: ToReal](
+case class Gradient[A: Equiv, R: ToReal, T: ToReal, S[+ _]](
     config: Gradient.Config[R, T],
     actionValues: Map[A, Gradient.Item[T]]
-) extends CategoricalPolicy[A, Any, R, Generator] {
+) extends CategoricalPolicy[A, Any, R, S] {
 
   /**
     * Let's try out this style for a bit. This gives us a way to
@@ -31,10 +31,10 @@ case class Gradient[A: Equiv, R: ToReal, T: ToReal](
       actionValues.getOrElse(_, config.initial)
     )
 
-  override def categories(state: State[A, Any, R, Generator]): Categorical[A] =
+  override def categories(state: State[A, Any, R, S]): Categorical[A] =
     Util.softmax(state.actions)
 
-  override def learn(state: State[A, Any, R, Generator], action: A, reward: R): Gradient[A, R, T] = {
+  override def learn(state: State[A, Any, R, S], action: A, reward: R): Gradient[A, R, T, S] = {
     val pmf = Util.softmax(state.actions).pmf
 
     val updated = state.actions.foldLeft(Map.empty[A, Gradient.Item[T]]) {
@@ -77,7 +77,7 @@ object Gradient {
     /**
       * Generates an actual policy from the supplied config.
       */
-    def policy[A]: Gradient[A, R, T] = Gradient(this, Map.empty[A, Item[T]])
+    def policy[A, S[+ _]]: Gradient[A, R, T, S] = Gradient(this, Map.empty[A, Item[T]])
 
     /**
       * This performs the gradient update step.

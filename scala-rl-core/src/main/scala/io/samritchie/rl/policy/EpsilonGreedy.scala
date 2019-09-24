@@ -5,7 +5,7 @@ package io.samritchie.rl
 package policy
 
 import cats.Monad
-import com.stripe.rainier.core.{Categorical, Generator}
+import com.stripe.rainier.core.Categorical
 import com.stripe.rainier.cats._
 import com.twitter.algebird.{AveragedValue, Semigroup}
 import Util.Instances._
@@ -15,22 +15,22 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
+case class EpsilonGreedy[A, R, T: Semigroup: Ordering, S[+ _]](
     config: EpsilonGreedy.Config[R, T],
     actionValues: Map[A, T]
-) extends CategoricalPolicy[A, Any, R, Generator] {
+) extends CategoricalPolicy[A, Any, R, S] {
   private val explore: Categorical[Boolean] =
     Categorical.boolean(config.epsilon)
 
-  private def allActions(state: State[A, Any, R, Generator]): Categorical[A] =
+  private def allActions(state: State[A, Any, R, S]): Categorical[A] =
     Categorical.list(state.actions.toList)
 
-  private def greedy(state: State[A, Any, R, Generator]): Categorical[A] =
+  private def greedy(state: State[A, Any, R, S]): Categorical[A] =
     Categorical.fromSet(
       Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
     )
 
-  override def categories(state: State[A, Any, R, Generator]): Categorical[A] =
+  override def categories(state: State[A, Any, R, S]): Categorical[A] =
     Monad[Categorical]
       .ifM(explore)(
         allActions(state),
@@ -38,10 +38,10 @@ case class EpsilonGreedy[A, R, T: Semigroup: Ordering](
       )
 
   override def learn(
-      state: State[A, Any, R, Generator],
+      state: State[A, Any, R, S],
       action: A,
       reward: R
-  ): EpsilonGreedy[A, R, T] =
+  ): EpsilonGreedy[A, R, T, S] =
     copy(actionValues = Util.mergeV(actionValues, action, config.prepare(reward)))
 }
 
@@ -55,8 +55,8 @@ object EpsilonGreedy {
       prepare: R => T,
       initial: T
   ) {
-    def policy[A]: EpsilonGreedy[A, R, T] =
-      EpsilonGreedy[A, R, T](this, Map.empty)
+    def policy[A, S[+ _]]: EpsilonGreedy[A, R, T, S] =
+      EpsilonGreedy(this, Map.empty)
   }
 
   /**

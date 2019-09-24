@@ -18,12 +18,13 @@ package policy
 
   TODO should this be called something like GreedyLookahead?
   */
-case class Greedy[A, Obs, R, T](
+case class Greedy[A, Obs, R, T, S[+ _]](
     stateValue: StateValue[Obs],
     epsilon: Double,
     initial: T
-) extends Policy[A, Obs, R, Id, Id] {
+) extends Policy[A, Obs, R, Id, S] {
   // Fix, obviously... this just chooses some BS. It should be choosing with
   // respect to some value function.
-  override def choose(state: State[A, Obs, R, Id]): Id[A] = Id(state.actions.head)
+  override def choose(state: State[A, Obs, R, S]): Id[A] =
+    Id(state.actions.head)
 }

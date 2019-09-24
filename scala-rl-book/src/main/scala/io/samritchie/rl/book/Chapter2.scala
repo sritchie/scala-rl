@@ -24,7 +24,7 @@ import io.samritchie.rl.policy.EpsilonGreedy
   */
 object Chapter2 {
   import Bandit.Arm
-  type EG = EpsilonGreedy[Arm, Double, AveragedValue]
+  type EG = EpsilonGreedy[Arm, Double, AveragedValue, Generator]
 
   /**
     * These are needed to actually call get on anything.
