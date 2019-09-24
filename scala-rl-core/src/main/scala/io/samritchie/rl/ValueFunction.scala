@@ -148,6 +148,8 @@ object ValueFunction {
 
     /**
       * Proper stopping conditions for a state value function.
+
+      TODO replace this logic with the ordering instance I'll pull in.
       */
     def shouldHalt[A](
         oldM: Map[A, Real],

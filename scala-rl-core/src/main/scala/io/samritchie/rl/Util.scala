@@ -3,9 +3,10 @@
   */
 package io.samritchie.rl
 
-import cats.{Eval, Monad, Now}
+import cats.{Eq, Eval, Monad, Now}
 import cats.arrow.FunctionK
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
+import com.stripe.rainier.cats._
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.{Categorical, Generator}
 import com.stripe.rainier.sampler.RNG
@@ -25,6 +26,14 @@ object Util {
 
     implicit val avToReal: ToReal[AveragedValue] =
       implicitly[ToReal[Double]].contramap(_.value)
+
+    implicit val realOrd: Ordering[Real] =
+      Ordering.fromLessThan { (l, r) =>
+        Eq[Real].eqv(
+          Real.lt(l, r, Real.zero, Real.one),
+          Real.zero
+        )
+      }
   }
 
   def confine[A](a: A, min: A, max: A)(implicit ord: Ordering[A]): A =

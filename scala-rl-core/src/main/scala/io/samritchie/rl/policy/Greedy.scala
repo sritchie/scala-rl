@@ -7,6 +7,10 @@
 package io.samritchie.rl
 package policy
 
+import com.stripe.rainier.compute.Real
+import com.stripe.rainier.core.Categorical
+import Util.Instances._
+
 /**
   * My first crack at a proper greedy policy, given some state value. This is
   * the more extensive thing, and of course I'll need to swap it in for the
@@ -16,15 +20,24 @@ package policy
   state value function. It can only do this because it can see the results of
   what comes next.
 
-  TODO should this be called something like GreedyLookahead?
+  I think you can only be greedy with respect to a state-value function if you
+  have access to a model, and can look ahead.
   */
-case class Greedy[A, Obs, R, T, S[_]](
+case class Greedy[A, Obs](
     stateValue: StateValue[Obs],
-    epsilon: Double,
-    initial: T
-) extends Policy[A, Obs, R, Id, S] {
-  // Fix, obviously... this just chooses some BS. It should be choosing with
-  // respect to some value function.
-  override def choose(state: State[A, Obs, R, S]): Id[A] =
-    Id(state.actions.head)
+    epsilon: Double
+) extends CategoricalPolicy[A, Obs, Real, Id] {
+
+  override def categories(state: State[A, Obs, Real, Id]): Categorical[A] = {
+    val candidates = Util.allMaxBy[A, Real](state.actions) { a =>
+      state.act(a) match {
+        case None => Real.negInfinity
+        case Some(Id((r, newS))) =>
+          r + (stateValue.m.getOrElse(newS.observation, Real.zero) * epsilon)
+      }
+    }
+    Categorical.fromSet(
+      if (candidates.isEmpty) state.actions else candidates
+    )
+  }
 }
