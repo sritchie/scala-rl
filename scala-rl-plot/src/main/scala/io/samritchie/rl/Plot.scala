@@ -15,8 +15,10 @@ package io.samritchie.rl
 import com.cibo.evilplot.plot.aesthetics.Theme
 import com.cibo.evilplot.colors.{HTMLNamedColors, RGB}
 import com.cibo.evilplot.displayPlot
+import com.cibo.evilplot.geometry.Line
 import com.cibo.evilplot.numeric.{Bounds, Point}
-import com.cibo.evilplot.plot.{FunctionPlot, LinePlot, Overlay}
+import com.cibo.evilplot.plot.renderers.GridLineRenderer
+import com.cibo.evilplot.plot.{FunctionPlot, LinePlot, Overlay, ScatterPlot}
 import com.cibo.evilplot.plot.aesthetics.DefaultTheme
 
 object Plot {
