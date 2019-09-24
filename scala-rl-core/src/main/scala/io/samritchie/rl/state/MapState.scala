@@ -6,30 +6,34 @@
 package io.samritchie.rl
 package state
 
+import cats.Functor
+import com.stripe.rainier.cats._
 import com.stripe.rainier.core.Generator
 
 /**
   * MapState that doesn't evolve.
   */
-case class StaticMapState[A, R](
-    rewards: Map[A, Generator[R]]
-) extends State[A, Unit, R, Generator] {
+case class StaticMapState[A, R, S[_]](
+    rewards: Map[A, S[R]]
+)(implicit S: Functor[S])
+    extends State[A, Unit, R, S] {
   override val observation: Unit = ()
 
-  override def dynamics[O2 >: Unit]: Map[A, Generator[(R, State[A, O2, R, Generator])]] =
-    rewards.mapValues(_.map(r => (r, this)))
+  override def dynamics[O2 >: Unit]: Map[A, S[(R, State[A, O2, R, S])]] =
+    rewards.mapValues(S.map(_)(r => (r, this)))
 }
 
 /**
   * MDP with a single state.
   */
-case class MapState[A, Obs, R](
+case class MapState[A, Obs, R, S[_]](
     observation: Obs,
-    rewards: Map[A, Generator[R]],
-    step: (A, Obs, R, Generator[R]) => (Obs, Generator[R])
-) extends State[A, Obs, R, Generator] {
+    rewards: Map[A, S[R]],
+    step: (A, Obs, R, S[R]) => (Obs, S[R])
+)(implicit S: Functor[S])
+    extends State[A, Obs, R, S] {
 
-  private def updateForA[O2 >: Obs](a: A, r: R): State[A, O2, R, Generator] = {
+  private def updateForA[O2 >: Obs](a: A, r: R): State[A, O2, R, S] = {
     val (newObservation, newGen) = step(a, observation, r, rewards(a))
     MapState(
       newObservation,
@@ -38,9 +42,9 @@ case class MapState[A, Obs, R](
     )
   }
 
-  override def dynamics[O2 >: Obs]: Map[A, Generator[(R, State[A, O2, R, Generator])]] =
+  override def dynamics[O2 >: Obs]: Map[A, S[(R, State[A, O2, R, S])]] =
     rewards.map {
-      case (a, g) => (a, g.map(r => (r, updateForA[O2](a, r))))
+      case (a, g) => (a, S.map(g)(r => (r, updateForA[O2](a, r))))
     }
 }
 
@@ -57,8 +61,8 @@ object MapState {
   def static[A, Obs, R](
       actions: Set[A],
       gen: Generator[Generator[R]]
-  ): Generator[StaticMapState[A, R]] =
-    genMap(actions, gen).map(StaticMapState[A, R](_))
+  ): Generator[StaticMapState[A, R, Generator]] =
+    genMap(actions, gen).map(StaticMapState(_))
 
   /**
     * The second of two ways to construct a MapState.
@@ -68,8 +72,6 @@ object MapState {
       initialObservation: Obs,
       gen: Generator[Generator[R]],
       step: (A, Obs, R, Generator[R]) => (Obs, Generator[R])
-  ): Generator[MapState[A, Obs, R]] =
-    genMap(actions, gen).map { m =>
-      MapState[A, Obs, R](initialObservation, m, step)
-    }
+  ): Generator[MapState[A, Obs, R, Generator]] =
+    genMap(actions, gen).map(MapState(initialObservation, _, step))
 }
