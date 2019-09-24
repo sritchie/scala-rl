@@ -13,7 +13,7 @@ import com.stripe.rainier.core.Generator
   */
 case class StaticMapState[A, R](
     rewards: Map[A, Generator[R]]
-) extends State[A, Unit, R] {
+) extends State[A, Unit, R, Generator] {
   override val observation: Unit = ()
   override lazy val dynamics = rewards.mapValues(_.map(r => (r, this)))
 }
@@ -25,9 +25,9 @@ case class MapState[A, Obs, R](
     observation: Obs,
     rewards: Map[A, Generator[R]],
     step: (A, Obs, R, Generator[R]) => (Obs, Generator[R])
-) extends State[A, Obs, R] {
+) extends State[A, Obs, R, Generator] {
 
-  private def updateForA(a: A, r: R): State[A, Obs, R] = {
+  private def updateForA(a: A, r: R): State[A, Obs, R, Generator] = {
     val (newObservation, newGen) = step(a, observation, r, rewards(a))
     MapState(
       newObservation,
@@ -58,7 +58,7 @@ object MapState {
   def static[A, Obs, R](
       actions: Set[A],
       gen: Generator[Generator[R]]
-  ): Generator[State[A, Unit, R]] =
+  ): Generator[State[A, Unit, R, Generator]] =
     genMap(actions, gen).map(StaticMapState[A, R](_))
 
   /**
@@ -69,7 +69,7 @@ object MapState {
       initialObservation: Obs,
       gen: Generator[Generator[R]],
       step: (A, Obs, R, Generator[R]) => (Obs, Generator[R])
-  ): Generator[State[A, Obs, R]] =
+  ): Generator[State[A, Obs, R, Generator]] =
     genMap(actions, gen).map { m =>
       MapState[A, Obs, R](initialObservation, m, step)
     }

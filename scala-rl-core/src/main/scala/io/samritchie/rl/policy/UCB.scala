@@ -7,16 +7,16 @@ package io.samritchie.rl
 package policy
 
 import com.twitter.algebird.Aggregator
-import com.stripe.rainier.core.Categorical
+import com.stripe.rainier.core.{Categorical, Generator}
 
 case class UCB[A, R, T](
     config: UCB.Config[R, T],
     actionValues: Map[A, UCB.Choice[T]],
     time: Time
-) extends CategoricalPolicy[A, Any, R, UCB[A, R, T]] {
+) extends CategoricalPolicy[A, Any, R, Generator] {
 
   // TODO fix this fuckup! (what is the fuckup?)
-  override def categories(state: State[A, Any, R]): Categorical[A] =
+  override def categories(state: State[A, Any, R, Generator]): Categorical[A] =
     Categorical.fromSet(
       Util
         .allMaxBy(state.actions)(
@@ -24,7 +24,11 @@ case class UCB[A, R, T](
         )
     )
 
-  override def learn(state: State[A, Any, R], action: A, reward: R): UCB[A, R, T] = {
+  override def learn(
+      state: State[A, Any, R, Generator],
+      action: A,
+      reward: R
+  ): UCB[A, R, T] = {
     val updated = Util.updateWith(actionValues, action) {
       case None    => config.choice(reward)
       case Some(v) => config.merge(v, reward)

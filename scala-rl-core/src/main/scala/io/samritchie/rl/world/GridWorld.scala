@@ -6,7 +6,6 @@
 package io.samritchie.rl
 package world
 
-import cats.Eval
 import io.samritchie.rl.util.Grid
 import scala.util.{Success, Try}
 
@@ -83,8 +82,8 @@ case class GridWorld(
 
   val observation: Position = grid.position
 
-  def dynamics: Map[Move, Eval[(Double, NowState[Move, Position, Double])]] =
-    Util.makeMap(Grid.Move.all)(m => Eval.later(actNow(m)))
+  def dynamics: Map[Move, Id[(Double, NowState[Move, Position, Double])]] =
+    Util.makeMap(Grid.Move.all)(m => Id(actNow(m)))
 
   /**
     * This is the NON-monadic action, since we can do it
@@ -104,36 +103,4 @@ case class GridWorld(
       case Some((newPosition, reward)) =>
         (reward, copy(grid = grid.teleportUnsafe(newPosition)))
     }
-
-  /**
-    * Draws a plot.
-    *
-    *
-    def draw_image(image):
-    fig, ax = plt.subplots()
-    ax.set_axis_off()
-    tb = Table(ax, bbox=[0, 0, 1, 1])
-
-    nrows, ncols = image.shape
-    width, height = 1.0 / ncols, 1.0 / nrows
-
-    # Add cells
-    for (i, j), val in np.ndenumerate(image):
-        tb.add_cell(i, j, width, height, text=val,
-                    loc='center', facecolor='white')
-
-    # Row and column labels...
-    for i in range(len(image)):
-        tb.add_cell(i, -1, width, height, text=i+1, loc='right',
-                    edgecolor='none', facecolor='none')
-        tb.add_cell(-1, i, width, height/2, text=i+1, loc='center',
-                    edgecolor='none', facecolor='none')
-
-    ax.add_table(tb)
-    */
-  def render(): Unit = {
-    println("For now, we'll just print a string...")
-    println("Rendered!")
-  }
-
 }

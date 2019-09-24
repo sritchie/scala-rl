@@ -21,7 +21,7 @@ object Chapter3 {
   val figureThreeTwoState: NowState[Move, Position, Double] =
     gridConf.buildUnsafe(Position.of(0, 0))
 
-  val policy = Random.eval[Grid.Move, Double]
+  val policy = Random.id[Grid.Move, Double]
 
   /**
     * This is Figure 3.2, with proper stopping conditions and
