@@ -5,7 +5,7 @@ import sbtorgpolicies.utils.getEnvVar
 /* dependency versions */
 lazy val V = new {
   val algebird = "0.13.5"
-  val cats = "1.6.1"
+  val cats = "2.0.0"
   val evilplot = "0.7.0"
   val kindProjector = "0.10.3"
   val rainier = "0.2.3-rc5-SNAPSHOT"
