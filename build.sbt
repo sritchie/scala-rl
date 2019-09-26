@@ -5,14 +5,14 @@ import sbtorgpolicies.utils.getEnvVar
 /* dependency versions */
 lazy val V = new {
   val algebird = "0.13.5"
-  val cats = "1.1.0"
-  val evilplot = "0.6.3"
+  val cats = "1.6.1"
+  val evilplot = "0.7.0"
   val kindProjector = "0.10.3"
   val rainier = "0.2.3-rc5-SNAPSHOT"
   val scala = "2.12.9"
-  val scalacheck = "1.14.0"
+  val scalacheck = "1.14.2"
   val scalatest = "3.0.8"
-  val util = "19.8.1"
+  val util = "19.9.0"
 }
 
 lazy val docsSourcesAndProjects: Seq[ProjectReference] =
