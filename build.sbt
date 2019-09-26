@@ -10,7 +10,7 @@ lazy val V = new {
   val kindProjector = "0.10.3"
   val rainier = "0.2.3-rc5-SNAPSHOT"
   val scala = "2.12.9"
-  val scalacheck = "1.14.0"
+  val scalacheck = "1.14.2"
   val scalatest = "3.0.8"
   val util = "19.8.1"
 }
