@@ -45,7 +45,7 @@ case class MapValueFunction[Obs](
 
     Semigroup[Value[Real]]
       .combineAllOption(
-        state.actions.map { action =>
+        state.actions.toList.map { action =>
           val (r, newState) = dynamics(action).value
           val obs = newState.observation
           stateValue(obs).from(ToReal(r)).weighted(pmf.getOrElse(action, Real.zero))
