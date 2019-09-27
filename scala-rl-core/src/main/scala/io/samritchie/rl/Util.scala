@@ -92,6 +92,11 @@ object Util {
       case Right(b) => b
     }
 
+  def diff[A](as: TraversableOnce[A], lf: A => Real, rf: A => Real): Real =
+    as.foldLeft(Real.zero) { (acc, k) =>
+      acc + (lf(k) - rf(k)).abs
+    }
+
   /**
     Cats helpers.
     */

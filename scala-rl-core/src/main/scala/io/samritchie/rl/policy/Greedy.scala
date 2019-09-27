@@ -11,7 +11,7 @@
 package io.samritchie.rl
 package policy
 
-import com.stripe.rainier.compute.Real
+import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
 import Util.Instances._
 
@@ -19,31 +19,29 @@ import Util.Instances._
   * My first crack at a proper greedy policy, given some state value. This is
   * the more extensive thing, and of course I'll need to swap it in for the
   * EpsilonGreedy stuff too.
-
-  This policy will be greedy with respect to the value function it's using. The
-  state value function. It can only do this because it can see the results of
-  what comes next.
-
-  I think you can only be greedy with respect to a state-value function if you
-  have access to a model, and can look ahead.
+  *
+  * This policy will be greedy with respect to the value function it's using.
+  * The state value function. It can only do this because it can see the results
+  * of what comes next.
+  *
+  * I think you can only be greedy with respect to a state-value function if you
+  * have access to a model, and can look ahead.
   */
-case class Greedy[A, Obs](
-    stateValue: StateValue[Obs],
-    epsilon: Double
-) extends CategoricalPolicy[A, Obs, Real, Id] {
-
-  override def choose(state: State[A, Obs, Real, Id]): Categorical[A] = {
+case class Greedy[A, Obs, R: ToReal](valueFn: ValueFunction[Obs]) extends CategoricalPolicy[A, Obs, R, Id] {
+  override def choose(state: State[A, Obs, R, Id]): Categorical[A] = {
     val candidates = Util.allMaxBy[A, Real](state.actions) { a =>
       state.act(a) match {
         // This should NOT happen, since we're getting our list directly from
         // the state.
         case None => Real.negInfinity
         case Some(Id((r, newS))) =>
-          r + (stateValue.m.getOrElse(newS.observation, Real.zero) * epsilon)
+          valueFn.stateValue(newS.observation).from(ToReal(r)).get
       }
     }
     Categorical.fromSet(
       if (candidates.isEmpty) state.actions else candidates
     )
   }
+
+  override def learnAll[O2 <: Obs](vf: ValueFunction[O2]): Policy[A, O2, R, Categorical, Id] = Greedy(vf)
 }
