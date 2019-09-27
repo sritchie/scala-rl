@@ -6,7 +6,6 @@ import com.stripe.rainier.cats._
 import com.stripe.rainier.core.{Generator, Normal}
 import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
-import com.twitter.algebird.AveragedValue
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.state.Bandit
 import io.samritchie.rl.policy.EpsilonGreedy
@@ -24,7 +23,6 @@ import io.samritchie.rl.policy.EpsilonGreedy
   */
 object Chapter2 {
   import Bandit.Arm
-  type EG = EpsilonGreedy[Arm, Double, AveragedValue]
 
   /**
     * These are needed to actually call get on anything.
@@ -92,9 +90,9 @@ object Chapter2 {
       { case (_, r, _) => Normal(r, stdDev).generator }
     )
 
-  def play(policy: EG): List[Double] =
-    playBandit[Arm, Any, Double](
-      policy,
+  def play(policy: CategoricalPolicy[Arm, Any, Double, Generator]): List[Double] =
+    playBandit(
+      policy.mapK(Util.categoricalToGen),
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,
       timeSteps = 1000,

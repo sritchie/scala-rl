@@ -2,7 +2,7 @@ package io.samritchie.rl
 package book
 
 import com.stripe.rainier.compute.Real
-import io.samritchie.rl.policy.Random
+import io.samritchie.rl.policy.{Greedy, Random}
 import io.samritchie.rl.util.{Grid, Tabulator}
 import io.samritchie.rl.world.GridWorld
 
@@ -13,52 +13,47 @@ import io.samritchie.rl.world.GridWorld
 object Chapter3 {
   import io.samritchie.rl.util.Grid.{Bounds, Move, Position}
 
+  // Configuration for the gridworld used in the examples.
   val gridConf = GridWorld
     .Config(Bounds(5, 5))
     .withJump(Position.of(0, 1), Position.of(4, 1), 10)
     .withJump(Position.of(0, 3), Position.of(2, 3), 5)
 
-  val figureThreeTwoState: NowState[Move, Position, Double] =
-    gridConf.buildUnsafe(Position.of(0, 0))
+  val allowedIterations: Long = 10000
+  val epsilon: Double = 1e-4
+  val gamma: Double = 0.9
+  val emptyFn = ValueFunction.decaying[Position](gamma)
 
-  val policy = Random.id[Grid.Move, Double]
+  def hasConverged[Obs](
+      l: ValueFunction[Obs],
+      r: ValueFunction[Obs],
+      iterations: Long
+  ): Boolean =
+    (iterations >= allowedIterations) ||
+      ValueFunction.valuesWithin(l, r, epsilon)
 
   /**
     * This is Figure 3.2, with proper stopping conditions and
     * everything. Lots of work to go.
     *   */
-  def figureThreeTwo: (StateValue[Position], Long) = {
-    val allowedIterations: Long = 10000
-    val epsilon: Double = 1e-4
-    val gamma: Double = 0.9
-
-    Util.loopWhile((ValueFunction.emptyState[Position](gamma), 0)) {
-      case (m, iterLeft) =>
-        val newM = ValueFunction.evaluateSweep(policy, gridConf.stateSweep, m)
-        if ((iterLeft >= allowedIterations) || newM.shouldHalt(m, epsilon))
-          Right((newM, iterLeft))
-        else
-          Left((newM, iterLeft + 1))
-    }
-  }
+  def figureThreeTwo: (ValueFunction[Position], Long) =
+    ValueFunction.sweepUntil[Move, Position, Double](
+      Random.id[Move, Double],
+      emptyFn,
+      gridConf.stateSweep,
+      hasConverged _
+    )
 
   /**
     * This is Figure 3.5. This is currently working!
     */
-  def figureThreeFive: (MapStateV[Position], Long) = {
-    val allowedIterations: Long = 10000
-    val epsilon: Double = 1e-4
-    val gamma: Double = 0.9
-
-    Util.loopWhile((ValueFunction.emptyState[Position](gamma), 0)) {
-      case (m, iterLeft) =>
-        val newM = ValueFunction.evaluateSweepIter(gridConf.stateSweep, m)
-        if ((iterLeft >= allowedIterations) || newM.shouldHalt(m, epsilon))
-          Right((newM, iterLeft))
-        else
-          Left((newM, iterLeft + 1))
-    }
-  }
+  def figureThreeFive: (ValueFunction[Position], Long) =
+    ValueFunction.sweepUntil[Move, Position, Double](
+      Greedy[Move, Position, Double](emptyFn),
+      emptyFn,
+      gridConf.stateSweep,
+      hasConverged _
+    )
 
   def toTable(conf: GridWorld.Config, f: Position => Real): Iterable[Iterable[Real]] =
     Grid
@@ -80,14 +75,14 @@ object Chapter3 {
 
     // Display stats for threeTwo...
     println("Figure 3.2:")
-    println(Tabulator.format(toTable(gridConf, threeTwo.m.getOrElse(_, Real.zero))))
+    println(Tabulator.format(toTable(gridConf, threeTwo.stateValue(_).get)))
     println(s"That took $iter iterations, for the record.")
 
     val (threeFive, iter2) = figureThreeFive
 
     // Display stats for threeFive...
     println("Figure 3.5:")
-    println(Tabulator.format(toTable(gridConf, threeFive.m.getOrElse(_, Real.zero))))
+    println(Tabulator.format(toTable(gridConf, threeFive.stateValue(_).get)))
     println(s"That took $iter2 iterations, for the record.")
   }
 }

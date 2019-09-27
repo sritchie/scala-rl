@@ -22,7 +22,6 @@ package io.samritchie.rl
 
 import cats.Functor
 import cats.arrow.FunctionK
-import com.stripe.rainier.core.Generator
 
 /**
   * A world should probably have a generator of states and
@@ -31,7 +30,7 @@ import com.stripe.rainier.core.Generator
   * model; for the bandit we only have a single state, not that
   * useful.
   */
-trait State[A, +Obs, +R, M[+ _]] { self =>
+trait State[A, +Obs, R, M[_]] { self =>
   def observation: Obs
 
   /**
@@ -40,13 +39,14 @@ trait State[A, +Obs, +R, M[+ _]] { self =>
     * want the full distribution we're going to have to build out a
     * better interface. Good enough for now.
     */
-  def dynamics: Map[A, M[(R, State[A, Obs, R, M])]]
+  def dynamics[O2 >: Obs]: Map[A, M[(R, State[A, O2, R, M])]]
 
   /**
     * Return None if it's an invalid action, otherwise gives us the
     * next state. (Make this better later.)
     */
-  def act(action: A): Option[M[(R, State[A, Obs, R, M])]] = dynamics.get(action)
+  def act[O2 >: Obs](action: A): Option[M[(R, State[A, O2, R, M])]] =
+    dynamics.get(action)
 
   /**
     * Returns a list of possible actions to take from this state.
@@ -57,40 +57,19 @@ trait State[A, +Obs, +R, M[+ _]] { self =>
     * Just an idea to see if I can make stochastic deciders out of
     * deterministic deciders. We'll see how this develops.
     */
-  def mapK[N[+ _]: Functor](f: FunctionK[M, N]): State[A, Obs, R, N] = new State[A, Obs, R, N] {
-    private def mapPair(pair: M[(R, State[A, Obs, R, M])]): N[(R, State[A, Obs, R, N])] =
+  def mapK[N[_]: Functor](f: FunctionK[M, N]): State[A, Obs, R, N] = new State[A, Obs, R, N] {
+
+    private def mapPair[T, U >: T](pair: M[(R, State[A, T, R, M])]): N[(R, State[A, U, R, N])] =
       Functor[N].map(f(pair)) { case (r, s) => (r, s.mapK(f)) }
 
     def observation = self.observation
-    def dynamics: Map[A, N[(R, State[A, Obs, R, N])]] =
-      self.dynamics.mapValues(mapPair(_))
 
-    override def act(action: A): Option[N[(R, State[A, Obs, R, N])]] =
-      self.act(action).map(mapPair(_))
+    def dynamics[O2 >: Obs]: Map[A, N[(R, State[A, O2, R, N])]] =
+      self.dynamics.mapValues(mapPair[O2, O2](_))
+
+    override def act[O2 >: Obs](action: A): Option[N[(R, State[A, O2, R, N])]] =
+      self.act(action).map(mapPair[Obs, O2](_))
 
     override def actions: Set[A] = self.actions
   }
-}
-
-/**
-  * Then we have a bandit... a single state thing.
-  */
-object State {
-
-  /**
-    * MDP with state derived from a map.
-    */
-  case class MapState[A, Obs, R](
-      observation: Obs,
-      dynamics: Map[A, Generator[(R, State[A, Obs, R, Generator])]]
-  ) extends State[A, Obs, R, Generator]
-
-  /**
-    * This creates a State object directly from a dynamics map.
-    */
-  def fromMap[A, Obs, R](
-      observation: Obs,
-      dynamics: Map[A, Generator[(R, State[A, Obs, R, Generator])]]
-  ): MapState[A, Obs, R] =
-    MapState[A, Obs, R](observation, dynamics)
 }

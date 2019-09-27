@@ -17,9 +17,9 @@ object Tabulator {
   def format(table: Iterable[Iterable[Any]]): String =
     if (table.isEmpty) ""
     else {
-      val sizes = for (row <- table)
-        yield
-          (for (cell <- row)
+      val sizes =
+        for (row <- table)
+          yield (for (cell <- row)
             yield
               if (cell == null) 0
               else cell.toString.length)
@@ -33,10 +33,11 @@ object Tabulator {
       )).mkString("\n")
 
   def formatRow(row: Iterable[Any], colSizes: Iterable[Int]): String = {
-    val cells = (for ((item, size) <- row.zip(colSizes))
-      yield
-        if (size == 0) ""
-        else ("%" + size + "s").format(item))
+    val cells =
+      (for ((item, size) <- row.zip(colSizes))
+        yield
+          if (size == 0) ""
+          else ("%" + size + "s").format(item))
     cells.mkString("|", "|", "|")
   }
 

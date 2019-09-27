@@ -7,16 +7,15 @@ package io.samritchie.rl
 package policy
 
 import com.twitter.algebird.Aggregator
-import com.stripe.rainier.core.{Categorical, Generator}
+import com.stripe.rainier.core.Categorical
 
-case class UCB[A, R, T](
+case class UCB[A, R, T, S[_]](
     config: UCB.Config[R, T],
     actionValues: Map[A, UCB.Choice[T]],
     time: Time
-) extends CategoricalPolicy[A, Any, R, Generator] {
+) extends CategoricalPolicy[A, Any, R, S] {
 
-  // TODO fix this fuckup! (what is the fuckup?)
-  override def categories(state: State[A, Any, R, Generator]): Categorical[A] =
+  override def choose(state: State[A, Any, R, S]): Categorical[A] =
     Categorical.fromSet(
       Util
         .allMaxBy(state.actions)(
@@ -25,10 +24,10 @@ case class UCB[A, R, T](
     )
 
   override def learn(
-      state: State[A, Any, R, Generator],
+      state: State[A, Any, R, S],
       action: A,
       reward: R
-  ): UCB[A, R, T] = {
+  ): UCB[A, R, T, S] = {
     val updated = Util.updateWith(actionValues, action) {
       case None    => config.choice(reward)
       case Some(v) => config.merge(v, reward)
@@ -61,7 +60,7 @@ object UCB {
     /**
       * Returns a fresh policy instance using this config.
       */
-    def policy[A]: UCB[A, R, T] = UCB(this, Map.empty, Time.Zero)
+    def policy[A, S[_]]: UCB[A, R, T, S] = UCB(this, Map.empty, Time.Zero)
 
     // These are private and embedded in the config to make it easy to
     // share the fns without crossing the beams.

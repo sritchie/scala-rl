@@ -4,6 +4,7 @@
 package io.samritchie.rl
 
 import cats.Monad
+import cats.arrow.FunctionK
 import cats.implicits._
 
 import scala.language.higherKinds
@@ -20,7 +21,7 @@ import scala.language.higherKinds
   * M - the monadic type offered by the policy.
   * S - the monad for the state.
   */
-trait Policy[A, -Obs, -R, M[+ _], S[+ _]] { self =>
+trait Policy[A, -Obs, R, M[_], S[_]] { self =>
   def choose(state: State[A, Obs, R, S]): M[A]
 
   /**
@@ -30,6 +31,19 @@ trait Policy[A, -Obs, -R, M[+ _], S[+ _]] { self =>
     By default this just returns itself, no learning happening.
     */
   def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, M, S] = this
+  def learnAll[O2 <: Obs](vf: ValueFunction[O2]): Policy[A, O2, R, M, S] = this
+
+  /**
+    * Just an idea to see if I can make stochastic deciders out of
+    * deterministic deciders. We'll see how this develops.
+    */
+  def mapK[N[_]](f: FunctionK[M, N]): Policy[A, Obs, R, N, S] = new Policy[A, Obs, R, N, S] {
+    def choose(state: State[A, Obs, R, S]): N[A] = f(self.choose(state))
+    override def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, N, S] =
+      self.learn(state, action, reward).mapK(f)
+
+    // TODO FIX THIS OVERRIDE learnAll
+  }
 }
 
 object Policy {
@@ -41,7 +55,7 @@ object Policy {
     * returns the supplied penalty and sends the agent back to the
     * initial state.
     */
-  def play[A, Obs, R, M[+ _]](
+  def play[A, Obs, R, M[_]](
       policy: Policy[A, Obs, R, M, M],
       state: State[A, Obs, R, M],
       penalty: R
@@ -57,7 +71,7 @@ object Policy {
     * Returns the final policy, a sequence of the rewards received and
     * the final state.
     */
-  def playN[A, Obs, R, M[+ _]: Monad](
+  def playN[A, Obs, R, M[_]: Monad](
       policy: Policy[A, Obs, R, M, M],
       state: State[A, Obs, R, M],
       penalty: R,
@@ -74,7 +88,7 @@ object Policy {
   /**
     * Takes an initial set of policies and a state...
     */
-  def playMany[A, Obs, R, M[+ _]: Monad](
+  def playMany[A, Obs, R, M[_]: Monad](
       pairs: List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])],
       penalty: R
   )(
@@ -91,7 +105,7 @@ object Policy {
   /**
     * Takes an initial set of policies and a state...
     */
-  def playManyN[A, Obs, R, M[+ _]: Monad](
+  def playManyN[A, Obs, R, M[_]: Monad](
       pairs: List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])],
       penalty: R,
       nTimes: Int
