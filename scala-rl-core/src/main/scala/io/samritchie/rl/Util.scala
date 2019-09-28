@@ -92,9 +92,15 @@ object Util {
       case Right(b) => b
     }
 
-  def diff[A](as: TraversableOnce[A], lf: A => Real, rf: A => Real): Real =
+  /**
+    Accumulates differences between the two for every A in the supplied
+    sequence. The combine function is used to aggregate the differences.
+
+    I recommend using max or +.
+    */
+  def diff[A](as: TraversableOnce[A], lf: A => Real, rf: A => Real, combine: (Real, Real) => Real): Real =
     as.foldLeft(Real.zero) { (acc, k) =>
-      acc + (lf(k) - rf(k)).abs
+      combine(acc, (lf(k) - rf(k)).abs)
     }
 
   /**

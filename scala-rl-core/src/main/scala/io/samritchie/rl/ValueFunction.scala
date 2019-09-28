@@ -110,11 +110,16 @@ object ValueFunction {
     }
 
   /**
-    Helper to tell if we can stop iterating.
+    Helper to tell if we can stop iterating. The combine function is used to
+    aggregate the differences between the value functions for each
+    observation... the final aggregated value must be less than epsilon to
+    return true, false otherwise.
     */
-  def valuesWithin[Obs](oldVF: ValueFunction[Obs], newVF: ValueFunction[Obs], epsilon: Double): Boolean =
+  def diff[Obs](oldVF: ValueFunction[Obs], newVF: ValueFunction[Obs], epsilon: Double)(
+      combine: (Real, Real) => Real
+  ): Boolean =
     Ordering[Real].lt(
-      Util.diff[Obs]((oldVF.seen ++ newVF.seen), oldVF.stateValue(_).get, newVF.stateValue(_).get),
+      Util.diff[Obs]((oldVF.seen ++ newVF.seen), oldVF.stateValue(_).get, newVF.stateValue(_).get, combine),
       Real(epsilon)
     )
 }

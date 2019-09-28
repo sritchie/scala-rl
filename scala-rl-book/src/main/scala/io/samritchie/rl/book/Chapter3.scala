@@ -27,13 +27,19 @@ object Chapter3 {
   val gamma: Double = 0.9
   val emptyFn = ValueFunction.decaying[Position](gamma)
 
+  /**
+    Note... this version, following the python code, checks that the sum of all
+    differences is less than epsilon. In the next chapter we use the max
+    function instead here to get this working, to check that the maximum delta
+    is less than epsilon.
+    */
   def hasConverged[Obs](
       l: ValueFunction[Obs],
       r: ValueFunction[Obs],
       iterations: Long
   ): Boolean =
     (iterations >= allowedIterations) ||
-      ValueFunction.valuesWithin(l, r, epsilon)
+      ValueFunction.diff(l, r, epsilon)(_ + _)
 
   def toTable(conf: GridWorld.Config, f: Position => Real): Iterable[Iterable[Real]] =
     Grid
