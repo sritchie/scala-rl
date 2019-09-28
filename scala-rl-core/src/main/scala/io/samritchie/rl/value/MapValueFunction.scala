@@ -12,6 +12,7 @@
 package io.samritchie.rl
 package value
 
+import cats.Id
 import cats.kernel.Semigroup
 import com.stripe.rainier.compute.{Real, ToReal}
 
@@ -46,7 +47,7 @@ case class MapValueFunction[Obs](
     Semigroup[Value[Real]]
       .combineAllOption(
         state.actions.toList.map { action =>
-          val (r, newState) = dynamics(action).value
+          val (r, newState) = dynamics(action)
           val obs = newState.observation
           stateValue(obs)
             .from(ToReal(r))

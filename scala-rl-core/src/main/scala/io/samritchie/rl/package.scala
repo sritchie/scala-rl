@@ -1,5 +1,6 @@
 package io.samritchie
 
+import cats.Id
 import com.stripe.rainier.core.{Categorical, Generator}
 
 package object rl {

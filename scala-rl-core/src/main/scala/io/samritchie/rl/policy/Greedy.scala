@@ -11,6 +11,7 @@
 package io.samritchie.rl
 package policy
 
+import cats.Id
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
 import Util.Instances._
@@ -34,7 +35,7 @@ case class Greedy[A, Obs, R: ToReal](valueFn: ValueFunction[Obs]) extends Catego
         // This should NOT happen, since we're getting our list directly from
         // the state.
         case None => Real.negInfinity
-        case Some(Id((r, newS))) =>
+        case Some((r, newS)) =>
           valueFn.stateValue(newS.observation).from(ToReal(r)).get
       }
     }

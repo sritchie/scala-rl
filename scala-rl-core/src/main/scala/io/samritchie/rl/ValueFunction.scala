@@ -10,6 +10,7 @@
   */
 package io.samritchie.rl
 
+import cats.Id
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
 import Util.Instances.realOrd

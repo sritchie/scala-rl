@@ -3,7 +3,7 @@
   */
 package io.samritchie.rl
 
-import cats.{Comonad, Eq, Monad}
+import cats.{Comonad, Eq, Id, Monad}
 import cats.arrow.FunctionK
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import com.stripe.rainier.cats._
@@ -111,7 +111,10 @@ object Util {
       def apply[A](ca: Categorical[A]): Generator[A] = ca.generator
     }
 
-  def idToMonad[M[_]: Monad]: FunctionK[Id, M] = mfk[Id, M]
+  def idToMonad[M[_]](implicit M: Monad[M]): FunctionK[Id, M] =
+    new FunctionK[Id, M] {
+      def apply[A](a: A): M[A] = M.pure(a)
+    }
 
   def mfk[M[_], N[_]](implicit M: Comonad[M], N: Monad[N]): FunctionK[M, N] =
     new FunctionK[M, N] {
