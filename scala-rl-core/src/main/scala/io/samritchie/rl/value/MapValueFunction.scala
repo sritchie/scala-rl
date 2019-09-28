@@ -56,6 +56,10 @@ case class MapValueFunction[Obs](
       .getOrElse(default)
   }
 
+  /**
+    This is currently an 'expected update', because it's using expectations vs any
+    sampling.
+    */
   override def update[A, R: ToReal](
       state: State[A, Obs, R, Id],
       policy: CategoricalPolicy[A, Obs, R, Id]
