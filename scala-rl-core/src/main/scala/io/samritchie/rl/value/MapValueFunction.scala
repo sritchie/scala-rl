@@ -48,7 +48,9 @@ case class MapValueFunction[Obs](
         state.actions.toList.map { action =>
           val (r, newState) = dynamics(action).value
           val obs = newState.observation
-          stateValue(obs).from(ToReal(r)).weighted(pmf.getOrElse(action, Real.zero))
+          stateValue(obs)
+            .from(ToReal(r))
+            .weighted(pmf.getOrElse(action, Real.zero))
         }
       )
       .getOrElse(default)

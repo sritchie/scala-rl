@@ -2,8 +2,9 @@ package io.samritchie.rl
 package book
 
 import com.stripe.rainier.compute.Real
+import io.samritchie.rl.plot.Tabulator
 import io.samritchie.rl.policy.{Greedy, Random}
-import io.samritchie.rl.util.{Grid, Tabulator}
+import io.samritchie.rl.util.Grid
 import io.samritchie.rl.world.GridWorld
 
 /**
@@ -32,29 +33,6 @@ object Chapter3 {
     (iterations >= allowedIterations) ||
       ValueFunction.valuesWithin(l, r, epsilon)
 
-  /**
-    * This is Figure 3.2, with proper stopping conditions and
-    * everything. Lots of work to go.
-    *   */
-  def figureThreeTwo: (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double](
-      Random.id[Move, Double],
-      emptyFn,
-      gridConf.stateSweep,
-      hasConverged _
-    )
-
-  /**
-    * This is Figure 3.5. This is currently working!
-    */
-  def figureThreeFive: (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double](
-      Greedy[Move, Position, Double](emptyFn),
-      emptyFn,
-      gridConf.stateSweep,
-      hasConverged _
-    )
-
   def toTable(conf: GridWorld.Config, f: Position => Real): Iterable[Iterable[Real]] =
     Grid
       .allStates(conf.bounds)
@@ -65,24 +43,49 @@ object Chapter3 {
       .map(_.toSeq)
 
   /**
-    * Obviously horrible, just getting it working for now.
-    *
+    * This is Figure 3.2, with proper stopping conditions and
+    * everything. Lots of work to go.
+    *   */
+  def figureThreeTwo(): Unit = {
+    val (valueFn, iterations) =
+      ValueFunction.sweepUntil[Move, Position, Double](
+        Random.id[Move, Double],
+        emptyFn,
+        gridConf.stateSweep,
+        hasConverged _
+      )
+
+    // Display stats for threeTwo...
+    println("Figure 3.2:")
+    println(Tabulator.format(toTable(gridConf, valueFn.stateValue(_).get)))
+    println(s"That took $iterations iterations, for the record.")
+  }
+
+  /**
+    * This is Figure 3.5. This is currently working!
+    */
+  def figureThreeFive(): Unit = {
+    val (valueFn, iterations) =
+      ValueFunction.sweepUntil[Move, Position, Double](
+        Greedy[Move, Position, Double](emptyFn),
+        emptyFn,
+        gridConf.stateSweep,
+        hasConverged _
+      )
+
+    // Display stats for threeFive...
+    println("Figure 3.5:")
+    println(Tabulator.format(toTable(gridConf, valueFn.stateValue(_).get)))
+    println(s"That took $iterations iterations, for the record.")
+
+  }
+
+  /**
     * This currently works, and displays rough tables for each of the required
     * bits.
     */
   def main(items: Array[String]): Unit = {
-    val (threeTwo, iter) = figureThreeTwo
-
-    // Display stats for threeTwo...
-    println("Figure 3.2:")
-    println(Tabulator.format(toTable(gridConf, threeTwo.stateValue(_).get)))
-    println(s"That took $iter iterations, for the record.")
-
-    val (threeFive, iter2) = figureThreeFive
-
-    // Display stats for threeFive...
-    println("Figure 3.5:")
-    println(Tabulator.format(toTable(gridConf, threeFive.stateValue(_).get)))
-    println(s"That took $iter2 iterations, for the record.")
+    figureThreeTwo()
+    figureThreeFive()
   }
 }

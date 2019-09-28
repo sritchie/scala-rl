@@ -8,6 +8,7 @@ import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.state.Bandit
+import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.EpsilonGreedy
 
 /**
