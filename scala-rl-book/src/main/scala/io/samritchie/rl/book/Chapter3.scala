@@ -1,3 +1,9 @@
+/**
+  This chapter plays a couple of gridworld games. Current goal is to get this
+  all building, and printing nicely.
+
+  This chapter introduces the idea of the Markov Decision Process.
+  */
 package io.samritchie.rl
 package book
 
@@ -7,10 +13,6 @@ import io.samritchie.rl.policy.{Greedy, Random}
 import io.samritchie.rl.util.Grid
 import io.samritchie.rl.world.GridWorld
 
-/**
-  * This chapter plays a couple of gridworld games. Current goal is to get this
-  * all building, and printing nicely.
-  */
 object Chapter3 {
   import io.samritchie.rl.util.Grid.{Bounds, Move, Position}
 
@@ -77,7 +79,6 @@ object Chapter3 {
     println("Figure 3.5:")
     println(Tabulator.format(toTable(gridConf, valueFn.stateValue(_).get)))
     println(s"That took $iterations iterations, for the record.")
-
   }
 
   /**
