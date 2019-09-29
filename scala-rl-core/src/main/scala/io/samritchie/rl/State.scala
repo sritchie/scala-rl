@@ -49,9 +49,12 @@ trait State[A, +Obs, R, M[_]] { self =>
     dynamics.get(action)
 
   /**
-    * Returns a list of possible actions to take from this state.
+    * Returns a list of possible actions to take from this state. To specify the
+    * terminal state, return an empty set.
     */
   def actions: Set[A] = dynamics.keySet
+
+  def isTerminal: Boolean = actions.isEmpty
 
   /**
     * Just an idea to see if I can make stochastic deciders out of
