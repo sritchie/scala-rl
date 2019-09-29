@@ -7,7 +7,9 @@
 package io.samritchie.rl
 package book
 
+import cats.Id
 import com.stripe.rainier.compute.Real
+import com.stripe.rainier.core.Categorical
 import io.samritchie.rl.plot.Tabulator
 import io.samritchie.rl.policy.{Greedy, Random}
 import io.samritchie.rl.util.Grid
@@ -36,13 +38,13 @@ object Chapter3 {
     is less than epsilon.
     */
   def valueFunctionConverged[Obs](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs]
+      l: ValueFunction[Obs, Categorical, Id],
+      r: ValueFunction[Obs, Categorical, Id]
   ): Boolean = ValueFunction.diff(l, r, epsilon)(_ + _)
 
   def shouldStop[Obs](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs],
+      l: ValueFunction[Obs, Categorical, Id],
+      r: ValueFunction[Obs, Categorical, Id],
       iterations: Long
   ): Boolean =
     notConverging(iterations) || valueFunctionConverged(l, r)
@@ -56,7 +58,7 @@ object Chapter3 {
       .toSeq
       .map(_.toSeq)
 
-  def printFigure(pair: (ValueFunction[Position], Long), title: String): Unit = {
+  def printFigure(pair: (ValueFunction[Position, Categorical, Id], Long), title: String): Unit = {
     val (valueFn, iterations) = pair
     println(s"${title}:")
     println(Tabulator.format(toTable(gridConf, valueFn.stateValue(_).get)))
@@ -67,8 +69,8 @@ object Chapter3 {
     * This is Figure 3.2, with proper stopping conditions and
     * everything. Lots of work to go.
     *   */
-  def threeTwo: (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double](
+  def threeTwo: (ValueFunction[Position, Categorical, Id], Long) =
+    ValueFunction.sweepUntil(
       Random.id[Move, Double],
       emptyFn,
       gridConf.stateSweep,
@@ -79,8 +81,8 @@ object Chapter3 {
   /**
     * This is Figure 3.5. This is currently working!
     */
-  def threeFive: (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double](
+  def threeFive: (ValueFunction[Position, Categorical, Id], Long) =
+    ValueFunction.sweepUntil[Move, Position, Double, Categorical, Id](
       Greedy.Config[Double](0.0).policy(emptyFn),
       emptyFn,
       gridConf.stateSweep,

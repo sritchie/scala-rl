@@ -12,7 +12,6 @@
 package io.samritchie.rl
 package value
 
-import cats.Id
 import cats.kernel.Semigroup
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
@@ -29,29 +28,32 @@ import com.stripe.rainier.core.Categorical
   If you DO know those things, this will give you the value of the current
   state.
   */
-case class MapValueFunction[Obs](
+case class Bellman[Obs](
     m: Map[Obs, Value[Real]],
     default: Value[Real]
-) extends ValueFunction[Obs, Categorical, Id] {
+) extends ValueFunction[Obs, Categorical, Categorical] {
   def seen: Iterable[Obs] = m.keys
 
   override def stateValue(obs: Obs): Value[Real] =
     m.getOrElse(obs, default)
 
   override def evaluate[A, R: ToReal](
-      state: State[A, Obs, R, Id],
-      policy: CategoricalPolicy[A, Obs, R, Id]
+      state: State[A, Obs, R, Categorical],
+      policy: CategoricalPolicy[A, Obs, R, Categorical]
   ): Value[Real] = {
     val pmf = policy.choose(state).pmf
     val dynamics = state.dynamics
-
     Semigroup[Value[Real]]
       .combineAllOption(
-        state.actions.toList.map { action =>
-          val (r, newState) = dynamics(action)
+        for {
+          action <- state.actions.toList
+
+          ((reward, newState), weight) <- dynamics(action).pmf.toList
+        } yield {
+          val policyWeight = pmf.getOrElse(action, Real.zero)
           stateValue(newState.observation)
-            .from(ToReal(r))
-            .weighted(pmf.getOrElse(action, Real.zero))
+            .from(ToReal(reward))
+            .weighted(policyWeight * weight)
         }
       )
       .getOrElse(default)
@@ -62,8 +64,8 @@ case class MapValueFunction[Obs](
     sampling.
     */
   override def update[A, R: ToReal](
-      state: State[A, Obs, R, Id],
+      state: State[A, Obs, R, Categorical],
       value: Value[Real]
-  ): ValueFunction[Obs, Categorical, Id] =
+  ): ValueFunction[Obs, Categorical, Categorical] =
     copy(m = m.updated(state.observation, value))
 }

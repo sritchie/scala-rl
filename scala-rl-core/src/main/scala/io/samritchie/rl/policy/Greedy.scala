@@ -29,7 +29,7 @@ import com.stripe.rainier.core.Categorical
   */
 case class Greedy[A, Obs, R: ToReal](
     config: Greedy.Config[R],
-    valueFn: ValueFunction[Obs]
+    valueFn: ValueFunction[Obs, Categorical, Id]
 ) extends CategoricalPolicy[A, Obs, R, Id] {
   private val explore: Categorical[Boolean] =
     Categorical.boolean(config.epsilon)
@@ -46,13 +46,17 @@ case class Greedy[A, Obs, R: ToReal](
   override def choose(state: State[A, Obs, R, Id]): Categorical[A] =
     Monad[Categorical].ifM(explore)(allActions(state), greedy(state))
 
-  override def learnAll[O2 <: Obs](vf: ValueFunction[O2]): Policy[A, O2, R, Categorical, Id] =
+  override def learnAll[O2 <: Obs](
+      vf: ValueFunction[O2, Categorical, Id]
+  ): Policy[A, O2, R, Categorical, Id] =
     Greedy(config, vf)
 }
 
 object Greedy {
   case class Config[R](epsilon: Double) {
-    def policy[A, Obs](valueFn: ValueFunction[Obs])(implicit tr: ToReal[R]): Greedy[A, Obs, R] =
+    def policy[A, Obs](
+        valueFn: ValueFunction[Obs, Categorical, Id]
+    )(implicit tr: ToReal[R]): Greedy[A, Obs, R] =
       Greedy(this, valueFn)
   }
 }

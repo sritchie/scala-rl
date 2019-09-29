@@ -1,6 +1,8 @@
 package io.samritchie.rl
 package book
 
+import com.stripe.rainier.cats._
+import com.stripe.rainier.core.Categorical
 import com.stripe.rainier.compute.Real
 import io.samritchie.rl.util.Grid
 import io.samritchie.rl.value.{Decaying, MapValueFunction}
@@ -10,7 +12,7 @@ import org.scalatest.FunSuite
   * And this is a placeholder for basic tests.
   */
 class Chapter3Spec extends FunSuite {
-  import Grid.Position
+  import Grid.{Move, Position}
 
   val gamma = 0.9
   val epsilon = 1e-4
@@ -83,6 +85,15 @@ class Chapter3Spec extends FunSuite {
       ).mapValues(Decaying(_, gamma)),
       Decaying(0.0, gamma)
     )
+
+    // val idToCat = Util.idToMonad[Categorical]
+    // val (cake2, _) = ValueFunction.sweepUntil[Move, Position, Double, Categorical, Categorical](
+    //   policy.Greedy.Config[Double](0.0).policy(Chapter3.emptyFn).mapK(idToCat),
+    //   value.Bellman(Map.empty, value.Decaying(0.0, Chapter3.gamma)),
+    //   Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
+    //   Chapter3.shouldStop _,
+    //   inPlace = true
+    // )
 
     assert(ValueFunction.diff(actual, expected, epsilon)(_.max(_)))
   }
