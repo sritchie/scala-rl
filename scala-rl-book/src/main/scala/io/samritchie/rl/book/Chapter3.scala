@@ -60,7 +60,8 @@ object Chapter3 {
         Random.id[Move, Double],
         emptyFn,
         gridConf.stateSweep,
-        hasConverged _
+        hasConverged _,
+        inPlace = true
       )
 
     // Display stats for threeTwo...
@@ -78,7 +79,8 @@ object Chapter3 {
         Greedy[Move, Position, Double](emptyFn),
         emptyFn,
         gridConf.stateSweep,
-        hasConverged _
+        hasConverged _,
+        inPlace = true
       )
 
     // Display stats for threeFive...

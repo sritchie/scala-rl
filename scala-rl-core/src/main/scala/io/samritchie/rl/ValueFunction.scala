@@ -36,8 +36,13 @@ trait ValueFunction[Obs] {
 
   def update[A, R: ToReal](
       state: State[A, Obs, R, Id],
-      policy: Policy[A, Obs, R, Categorical, Id]
+      value: Value[Real]
   ): ValueFunction[Obs]
+
+  def evaluateAndUpdate[A, R: ToReal](
+      state: State[A, Obs, R, Id],
+      policy: Policy[A, Obs, R, Categorical, Id]
+  ): ValueFunction[Obs] = update(state, evaluate(state, policy))
 }
 
 trait ActionValueFunction[A, Obs] extends ValueFunction[Obs] {
@@ -83,12 +88,14 @@ object ValueFunction {
   def sweep[A, Obs, R: ToReal](
       policy: CategoricalPolicy[A, Obs, R, Id],
       valueFn: ValueFunction[Obs],
-      states: Traversable[State[A, Obs, R, Id]]
+      states: Traversable[State[A, Obs, R, Id]],
+      inPlace: Boolean
   ): ValueFunction[Obs] =
     states
       .foldLeft((valueFn, policy)) {
         case ((vf, p), state) =>
-          val newFn = vf.update(state, p)
+          val baseVf = if (inPlace) vf else valueFn
+          val newFn = vf.update(state, baseVf.evaluate(state, p))
           val newP = p.learnAll(newFn)
           (newFn, newP)
       }
@@ -98,11 +105,12 @@ object ValueFunction {
       policy: CategoricalPolicy[A, Obs, R, Id],
       valueFn: ValueFunction[Obs],
       states: Traversable[State[A, Obs, R, Id]],
-      stopFn: (ValueFunction[Obs], ValueFunction[Obs], Long) => Boolean
+      stopFn: (ValueFunction[Obs], ValueFunction[Obs], Long) => Boolean,
+      inPlace: Boolean
   ): (ValueFunction[Obs], Long) =
     Util.loopWhile((valueFn, 0)) {
       case (fn, nIterations) =>
-        val updated = ValueFunction.sweep(policy, fn, states)
+        val updated = ValueFunction.sweep(policy, fn, states, inPlace)
         Either.cond(
           stopFn(fn, updated, nIterations),
           (updated, nIterations),
@@ -116,11 +124,16 @@ object ValueFunction {
     observation... the final aggregated value must be less than epsilon to
     return true, false otherwise.
     */
-  def diff[Obs](oldVF: ValueFunction[Obs], newVF: ValueFunction[Obs], epsilon: Double)(
+  def diff[Obs](l: ValueFunction[Obs], r: ValueFunction[Obs], epsilon: Double)(
       combine: (Real, Real) => Real
   ): Boolean =
     Ordering[Real].lt(
-      Util.diff[Obs]((oldVF.seen ++ newVF.seen), oldVF.stateValue(_).get, newVF.stateValue(_).get, combine),
+      Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, combine),
       Real(epsilon)
     )
+
+  /**
+    I think this needs actual states to check.
+    */
+  def isPolicyStable[Obs](l: ValueFunction[Obs], r: ValueFunction[Obs]): Boolean = ???
 }

@@ -63,7 +63,7 @@ case class MapValueFunction[Obs](
     */
   override def update[A, R: ToReal](
       state: State[A, Obs, R, Id],
-      policy: CategoricalPolicy[A, Obs, R, Id]
+      value: Value[Real]
   ): ValueFunction[Obs] =
-    copy(m = m.updated(state.observation, evaluate(state, policy)))
+    copy(m = m.updated(state.observation, value))
 }
