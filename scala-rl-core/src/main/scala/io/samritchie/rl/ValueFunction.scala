@@ -118,6 +118,17 @@ object ValueFunction {
         )
     }
 
+  def greedyOptions[A, Obs, R: ToReal](valueFn: ValueFunction[Obs], state: State[A, Obs, R, Id]): Set[A] =
+    Util.allMaxBy[A, Real](state.actions) { a =>
+      state
+        .act(a)
+        .map {
+          case (r, newState) =>
+            valueFn.stateValue(newState.observation).from(ToReal(r)).get
+        }
+        .getOrElse(Real.negInfinity)
+    }
+
   /**
     Helper to tell if we can stop iterating. The combine function is used to
     aggregate the differences between the value functions for each

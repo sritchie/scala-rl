@@ -81,7 +81,7 @@ object Chapter3 {
     */
   def threeFive: (ValueFunction[Position], Long) =
     ValueFunction.sweepUntil[Move, Position, Double](
-      Greedy[Move, Position, Double](emptyFn),
+      Greedy.Config[Double](0.0).policy(emptyFn),
       emptyFn,
       gridConf.stateSweep,
       shouldStop _,
