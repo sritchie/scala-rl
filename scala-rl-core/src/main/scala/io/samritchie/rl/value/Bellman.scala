@@ -47,7 +47,6 @@ case class Bellman[Obs](
       .combineAllOption(
         for {
           action <- state.actions.toList
-
           ((reward, newState), weight) <- dynamics(action).pmf.toList
         } yield {
           val policyWeight = pmf.getOrElse(action, Real.zero)

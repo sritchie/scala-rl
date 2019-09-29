@@ -12,6 +12,8 @@ package io.samritchie.rl
 
 import cats.Id
 import cats.arrow.FunctionK
+import cats.kernel.Semigroup
+import com.stripe.rainier.cats.groupReal
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
 import Util.Instances.realOrd
@@ -136,12 +138,26 @@ object ValueFunction {
       valueFn: ValueFunction[Obs, M, Id],
       state: State[A, Obs, R, Id]
   ): Set[A] = Util.allMaxBy[A, Real](state.actions) { a =>
-    state
-      .act(a)
-      .map {
-        case (r, newState) =>
-          valueFn.stateValue(newState.observation).from(ToReal(r)).get
-      }
+    val (reward, newState) = state.dynamics(a)
+    valueFn.stateValue(newState.observation).from(ToReal(reward)).get
+  }
+
+  def greedyOptionsStochastic[A, Obs, R: ToReal, M[_]](
+      valueFn: ValueFunction[Obs, M, Categorical],
+      state: State[A, Obs, R, Categorical]
+  ): Set[A] = Util.allMaxBy[A, Real](state.actions) { a =>
+    Semigroup[Real]
+      .combineAllOption(
+        state.dynamics(a).pmf.toList.map {
+          case ((reward, newState), weight) =>
+            valueFn
+              .stateValue(newState.observation)
+              .from(ToReal(reward))
+              .weighted(weight)
+              .get
+
+        }
+      )
       .getOrElse(Real.negInfinity)
   }
 

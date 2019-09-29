@@ -1,6 +1,8 @@
 package io.samritchie.rl
 package book
 
+import cats.Id
+import cats.arrow.FunctionK
 import com.stripe.rainier.cats._
 import com.stripe.rainier.core.Categorical
 import com.stripe.rainier.compute.Real
@@ -86,9 +88,22 @@ class Chapter3Spec extends FunSuite {
       Decaying(0.0, gamma)
     )
 
-    // val idToCat = Util.idToMonad[Categorical]
+    val idToCat = Util.idToMonad[Categorical]
+
+    // I want to make a thing that can handle ID states... given something that
+    // can handle categorical states.
+    def cake[A, Obs]: Policy[Move, Position, Double, Categorical, Categorical] =
+      policy.Greedy
+        .Config[Double](0.0)
+        .stochastic(
+          value.Bellman[Position](Map.empty, value.Decaying(0.0, Chapter3.gamma))
+        )
+
+    // def cake2[A, Obs]: Policy[Move, Position, Double, Categorical, cats.Id] =
+    //cake.foldK(FunctionK.id, idToCat, ???)
+
     // val (cake2, _) = ValueFunction.sweepUntil[Move, Position, Double, Categorical, Categorical](
-    //   policy.Greedy.Config[Double](0.0).policy(Chapter3.emptyFn).mapK(idToCat),
+    //   policy.Greedy.Config[Double](0.0).policy(Chapter3.emptyFn).foldK(FunctionK.id, idToCat),
     //   value.Bellman(Map.empty, value.Decaying(0.0, Chapter3.gamma)),
     //   Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
     //   Chapter3.shouldStop _,

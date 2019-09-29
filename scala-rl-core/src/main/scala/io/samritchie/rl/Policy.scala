@@ -37,13 +37,14 @@ trait Policy[A, -Obs, R, M[_], S[_]] { self =>
     * Just an idea to see if I can make stochastic deciders out of
     * deterministic deciders. We'll see how this develops.
     */
-  def mapK[N[_]](f: FunctionK[M, N]): Policy[A, Obs, R, N, S] = new Policy[A, Obs, R, N, S] {
-    def choose(state: State[A, Obs, R, S]): N[A] = f(self.choose(state))
-    override def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, N, S] =
-      self.learn(state, action, reward).mapK(f)
-    override def learnAll[O2 <: Obs](vf: ValueFunction[O2, N, S]): Policy[A, O2, R, N, S] =
-      self.learnAll(vf.contramapK(f)).mapK(f)
-  }
+  def mapK[N[_]](f: FunctionK[M, N]): Policy[A, Obs, R, N, S] =
+    new Policy[A, Obs, R, N, S] {
+      def choose(state: State[A, Obs, R, S]): N[A] = f(self.choose(state))
+      override def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, N, S] =
+        self.learn(state, action, reward).mapK(f)
+      override def learnAll[O2 <: Obs](vf: ValueFunction[O2, N, S]): Policy[A, O2, R, N, S] =
+        self.learnAll(vf.contramapK(f)).mapK(f)
+    }
 }
 
 object Policy {
