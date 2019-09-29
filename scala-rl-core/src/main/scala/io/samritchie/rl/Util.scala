@@ -59,10 +59,12 @@ object Util {
       case Some(v) => Semigroup.plus[V](v, delta)
     }
 
-  def allMaxBy[A, B: Ordering](as: Set[A])(f: A => B): Set[A] = {
-    val maxB = f(as.maxBy(f))
-    as.filter(a => Ordering[B].equiv(maxB, f(a)))
-  }
+  def allMaxBy[A, B: Ordering](as: Set[A])(f: A => B): Set[A] =
+    if (as.isEmpty) Set.empty
+    else {
+      val maxB = f(as.maxBy(f))
+      as.filter(a => Ordering[B].equiv(maxB, f(a)))
+    }
 
   def softmax[A, B](m: Map[A, Real]): Categorical[A] =
     Categorical.normalize(m.mapValues(_.exp))
