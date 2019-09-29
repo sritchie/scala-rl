@@ -118,6 +118,13 @@ object ValueFunction {
         )
     }
 
+  def isPolicyStable[A, Obs, R: ToReal](
+      l: ValueFunction[Obs],
+      r: ValueFunction[Obs],
+      states: Traversable[State[A, Obs, R, Id]]
+  ): Boolean =
+    states.forall(s => greedyOptions(l, s) == greedyOptions(r, s))
+
   def greedyOptions[A, Obs, R: ToReal](valueFn: ValueFunction[Obs], state: State[A, Obs, R, Id]): Set[A] =
     Util.allMaxBy[A, Real](state.actions) { a =>
       state
