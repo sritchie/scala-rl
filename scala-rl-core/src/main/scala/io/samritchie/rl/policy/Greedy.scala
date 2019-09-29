@@ -32,10 +32,17 @@ abstract class AbstractGreedy[A, Obs, R: ToReal, S[_]](
     valueFn: ValueFunction[Obs, Categorical, S]
 ) extends CategoricalPolicy[A, Obs, R, S] {
   // Extend these.
-  def greedy(state: State[A, Obs, R, S]): Categorical[A]
+  def greedyOptions(state: State[A, Obs, R, S]): Set[A]
+
   def learnAll[O2 <: Obs](
       vf: ValueFunction[O2, Categorical, S]
   ): Policy[A, O2, R, Categorical, S]
+
+  private def greedy(state: State[A, Obs, R, S]): Categorical[A] =
+    Categorical.fromSet {
+      val candidates = greedyOptions(state)
+      if (candidates.isEmpty) state.actions else candidates
+    }
 
   private val explore: Categorical[Boolean] =
     Categorical.boolean(config.epsilon)
@@ -52,14 +59,24 @@ class Greedy[A, Obs, R: ToReal](
     config: Greedy.Config[R],
     valueFn: ValueFunction[Obs, Categorical, Id]
 ) extends AbstractGreedy[A, Obs, R, Id](config, valueFn) {
-  def greedy(state: State[A, Obs, R, Id]): Categorical[A] =
-    Categorical.fromSet {
-      val candidates = ValueFunction.greedyOptions(valueFn, state)
-      if (candidates.isEmpty) state.actions else candidates
-    }
+  def greedyOptions(state: State[A, Obs, R, Id]): Set[A] =
+    ValueFunction.greedyOptions(valueFn, state)
+
   override def learnAll[O2 <: Obs](
       vf: ValueFunction[O2, Categorical, Id]
   ): Policy[A, O2, R, Categorical, Id] = new Greedy(config, vf)
+}
+
+class StochasticGreedy[A, Obs, R: ToReal](
+    config: Greedy.Config[R],
+    valueFn: ValueFunction[Obs, Categorical, Categorical]
+) extends AbstractGreedy[A, Obs, R, Categorical](config, valueFn) {
+  def greedyOptions(state: State[A, Obs, R, Categorical]): Set[A] =
+    ValueFunction.greedyOptionsStochastic(valueFn, state)
+
+  override def learnAll[O2 <: Obs](
+      vf: ValueFunction[O2, Categorical, Categorical]
+  ): Policy[A, O2, R, Categorical, Categorical] = new StochasticGreedy(config, vf)
 }
 
 object Greedy {
@@ -74,18 +91,4 @@ object Greedy {
     )(implicit tr: ToReal[R]): StochasticGreedy[A, Obs, R] =
       new StochasticGreedy(this, valueFn)
   }
-}
-
-class StochasticGreedy[A, Obs, R: ToReal](
-    config: Greedy.Config[R],
-    valueFn: ValueFunction[Obs, Categorical, Categorical]
-) extends AbstractGreedy[A, Obs, R, Categorical](config, valueFn) {
-  def greedy(state: State[A, Obs, R, Categorical]): Categorical[A] =
-    Categorical.fromSet {
-      val candidates = ValueFunction.greedyOptionsStochastic(valueFn, state)
-      if (candidates.isEmpty) state.actions else candidates
-    }
-  override def learnAll[O2 <: Obs](
-      vf: ValueFunction[O2, Categorical, Categorical]
-  ): Policy[A, O2, R, Categorical, Categorical] = new StochasticGreedy(config, vf)
 }

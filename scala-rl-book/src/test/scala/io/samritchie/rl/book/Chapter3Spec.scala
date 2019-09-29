@@ -1,8 +1,6 @@
 package io.samritchie.rl
 package book
 
-import cats.Id
-import cats.arrow.FunctionK
 import com.stripe.rainier.cats._
 import com.stripe.rainier.core.Categorical
 import com.stripe.rainier.compute.Real
@@ -55,61 +53,63 @@ class Chapter3Spec extends FunSuite {
     assert(ValueFunction.diff(actual, expected, epsilon)(_.max(_)))
   }
 
-  test("Figure 3.5's value function matches the gold set") {
-    val (actual, _) = Chapter3.threeFive
-    val expected = MapValueFunction(
-      Map(
-        Position.of(0, 0) -> Real(19.8896),
-        Position.of(0, 1) -> Real(24.4194),
-        Position.of(0, 2) -> Real(21.9774),
-        Position.of(0, 3) -> Real(19.4194),
-        Position.of(0, 4) -> Real(17.4774),
-        Position.of(1, 0) -> Real(19.7797),
-        Position.of(1, 1) -> Real(21.9774),
-        Position.of(1, 2) -> Real(19.7797),
-        Position.of(1, 3) -> Real(17.8017),
-        Position.of(1, 4) -> Real(16.0215),
-        Position.of(2, 0) -> Real(17.8017),
-        Position.of(2, 1) -> Real(19.7797),
-        Position.of(2, 2) -> Real(17.8017),
-        Position.of(2, 3) -> Real(16.0215),
-        Position.of(2, 4) -> Real(14.4194),
-        Position.of(3, 0) -> Real(16.0215),
-        Position.of(3, 1) -> Real(17.8017),
-        Position.of(3, 2) -> Real(16.0215),
-        Position.of(3, 3) -> Real(14.4194),
-        Position.of(3, 4) -> Real(12.9774),
-        Position.of(4, 0) -> Real(14.4194),
-        Position.of(4, 1) -> Real(16.0215),
-        Position.of(4, 2) -> Real(14.4194),
-        Position.of(4, 3) -> Real(12.9774),
-        Position.of(4, 4) -> Real(11.6797)
-      ).mapValues(Decaying(_, gamma)),
-      Decaying(0.0, gamma)
-    )
+  val expectedThreeFive = MapValueFunction(
+    Map(
+      Position.of(0, 0) -> Real(19.8896),
+      Position.of(0, 1) -> Real(24.4194),
+      Position.of(0, 2) -> Real(21.9774),
+      Position.of(0, 3) -> Real(19.4194),
+      Position.of(0, 4) -> Real(17.4774),
+      Position.of(1, 0) -> Real(19.7797),
+      Position.of(1, 1) -> Real(21.9774),
+      Position.of(1, 2) -> Real(19.7797),
+      Position.of(1, 3) -> Real(17.8017),
+      Position.of(1, 4) -> Real(16.0215),
+      Position.of(2, 0) -> Real(17.8017),
+      Position.of(2, 1) -> Real(19.7797),
+      Position.of(2, 2) -> Real(17.8017),
+      Position.of(2, 3) -> Real(16.0215),
+      Position.of(2, 4) -> Real(14.4194),
+      Position.of(3, 0) -> Real(16.0215),
+      Position.of(3, 1) -> Real(17.8017),
+      Position.of(3, 2) -> Real(16.0215),
+      Position.of(3, 3) -> Real(14.4194),
+      Position.of(3, 4) -> Real(12.9774),
+      Position.of(4, 0) -> Real(14.4194),
+      Position.of(4, 1) -> Real(16.0215),
+      Position.of(4, 2) -> Real(14.4194),
+      Position.of(4, 3) -> Real(12.9774),
+      Position.of(4, 4) -> Real(11.6797)
+    ).mapValues(Decaying(_, gamma)),
+    Decaying(0.0, gamma)
+  )
 
+  test("Figure 3.5's value function matches the gold set.") {
+    val (actual, _) = Chapter3.threeFive
+    assert(ValueFunction.diff(actual, expectedThreeFive, epsilon)(_.max(_)))
+  }
+
+  test("Figure 3.5's calculation matches the full categorical version") {
     val idToCat = Util.idToMonad[Categorical]
 
-    // I want to make a thing that can handle ID states... given something that
-    // can handle categorical states.
-    def cake[A, Obs]: Policy[Move, Position, Double, Categorical, Categorical] =
-      policy.Greedy
-        .Config[Double](0.0)
-        .stochastic(
-          value.Bellman[Position](Map.empty, value.Decaying(0.0, Chapter3.gamma))
-        )
+    // Empty value function to start.
+    val emptyFn = value.Bellman[Position](
+      Map.empty,
+      value.Decaying(0.0, Chapter3.gamma)
+    )
 
-    // def cake2[A, Obs]: Policy[Move, Position, Double, Categorical, cats.Id] =
-    //cake.foldK(FunctionK.id, idToCat, ???)
+    // Build a Stochastic version of the greedy policy.
+    val stochasticGreedy: CategoricalPolicy[Move, Position, Double, Categorical] =
+      policy.Greedy.Config[Double](0.0).stochastic(emptyFn)
 
-    // val (cake2, _) = ValueFunction.sweepUntil[Move, Position, Double, Categorical, Categorical](
-    //   policy.Greedy.Config[Double](0.0).policy(Chapter3.emptyFn).foldK(FunctionK.id, idToCat),
-    //   value.Bellman(Map.empty, value.Decaying(0.0, Chapter3.gamma)),
-    //   Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
-    //   Chapter3.shouldStop _,
-    //   inPlace = true
-    // )
+    val (actual, _) = ValueFunction.sweepUntil[Move, Position, Double, Categorical, Categorical](
+      stochasticGreedy,
+      emptyFn,
+      Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
+      Chapter3.shouldStop _,
+      inPlace = true
+    )
 
-    assert(ValueFunction.diff(actual, expected, epsilon)(_.max(_)))
+    assert(ValueFunction.diff(actual, expectedThreeFive, epsilon)(_.max(_)))
   }
 }

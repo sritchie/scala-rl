@@ -37,14 +37,14 @@ object Chapter3 {
     function instead here to get this working, to check that the maximum delta
     is less than epsilon.
     */
-  def valueFunctionConverged[Obs](
-      l: ValueFunction[Obs, Categorical, Id],
-      r: ValueFunction[Obs, Categorical, Id]
+  def valueFunctionConverged[Obs, M[_], S[_]](
+      l: ValueFunction[Obs, M, S],
+      r: ValueFunction[Obs, M, S]
   ): Boolean = ValueFunction.diff(l, r, epsilon)(_ + _)
 
-  def shouldStop[Obs](
-      l: ValueFunction[Obs, Categorical, Id],
-      r: ValueFunction[Obs, Categorical, Id],
+  def shouldStop[Obs, M[_], S[_]](
+      l: ValueFunction[Obs, M, S],
+      r: ValueFunction[Obs, M, S],
       iterations: Long
   ): Boolean =
     notConverging(iterations) || valueFunctionConverged(l, r)
