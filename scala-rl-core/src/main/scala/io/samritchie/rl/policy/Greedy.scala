@@ -34,6 +34,7 @@ abstract class AbstractGreedy[A, Obs, R: ToReal, S[_]](
     Returns the set of best actions from the state.
     */
   def greedyOptions(state: State[A, Obs, R, S]): Set[A]
+  def learnAll[O2 <: Obs](vf: ValueFunction[O2, Categorical, S]): Policy[A, O2, R, Categorical, S]
 
   private def greedy(state: State[A, Obs, R, S]): Categorical[A] =
     Categorical.fromSet {
@@ -50,11 +51,6 @@ abstract class AbstractGreedy[A, Obs, R: ToReal, S[_]](
   override def choose(state: State[A, Obs, R, S]): Categorical[A] =
     Monad[Categorical].ifM(explore)(allActions(state), greedy(state))
 
-  override def learnAll[O2 <: Obs](
-      vf: ValueFunction[O2, Categorical, S]
-  ): Policy[A, O2, R, Categorical, S] = new AbstractGreedy[A, Obs, R, S](config, valueFn) {
-    def greedyOptions(state: State[A, Obs, R, S]): Set[A] = self.greedyOptions(state)
-  }
 }
 
 class Greedy[A, Obs, R: ToReal](
@@ -63,6 +59,10 @@ class Greedy[A, Obs, R: ToReal](
 ) extends AbstractGreedy[A, Obs, R, Id](config, valueFn) {
   def greedyOptions(state: State[A, Obs, R, Id]): Set[A] =
     ValueFunction.greedyOptions(valueFn, state)
+
+  override def learnAll[O2 <: Obs](
+      vf: ValueFunction[O2, Categorical, Id]
+  ): Policy[A, O2, R, Categorical, Id] = new Greedy(config, vf)
 }
 
 class StochasticGreedy[A, Obs, R: ToReal](
@@ -71,6 +71,10 @@ class StochasticGreedy[A, Obs, R: ToReal](
 ) extends AbstractGreedy[A, Obs, R, Categorical](config, valueFn) {
   def greedyOptions(state: State[A, Obs, R, Categorical]): Set[A] =
     ValueFunction.greedyOptionsStochastic(valueFn, state, config.default)
+
+  override def learnAll[O2 <: Obs](
+      vf: ValueFunction[O2, Categorical, Categorical]
+  ): Policy[A, O2, R, Categorical, Categorical] = new StochasticGreedy(config, vf)
 }
 
 object Greedy {
