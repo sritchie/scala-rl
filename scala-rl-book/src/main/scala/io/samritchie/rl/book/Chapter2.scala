@@ -9,7 +9,7 @@ import com.stripe.rainier.sampler.RNG
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.state.Bandit
 import io.samritchie.rl.plot.Plot
-import io.samritchie.rl.policy.EpsilonGreedy
+import io.samritchie.rl.policy.bandit.EpsilonGreedy
 
 /**
   * Playing the game, currently. This is my test harness.

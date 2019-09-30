@@ -3,6 +3,7 @@
   */
 package io.samritchie.rl
 package policy
+package bandit
 
 import cats.Monad
 import com.stripe.rainier.core.Categorical

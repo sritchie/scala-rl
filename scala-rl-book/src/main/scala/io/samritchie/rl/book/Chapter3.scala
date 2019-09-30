@@ -30,7 +30,8 @@ object Chapter3 {
   val emptyFn = ValueFunction.decaying[Position](gamma)
   val zero = value.Decaying(0.0, gamma)
 
-  def notConverging(iterations: Long): Boolean = iterations >= allowedIterations
+  def notConverging(iterations: Long, allowed: Long): Boolean =
+    iterations >= allowed
 
   /**
     Note... this version, following the python code, checks that the sum of all
@@ -48,7 +49,8 @@ object Chapter3 {
       r: ValueFunction[Obs, M, S],
       iterations: Long
   ): Boolean =
-    notConverging(iterations) || valueFunctionConverged(l, r)
+    notConverging(iterations, allowedIterations) ||
+      valueFunctionConverged(l, r)
 
   def toTable(conf: GridWorld.Config, f: Position => Real): Iterable[Iterable[Real]] =
     Grid
@@ -59,10 +61,14 @@ object Chapter3 {
       .toSeq
       .map(_.toSeq)
 
-  def printFigure(pair: (ValueFunction[Position, Categorical, Id], Long), title: String): Unit = {
+  def printFigure(
+      conf: GridWorld.Config,
+      pair: (ValueFunction[Position, Categorical, Id], Long),
+      title: String
+  ): Unit = {
     val (valueFn, iterations) = pair
     println(s"${title}:")
-    println(Tabulator.format(toTable(gridConf, valueFn.stateValue(_).get)))
+    println(Tabulator.format(toTable(conf, valueFn.stateValue(_).get)))
     println(s"That took $iterations iterations, for the record.")
   }
 
@@ -96,7 +102,7 @@ object Chapter3 {
     * bits.
     */
   def main(items: Array[String]): Unit = {
-    printFigure(threeTwo, "Figure 3.2")
-    printFigure(threeFive, "Figure 3.5")
+    printFigure(gridConf, threeTwo, "Figure 3.2")
+    printFigure(gridConf, threeFive, "Figure 3.5")
   }
 }

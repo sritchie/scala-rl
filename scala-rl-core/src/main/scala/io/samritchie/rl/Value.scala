@@ -6,17 +6,17 @@ import com.stripe.rainier.compute.Real
 /**
   trait representing the value of some action or state.
   */
-trait Value[T] { l =>
-  def get: T
-  def plus(r: Value[T]): Value[T]
-  def from(pathValue: T): Value[T]
-  def weighted(r: Real): Value[T]
+trait Value[A] { self =>
+  def get: A
+  def plus(r: Value[A]): Value[A]
+  def from(pathValue: A): Value[A]
+  def weighted(r: Real): Value[A]
 }
 
 object Value {
-  implicit def valueOrd[T: Ordering]: Ordering[Value[T]] =
+  implicit def valueOrd[A: Ordering]: Ordering[Value[A]] =
     Ordering.by(_.get)
 
-  implicit def valueSemigroup[T]: Semigroup[Value[T]] =
+  implicit def valueSemigroup[A]: Semigroup[Value[A]] =
     Semigroup.instance(_.plus(_))
 }

@@ -5,6 +5,7 @@
   */
 package io.samritchie.rl
 package policy
+package bandit
 
 import com.twitter.algebird.Aggregator
 import com.stripe.rainier.core.Categorical

@@ -3,6 +3,7 @@
   */
 package io.samritchie.rl
 package policy
+package bandit
 
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
