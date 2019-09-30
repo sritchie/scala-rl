@@ -5,7 +5,7 @@ package io.samritchie.rl
 package policy
 
 import cats.Id
-import com.stripe.rainier.core.{Categorical, Generator}
+import com.stripe.rainier.core.Categorical
 
 /**
   * Random policy.
@@ -16,6 +16,6 @@ case class Random[A, R, S[_]]() extends CategoricalPolicy[A, Any, R, S] {
 }
 
 object Random {
-  def generator[A, R]: Random[A, R, Generator] = Random()
+  def categorical[A, R]: Random[A, R, Categorical] = Random()
   def id[A, R]: Random[A, R, Id] = Random()
 }
