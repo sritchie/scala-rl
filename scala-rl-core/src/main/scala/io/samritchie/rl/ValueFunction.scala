@@ -13,7 +13,6 @@ package io.samritchie.rl
 import cats.Id
 import cats.arrow.FunctionK
 import cats.kernel.Semigroup
-import com.stripe.rainier.cats.groupReal
 import com.stripe.rainier.compute.{Real, ToReal}
 import com.stripe.rainier.core.Categorical
 import Util.Instances.realOrd
@@ -26,7 +25,6 @@ import Util.Instances.realOrd
   */
 trait ValueFunction[Obs, M[_], S[_]] { self =>
   def seen: Iterable[Obs]
-
   def stateValue(obs: Obs): Value[Real]
 
   /**
@@ -127,6 +125,7 @@ object ValueFunction {
         )
     }
 
+  // Is there some way to make an ExpectedValue typeclass or something?
   def isPolicyStable[A, Obs, R: ToReal, M[_]](
       l: ValueFunction[Obs, M, Id],
       r: ValueFunction[Obs, M, Id],
@@ -137,29 +136,44 @@ object ValueFunction {
   def greedyOptions[A, Obs, R: ToReal, M[_]](
       valueFn: ValueFunction[Obs, M, Id],
       state: State[A, Obs, R, Id]
-  ): Set[A] = Util.allMaxBy[A, Real](state.actions) { a =>
+  ): Set[A] = Util.allMaxBy[A, Value[Real]](state.actions) { a =>
     val (reward, newState) = state.dynamics(a)
-    valueFn.stateValue(newState.observation).from(ToReal(reward)).get
+    valueFn.stateValue(newState.observation).from(ToReal(reward))
   }
 
+  // Something is going on here... this is a way of evaluating the best options
+  // available from the state. But the evaluation of options DEFINITELY has to
+  // be shared with the Bellman implementation, or the MapValueFunction. How can
+  // we collapse it all down and share some code?
   def greedyOptionsStochastic[A, Obs, R: ToReal, M[_]](
       valueFn: ValueFunction[Obs, M, Categorical],
-      state: State[A, Obs, R, Categorical]
-  ): Set[A] = Util.allMaxBy[A, Real](state.actions) { a =>
-    Semigroup[Real]
+      state: State[A, Obs, R, Categorical],
+      default: Value[Real]
+  ): Set[A] = Util.allMaxBy[A, Value[Real]](state.actions) { a =>
+    actionValue(valueFn, state, a, default)
+  }
+
+  /**
+    This returns the value of the action, given categorical dynamics of the
+    state.
+    */
+  def actionValue[A, Obs, R: ToReal, M[_]](
+      valueFn: ValueFunction[Obs, M, Categorical],
+      state: State[A, Obs, R, Categorical],
+      action: A,
+      default: Value[Real]
+  ): Value[Real] =
+    Semigroup[Value[Real]]
       .combineAllOption(
-        state.dynamics(a).pmf.toList.map {
+        state.dynamics(action).pmf.toList.map {
           case ((reward, newState), weight) =>
             valueFn
               .stateValue(newState.observation)
               .from(ToReal(reward))
               .weighted(weight)
-              .get
-
         }
       )
-      .getOrElse(Real.negInfinity)
-  }
+      .getOrElse(default)
 
   /**
     Helper to tell if we can stop iterating. The combine function is used to

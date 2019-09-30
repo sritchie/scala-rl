@@ -42,17 +42,13 @@ case class Bellman[Obs](
       policy: CategoricalPolicy[A, Obs, R, Categorical]
   ): Value[Real] = {
     val pmf = policy.choose(state).pmf
-    val dynamics = state.dynamics
     Semigroup[Value[Real]]
       .combineAllOption(
-        for {
-          action <- state.actions.toList
-          ((reward, newState), weight) <- dynamics(action).pmf.toList
-        } yield {
+        state.actions.toList.map { action =>
           val policyWeight = pmf.getOrElse(action, Real.zero)
-          stateValue(newState.observation)
-            .from(ToReal(reward))
-            .weighted(policyWeight * weight)
+          ValueFunction
+            .actionValue(this, state, action, default)
+            .weighted(policyWeight)
         }
       )
       .getOrElse(default)

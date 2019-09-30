@@ -28,6 +28,7 @@ object Chapter3 {
   val epsilon: Double = 1e-4
   val gamma: Double = 0.9
   val emptyFn = ValueFunction.decaying[Position](gamma)
+  val zero = value.Decaying(0.0, gamma)
 
   def notConverging(iterations: Long): Boolean = iterations >= allowedIterations
 
@@ -83,7 +84,7 @@ object Chapter3 {
     */
   def threeFive: (ValueFunction[Position, Categorical, Id], Long) =
     ValueFunction.sweepUntil[Move, Position, Double, Categorical, Id](
-      Greedy.Config[Double](0.0).policy(emptyFn),
+      Greedy.Config[Double](0.0, value.Decaying(Real.negInfinity, gamma)).id(emptyFn),
       emptyFn,
       gridConf.stateSweep,
       shouldStop _,

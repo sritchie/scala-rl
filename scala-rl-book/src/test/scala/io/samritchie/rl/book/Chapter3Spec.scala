@@ -16,6 +16,7 @@ class Chapter3Spec extends FunSuite {
 
   val gamma = 0.9
   val epsilon = 1e-4
+  val zeroValue = Decaying(0.0, gamma)
 
   test("Figure 3.2's value function matches the gold set") {
     val (actual, _) = Chapter3.threeTwo
@@ -47,7 +48,7 @@ class Chapter3Spec extends FunSuite {
         Position.of(4, 3) -> Real(-1.4229),
         Position.of(4, 4) -> Real(-1.9751)
       ).mapValues(Decaying(_, gamma)),
-      Decaying(0.0, gamma)
+      zeroValue
     )
 
     assert(ValueFunction.diff(actual, expected, epsilon)(_.max(_)))
@@ -81,7 +82,7 @@ class Chapter3Spec extends FunSuite {
       Position.of(4, 3) -> Real(12.9774),
       Position.of(4, 4) -> Real(11.6797)
     ).mapValues(Decaying(_, gamma)),
-    Decaying(0.0, gamma)
+    zeroValue
   )
 
   test("Figure 3.5's value function matches the gold set.") {
@@ -93,14 +94,11 @@ class Chapter3Spec extends FunSuite {
     val idToCat = Util.idToMonad[Categorical]
 
     // Empty value function to start.
-    val emptyFn = value.Bellman[Position](
-      Map.empty,
-      value.Decaying(0.0, Chapter3.gamma)
-    )
+    val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
 
     // Build a Stochastic version of the greedy policy.
     val stochasticGreedy: CategoricalPolicy[Move, Position, Double, Categorical] =
-      policy.Greedy.Config[Double](0.0).stochastic(emptyFn)
+      policy.Greedy.Config[Double](0.0, zeroValue).stochastic(emptyFn)
 
     val (actual, _) = ValueFunction.sweepUntil[Move, Position, Double, Categorical, Categorical](
       stochasticGreedy,
