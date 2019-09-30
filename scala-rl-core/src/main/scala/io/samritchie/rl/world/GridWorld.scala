@@ -6,6 +6,7 @@
 package io.samritchie.rl
 package world
 
+import cats.Id
 import io.samritchie.rl.util.Grid
 import scala.util.{Success, Try}
 
@@ -35,10 +36,18 @@ object GridWorld {
       bounds: Bounds,
       default: Double = 0.0,
       penalty: Double = -1.0,
-      jumps: Jumps = Jumps.empty
+      jumps: Jumps = Jumps.empty,
+      values: Map[Grid.Position, Double] = Map.empty,
+      terminalStates: Set[Grid.Position] = Set.empty
   ) {
     def withJump(from: Position, to: Position, reward: Double): Config =
       copy(jumps = jumps.and(from, to, reward))
+
+    def withValue(position: Position, value: Double): Config =
+      copy(values = values.updated(position, value))
+
+    def withTerminalState(position: Position, value: Double = default): Config =
+      copy(values = values.updated(position, value), terminalStates = terminalStates + position)
 
     /**
       * Build by projecting a row or column outside of the specified
@@ -51,7 +60,7 @@ object GridWorld {
       * Build, assuming that everything is legit!
       */
     def buildUnsafe(start: Position): GridWorld =
-      GridWorld(Grid(start, bounds), default, penalty, jumps)
+      GridWorld(Grid(start, bounds), default, penalty, jumps, values, terminalStates)
 
     /**
       * Returns a Try that's successful if supplied position is within
@@ -62,7 +71,7 @@ object GridWorld {
 
     def stateSweep: Traversable[GridWorld] =
       Grid.allStates(bounds).map {
-        GridWorld(_, default, penalty, jumps)
+        GridWorld(_, default, penalty, jumps, values, terminalStates)
       }
   }
 }
@@ -76,14 +85,22 @@ case class GridWorld(
     grid: Grid,
     defaultReward: Double,
     penalty: Double,
-    jumps: GridWorld.Jumps
+    jumps: GridWorld.Jumps,
+    values: Map[Grid.Position, Double],
+    terminalStates: Set[Grid.Position]
 ) extends State[Grid.Move, Grid.Position, Double, Id] {
   import Grid.{Move, Position}
 
   val observation: Position = grid.position
 
-  def dynamics[O2 >: Grid.Position]: Map[Move, Id[(Double, State[Move, O2, Double, Id])]] =
-    Util.makeMap(Grid.Move.all)(m => Id(actNow(m)))
+  def dynamics[O2 >: Grid.Position]: Map[Move, (Double, State[Move, O2, Double, Id])] =
+    if (terminalStates(grid.position))
+      Map.empty
+    else
+      Util.makeMap(Grid.Move.all)(m => actNow(m))
+
+  private def positionValue(position: Position): Double =
+    values.getOrElse(position, defaultReward)
 
   /**
     * This is the NON-monadic action, since we can do it
@@ -93,12 +110,12 @@ case class GridWorld(
     * CAN look ahead, and don't hide it behind a delay, then boom, we
     * have the ability to do the checkers example.
     */
-  def actNow(move: Move): (Double, State[Move, Position, Double, Id]) =
+  private def actNow(move: Move): (Double, State[Move, Position, Double, Id]) =
     jumps.get(grid.position) match {
       case None =>
         grid
           .move(move)
-          .map(g => (defaultReward, copy(grid = g)))
+          .map(g => (positionValue(g.position), copy(grid = g)))
           .getOrElse((penalty, this))
       case Some((newPosition, reward)) =>
         (reward, copy(grid = grid.teleportUnsafe(newPosition)))

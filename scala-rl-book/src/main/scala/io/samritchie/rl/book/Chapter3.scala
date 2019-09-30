@@ -1,15 +1,20 @@
+/**
+  This chapter plays a couple of gridworld games. Current goal is to get this
+  all building, and printing nicely.
+
+  This chapter introduces the idea of the Markov Decision Process.
+  */
 package io.samritchie.rl
 package book
 
+import cats.Id
 import com.stripe.rainier.compute.Real
+import com.stripe.rainier.core.Categorical
+import io.samritchie.rl.plot.Tabulator
 import io.samritchie.rl.policy.{Greedy, Random}
-import io.samritchie.rl.util.{Grid, Tabulator}
+import io.samritchie.rl.util.Grid
 import io.samritchie.rl.world.GridWorld
 
-/**
-  * This chapter plays a couple of gridworld games. Current goal is to get this
-  * all building, and printing nicely.
-  */
 object Chapter3 {
   import io.samritchie.rl.util.Grid.{Bounds, Move, Position}
 
@@ -23,37 +28,27 @@ object Chapter3 {
   val epsilon: Double = 1e-4
   val gamma: Double = 0.9
   val emptyFn = ValueFunction.decaying[Position](gamma)
+  val zero = value.Decaying(0.0, gamma)
 
-  def hasConverged[Obs](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs],
+  def notConverging(iterations: Long): Boolean = iterations >= allowedIterations
+
+  /**
+    Note... this version, following the python code, checks that the sum of all
+    differences is less than epsilon. In the next chapter we use the max
+    function instead here to get this working, to check that the maximum delta
+    is less than epsilon.
+    */
+  def valueFunctionConverged[Obs, M[_], S[_]](
+      l: ValueFunction[Obs, M, S],
+      r: ValueFunction[Obs, M, S]
+  ): Boolean = ValueFunction.diff(l, r, epsilon)(_ + _)
+
+  def shouldStop[Obs, M[_], S[_]](
+      l: ValueFunction[Obs, M, S],
+      r: ValueFunction[Obs, M, S],
       iterations: Long
   ): Boolean =
-    (iterations >= allowedIterations) ||
-      ValueFunction.valuesWithin(l, r, epsilon)
-
-  /**
-    * This is Figure 3.2, with proper stopping conditions and
-    * everything. Lots of work to go.
-    *   */
-  def figureThreeTwo: (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double](
-      Random.id[Move, Double],
-      emptyFn,
-      gridConf.stateSweep,
-      hasConverged _
-    )
-
-  /**
-    * This is Figure 3.5. This is currently working!
-    */
-  def figureThreeFive: (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double](
-      Greedy[Move, Position, Double](emptyFn),
-      emptyFn,
-      gridConf.stateSweep,
-      hasConverged _
-    )
+    notConverging(iterations) || valueFunctionConverged(l, r)
 
   def toTable(conf: GridWorld.Config, f: Position => Real): Iterable[Iterable[Real]] =
     Grid
@@ -64,25 +59,44 @@ object Chapter3 {
       .toSeq
       .map(_.toSeq)
 
+  def printFigure(pair: (ValueFunction[Position, Categorical, Id], Long), title: String): Unit = {
+    val (valueFn, iterations) = pair
+    println(s"${title}:")
+    println(Tabulator.format(toTable(gridConf, valueFn.stateValue(_).get)))
+    println(s"That took $iterations iterations, for the record.")
+  }
+
   /**
-    * Obviously horrible, just getting it working for now.
-    *
+    * This is Figure 3.2, with proper stopping conditions and
+    * everything. Lots of work to go.
+    *   */
+  def threeTwo: (ValueFunction[Position, Categorical, Id], Long) =
+    ValueFunction.sweepUntil(
+      Random.id[Move, Double],
+      emptyFn,
+      gridConf.stateSweep,
+      shouldStop _,
+      inPlace = true
+    )
+
+  /**
+    * This is Figure 3.5. This is currently working!
+    */
+  def threeFive: (ValueFunction[Position, Categorical, Id], Long) =
+    ValueFunction.sweepUntil[Move, Position, Double, Categorical, Id](
+      Greedy.Config[Double](0.0, value.Decaying(Real.negInfinity, gamma)).id(emptyFn),
+      emptyFn,
+      gridConf.stateSweep,
+      shouldStop _,
+      inPlace = true
+    )
+
+  /**
     * This currently works, and displays rough tables for each of the required
     * bits.
     */
   def main(items: Array[String]): Unit = {
-    val (threeTwo, iter) = figureThreeTwo
-
-    // Display stats for threeTwo...
-    println("Figure 3.2:")
-    println(Tabulator.format(toTable(gridConf, threeTwo.stateValue(_).get)))
-    println(s"That took $iter iterations, for the record.")
-
-    val (threeFive, iter2) = figureThreeFive
-
-    // Display stats for threeFive...
-    println("Figure 3.5:")
-    println(Tabulator.format(toTable(gridConf, threeFive.stateValue(_).get)))
-    println(s"That took $iter2 iterations, for the record.")
+    printFigure(threeTwo, "Figure 3.2")
+    printFigure(threeFive, "Figure 3.5")
   }
 }

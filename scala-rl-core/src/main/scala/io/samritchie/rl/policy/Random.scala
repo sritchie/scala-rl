@@ -4,6 +4,7 @@
 package io.samritchie.rl
 package policy
 
+import cats.Id
 import com.stripe.rainier.core.{Categorical, Generator}
 
 /**

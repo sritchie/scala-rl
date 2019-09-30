@@ -30,20 +30,21 @@ trait Policy[A, -Obs, R, M[_], S[_]] { self =>
 
     By default this just returns itself, no learning happening.
     */
-  def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, M, S] = this
-  def learnAll[O2 <: Obs](vf: ValueFunction[O2]): Policy[A, O2, R, M, S] = this
+  def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, M, S] = self
+  def learnAll[O2 <: Obs](vf: ValueFunction[O2, M, S]): Policy[A, O2, R, M, S] = self
 
   /**
     * Just an idea to see if I can make stochastic deciders out of
     * deterministic deciders. We'll see how this develops.
     */
-  def mapK[N[_]](f: FunctionK[M, N]): Policy[A, Obs, R, N, S] = new Policy[A, Obs, R, N, S] {
-    def choose(state: State[A, Obs, R, S]): N[A] = f(self.choose(state))
-    override def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, N, S] =
-      self.learn(state, action, reward).mapK(f)
-
-    // TODO FIX THIS OVERRIDE learnAll
-  }
+  def mapK[N[_]](f: FunctionK[M, N]): Policy[A, Obs, R, N, S] =
+    new Policy[A, Obs, R, N, S] {
+      def choose(state: State[A, Obs, R, S]): N[A] = f(self.choose(state))
+      override def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, N, S] =
+        self.learn(state, action, reward).mapK(f)
+      override def learnAll[O2 <: Obs](vf: ValueFunction[O2, N, S]): Policy[A, O2, R, N, S] =
+        self.learnAll(vf.contramapK(f)).mapK(f)
+    }
 }
 
 object Policy {

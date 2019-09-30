@@ -1,5 +1,5 @@
 package io.samritchie.rl
-package util
+package plot
 
 /**
   * Shamelessly copied from:

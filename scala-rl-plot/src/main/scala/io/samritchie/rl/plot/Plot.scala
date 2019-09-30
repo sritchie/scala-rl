@@ -11,6 +11,7 @@
   * https://www.cibotechnologies.com/about/blog/scalastan-and-evilplot-bayesian-statistics-meets-combinator-based-visualization/
   */
 package io.samritchie.rl
+package plot
 
 import com.cibo.evilplot.plot.aesthetics.Theme
 import com.cibo.evilplot.colors.{HTMLNamedColors, RGB}

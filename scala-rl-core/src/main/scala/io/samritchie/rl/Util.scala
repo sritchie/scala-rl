@@ -3,7 +3,7 @@
   */
 package io.samritchie.rl
 
-import cats.{Eq, Monad}
+import cats.{Comonad, Eq, Id, Monad}
 import cats.arrow.FunctionK
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import com.stripe.rainier.cats._
@@ -59,10 +59,12 @@ object Util {
       case Some(v) => Semigroup.plus[V](v, delta)
     }
 
-  def allMaxBy[A, B: Ordering](as: Set[A])(f: A => B): Set[A] = {
-    val maxB = f(as.maxBy(f))
-    as.filter(a => Ordering[B].equiv(maxB, f(a)))
-  }
+  def allMaxBy[A, B: Ordering](as: Set[A])(f: A => B): Set[A] =
+    if (as.isEmpty) Set.empty
+    else {
+      val maxB = f(as.maxBy(f))
+      as.filter(a => Ordering[B].equiv(maxB, f(a)))
+    }
 
   def softmax[A, B](m: Map[A, Real]): Categorical[A] =
     Categorical.normalize(m.mapValues(_.exp))
@@ -92,9 +94,15 @@ object Util {
       case Right(b) => b
     }
 
-  def diff[A](as: TraversableOnce[A], lf: A => Real, rf: A => Real): Real =
+  /**
+    Accumulates differences between the two for every A in the supplied
+    sequence. The combine function is used to aggregate the differences.
+
+    I recommend using max or +.
+    */
+  def diff[A](as: TraversableOnce[A], lf: A => Real, rf: A => Real, combine: (Real, Real) => Real): Real =
     as.foldLeft(Real.zero) { (acc, k) =>
-      acc + (lf(k) - rf(k)).abs
+      combine(acc, (lf(k) - rf(k)).abs)
     }
 
   /**
@@ -103,5 +111,15 @@ object Util {
   val categoricalToGen: FunctionK[Categorical, Generator] =
     new FunctionK[Categorical, Generator] {
       def apply[A](ca: Categorical[A]): Generator[A] = ca.generator
+    }
+
+  def idToMonad[M[_]](implicit M: Monad[M]): FunctionK[Id, M] =
+    new FunctionK[Id, M] {
+      def apply[A](a: A): M[A] = M.pure(a)
+    }
+
+  def mfk[M[_], N[_]](implicit M: Comonad[M], N: Monad[N]): FunctionK[M, N] =
+    new FunctionK[M, N] {
+      def apply[A](ma: M[A]): N[A] = N.pure(M.extract(ma))
     }
 }
