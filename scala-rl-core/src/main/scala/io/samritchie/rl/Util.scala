@@ -8,12 +8,28 @@ import cats.arrow.FunctionK
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import com.stripe.rainier.cats._
 import com.stripe.rainier.compute.{Real, ToReal}
-import com.stripe.rainier.core.{Categorical, Generator}
+import com.stripe.rainier.core.{Categorical, Combinatorics, Generator}
 
 import scala.annotation.tailrec
 import scala.language.higherKinds
 
 object Util {
+  object Poisson {
+    case class Lambda(value: Real) extends AnyVal
+
+    def logProbability(k: Int, lambda: Real): Real =
+      -lambda + lambda.log * k - Combinatorics.gamma(k + 1.0)
+
+    def probability(k: Int, lambda: Real): Real =
+      logProbability(k, lambda).exp
+
+    def categorical(upperBound: Int, mean: Lambda): Categorical[Int] =
+      Categorical
+        .normalize(
+          Util.makeMapUnsafe((0 until upperBound))(probability(_, mean.value))
+        )
+  }
+
   def prepareMonoid[A, B: Monoid: ToReal](
       prepare: A => B
   ): MonoidAggregator[A, B, Real] =
@@ -44,7 +60,8 @@ object Util {
         m.updated(k, f(k).getOrElse(default))
     }
 
-  def makeMap[K, V](keys: Set[K])(f: K => V): Map[K, V] =
+  def makeMap[K, V](keys: Set[K])(f: K => V): Map[K, V] = makeMapUnsafe(keys)(f)
+  def makeMapUnsafe[K, V](keys: TraversableOnce[K])(f: K => V): Map[K, V] =
     keys.foldLeft(Map.empty[K, V]) {
       case (m, k) =>
         m.updated(k, f(k))
