@@ -12,9 +12,7 @@
 package io.samritchie.rl
 package value
 
-import cats.kernel.Semigroup
-import com.stripe.rainier.compute.{Real, ToReal}
-import com.stripe.rainier.core.Categorical
+import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 /**
   This implements policy evaluation, NO update for the policy itself. And I
@@ -28,39 +26,35 @@ import com.stripe.rainier.core.Categorical
   If you DO know those things, this will give you the value of the current
   state.
   */
-case class Bellman[Obs](
-    m: Map[Obs, Value[Real]],
-    default: Value[Real]
-) extends ValueFunction[Obs, Categorical, Categorical] {
+case class Bellman[Obs, M[_]: ExpectedValue, S[_]: ExpectedValue](
+    m: Map[Obs, Value[Double]],
+    default: Value[Double]
+) extends ValueFunction[Obs, M, S] {
   def seen: Iterable[Obs] = m.keys
 
-  override def stateValue(obs: Obs): Value[Real] =
+  override def stateValue(obs: Obs): Value[Double] =
     m.getOrElse(obs, default)
 
-  override def evaluate[A, R: ToReal](
-      state: State[A, Obs, R, Categorical],
-      policy: CategoricalPolicy[A, Obs, R, Categorical]
-  ): Value[Real] = {
-    val pmf = policy.choose(state).pmf
-    Semigroup[Value[Real]]
-      .combineAllOption(
-        state.actions.toList.map { action =>
-          val policyWeight = pmf.getOrElse(action, Real.zero)
-          ValueFunction
-            .actionValue(this, state, action, default)
-            .weighted(policyWeight)
-        }
-      )
-      .getOrElse(default)
-  }
+  // TODO... should this move to the trait? Is anyone ever going to implement
+  // this differently? And how about the other methods?
+  override def evaluate[A, R: ToDouble](
+      state: State[A, Obs, R, S],
+      policy: Policy[A, Obs, R, M, S]
+  ): Value[Double] =
+    ValueFunction.expectedActionValue(
+      this,
+      policy.choose(state),
+      (a: A) => state.dynamics(a),
+      default
+    )
 
   /**
     This is currently an 'expected update', because it's using expectations vs any
     sampling.
     */
-  override def update[A, R: ToReal](
-      state: State[A, Obs, R, Categorical],
-      value: Value[Real]
-  ): ValueFunction[Obs, Categorical, Categorical] =
+  override def update[A, R](
+      state: State[A, Obs, R, S],
+      value: Value[Double]
+  ): ValueFunction[Obs, M, S] =
     copy(m = m.updated(state.observation, value))
 }

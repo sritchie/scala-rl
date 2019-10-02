@@ -15,9 +15,4 @@ case class LearningGate[T, A, -Obs, R, M[_], S[_]](
       case Left(t)  => LearningGate(policy, t, gateFn)
       case Right(t) => LearningGate(policy.learn(state, action, reward), t, gateFn)
     }
-
-  override def learnAll[O2 <: Obs](vf: ValueFunction[O2, M, S]): Policy[A, O2, R, M, S] = gateFn(gate) match {
-    case Left(t)  => LearningGate(policy, t, gateFn)
-    case Right(t) => LearningGate(policy.learnAll(vf), t, gateFn)
-  }
 }

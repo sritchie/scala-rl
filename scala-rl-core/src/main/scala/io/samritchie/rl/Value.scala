@@ -1,22 +1,22 @@
 package io.samritchie.rl
 
 import cats.kernel.Semigroup
-import com.stripe.rainier.compute.Real
+import scala.{specialized => sp}
 
 /**
   trait representing the value of some action or state.
   */
-trait Value[T] { l =>
-  def get: T
-  def plus(r: Value[T]): Value[T]
-  def from(pathValue: T): Value[T]
-  def weighted(r: Real): Value[T]
+trait Value[@sp(Int, Long, Float, Double) A] extends Any with Serializable { self =>
+  def get: A
+  def plus(r: Value[A]): Value[A]
+  def from(pathValue: A): Value[A]
+  def weighted(r: Double): Value[A]
 }
 
 object Value {
-  implicit def valueOrd[T: Ordering]: Ordering[Value[T]] =
+  implicit def valueOrd[A: Ordering]: Ordering[Value[A]] =
     Ordering.by(_.get)
 
-  implicit def valueSemigroup[T]: Semigroup[Value[T]] =
+  implicit def valueSemigroup[A]: Semigroup[Value[A]] =
     Semigroup.instance(_.plus(_))
 }

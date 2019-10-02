@@ -7,6 +7,8 @@ import com.twitter.algebird.Monoid
   * Exponential recency-weighted average. This is similar to a
   * weighted average, but instead of weighting by the count, it uses a
   * constant weighting factor.
+
+  TODO consider changing Numeric to ToDouble?
   */
 case class ConstantStep(value: Double, time: Time) extends Ordered[ConstantStep] {
   import ConstantStep.{Alpha, Epsilon}

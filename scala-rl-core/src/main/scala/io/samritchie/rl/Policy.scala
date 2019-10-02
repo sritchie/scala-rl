@@ -21,7 +21,7 @@ import scala.language.higherKinds
   * M - the monadic type offered by the policy.
   * S - the monad for the state.
   */
-trait Policy[A, -Obs, R, M[_], S[_]] { self =>
+trait Policy[A, -Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { self =>
   def choose(state: State[A, Obs, R, S]): M[A]
 
   /**
@@ -31,7 +31,6 @@ trait Policy[A, -Obs, R, M[_], S[_]] { self =>
     By default this just returns itself, no learning happening.
     */
   def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, M, S] = self
-  def learnAll[O2 <: Obs](vf: ValueFunction[O2, M, S]): Policy[A, O2, R, M, S] = self
 
   /**
     * Just an idea to see if I can make stochastic deciders out of
@@ -42,8 +41,6 @@ trait Policy[A, -Obs, R, M[_], S[_]] { self =>
       def choose(state: State[A, Obs, R, S]): N[A] = f(self.choose(state))
       override def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, N, S] =
         self.learn(state, action, reward).mapK(f)
-      override def learnAll[O2 <: Obs](vf: ValueFunction[O2, N, S]): Policy[A, O2, R, N, S] =
-        self.learnAll(vf.contramapK(f)).mapK(f)
     }
 }
 

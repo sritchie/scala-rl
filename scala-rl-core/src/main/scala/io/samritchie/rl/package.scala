@@ -1,7 +1,7 @@
 package io.samritchie
 
 import cats.Id
-import com.stripe.rainier.core.{Categorical, Generator}
+import com.stripe.rainier.core.Generator
 
 package object rl {
 
@@ -12,5 +12,5 @@ package object rl {
   type StochasticState[A, +Obs, Reward] = State[A, Obs, Reward, Generator]
   type NowState[A, +Obs, Reward] = State[A, Obs, Reward, Id]
 
-  type CategoricalPolicy[A, -Obs, R, S[_]] = Policy[A, Obs, R, Categorical, S]
+  type CategoricalPolicy[A, -Obs, R, S[_]] = Policy[A, Obs, R, Cat, S]
 }

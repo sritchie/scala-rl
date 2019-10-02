@@ -3,36 +3,26 @@
   */
 package io.samritchie.rl
 
-import cats.{Comonad, Eq, Id, Monad}
+import cats.{Comonad, Id, Monad}
 import cats.arrow.FunctionK
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
-import com.stripe.rainier.cats._
-import com.stripe.rainier.compute.{Real, ToReal}
-import com.stripe.rainier.core.{Categorical, Generator}
+import io.samritchie.rl.util.ToDouble
 
 import scala.annotation.tailrec
 import scala.language.higherKinds
 
 object Util {
-  def prepareMonoid[A, B: Monoid: ToReal](
+  def prepareMonoid[A, B: Monoid: ToDouble](
       prepare: A => B
-  ): MonoidAggregator[A, B, Real] =
-    Aggregator.prepareMonoid(prepare).andThenPresent(ToReal(_))
+  ): MonoidAggregator[A, B, Double] =
+    Aggregator.prepareMonoid(prepare).andThenPresent(ToDouble[B].apply(_))
 
   object Instances {
     implicit val averageValueOrd: Ordering[AveragedValue] =
       Ordering.by(_.value)
 
-    implicit val avToReal: ToReal[AveragedValue] =
-      implicitly[ToReal[Double]].contramap(_.value)
-
-    implicit val realOrd: Ordering[Real] =
-      Ordering.fromLessThan { (l, r) =>
-        Eq[Real].eqv(
-          Real.lt(l, r, Real.zero, Real.one),
-          Real.zero
-        )
-      }
+    implicit val avToDouble: ToDouble[AveragedValue] =
+      ToDouble.instance(_.value)
   }
 
   def confine[A](a: A, min: A, max: A)(implicit ord: Ordering[A]): A =
@@ -44,7 +34,8 @@ object Util {
         m.updated(k, f(k).getOrElse(default))
     }
 
-  def makeMap[K, V](keys: Set[K])(f: K => V): Map[K, V] =
+  def makeMap[K, V](keys: Set[K])(f: K => V): Map[K, V] = makeMapUnsafe(keys)(f)
+  def makeMapUnsafe[K, V](keys: TraversableOnce[K])(f: K => V): Map[K, V] =
     keys.foldLeft(Map.empty[K, V]) {
       case (m, k) =>
         m.updated(k, f(k))
@@ -65,18 +56,6 @@ object Util {
       val maxB = f(as.maxBy(f))
       as.filter(a => Ordering[B].equiv(maxB, f(a)))
     }
-
-  def softmax[A, B](m: Map[A, Real]): Categorical[A] =
-    Categorical.normalize(m.mapValues(_.exp))
-
-  def softmax[A: ToReal](as: Set[A]): Categorical[A] = {
-    val (pmf, sum) = as.foldLeft((Map.empty[A, Real], Real.zero)) {
-      case ((m, r), a) =>
-        val realExp = ToReal(a).exp
-        (m.updated(a, realExp), r + realExp)
-    }
-    Categorical.normalize(pmf.mapValues(_ / sum))
-  }
 
   def iterateM[F[_]: Monad, A](n: Int)(a: A)(f: A => F[A]): F[A] =
     Monad[F].tailRecM[Tuple2[Int, A], A]((n, a)) {
@@ -100,19 +79,19 @@ object Util {
 
     I recommend using max or +.
     */
-  def diff[A](as: TraversableOnce[A], lf: A => Real, rf: A => Real, combine: (Real, Real) => Real): Real =
-    as.foldLeft(Real.zero) { (acc, k) =>
+  def diff[A](
+      as: TraversableOnce[A],
+      lf: A => Double,
+      rf: A => Double,
+      combine: (Double, Double) => Double
+  ): Double =
+    as.foldLeft(0.0) { (acc, k) =>
       combine(acc, (lf(k) - rf(k)).abs)
     }
 
   /**
     Cats helpers.
     */
-  val categoricalToGen: FunctionK[Categorical, Generator] =
-    new FunctionK[Categorical, Generator] {
-      def apply[A](ca: Categorical[A]): Generator[A] = ca.generator
-    }
-
   def idToMonad[M[_]](implicit M: Monad[M]): FunctionK[Id, M] =
     new FunctionK[Id, M] {
       def apply[A](a: A): M[A] = M.pure(a)

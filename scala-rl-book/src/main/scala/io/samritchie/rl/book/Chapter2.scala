@@ -9,7 +9,7 @@ import com.stripe.rainier.sampler.RNG
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.state.Bandit
 import io.samritchie.rl.plot.Plot
-import io.samritchie.rl.policy.EpsilonGreedy
+import io.samritchie.rl.policy.bandit.EpsilonGreedy
 
 /**
   * Playing the game, currently. This is my test harness.
@@ -93,7 +93,7 @@ object Chapter2 {
 
   def play(policy: CategoricalPolicy[Arm, Any, Double, Generator]): List[Double] =
     playBandit(
-      policy.mapK(Util.categoricalToGen),
+      policy.mapK(Cat.catToGenerator),
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,
       timeSteps = 1000,
