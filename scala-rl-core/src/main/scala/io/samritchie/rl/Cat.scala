@@ -14,42 +14,50 @@ import scala.collection.immutable.Queue
 /**
   * A finite discrete distribution.
   *
-  * @param pmf A map with keys corresponding to the possible outcomes and values
-  * corresponding to the probabilities of those outcomes
+  * @param pmfSeq A map with keys corresponding to the possible outcomes and
+  * values corresponding to the probabilities of those outcomes.
   */
-final case class Cat[T](pmf: Map[T, Double]) {
+final case class Cat[+T](pmfSeq: List[(T, Double)]) {
+  def pmf[U >: T]: Map[U, Double] = pmfSeq.toMap
+
   def map[U](fn: T => U): Cat[U] =
     Cat(
-      pmf.foldLeft(Map.empty[U, Double]) {
-        case (acc, (t, p)) =>
-          Util.mergeV(acc, fn(t), p)
-      }
+      pmfSeq
+        .foldLeft(Map.empty[U, Double]) {
+          case (acc, (t, p)) =>
+            Util.mergeV(acc, fn(t), p)
+        }
+        .toList
     )
 
   def flatMap[U](fn: T => Cat[U]): Cat[U] =
     Cat(
       (for {
-        (t, p) <- pmf.iterator
-        (u, p2) <- fn(t).pmf.iterator
-      } yield (u, p * p2)).foldLeft(Map.empty[U, Double]) {
-        case (acc, (u, p)) =>
-          Util.mergeV(acc, u, p)
-      }
+        (t, p) <- pmfSeq
+        (u, p2) <- fn(t).pmfSeq
+      } yield (u, p * p2))
+        .foldLeft(Map.empty[U, Double]) {
+          case (acc, (u, p)) =>
+            Util.mergeV(acc, u, p)
+        }
+        .toList
     )
 
   def zip[U](other: Cat[U]): Cat[(T, U)] =
     Cat(
       for {
-        (t, p) <- pmf
-        (u, p2) <- other.pmf
+        (t, p) <- pmfSeq
+        (u, p2) <- other.pmfSeq
       } yield ((t, u), p * p2)
     )
 
-  def toRainier: Categorical[T] =
-    Categorical.normalize(pmf.mapValues(Real(_)))
+  def toRainier[U >: T]: Categorical[U] =
+    Categorical.normalize(pmf[U].mapValues(Real(_)))
 }
 
 object Cat extends CatInstances {
+  def apply[T](pmf: Map[T, Double]): Cat[T] = Cat(pmf.toList)
+
   object Poisson {
     case class Lambda(value: Double) extends AnyVal
 
@@ -110,7 +118,7 @@ trait CatInstances {
       def get[A](a: Cat[A], default: Double)(f: A => Double): Double =
         Semigroup[Double]
           .combineAllOption(
-            a.pmf.iterator.map {
+            a.pmfSeq.map {
               case (a, weight) => f(a) * weight
             }
           )
@@ -149,12 +157,12 @@ private[rl] object CatMonad extends Monad[Cat] {
       else {
         queue.head match {
           case (Left(a), v) =>
-            run(acc, queue.tail ++ f(a).pmf.mapValues(_ * v))
+            run(acc, queue.tail ++ f(a).pmfSeq.map { case (eab, d) => (eab, d * v) })
           case (Right(b), v) =>
             run(Util.mergeV(acc, b, v), queue.tail)
         }
       }
-    val pmf = run(Map.empty, f(a).pmf.to[Queue])
+    val pmf = run(Map.empty, f(a).pmfSeq.to[Queue])
     Cat[B](pmf)
   }
 }

@@ -78,13 +78,30 @@ object Chapter4 {
     // Build a Stochastic version of the greedy policy.
     val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
 
-    ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    // This simulates a version that does NOT update itself.
+    val p = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
       empty,
-      stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](_),
+      _ => stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](empty),
       sweep,
       shouldStop(_, _, _, true),
       inPlace = inPlace
     )
+    println(
+      s"""Stable? ${ValueFunction.isPolicyStableStochastic(
+        empty,
+        p._1,
+        zeroValue,
+        sweep
+      )}"""
+    )
+    val p2 = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+      p._1,
+      _ => stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](p._1),
+      sweep,
+      shouldStop(_, _, _, true),
+      inPlace = inPlace
+    )
+    p2
   }
 
   def main(items: Array[String]): Unit = {
@@ -92,7 +109,7 @@ object Chapter4 {
     // Chapter3.printFigure(gridConf, fourOne(true), "Figure 4.1 (in-place)")
     // Chapter3.printFigure(gridConf, fourOne(false), "Figure 4.1 (not in-place)")
 
-    println(fourTwo(true))
+    fourTwo(true)
     // I think we'd only go three iterations if we had stopped when the policy
     // was stable.
   }

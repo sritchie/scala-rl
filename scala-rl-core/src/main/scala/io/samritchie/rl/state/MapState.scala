@@ -58,7 +58,7 @@ object MapState {
   /**
     * One of the two ways to construct a MapState.
     */
-  def static[A, Obs, R](
+  def static[A, R](
       actions: Set[A],
       gen: Generator[Generator[R]]
   ): Generator[StaticMapState[A, R, Generator]] =

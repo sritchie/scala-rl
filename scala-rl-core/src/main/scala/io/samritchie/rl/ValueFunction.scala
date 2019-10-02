@@ -85,10 +85,9 @@ object ValueFunction {
     What we really want is the ability to ping between updates to the value
     function or learning steps; to insert them every so often.
 
-    TODO This is some crazy shit right now. We're updating the value function internally... but we never
-
-
-
+    TODO This is some crazy shit right now. We're updating the value function
+    internally... but we never actually pass the new one back out? I guess we
+    can fix that if we just... give access to the function over and over.
     */
   def sweep[A, Obs, R: ToDouble, M[_], S[_]](
       valueFn: ValueFunction[Obs, M, S],
@@ -133,6 +132,14 @@ object ValueFunction {
   ): Boolean =
     states.forall(s => greedyOptions(l, s) == greedyOptions(r, s))
 
+  def isPolicyStableStochastic[A, Obs, R: ToDouble, M[_]](
+      l: ValueFunction[Obs, M, Cat],
+      r: ValueFunction[Obs, M, Cat],
+      default: Value[Double],
+      states: Traversable[State[A, Obs, R, Cat]]
+  ): Boolean =
+    states.forall(s => greedyOptionsStochastic(l, s, default) == greedyOptionsStochastic(r, s, default))
+
   def greedyOptions[A, Obs, R, M[_]](
       valueFn: ValueFunction[Obs, M, Id],
       state: State[A, Obs, R, Id]
@@ -165,7 +172,7 @@ object ValueFunction {
   )(implicit toDouble: ToDouble[R]): Value[Double] =
     Semigroup[Value[Double]]
       .combineAllOption(
-        state.dynamics(action).pmf.toList.map {
+        state.dynamics(action).pmfSeq.map {
           case ((reward, newState), weight) =>
             valueFn
               .stateValue(newState.observation)

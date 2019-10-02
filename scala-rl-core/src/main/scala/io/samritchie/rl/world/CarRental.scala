@@ -98,14 +98,15 @@ case class CarRental(
     costs...
 
     positive goes from a to b, negative goes from b to a.
-    */
-  def dynamics[O2 >: (Inventory, Inventory)] =
-    dynamicsStuck.asInstanceOf[Map[Move, Cat[(Double, State[Move, O2, Double, Cat])]]]
 
-  // TODO filter this so that we don't present moves that will more than
-  // deplete some spot. Overloading is fine, since it gets the cars off the
-  // board... I guess?
-  lazy val dynamicsStuck: Map[Move, Cat[(Double, State[Move, (Inventory, Inventory), Double, Cat])]] =
+    TODO filter this so that we don't present moves that will more than
+    deplete some spot. Overloading is fine, since it gets the cars off the
+    board... I guess?
+    */
+  def dynamics[O2 >: (Inventory, Inventory)]: Map[Move, Cat[(Double, State[Move, O2, Double, Cat])]] =
+    fixedDynamics
+
+  lazy val fixedDynamics: Map[Move, Cat[(Double, State[Move, (Inventory, Inventory), Double, Cat])]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
       pmf.map {
         case (aUpdate, bUpdate) =>
