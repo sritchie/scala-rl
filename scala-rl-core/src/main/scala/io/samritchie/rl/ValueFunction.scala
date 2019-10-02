@@ -141,9 +141,9 @@ object ValueFunction {
       state: State[A, Obs, R, S],
       defaultActionValue: Value[Double]
   ): Set[A] =
-    Util.allMaxBy[A, Value[Double]](state.actions)(
-      actionValue(valueFn, state, _, defaultActionValue)
-    )
+    Util.allMaxBy[A, Value[Double]](state.actions) { a =>
+      actionValue(valueFn, state.dynamics(a), defaultActionValue)
+    }
 
   /**
     This returns the value of the action, given categorical dynamics of the
@@ -151,13 +151,23 @@ object ValueFunction {
     */
   def actionValue[A, Obs, R, M[_], S[_]](
       valueFn: ValueFunction[Obs, M, S],
-      state: State[A, Obs, R, S],
-      action: A,
+      state: S[(R, State[A, Obs, R, S])],
       default: Value[Double]
   )(implicit toDouble: ToDouble[R], EV: ExpectedValue[S]): Value[Double] =
-    EV.get(state.dynamics(action), default) {
+    EV.get(state, default) {
       case (reward, newState) =>
         valueFn.stateValue(newState.observation).from(toDouble(reward))
+    }
+
+  def expectedActionValue[A, Obs, R, M[_], S[_]](
+      valueFn: ValueFunction[Obs, M, S],
+      action: M[A],
+      next: A => S[(R, State[A, Obs, R, S])],
+      // TODO what exactly does this mean?
+      default: Value[Double]
+  )(implicit toDouble: ToDouble[R], EVM: ExpectedValue[M], EVS: ExpectedValue[S]): Value[Double] =
+    EVM.get(action, default) { a =>
+      actionValue(valueFn, next(a), default)
     }
 
   /**

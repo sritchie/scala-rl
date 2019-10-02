@@ -70,7 +70,7 @@ object Chapter4 {
     val sweep = config.stateSweep
     val gamma = 0.9
     val zeroValue = value.Decaying(0.0, gamma)
-    val empty = value.Bellman[CarRental.InvPair](
+    val empty = value.Bellman[CarRental.InvPair, Cat, Cat](
       Map.empty,
       zeroValue
     )

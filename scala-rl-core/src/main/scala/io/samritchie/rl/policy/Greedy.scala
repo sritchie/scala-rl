@@ -23,9 +23,9 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 /**
 Base logic for greedy policies.
   */
-class Greedy[A, Obs, R: ToDouble, S[_]: ExpectedValue](
+class Greedy[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
     config: Greedy.Config[R],
-    valueFn: ValueFunction[Obs, Cat, S]
+    valueFn: ValueFunction[Obs, M, S]
 ) extends Policy[A, Obs, R, Cat, S] { self =>
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
