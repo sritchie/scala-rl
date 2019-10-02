@@ -45,26 +45,27 @@ object Chapter4 {
     )
 
   def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Categorical, Categorical], Long) = {
-    import CarRental.PoissonConfig
+    import CarRental.{ConstantConfig, PoissonConfig}
     import Util.Poisson.Lambda
 
     val locationA = CarRental.Location(
       PoissonConfig(11, Lambda(3)),
-      PoissonConfig(11, Lambda(3)),
-      maxCars = 2
+      ConstantConfig(3),
+      maxCars = 20
     )
     val locationB = CarRental.Location(
       PoissonConfig(11, Lambda(4)),
-      PoissonConfig(11, Lambda(2)),
-      maxCars = 2
+      ConstantConfig(2),
+      maxCars = 20
     )
     val config = CarRental.Config.apply(
       aConfig = locationA,
       bConfig = locationB,
-      maxMoves = CarRental.Move(1),
+      maxMoves = CarRental.Move(5),
       rentalCredit = 10,
       moveCost = 2
     )
+
     val sweep = config.stateSweep
     val gamma = 0.9
     val zeroValue = value.Decaying(0.0, gamma)

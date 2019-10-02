@@ -15,6 +15,11 @@ object CarRental {
   case class Inventory(n: Int, maxN: Int) {
     def -(m: Move): Inventory = this + -m
     def +(m: Move): Inventory = Inventory(Util.confine(n + m.n, 0, maxN), maxN)
+    def update(rentals: Move, returns: Move): Inventory =
+      Inventory(
+        math.min(n - rentals.n + returns.n, maxN),
+        maxN
+      )
   }
   case class Move(n: Int) extends AnyVal {
     def unary_- = Move(-n)
@@ -97,11 +102,14 @@ case class CarRental(
 
     positive goes from a to b, negative goes from b to a.
     */
-  def dynamics[O2 >: (Inventory, Inventory)]
-      : Map[Move, Categorical[(Double, State[Move, O2, Double, Categorical])]] =
-    // TODO filter this so that we don't present moves that will more than
-    // deplete some spot. Overloading is fine, since it gets the cars off the
-    // board... I guess?
+  def dynamics[O2 >: (Inventory, Inventory)] =
+    dynamicsStuck.asInstanceOf[Map[Move, Categorical[(Double, State[Move, O2, Double, Categorical])]]]
+
+  // TODO filter this so that we don't present moves that will more than
+  // deplete some spot. Overloading is fine, since it gets the cars off the
+  // board... I guess?
+  lazy val dynamicsStuck
+      : Map[Move, Categorical[(Double, State[Move, (Inventory, Inventory), Double, Categorical])]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
       pmf.map {
         case (aUpdate, bUpdate) =>
@@ -126,7 +134,7 @@ case class CarRental(
   private def process(move: Move, inventory: Inventory, update: Update): (Inventory, Double) = {
     val afterMove = inventory + move
     val validRentals = math.min(afterMove.n, update.rentalRequests)
-    val nextInventory = afterMove - Move(validRentals) + Move(update.returns)
+    val nextInventory = afterMove.update(Move(validRentals), Move(update.returns))
     (nextInventory, config.rentalCredit * validRentals)
   }
 }

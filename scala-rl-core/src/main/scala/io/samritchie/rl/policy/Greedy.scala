@@ -50,7 +50,6 @@ abstract class AbstractGreedy[A, Obs, R: ToReal, S[_]](
 
   override def choose(state: State[A, Obs, R, S]): Categorical[A] =
     Monad[Categorical].ifM(explore)(allActions(state), greedy(state))
-
 }
 
 class Greedy[A, Obs, R: ToReal](

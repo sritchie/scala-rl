@@ -103,6 +103,10 @@ object ValueFunction {
         case ((vf, p), state) =>
           val baseVf = if (inPlace) vf else valueFn
           val newFn = vf.update(state, baseVf.evaluate(state, p))
+
+          // TODO we do NOT always want this thing to learn after every state...
+          // if at all! But I guess we do for chapter 3, yeah? Value iteration?
+          // Check it out.
           val newP = p.learnAll(newFn)
           (newFn, newP)
       }
