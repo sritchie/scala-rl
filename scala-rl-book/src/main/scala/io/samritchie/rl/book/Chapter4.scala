@@ -26,21 +26,23 @@ object Chapter4 {
   def shouldStop[Obs, M[_], S[_]](
       l: ValueFunction[Obs, M, S],
       r: ValueFunction[Obs, M, S],
-      iterations: Long
+      iterations: Long,
+      verbose: Boolean = false
   ): Boolean = {
-    println(
-      s"Max diff seen: ${Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, _.max(_))}"
-    )
+    if (verbose)
+      println(
+        s"Max diff seen: ${Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, _.max(_))}"
+      )
     Chapter3.notConverging(iterations, allowedIterations) ||
     ValueFunction.diff(l, r, epsilon)(_.max(_))
   }
 
   def fourOne(inPlace: Boolean): (ValueFunction[Position, Categorical, Id], Long) =
     ValueFunction.sweepUntil[Move, Position, Double, Categorical, Id](
-      Random.id[Move, Double],
       emptyFn,
+      _ => Random.id[Move, Double],
       gridConf.stateSweep,
-      shouldStop _,
+      shouldStop(_, _, _),
       inPlace = inPlace
     )
 
@@ -75,16 +77,13 @@ object Chapter4 {
     )
 
     // Build a Stochastic version of the greedy policy.
-    val stochasticGreedy: CategoricalPolicy[CarRental.Move, CarRental.InvPair, Double, Categorical] =
-      policy.Greedy
-        .Config[Double](0.0, zeroValue)
-        .stochastic(empty)
+    val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
 
     ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Categorical, Categorical](
-      stochasticGreedy,
       empty,
+      stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](_),
       sweep,
-      shouldStop _,
+      shouldStop(_, _, _),
       inPlace = inPlace
     )
   }

@@ -51,10 +51,10 @@ class Chapter4Spec extends FunSuite {
     val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
 
     val (actual, _) = ValueFunction.sweepUntil[Move, Position, Double, Categorical, Categorical](
-      policy.Random.categorical[Move, Double],
       emptyFn,
+      _ => policy.Random.categorical[Move, Double],
       Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
-      Chapter4.shouldStop _,
+      Chapter4.shouldStop(_, _, _),
       inPlace = true
     )
     assert(ValueFunction.diff(actual, expectedFourOne, epsilon)(_.max(_)))

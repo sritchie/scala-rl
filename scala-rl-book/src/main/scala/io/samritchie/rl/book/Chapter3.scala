@@ -78,8 +78,8 @@ object Chapter3 {
     *   */
   def threeTwo: (ValueFunction[Position, Categorical, Id], Long) =
     ValueFunction.sweepUntil(
-      Random.id[Move, Double],
       emptyFn,
+      _ => Random.id[Move, Double],
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true
@@ -90,8 +90,8 @@ object Chapter3 {
     */
   def threeFive: (ValueFunction[Position, Categorical, Id], Long) =
     ValueFunction.sweepUntil[Move, Position, Double, Categorical, Id](
-      Greedy.Config[Double](0.0, value.Decaying(Real.negInfinity, gamma)).id(emptyFn),
       emptyFn,
+      fn => Greedy.Config[Double](0.0, value.Decaying(Real.negInfinity, gamma)).id(fn),
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true

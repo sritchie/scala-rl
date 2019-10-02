@@ -87,14 +87,15 @@ object ValueFunction {
     What we really want is the ability to ping between updates to the value
     function or learning steps; to insert them every so often.
 
-    TODO add gate to random if necessary...
-    TODO remove the iter stuff
-    TODO test if it all works
+    TODO This is some crazy shit right now. We're updating the value function internally... but we never
+
+
 
     */
   def sweep[A, Obs, R: ToReal, M[_], S[_]](
-      policy: Policy[A, Obs, R, M, S],
       valueFn: ValueFunction[Obs, M, S],
+      policy: Policy[A, Obs, R, M, S],
+      policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
       states: Traversable[State[A, Obs, R, S]],
       inPlace: Boolean
   ): ValueFunction[Obs, M, S] =
@@ -103,31 +104,28 @@ object ValueFunction {
         case ((vf, p), state) =>
           val baseVf = if (inPlace) vf else valueFn
           val newFn = vf.update(state, baseVf.evaluate(state, p))
-
-          // TODO we do NOT always want this thing to learn after every state...
-          // if at all! But I guess we do for chapter 3, yeah? Value iteration?
-          // Check it out.
-          val newP = p.learnAll(newFn)
-          (newFn, newP)
+          (newFn, policyFn(newFn))
       }
       ._1
 
   def sweepUntil[A, Obs, R: ToReal, M[_], S[_]](
-      policy: Policy[A, Obs, R, M, S],
       valueFn: ValueFunction[Obs, M, S],
+      policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
       states: Traversable[State[A, Obs, R, S]],
       stopFn: (ValueFunction[Obs, M, S], ValueFunction[Obs, M, S], Long) => Boolean,
       inPlace: Boolean
-  ): (ValueFunction[Obs, M, S], Long) =
+  ): (ValueFunction[Obs, M, S], Long) = {
+    val policy = policyFn(valueFn)
     Util.loopWhile((valueFn, 0)) {
       case (fn, nIterations) =>
-        val updated = ValueFunction.sweep(policy, fn, states, inPlace)
+        val updated = ValueFunction.sweep(fn, policy, policyFn, states, inPlace)
         Either.cond(
           stopFn(fn, updated, nIterations),
           (updated, nIterations),
           (updated, nIterations + 1)
         )
     }
+  }
 
   // Is there some way to make an ExpectedValue typeclass or something?
   def isPolicyStable[A, Obs, R: ToReal, M[_]](

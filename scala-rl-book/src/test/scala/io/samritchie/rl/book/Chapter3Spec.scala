@@ -97,12 +97,11 @@ class Chapter3Spec extends FunSuite {
     val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
 
     // Build a Stochastic version of the greedy policy.
-    val stochasticGreedy: CategoricalPolicy[Move, Position, Double, Categorical] =
-      policy.Greedy.Config[Double](0.0, zeroValue).stochastic(emptyFn)
+    val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
 
     val (actual, _) = ValueFunction.sweepUntil[Move, Position, Double, Categorical, Categorical](
-      stochasticGreedy,
       emptyFn,
+      stochasticConf.stochastic[Move, Position](_),
       Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter3.shouldStop _,
       inPlace = true
