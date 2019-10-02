@@ -2,7 +2,7 @@ package io.samritchie.rl
 package book
 
 import io.samritchie.rl.util.Grid
-import io.samritchie.rl.value.{Decaying, MapValueFunction}
+import io.samritchie.rl.value.{Bellman, Decaying}
 import org.scalatest.FunSuite
 
 /**
@@ -14,7 +14,7 @@ class Chapter4Spec extends FunSuite {
   val gamma = 1.0
   val epsilon = 1e-3
   val zeroValue = Decaying(0.0, gamma)
-  val expectedFourOne = MapValueFunction(
+  val expectedFourOne = Bellman(
     Map(
       Position.of(0, 0) -> 0.0,
       Position.of(0, 1) -> -13.9989,

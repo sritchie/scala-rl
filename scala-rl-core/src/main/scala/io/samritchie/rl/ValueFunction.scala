@@ -63,7 +63,7 @@ trait ActionValueFunction[A, Obs, M[_], S[_]] extends ValueFunction[Obs, M, S] {
 
 object ValueFunction {
   def apply[Obs](default: Value[Double]): ValueFunction[Obs, Cat, Id] =
-    value.MapValueFunction(Map.empty[Obs, Value[Double]], default)
+    value.Bellman(Map.empty[Obs, Value[Double]], default)
 
   /**
     Returns a new value function that absorbs rewards with decay.

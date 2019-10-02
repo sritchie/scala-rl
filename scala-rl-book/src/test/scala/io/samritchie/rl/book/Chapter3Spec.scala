@@ -2,7 +2,7 @@ package io.samritchie.rl
 package book
 
 import io.samritchie.rl.util.Grid
-import io.samritchie.rl.value.{Decaying, MapValueFunction}
+import io.samritchie.rl.value.{Bellman, Decaying}
 import org.scalatest.FunSuite
 
 /**
@@ -17,7 +17,7 @@ class Chapter3Spec extends FunSuite {
 
   test("Figure 3.2's value function matches the gold set") {
     val (actual, _) = Chapter3.threeTwo
-    val expected = MapValueFunction(
+    val expected = Bellman(
       Map(
         Position.of(0, 0) -> 3.3090,
         Position.of(0, 1) -> 8.7893,
@@ -51,7 +51,7 @@ class Chapter3Spec extends FunSuite {
     assert(ValueFunction.diff(actual, expected, epsilon)(_.max(_)))
   }
 
-  val expectedThreeFive = MapValueFunction(
+  val expectedThreeFive = Bellman(
     Map(
       Position.of(0, 0) -> 19.8896,
       Position.of(0, 1) -> 24.4194,
