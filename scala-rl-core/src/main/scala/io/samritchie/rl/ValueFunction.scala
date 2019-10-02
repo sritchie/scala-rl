@@ -134,7 +134,7 @@ object ValueFunction {
 
   /**
     NOTE: The default action value would NOT be necessary of we were looking at
-    an action value function.
+    an action value function. Working.
     */
   def greedyOptions[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
       valueFn: ValueFunction[Obs, M, S],
