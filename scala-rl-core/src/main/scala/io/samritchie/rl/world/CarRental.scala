@@ -108,6 +108,10 @@ case class CarRental(
   def dynamics[O2 >: (Inventory, Inventory)]: Map[Move, Cat[(Double, State[Move, O2, Double, Cat])]] =
     fixedDynamics
 
+  // TODO I THINK we can only make this faster if we decide to use an Eval...
+  // get an EvalT going for the monads, and define an expected value instance
+  // there. But then the first person to go and iterate through will evaluate
+  // everything.
   private lazy val fixedDynamics: Map[Move, Cat[(Double, State[Move, (Inventory, Inventory), Double, Cat])]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
       pmf.map {
