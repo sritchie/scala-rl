@@ -6,8 +6,6 @@ package policy
 package bandit
 
 import cats.Monad
-import com.stripe.rainier.core.Categorical
-import com.stripe.rainier.cats._
 import com.twitter.algebird.{AveragedValue, Semigroup}
 import Util.Instances._
 
@@ -20,19 +18,19 @@ case class EpsilonGreedy[A, R, T: Semigroup: Ordering, S[_]](
     config: EpsilonGreedy.Config[R, T],
     actionValues: Map[A, T]
 ) extends CategoricalPolicy[A, Any, R, S] {
-  private val explore: Categorical[Boolean] =
-    Categorical.boolean(config.epsilon)
+  private val explore: Cat[Boolean] =
+    Cat.boolean(config.epsilon)
 
-  private def allActions(state: State[A, Any, R, S]): Categorical[A] =
-    Categorical.list(state.actions.toList)
+  private def allActions(state: State[A, Any, R, S]): Cat[A] =
+    Cat.fromSet(state.actions)
 
-  private def greedy(state: State[A, Any, R, S]): Categorical[A] =
-    Categorical.fromSet(
+  private def greedy(state: State[A, Any, R, S]): Cat[A] =
+    Cat.fromSet(
       Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
     )
 
-  override def choose(state: State[A, Any, R, S]): Categorical[A] =
-    Monad[Categorical]
+  override def choose(state: State[A, Any, R, S]): Cat[A] =
+    Monad[Cat]
       .ifM(explore)(
         allActions(state),
         greedy(state)

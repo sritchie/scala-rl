@@ -5,7 +5,7 @@ import cats.arrow.FunctionK
 import cats.kernel.Semigroup
 import cats.instances.double._
 import com.stripe.rainier.compute.Real
-import com.stripe.rainier.core.{Categorical, ToGenerator}
+import com.stripe.rainier.core.{Categorical, Generator, ToGenerator}
 import io.samritchie.rl.util.ExpectedValue
 
 import scala.annotation.tailrec
@@ -117,9 +117,14 @@ trait CatInstances {
           .getOrElse(default)
     }
 
-  def catToCategorical: FunctionK[Cat, Categorical] =
+  val catToCategorical: FunctionK[Cat, Categorical] =
     new FunctionK[Cat, Categorical] {
-      def apply[A](cat: Cat[A]) = cat.toRainier
+      def apply[A](ca: Cat[A]) = ca.toRainier
+    }
+
+  val catToGenerator: FunctionK[Cat, Generator] =
+    new FunctionK[Cat, Generator] {
+      def apply[A](ca: Cat[A]): Generator[A] = ca.toRainier.generator
     }
 }
 

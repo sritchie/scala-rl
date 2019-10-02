@@ -8,7 +8,6 @@ package policy
 package bandit
 
 import com.twitter.algebird.Aggregator
-import com.stripe.rainier.core.Categorical
 
 case class UCB[A, R, T, S[_]](
     config: UCB.Config[R, T],
@@ -16,8 +15,8 @@ case class UCB[A, R, T, S[_]](
     time: Time
 ) extends CategoricalPolicy[A, Any, R, S] {
 
-  override def choose(state: State[A, Any, R, S]): Categorical[A] =
-    Categorical.fromSet(
+  override def choose(state: State[A, Any, R, S]): Cat[A] =
+    Cat.fromSet(
       Util
         .allMaxBy(state.actions)(
           a => actionValues.getOrElse(a, config.initialChoice).totalValue(time)

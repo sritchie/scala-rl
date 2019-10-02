@@ -93,7 +93,7 @@ object Chapter2 {
 
   def play(policy: CategoricalPolicy[Arm, Any, Double, Generator]): List[Double] =
     playBandit(
-      policy.mapK(Util.categoricalToGen),
+      policy.mapK(Cat.catToGenerator),
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,
       timeSteps = 1000,

@@ -82,7 +82,7 @@ object Chapter4 {
       empty,
       stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](_),
       sweep,
-      shouldStop(_, _, _),
+      shouldStop(_, _, _, true),
       inPlace = inPlace
     )
   }
