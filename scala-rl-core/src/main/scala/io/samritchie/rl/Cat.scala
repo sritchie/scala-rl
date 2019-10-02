@@ -1,6 +1,7 @@
 package io.samritchie.rl
 
 import cats.{Applicative, Monad, Monoid}
+import cats.arrow.FunctionK
 import cats.kernel.Semigroup
 import cats.instances.double._
 import com.stripe.rainier.compute.Real
@@ -79,6 +80,8 @@ object Cat extends CatInstances {
   def boolean(p: Double): Cat[Boolean] =
     Cat(Map(true -> p, false -> (1.0 - p)))
 
+  def pure[A](a: A): Cat[A] = Cat(Map(a -> 1.0))
+
   def normalize[T](pmf: Map[T, Double]): Cat[T] = {
     val total = (pmf.values.toList).sum
     Cat(pmf.map { case (t, p) => (t, p / total) })
@@ -113,10 +116,15 @@ trait CatInstances {
           )
           .getOrElse(default)
     }
+
+  def catToCategorical: FunctionK[Cat, Categorical] =
+    new FunctionK[Cat, Categorical] {
+      def apply[A](cat: Cat[A]) = cat.toRainier
+    }
 }
 
 private[rl] object CatMonad extends Monad[Cat] {
-  def pure[A](x: A): Cat[A] = Cat(Map(x -> 1.0))
+  def pure[A](x: A): Cat[A] = Cat.pure(x)
 
   override def map[A, B](fa: Cat[A])(f: A => B): Cat[B] =
     fa.map(f)

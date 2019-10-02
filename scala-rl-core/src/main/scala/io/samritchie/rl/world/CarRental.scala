@@ -5,7 +5,7 @@
 package io.samritchie.rl
 package world
 
-import com.stripe.rainier.compute.Real
+import com.stripe.rainier.cats._
 import com.stripe.rainier.core.Categorical
 
 object CarRental {
@@ -55,26 +55,26 @@ object CarRental {
     lazy val dist = activityDistribution(aConfig)
       .zip(activityDistribution(bConfig))
 
-    def build(a: Inventory, b: Inventory): CarRental =
-      CarRental(this, dist, a, b)
+    def build(a: Inventory, b: Inventory): State[Move, (Inventory, Inventory), Double, Categorical] =
+      CarRental(this, dist, a, b).mapK(Cat.catToCategorical)
 
-    def stateSweep: Traversable[CarRental] =
+    def stateSweep: Traversable[State[Move, (Inventory, Inventory), Double, Categorical]] =
       for {
         a <- (0 to aConfig.maxCars)
         b <- (0 to bConfig.maxCars)
       } yield build(Inventory(a, aConfig.maxCars), Inventory(b, bConfig.maxCars))
   }
 
-  def toDistribution(config: DistConf): Categorical[Int] =
+  def toDistribution(config: DistConf): Cat[Int] =
     config match {
       case PoissonConfig(upperBound, mean) =>
-        Cat.poisson(upperBound, mean).toRainier
-      case ConstantConfig(mean) => Categorical(Map(mean -> Real.one))
+        Cat.poisson(upperBound, mean)
+      case ConstantConfig(mean) => Cat(Map(mean -> 1.0))
     }
 
   // Car Rental location info. This gets me the distribution of requests and
   // returns that show up per location.
-  def activityDistribution(config: Location): Categorical[Update] =
+  def activityDistribution(config: Location): Cat[Update] =
     toDistribution(config.requests)
       .zip(toDistribution(config.returns))
       .map(Update.tupled)
@@ -84,10 +84,10 @@ import CarRental.{Inventory, Move, Update}
 
 case class CarRental(
     config: CarRental.Config,
-    pmf: Categorical[(Update, Update)],
+    pmf: Cat[(Update, Update)],
     a: Inventory,
     b: Inventory
-) extends State[Move, (Inventory, Inventory), Double, Categorical] {
+) extends State[Move, (Inventory, Inventory), Double, Cat] {
 
   val observation: (Inventory, Inventory) = (a, b)
 
@@ -103,13 +103,12 @@ case class CarRental(
     positive goes from a to b, negative goes from b to a.
     */
   def dynamics[O2 >: (Inventory, Inventory)] =
-    dynamicsStuck.asInstanceOf[Map[Move, Categorical[(Double, State[Move, O2, Double, Categorical])]]]
+    dynamicsStuck.asInstanceOf[Map[Move, Cat[(Double, State[Move, O2, Double, Cat])]]]
 
   // TODO filter this so that we don't present moves that will more than
   // deplete some spot. Overloading is fine, since it gets the cars off the
   // board... I guess?
-  lazy val dynamicsStuck
-      : Map[Move, Categorical[(Double, State[Move, (Inventory, Inventory), Double, Categorical])]] =
+  lazy val dynamicsStuck: Map[Move, Cat[(Double, State[Move, (Inventory, Inventory), Double, Cat])]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
       pmf.map {
         case (aUpdate, bUpdate) =>
