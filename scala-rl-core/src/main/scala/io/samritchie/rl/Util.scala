@@ -14,10 +14,11 @@ import scala.annotation.tailrec
 import scala.language.higherKinds
 
 object Util {
-  def prepareMonoid[A, B: Monoid: ToReal](
-      prepare: A => B
-  ): MonoidAggregator[A, B, Real] =
-    Aggregator.prepareMonoid(prepare).andThenPresent(ToReal(_))
+  def prepareMonoid[A, B: Monoid](
+      prepare: A => B,
+      toDouble: B => Double
+  ): MonoidAggregator[A, B, Double] =
+    Aggregator.prepareMonoid(prepare).andThenPresent(toDouble(_))
 
   object Instances {
     implicit val averageValueOrd: Ordering[AveragedValue] =
@@ -101,8 +102,13 @@ object Util {
 
     I recommend using max or +.
     */
-  def diff[A](as: TraversableOnce[A], lf: A => Real, rf: A => Real, combine: (Real, Real) => Real): Real =
-    as.foldLeft(Real.zero) { (acc, k) =>
+  def diff[A](
+      as: TraversableOnce[A],
+      lf: A => Double,
+      rf: A => Double,
+      combine: (Double, Double) => Double
+  ): Double =
+    as.foldLeft(0.0) { (acc, k) =>
       combine(acc, (lf(k) - rf(k)).abs)
     }
 

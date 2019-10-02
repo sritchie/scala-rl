@@ -6,7 +6,6 @@ package io.samritchie.rl
 package book
 
 import cats.Id
-import com.stripe.rainier.core.Categorical
 import io.samritchie.rl.policy.Random
 import io.samritchie.rl.world.{CarRental, GridWorld}
 
@@ -37,8 +36,8 @@ object Chapter4 {
     ValueFunction.diff(l, r, epsilon)(_.max(_))
   }
 
-  def fourOne(inPlace: Boolean): (ValueFunction[Position, Categorical, Id], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double, Categorical, Id](
+  def fourOne(inPlace: Boolean): (ValueFunction[Position, Cat, Id], Long) =
+    ValueFunction.sweepUntil[Move, Position, Double, Cat, Id](
       emptyFn,
       _ => Random.id[Move, Double],
       gridConf.stateSweep,
@@ -46,7 +45,7 @@ object Chapter4 {
       inPlace = inPlace
     )
 
-  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Categorical, Categorical], Long) = {
+  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Cat, Cat], Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
     import Cat.Poisson.Lambda
 
@@ -79,7 +78,7 @@ object Chapter4 {
     // Build a Stochastic version of the greedy policy.
     val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
 
-    ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Categorical, Categorical](
+    ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
       empty,
       stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](_),
       sweep,

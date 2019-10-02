@@ -5,9 +5,6 @@
 package io.samritchie.rl
 package world
 
-import com.stripe.rainier.cats._
-import com.stripe.rainier.core.Categorical
-
 object CarRental {
   import Cat.Poisson
   import Poisson.Lambda
@@ -55,10 +52,10 @@ object CarRental {
     lazy val dist = activityDistribution(aConfig)
       .zip(activityDistribution(bConfig))
 
-    def build(a: Inventory, b: Inventory): State[Move, (Inventory, Inventory), Double, Categorical] =
-      CarRental(this, dist, a, b).mapK(Cat.catToCategorical)
+    def build(a: Inventory, b: Inventory): State[Move, (Inventory, Inventory), Double, Cat] =
+      CarRental(this, dist, a, b)
 
-    def stateSweep: Traversable[State[Move, (Inventory, Inventory), Double, Categorical]] =
+    def stateSweep: Traversable[State[Move, (Inventory, Inventory), Double, Cat]] =
       for {
         a <- (0 to aConfig.maxCars)
         b <- (0 to bConfig.maxCars)

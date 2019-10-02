@@ -13,9 +13,6 @@ package io.samritchie.rl
 import cats.Id
 import cats.arrow.FunctionK
 import cats.kernel.Semigroup
-import com.stripe.rainier.compute.{Real, ToReal}
-import com.stripe.rainier.core.Categorical
-import Util.Instances.realOrd
 
 /**
   * Trait for state or action value functions.
@@ -25,22 +22,22 @@ import Util.Instances.realOrd
   */
 trait ValueFunction[Obs, M[_], S[_]] { self =>
   def seen: Iterable[Obs]
-  def stateValue(obs: Obs): Value[Real]
+  def stateValue(obs: Obs): Value[Double]
 
   /**
     Evaluate the state using the supplied policy.
     */
-  def evaluate[A, R: ToReal](
+  def evaluate[A, R: Numeric](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
-  ): Value[Real]
+  ): Value[Double]
 
-  def update[A, R: ToReal](
+  def update[A, R: Numeric](
       state: State[A, Obs, R, S],
-      value: Value[Real]
+      value: Value[Double]
   ): ValueFunction[Obs, M, S]
 
-  def evaluateAndUpdate[A, R: ToReal](
+  def evaluateAndUpdate[A, R: Numeric](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
   ): ValueFunction[Obs, M, S] = update(state, evaluate(state, policy))
@@ -51,7 +48,7 @@ trait ValueFunction[Obs, M[_], S[_]] { self =>
 
 trait ActionValueFunction[A, Obs, M[_], S[_]] extends ValueFunction[Obs, M, S] { self =>
   def seen(obs: Obs): Set[A]
-  def actionValue(obs: Obs, a: A): Value[Real]
+  def actionValue(obs: Obs, a: A): Value[Double]
 
   def learn[R](
       state: State[A, Obs, R, S],
@@ -65,19 +62,19 @@ trait ActionValueFunction[A, Obs, M[_], S[_]] extends ValueFunction[Obs, M, S] {
 }
 
 object ValueFunction {
-  def apply[Obs](default: Value[Real]): ValueFunction[Obs, Categorical, Id] =
-    value.MapValueFunction(Map.empty[Obs, Value[Real]], default)
+  def apply[Obs](default: Value[Double]): ValueFunction[Obs, Cat, Id] =
+    value.MapValueFunction(Map.empty[Obs, Value[Double]], default)
 
   /**
     Returns a new value function that absorbs rewards with decay.
     */
-  def decaying[Obs](gamma: Double): ValueFunction[Obs, Categorical, Id] =
-    decaying(Real.zero, gamma)
+  def decaying[Obs](gamma: Double): ValueFunction[Obs, Cat, Id] =
+    decaying(0.0, gamma)
 
   /**
     Returns a new value function that absorbs rewards with decay.
     */
-  def decaying[Obs](default: Real, gamma: Double): ValueFunction[Obs, Categorical, Id] =
+  def decaying[Obs](default: Double, gamma: Double): ValueFunction[Obs, Cat, Id] =
     ValueFunction[Obs](value.Decaying(default, gamma))
 
   /**
@@ -92,7 +89,7 @@ object ValueFunction {
 
 
     */
-  def sweep[A, Obs, R: ToReal, M[_], S[_]](
+  def sweep[A, Obs, R: Numeric, M[_], S[_]](
       valueFn: ValueFunction[Obs, M, S],
       policy: Policy[A, Obs, R, M, S],
       policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
@@ -108,7 +105,7 @@ object ValueFunction {
       }
       ._1
 
-  def sweepUntil[A, Obs, R: ToReal, M[_], S[_]](
+  def sweepUntil[A, Obs, R: Numeric, M[_], S[_]](
       valueFn: ValueFunction[Obs, M, S],
       policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
       states: Traversable[State[A, Obs, R, S]],
@@ -128,30 +125,30 @@ object ValueFunction {
   }
 
   // Is there some way to make an ExpectedValue typeclass or something?
-  def isPolicyStable[A, Obs, R: ToReal, M[_]](
+  def isPolicyStable[A, Obs, R: Numeric, M[_]](
       l: ValueFunction[Obs, M, Id],
       r: ValueFunction[Obs, M, Id],
       states: Traversable[State[A, Obs, R, Id]]
   ): Boolean =
     states.forall(s => greedyOptions(l, s) == greedyOptions(r, s))
 
-  def greedyOptions[A, Obs, R: ToReal, M[_]](
+  def greedyOptions[A, Obs, R, M[_]](
       valueFn: ValueFunction[Obs, M, Id],
       state: State[A, Obs, R, Id]
-  ): Set[A] = Util.allMaxBy[A, Value[Real]](state.actions) { a =>
+  )(implicit N: Numeric[R]): Set[A] = Util.allMaxBy[A, Value[Double]](state.actions) { a =>
     val (reward, newState) = state.dynamics(a)
-    valueFn.stateValue(newState.observation).from(ToReal(reward))
+    valueFn.stateValue(newState.observation).from(N.toDouble(reward))
   }
 
   // Something is going on here... this is a way of evaluating the best options
   // available from the state. But the evaluation of options DEFINITELY has to
   // be shared with the Bellman implementation, or the MapValueFunction. How can
   // we collapse it all down and share some code?
-  def greedyOptionsStochastic[A, Obs, R: ToReal, M[_]](
-      valueFn: ValueFunction[Obs, M, Categorical],
-      state: State[A, Obs, R, Categorical],
-      default: Value[Real]
-  ): Set[A] = Util.allMaxBy[A, Value[Real]](state.actions) { a =>
+  def greedyOptionsStochastic[A, Obs, R: Numeric, M[_]](
+      valueFn: ValueFunction[Obs, M, Cat],
+      state: State[A, Obs, R, Cat],
+      default: Value[Double]
+  ): Set[A] = Util.allMaxBy[A, Value[Double]](state.actions) { a =>
     actionValue(valueFn, state, a, default)
   }
 
@@ -159,19 +156,19 @@ object ValueFunction {
     This returns the value of the action, given categorical dynamics of the
     state.
     */
-  def actionValue[A, Obs, R: ToReal, M[_]](
-      valueFn: ValueFunction[Obs, M, Categorical],
-      state: State[A, Obs, R, Categorical],
+  def actionValue[A, Obs, R, M[_]](
+      valueFn: ValueFunction[Obs, M, Cat],
+      state: State[A, Obs, R, Cat],
       action: A,
-      default: Value[Real]
-  ): Value[Real] =
-    Semigroup[Value[Real]]
+      default: Value[Double]
+  )(implicit N: Numeric[R]): Value[Double] =
+    Semigroup[Value[Double]]
       .combineAllOption(
         state.dynamics(action).pmf.toList.map {
           case ((reward, newState), weight) =>
             valueFn
               .stateValue(newState.observation)
-              .from(ToReal(reward))
+              .from(N.toDouble(reward))
               .weighted(weight)
         }
       )
@@ -188,10 +185,10 @@ object ValueFunction {
       r: ValueFunction[Obs, C, D],
       epsilon: Double
   )(
-      combine: (Real, Real) => Real
+      combine: (Double, Double) => Double
   ): Boolean =
-    Ordering[Real].lt(
+    Ordering[Double].lt(
       Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, combine),
-      Real(epsilon)
+      epsilon
     )
 }

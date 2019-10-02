@@ -8,8 +8,6 @@ package io.samritchie.rl
 package book
 
 import cats.Id
-import com.stripe.rainier.compute.Real
-import com.stripe.rainier.core.Categorical
 import io.samritchie.rl.plot.Tabulator
 import io.samritchie.rl.policy.{Greedy, Random}
 import io.samritchie.rl.util.Grid
@@ -52,7 +50,7 @@ object Chapter3 {
     notConverging(iterations, allowedIterations) ||
       valueFunctionConverged(l, r)
 
-  def toTable(conf: GridWorld.Config, f: Position => Real): Iterable[Iterable[Real]] =
+  def toTable(conf: GridWorld.Config, f: Position => Double): Iterable[Iterable[Double]] =
     Grid
       .allStates(conf.bounds)
       .map(g => f(g.position))
@@ -63,7 +61,7 @@ object Chapter3 {
 
   def printFigure(
       conf: GridWorld.Config,
-      pair: (ValueFunction[Position, Categorical, Id], Long),
+      pair: (ValueFunction[Position, Cat, Id], Long),
       title: String
   ): Unit = {
     val (valueFn, iterations) = pair
@@ -76,7 +74,7 @@ object Chapter3 {
     * This is Figure 3.2, with proper stopping conditions and
     * everything. Lots of work to go.
     *   */
-  def threeTwo: (ValueFunction[Position, Categorical, Id], Long) =
+  def threeTwo: (ValueFunction[Position, Cat, Id], Long) =
     ValueFunction.sweepUntil(
       emptyFn,
       _ => Random.id[Move, Double],
@@ -88,10 +86,10 @@ object Chapter3 {
   /**
     * This is Figure 3.5. This is currently working!
     */
-  def threeFive: (ValueFunction[Position, Categorical, Id], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double, Categorical, Id](
+  def threeFive: (ValueFunction[Position, Cat, Id], Long) =
+    ValueFunction.sweepUntil[Move, Position, Double, Cat, Id](
       emptyFn,
-      fn => Greedy.Config[Double](0.0, value.Decaying(Real.negInfinity, gamma)).id(fn),
+      fn => Greedy.Config[Double](0.0, value.Decaying(Double.NegativeInfinity, gamma)).id(fn),
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true

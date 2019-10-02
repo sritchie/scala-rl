@@ -13,8 +13,6 @@ package io.samritchie.rl
 package value
 
 import cats.kernel.Semigroup
-import com.stripe.rainier.compute.{Real, ToReal}
-import com.stripe.rainier.core.Categorical
 
 /**
   This implements policy evaluation, NO update for the policy itself. And I
@@ -29,23 +27,23 @@ import com.stripe.rainier.core.Categorical
   state.
   */
 case class Bellman[Obs](
-    m: Map[Obs, Value[Real]],
-    default: Value[Real]
-) extends ValueFunction[Obs, Categorical, Categorical] {
+    m: Map[Obs, Value[Double]],
+    default: Value[Double]
+) extends ValueFunction[Obs, Cat, Cat] {
   def seen: Iterable[Obs] = m.keys
 
-  override def stateValue(obs: Obs): Value[Real] =
+  override def stateValue(obs: Obs): Value[Double] =
     m.getOrElse(obs, default)
 
-  override def evaluate[A, R: ToReal](
-      state: State[A, Obs, R, Categorical],
-      policy: CategoricalPolicy[A, Obs, R, Categorical]
-  ): Value[Real] = {
+  override def evaluate[A, R: Numeric](
+      state: State[A, Obs, R, Cat],
+      policy: Policy[A, Obs, R, Cat, Cat]
+  ): Value[Double] = {
     val pmf = policy.choose(state).pmf
-    Semigroup[Value[Real]]
+    Semigroup[Value[Double]]
       .combineAllOption(
         state.actions.toList.map { action =>
-          val policyWeight = pmf.getOrElse(action, Real.zero)
+          val policyWeight = pmf.getOrElse(action, 0.0)
           ValueFunction
             .actionValue(this, state, action, default)
             .weighted(policyWeight)
@@ -58,9 +56,9 @@ case class Bellman[Obs](
     This is currently an 'expected update', because it's using expectations vs any
     sampling.
     */
-  override def update[A, R: ToReal](
-      state: State[A, Obs, R, Categorical],
-      value: Value[Real]
-  ): ValueFunction[Obs, Categorical, Categorical] =
+  override def update[A, R: Numeric](
+      state: State[A, Obs, R, Cat],
+      value: Value[Double]
+  ): ValueFunction[Obs, Cat, Cat] =
     copy(m = m.updated(state.observation, value))
 }

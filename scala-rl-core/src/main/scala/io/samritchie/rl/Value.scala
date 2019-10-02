@@ -1,7 +1,6 @@
 package io.samritchie.rl
 
 import cats.kernel.Semigroup
-import com.stripe.rainier.compute.Real
 
 /**
   trait representing the value of some action or state.
@@ -10,7 +9,7 @@ trait Value[A] { self =>
   def get: A
   def plus(r: Value[A]): Value[A]
   def from(pathValue: A): Value[A]
-  def weighted(r: Real): Value[A]
+  def weighted(r: Double): Value[A]
 }
 
 object Value {
