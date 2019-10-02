@@ -45,9 +45,7 @@ case class Bellman[Obs](
       .combineAllOption(
         state.actions.toList.map { action =>
           val policyWeight = pmf.getOrElse(action, 0.0)
-          ValueFunction
-            .actionValue(this, state, action, default)
-            .weighted(policyWeight)
+          ValueFunction.actionValue(this, state, action, default).weighted(policyWeight)
         }
       )
       .getOrElse(default)

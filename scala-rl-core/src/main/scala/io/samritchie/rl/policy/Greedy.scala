@@ -18,51 +18,28 @@ package io.samritchie.rl
 package policy
 
 import cats.{Id, Monad}
-import io.samritchie.rl.util.ToDouble
+import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 /**
 Base logic for greedy policies.
   */
-abstract class AbstractGreedy[A, Obs, R, S[_]](
+class Greedy[A, Obs, R: ToDouble, S[_]: ExpectedValue](
     config: Greedy.Config[R],
     valueFn: ValueFunction[Obs, Cat, S]
 ) extends Policy[A, Obs, R, Cat, S] { self =>
-
-  /**
-    Returns the set of best actions from the state.
-    */
-  def greedyOptions(state: State[A, Obs, R, S]): Set[A]
-
-  private def greedy(state: State[A, Obs, R, S]): Cat[A] =
-    Cat.fromSet {
-      val candidates = greedyOptions(state)
-      if (candidates.isEmpty) state.actions else candidates
-    }
-
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
 
   private def allActions(state: State[A, Obs, R, S]): Cat[A] =
-    Cat.seq(state.actions.toList)
+    Cat.fromSet(state.actions)
+
+  private def greedy(state: State[A, Obs, R, S]): Cat[A] =
+    Cat.fromSet(
+      ValueFunction.greedyOptions(valueFn, state, config.default)
+    )
 
   override def choose(state: State[A, Obs, R, S]): Cat[A] =
     Monad[Cat].ifM(explore)(allActions(state), greedy(state))
-}
-
-class Greedy[A, Obs, @specialized(Double) R: ToDouble](
-    config: Greedy.Config[R],
-    valueFn: ValueFunction[Obs, Cat, Id]
-) extends AbstractGreedy[A, Obs, R, Id](config, valueFn) {
-  def greedyOptions(state: State[A, Obs, R, Id]): Set[A] =
-    ValueFunction.greedyOptions(valueFn, state)
-}
-
-class StochasticGreedy[A, Obs, @specialized(Double) R: ToDouble](
-    config: Greedy.Config[R],
-    valueFn: ValueFunction[Obs, Cat, Cat]
-) extends AbstractGreedy[A, Obs, R, Cat](config, valueFn) {
-  def greedyOptions(state: State[A, Obs, R, Cat]): Set[A] =
-    ValueFunction.greedyOptionsStochastic(valueFn, state, config.default)
 }
 
 object Greedy {
@@ -70,10 +47,10 @@ object Greedy {
     def id[A, Obs](
         valueFn: ValueFunction[Obs, Cat, Id]
     ): Policy[A, Obs, R, Cat, Id] =
-      new Greedy[A, Obs, R](this, valueFn)
+      new Greedy(this, valueFn)
 
     def stochastic[A, Obs](
         valueFn: ValueFunction[Obs, Cat, Cat]
-    ): Policy[A, Obs, R, Cat, Cat] = new StochasticGreedy(this, valueFn)
+    ): Policy[A, Obs, R, Cat, Cat] = new Greedy(this, valueFn)
   }
 }

@@ -87,7 +87,7 @@ object Chapter4 {
       inPlace = inPlace
     )
     println(
-      s"""Stable? ${ValueFunction.isPolicyStableStochastic(
+      s"""Stable? ${ValueFunction.isPolicyStable(
         empty,
         p._1,
         zeroValue,

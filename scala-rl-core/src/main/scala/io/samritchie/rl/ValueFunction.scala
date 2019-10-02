@@ -12,8 +12,7 @@ package io.samritchie.rl
 
 import cats.Id
 import cats.arrow.FunctionK
-import cats.kernel.Semigroup
-import io.samritchie.rl.util.ToDouble
+import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 /**
   * Trait for state or action value functions.
@@ -125,62 +124,41 @@ object ValueFunction {
   }
 
   // Is there some way to make an ExpectedValue typeclass or something?
-  def isPolicyStable[A, Obs, R: ToDouble, M[_]](
-      l: ValueFunction[Obs, M, Id],
-      r: ValueFunction[Obs, M, Id],
-      states: Traversable[State[A, Obs, R, Id]]
-  ): Boolean =
-    states.forall(s => greedyOptions(l, s) == greedyOptions(r, s))
-
-  def isPolicyStableStochastic[A, Obs, R: ToDouble, M[_]](
-      l: ValueFunction[Obs, M, Cat],
-      r: ValueFunction[Obs, M, Cat],
+  def isPolicyStable[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
+      l: ValueFunction[Obs, M, S],
+      r: ValueFunction[Obs, M, S],
       default: Value[Double],
-      states: Traversable[State[A, Obs, R, Cat]]
+      states: Traversable[State[A, Obs, R, S]]
   ): Boolean =
-    states.forall(s => greedyOptionsStochastic(l, s, default) == greedyOptionsStochastic(r, s, default))
+    states.forall(s => greedyOptions(l, s, default) == greedyOptions(r, s, default))
 
-  def greedyOptions[A, Obs, R, M[_]](
-      valueFn: ValueFunction[Obs, M, Id],
-      state: State[A, Obs, R, Id]
-  )(implicit toDouble: ToDouble[R]): Set[A] = Util.allMaxBy[A, Value[Double]](state.actions) { a =>
-    val (reward, newState) = state.dynamics(a)
-    valueFn.stateValue(newState.observation).from(toDouble(reward))
-  }
-
-  // Something is going on here... this is a way of evaluating the best options
-  // available from the state. But the evaluation of options DEFINITELY has to
-  // be shared with the Bellman implementation, or the MapValueFunction. How can
-  // we collapse it all down and share some code?
-  def greedyOptionsStochastic[A, Obs, R: ToDouble, M[_]](
-      valueFn: ValueFunction[Obs, M, Cat],
-      state: State[A, Obs, R, Cat],
-      default: Value[Double]
-  ): Set[A] = Util.allMaxBy[A, Value[Double]](state.actions) { a =>
-    actionValue(valueFn, state, a, default)
-  }
+  /**
+    NOTE: The default action value would NOT be necessary of we were looking at
+    an action value function.
+    */
+  def greedyOptions[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
+      valueFn: ValueFunction[Obs, M, S],
+      state: State[A, Obs, R, S],
+      defaultActionValue: Value[Double]
+  ): Set[A] =
+    Util.allMaxBy[A, Value[Double]](state.actions)(
+      actionValue(valueFn, state, _, defaultActionValue)
+    )
 
   /**
     This returns the value of the action, given categorical dynamics of the
     state.
     */
-  def actionValue[A, Obs, R, M[_]](
-      valueFn: ValueFunction[Obs, M, Cat],
-      state: State[A, Obs, R, Cat],
+  def actionValue[A, Obs, R, M[_], S[_]](
+      valueFn: ValueFunction[Obs, M, S],
+      state: State[A, Obs, R, S],
       action: A,
       default: Value[Double]
-  )(implicit toDouble: ToDouble[R]): Value[Double] =
-    Semigroup[Value[Double]]
-      .combineAllOption(
-        state.dynamics(action).pmfSeq.map {
-          case ((reward, newState), weight) =>
-            valueFn
-              .stateValue(newState.observation)
-              .from(toDouble(reward))
-              .weighted(weight)
-        }
-      )
-      .getOrElse(default)
+  )(implicit toDouble: ToDouble[R], EV: ExpectedValue[S]): Value[Double] =
+    EV.get(state.dynamics(action), default) {
+      case (reward, newState) =>
+        valueFn.stateValue(newState.observation).from(toDouble(reward))
+    }
 
   /**
     Helper to tell if we can stop iterating. The combine function is used to

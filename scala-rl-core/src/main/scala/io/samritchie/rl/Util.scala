@@ -12,11 +12,10 @@ import scala.annotation.tailrec
 import scala.language.higherKinds
 
 object Util {
-  def prepareMonoid[A, B: Monoid](
-      prepare: A => B,
-      toDouble: B => Double
+  def prepareMonoid[A, B: Monoid: ToDouble](
+      prepare: A => B
   ): MonoidAggregator[A, B, Double] =
-    Aggregator.prepareMonoid(prepare).andThenPresent(toDouble(_))
+    Aggregator.prepareMonoid(prepare).andThenPresent(ToDouble[B].apply(_))
 
   object Instances {
     implicit val averageValueOrd: Ordering[AveragedValue] =
@@ -57,18 +56,6 @@ object Util {
       val maxB = f(as.maxBy(f))
       as.filter(a => Ordering[B].equiv(maxB, f(a)))
     }
-
-  def softmax[A, B](m: Map[A, Double]): Cat[A] =
-    Cat.normalize(m.mapValues(math.exp(_)))
-
-  def softmax[A: ToDouble](as: Set[A]): Cat[A] = {
-    val (pmf, sum) = as.foldLeft((Map.empty[A, Double], 0.0)) {
-      case ((m, r), a) =>
-        val aExp = math.exp(ToDouble[A].apply(a))
-        (m.updated(a, aExp), r + aExp)
-    }
-    Cat.normalize(pmf.mapValues(_ / sum))
-  }
 
   def iterateM[F[_]: Monad, A](n: Int)(a: A)(f: A => F[A]): F[A] =
     Monad[F].tailRecM[Tuple2[Int, A], A]((n, a)) {

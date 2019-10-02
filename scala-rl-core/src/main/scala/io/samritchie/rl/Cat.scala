@@ -3,10 +3,9 @@ package io.samritchie.rl
 import cats.{Applicative, Monad, Monoid}
 import cats.arrow.FunctionK
 import cats.kernel.Semigroup
-import cats.instances.double._
 import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.{Categorical, Generator, ToGenerator}
-import io.samritchie.rl.util.ExpectedValue
+import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
@@ -104,6 +103,18 @@ object Cat extends CatInstances {
       ts.foldLeft(Map.empty[T, Double])((m, t) => m.updated(t, p))
     )
   }
+
+  def softmax[A, B](m: Map[A, Double]): Cat[A] =
+    normalize(m.mapValues(math.exp(_)))
+
+  def softmax[A: ToDouble](as: Set[A]): Cat[A] = {
+    val (pmf, sum) = as.foldLeft((Map.empty[A, Double], 0.0)) {
+      case ((m, r), a) =>
+        val aExp = math.exp(ToDouble[A].apply(a))
+        (m.updated(a, aExp), r + aExp)
+    }
+    normalize(pmf.mapValues(_ / sum))
+  }
 }
 
 trait CatInstances {
@@ -115,11 +126,11 @@ trait CatInstances {
     }
   implicit val expectedValue: ExpectedValue[Cat] =
     new ExpectedValue[Cat] {
-      def get[A](a: Cat[A], default: Double)(f: A => Double): Double =
-        Semigroup[Double]
+      def get[A](a: Cat[A], default: Value[Double])(f: A => Value[Double]): Value[Double] =
+        Semigroup[Value[Double]]
           .combineAllOption(
             a.pmfSeq.map {
-              case (a, weight) => f(a) * weight
+              case (a, weight) => f(a).weighted(weight)
             }
           )
           .getOrElse(default)

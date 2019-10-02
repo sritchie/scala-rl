@@ -34,10 +34,10 @@ case class Gradient[A: Equiv, R: ToDouble, T: ToDouble, S[_]](
       )
 
   override def choose(state: State[A, Any, R, S]): Cat[A] =
-    Util.softmax(state.actions)
+    Cat.softmax(state.actions)
 
   override def learn(state: State[A, Any, R, S], action: A, reward: R): Gradient[A, R, T, S] = {
-    val pmf = Util.softmax(state.actions).pmf
+    val pmf = Cat.softmax(state.actions).pmf
 
     val updated = state.actions.foldLeft(Map.empty[A, Gradient.Item[T]]) {
       case (m, a) =>
