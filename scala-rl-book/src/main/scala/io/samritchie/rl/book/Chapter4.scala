@@ -48,7 +48,7 @@ object Chapter4 {
 
   def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Categorical, Categorical], Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
-    import Util.Poisson.Lambda
+    import Cat.Poisson.Lambda
 
     val locationA = CarRental.Location(
       PoissonConfig(11, Lambda(3)),

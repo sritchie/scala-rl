@@ -1,6 +1,6 @@
 package io.samritchie.rl
 
-import cats.Monad
+import cats.{Applicative, Monad, Monoid}
 import cats.kernel.Semigroup
 import cats.instances.double._
 import com.stripe.rainier.compute.Real
@@ -48,7 +48,34 @@ final case class Cat[T](pmf: Map[T, Double]) {
     Categorical.normalize(pmf.mapValues(Real(_)))
 }
 
-object Cat {
+object Cat extends CatInstances {
+  object Poisson {
+    case class Lambda(value: Double) extends AnyVal
+
+    def gamma(z: Double): Double =
+      if (z == 0.0)
+        Double.PositiveInfinity
+      else if (z == 1.0 || z == 2.0)
+        0.0
+      else
+        approxGamma(z)
+
+    private def approxGamma(z: Double): Double = {
+      val v = z + 1.0
+      val w = v + (1.0 / ((12.0 * v) - (1.0 / (10.0 * v))))
+      (math.log(Math.PI * 2) / 2.0) - (math.log(v) / 2.0) + (v * (math.log(w) - 1.0)) - math.log(z)
+    }
+
+    def logProbability(k: Int, lambda: Double): Double =
+      -lambda + (math.log(lambda) * k) - gamma(k + 1.0)
+
+    def probability(k: Int, lambda: Double): Double =
+      math.exp(logProbability(k, lambda))
+  }
+
+  def poisson(upperBound: Int, mean: Poisson.Lambda): Cat[Int] =
+    normalize(Util.makeMapUnsafe((0 until upperBound))(Poisson.probability(_, mean.value)))
+
   def boolean(p: Double): Cat[Boolean] =
     Cat(Map(true -> p, false -> (1.0 - p)))
 
@@ -66,7 +93,15 @@ object Cat {
       ts.foldLeft(Map.empty[T, Double])((m, t) => m.updated(t, p))
     )
   }
+}
 
+trait CatInstances {
+  implicit val catMonad: Monad[Cat] = CatMonad
+  implicit def catMonoid[A: Monoid]: Monoid[Cat[A]] = Applicative.monoid[Cat, A]
+  implicit def gen[T]: ToGenerator[Cat[T], T] =
+    new ToGenerator[Cat[T], T] {
+      def apply(c: Cat[T]) = c.toRainier.generator
+    }
   implicit val expectedValue: ExpectedValue[Cat] =
     new ExpectedValue[Cat] {
       def get[A](a: Cat[A], default: Double)(f: A => Double): Double =
@@ -77,11 +112,6 @@ object Cat {
             }
           )
           .getOrElse(default)
-    }
-
-  implicit def gen[T]: ToGenerator[Cat[T], T] =
-    new ToGenerator[Cat[T], T] {
-      def apply(c: Cat[T]) = c.toRainier.generator
     }
 }
 

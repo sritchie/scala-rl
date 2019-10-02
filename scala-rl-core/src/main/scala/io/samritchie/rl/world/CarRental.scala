@@ -9,7 +9,7 @@ import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.Categorical
 
 object CarRental {
-  import Util.Poisson
+  import Cat.Poisson
   import Poisson.Lambda
 
   case class Inventory(n: Int, maxN: Int) {
@@ -68,7 +68,7 @@ object CarRental {
   def toDistribution(config: DistConf): Categorical[Int] =
     config match {
       case PoissonConfig(upperBound, mean) =>
-        Poisson.categorical(upperBound, mean)
+        Cat.poisson(upperBound, mean).toRainier
       case ConstantConfig(mean) => Categorical(Map(mean -> Real.one))
     }
 
