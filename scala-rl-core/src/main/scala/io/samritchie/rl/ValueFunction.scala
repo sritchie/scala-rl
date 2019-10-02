@@ -13,6 +13,7 @@ package io.samritchie.rl
 import cats.Id
 import cats.arrow.FunctionK
 import cats.kernel.Semigroup
+import io.samritchie.rl.util.ToDouble
 
 /**
   * Trait for state or action value functions.
@@ -27,17 +28,17 @@ trait ValueFunction[Obs, M[_], S[_]] { self =>
   /**
     Evaluate the state using the supplied policy.
     */
-  def evaluate[A, R: Numeric](
+  def evaluate[A, R: ToDouble](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
   ): Value[Double]
 
-  def update[A, R: Numeric](
+  def update[A, R](
       state: State[A, Obs, R, S],
       value: Value[Double]
   ): ValueFunction[Obs, M, S]
 
-  def evaluateAndUpdate[A, R: Numeric](
+  def evaluateAndUpdate[A, R: ToDouble](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
   ): ValueFunction[Obs, M, S] = update(state, evaluate(state, policy))
@@ -89,7 +90,7 @@ object ValueFunction {
 
 
     */
-  def sweep[A, Obs, R: Numeric, M[_], S[_]](
+  def sweep[A, Obs, R: ToDouble, M[_], S[_]](
       valueFn: ValueFunction[Obs, M, S],
       policy: Policy[A, Obs, R, M, S],
       policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
@@ -105,7 +106,7 @@ object ValueFunction {
       }
       ._1
 
-  def sweepUntil[A, Obs, R: Numeric, M[_], S[_]](
+  def sweepUntil[A, Obs, R: ToDouble, M[_], S[_]](
       valueFn: ValueFunction[Obs, M, S],
       policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
       states: Traversable[State[A, Obs, R, S]],
@@ -125,7 +126,7 @@ object ValueFunction {
   }
 
   // Is there some way to make an ExpectedValue typeclass or something?
-  def isPolicyStable[A, Obs, R: Numeric, M[_]](
+  def isPolicyStable[A, Obs, R: ToDouble, M[_]](
       l: ValueFunction[Obs, M, Id],
       r: ValueFunction[Obs, M, Id],
       states: Traversable[State[A, Obs, R, Id]]
@@ -135,16 +136,16 @@ object ValueFunction {
   def greedyOptions[A, Obs, R, M[_]](
       valueFn: ValueFunction[Obs, M, Id],
       state: State[A, Obs, R, Id]
-  )(implicit N: Numeric[R]): Set[A] = Util.allMaxBy[A, Value[Double]](state.actions) { a =>
+  )(implicit toDouble: ToDouble[R]): Set[A] = Util.allMaxBy[A, Value[Double]](state.actions) { a =>
     val (reward, newState) = state.dynamics(a)
-    valueFn.stateValue(newState.observation).from(N.toDouble(reward))
+    valueFn.stateValue(newState.observation).from(toDouble(reward))
   }
 
   // Something is going on here... this is a way of evaluating the best options
   // available from the state. But the evaluation of options DEFINITELY has to
   // be shared with the Bellman implementation, or the MapValueFunction. How can
   // we collapse it all down and share some code?
-  def greedyOptionsStochastic[A, Obs, R: Numeric, M[_]](
+  def greedyOptionsStochastic[A, Obs, R: ToDouble, M[_]](
       valueFn: ValueFunction[Obs, M, Cat],
       state: State[A, Obs, R, Cat],
       default: Value[Double]
@@ -161,14 +162,14 @@ object ValueFunction {
       state: State[A, Obs, R, Cat],
       action: A,
       default: Value[Double]
-  )(implicit N: Numeric[R]): Value[Double] =
+  )(implicit toDouble: ToDouble[R]): Value[Double] =
     Semigroup[Value[Double]]
       .combineAllOption(
         state.dynamics(action).pmf.toList.map {
           case ((reward, newState), weight) =>
             valueFn
               .stateValue(newState.observation)
-              .from(N.toDouble(reward))
+              .from(toDouble(reward))
               .weighted(weight)
         }
       )

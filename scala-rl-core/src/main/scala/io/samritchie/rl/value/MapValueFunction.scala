@@ -14,6 +14,7 @@ package value
 
 import cats.Id
 import cats.kernel.Semigroup
+import io.samritchie.rl.util.ToDouble
 
 /**
   This implements policy evaluation, NO update for the policy itself. And I
@@ -36,7 +37,7 @@ case class MapValueFunction[Obs](
   override def stateValue(obs: Obs): Value[Double] =
     m.getOrElse(obs, default)
 
-  override def evaluate[A, R: Numeric](
+  override def evaluate[A, R: ToDouble](
       state: State[A, Obs, R, Id],
       policy: Policy[A, Obs, R, Cat, Id]
   ): Value[Double] = {
@@ -48,7 +49,7 @@ case class MapValueFunction[Obs](
         state.actions.toList.map { action =>
           val (r, newState) = dynamics(action)
           stateValue(newState.observation)
-            .from(implicitly[Numeric[R]].toDouble(r))
+            .from(ToDouble[R].apply(r))
             .weighted(pmf.getOrElse(action, 0.0))
         }
       )
@@ -59,7 +60,7 @@ case class MapValueFunction[Obs](
     This is currently an 'expected update', because it's using expectations vs any
     sampling.
     */
-  override def update[A, R: Numeric](
+  override def update[A, R](
       state: State[A, Obs, R, Id],
       value: Value[Double]
   ): ValueFunction[Obs, Cat, Id] =

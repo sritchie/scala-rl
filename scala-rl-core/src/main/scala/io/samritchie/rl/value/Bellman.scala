@@ -13,6 +13,7 @@ package io.samritchie.rl
 package value
 
 import cats.kernel.Semigroup
+import io.samritchie.rl.util.ToDouble
 
 /**
   This implements policy evaluation, NO update for the policy itself. And I
@@ -35,7 +36,7 @@ case class Bellman[Obs](
   override def stateValue(obs: Obs): Value[Double] =
     m.getOrElse(obs, default)
 
-  override def evaluate[A, R: Numeric](
+  override def evaluate[A, R: ToDouble](
       state: State[A, Obs, R, Cat],
       policy: Policy[A, Obs, R, Cat, Cat]
   ): Value[Double] = {
@@ -56,7 +57,7 @@ case class Bellman[Obs](
     This is currently an 'expected update', because it's using expectations vs any
     sampling.
     */
-  override def update[A, R: Numeric](
+  override def update[A, R](
       state: State[A, Obs, R, Cat],
       value: Value[Double]
   ): ValueFunction[Obs, Cat, Cat] =

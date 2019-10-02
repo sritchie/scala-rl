@@ -5,6 +5,7 @@ package io.samritchie.rl
 package value
 
 import cats.arrow.FunctionK
+import io.samritchie.rl.util.ToDouble
 
 class Contramapped[Obs, M[_], N[_], S[_]](
     self: ValueFunction[Obs, M, S],
@@ -13,13 +14,13 @@ class Contramapped[Obs, M[_], N[_], S[_]](
   def seen: Iterable[Obs] = self.seen
   def stateValue(obs: Obs): Value[Double] = self.stateValue(obs)
 
-  def evaluate[A, R: Numeric](state: State[A, Obs, R, S], policy: Policy[A, Obs, R, N, S]): Value[Double] =
+  def evaluate[A, R: ToDouble](state: State[A, Obs, R, S], policy: Policy[A, Obs, R, N, S]): Value[Double] =
     self.evaluate(state, policy.mapK(policyFn))
 
-  def update[A, R: Numeric](state: State[A, Obs, R, S], value: Value[Double]): ValueFunction[Obs, N, S] =
+  def update[A, R](state: State[A, Obs, R, S], value: Value[Double]): ValueFunction[Obs, N, S] =
     new Contramapped(self.update(state, value), policyFn)
 
-  override def evaluateAndUpdate[A, R: Numeric](
+  override def evaluateAndUpdate[A, R: ToDouble](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, N, S]
   ): ValueFunction[Obs, N, S] =
