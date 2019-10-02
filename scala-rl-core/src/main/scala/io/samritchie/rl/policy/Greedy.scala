@@ -18,6 +18,7 @@ package io.samritchie.rl
 package policy
 
 import cats.{Id, Monad}
+import io.samritchie.rl.util.ToDouble
 
 /**
 Base logic for greedy policies.
@@ -48,7 +49,7 @@ abstract class AbstractGreedy[A, Obs, R, S[_]](
     Monad[Cat].ifM(explore)(allActions(state), greedy(state))
 }
 
-class Greedy[A, Obs, R: Numeric](
+class Greedy[A, Obs, @specialized(Double) R: ToDouble](
     config: Greedy.Config[R],
     valueFn: ValueFunction[Obs, Cat, Id]
 ) extends AbstractGreedy[A, Obs, R, Id](config, valueFn) {
@@ -56,7 +57,7 @@ class Greedy[A, Obs, R: Numeric](
     ValueFunction.greedyOptions(valueFn, state)
 }
 
-class StochasticGreedy[A, Obs, R: Numeric](
+class StochasticGreedy[A, Obs, @specialized(Double) R: ToDouble](
     config: Greedy.Config[R],
     valueFn: ValueFunction[Obs, Cat, Cat]
 ) extends AbstractGreedy[A, Obs, R, Cat](config, valueFn) {
@@ -65,7 +66,7 @@ class StochasticGreedy[A, Obs, R: Numeric](
 }
 
 object Greedy {
-  case class Config[R: Numeric](epsilon: Double, default: Value[Double]) {
+  case class Config[R: ToDouble](epsilon: Double, default: Value[Double]) {
     def id[A, Obs](
         valueFn: ValueFunction[Obs, Cat, Id]
     ): Policy[A, Obs, R, Cat, Id] =

@@ -21,7 +21,7 @@ import scala.language.higherKinds
   * M - the monadic type offered by the policy.
   * S - the monad for the state.
   */
-trait Policy[A, -Obs, R, M[_], S[_]] { self =>
+trait Policy[A, -Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { self =>
   def choose(state: State[A, Obs, R, S]): M[A]
 
   /**

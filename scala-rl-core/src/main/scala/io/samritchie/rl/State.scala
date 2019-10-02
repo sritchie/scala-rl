@@ -30,7 +30,7 @@ import cats.arrow.FunctionK
   * model; for the bandit we only have a single state, not that
   * useful.
   */
-trait State[A, +Obs, R, M[_]] { self =>
+trait State[A, +Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
   def observation: Obs
 
   /**

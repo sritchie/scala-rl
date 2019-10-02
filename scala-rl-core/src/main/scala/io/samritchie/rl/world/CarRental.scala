@@ -66,7 +66,7 @@ object CarRental {
     config match {
       case PoissonConfig(upperBound, mean) =>
         Cat.poisson(upperBound, mean)
-      case ConstantConfig(mean) => Cat(Map(mean -> 1.0))
+      case ConstantConfig(mean) => Cat.pure(mean)
     }
 
   // Car Rental location info. This gets me the distribution of requests and
