@@ -48,9 +48,18 @@ object CarRental {
       rentalCredit: Double,
       moveCost: Double
   ) {
+    import cats.implicits._
+
     val allMoves: Iterable[Move] = Move.inclusiveRange(-maxMoves, maxMoves)
-    lazy val dist = activityDistribution(aConfig)
-      .zip(activityDistribution(bConfig))
+    lazy val dist: Cat[(Update, Update)] =
+      (
+        toDistribution(aConfig.requests),
+        toDistribution(aConfig.returns),
+        toDistribution(bConfig.requests),
+        toDistribution(bConfig.returns)
+      ).mapN {
+        case (a, b, c, d) => (Update(a, b), Update(c, d))
+      }
 
     def build(a: Inventory, b: Inventory): State[Move, (Inventory, Inventory), Double, Cat] =
       CarRental(this, dist, a, b)
@@ -68,13 +77,6 @@ object CarRental {
         Cat.poisson(upperBound, mean)
       case ConstantConfig(mean) => Cat.pure(mean)
     }
-
-  // Car Rental location info. This gets me the distribution of requests and
-  // returns that show up per location.
-  def activityDistribution(config: Location): Cat[Update] =
-    toDistribution(config.requests)
-      .zip(toDistribution(config.returns))
-      .map(Update.tupled)
 }
 
 import CarRental.{Inventory, Move, Update}
@@ -106,7 +108,7 @@ case class CarRental(
   def dynamics[O2 >: (Inventory, Inventory)]: Map[Move, Cat[(Double, State[Move, O2, Double, Cat])]] =
     fixedDynamics
 
-  lazy val fixedDynamics: Map[Move, Cat[(Double, State[Move, (Inventory, Inventory), Double, Cat])]] =
+  private lazy val fixedDynamics: Map[Move, Cat[(Double, State[Move, (Inventory, Inventory), Double, Cat])]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
       pmf.map {
         case (aUpdate, bUpdate) =>
