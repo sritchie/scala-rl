@@ -25,6 +25,10 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
   If you DO know those things, this will give you the value of the current
   state.
+
+  TODO note that this only lets you look forward a single step. We're going to
+  want to be able to look forward many steps in the model, and create an algebra
+  that will let us talk well about this.
   */
 case class Bellman[Obs, M[_]: ExpectedValue, S[_]: ExpectedValue](
     m: Map[Obs, Value[Double]],
