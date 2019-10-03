@@ -130,8 +130,8 @@ object Chapter4 {
 
   def main(items: Array[String]): Unit = {
     println("Hello, chapter 4!")
-    Chapter3.printFigure(gridConf, fourOne(true), "Figure 4.1 (in-place)")
-    Chapter3.printFigure(gridConf, fourOne(false), "Figure 4.1 (not in-place)")
-    //fourTwo(true)
+    //Chapter3.printFigure(gridConf, fourOne(true), "Figure 4.1 (in-place)")
+    //Chapter3.printFigure(gridConf, fourOne(false), "Figure 4.1 (not in-place)")
+    fourTwo(true)
   }
 }

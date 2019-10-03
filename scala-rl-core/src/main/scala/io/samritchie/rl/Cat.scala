@@ -87,7 +87,7 @@ object Cat extends CatInstances {
   def boolean(p: Double): Cat[Boolean] =
     Cat(Map(true -> p, false -> (1.0 - p)))
 
-  def pure[A](a: A): Cat[A] = Cat(Map(a -> 1.0))
+  def pure[A](a: A): Cat[A] = Cat(List((a, 1.0)))
 
   def normalize[T](pmf: Map[T, Double]): Cat[T] = {
     val total = (pmf.values.toList).sum
