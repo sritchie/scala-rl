@@ -79,28 +79,29 @@ object ValueFunction {
 
   /**
     This sweeps across the whole state space and updates the policy every single
-    time.
+    time IF you set valueIteration to true. Otherwise it creates a policy once
+    and then uses it each time.
 
     What we really want is the ability to ping between updates to the value
     function or learning steps; to insert them every so often.
 
-    TODO This is some crazy shit right now. We're updating the value function
-    internally... but we never actually pass the new one back out? I guess we
-    can fix that if we just... give access to the function over and over.
+    This function does NOT currently return the final policy, since you can just
+    make it yourself, given the return value and the function.
     */
   def sweep[A, Obs, R: ToDouble, M[_], S[_]](
       valueFn: ValueFunction[Obs, M, S],
-      policy: Policy[A, Obs, R, M, S],
       policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
       states: Traversable[State[A, Obs, R, S]],
-      inPlace: Boolean
+      inPlace: Boolean,
+      valueIteration: Boolean
   ): ValueFunction[Obs, M, S] =
     states
-      .foldLeft((valueFn, policy)) {
+      .foldLeft((valueFn, policyFn(valueFn))) {
         case ((vf, p), state) =>
           val baseVf = if (inPlace) vf else valueFn
           val newFn = vf.update(state, baseVf.evaluate(state, p))
-          (newFn, policyFn(newFn))
+          val newPolicy = if (valueIteration) policyFn(newFn) else p
+          (newFn, newPolicy)
       }
       ._1
 
@@ -109,19 +110,19 @@ object ValueFunction {
       policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
       states: Traversable[State[A, Obs, R, S]],
       stopFn: (ValueFunction[Obs, M, S], ValueFunction[Obs, M, S], Long) => Boolean,
-      inPlace: Boolean
-  ): (ValueFunction[Obs, M, S], Long) = {
-    val policy = policyFn(valueFn)
+      inPlace: Boolean,
+      valueIteration: Boolean = true
+  ): (ValueFunction[Obs, M, S], Long) =
     Util.loopWhile((valueFn, 0)) {
       case (fn, nIterations) =>
-        val updated = ValueFunction.sweep(fn, policy, policyFn, states, inPlace)
+        val updated =
+          ValueFunction.sweep(fn, policyFn, states, inPlace, valueIteration)
         Either.cond(
           stopFn(fn, updated, nIterations),
           (updated, nIterations),
           (updated, nIterations + 1)
         )
     }
-  }
 
   // Is there some way to make an ExpectedValue typeclass or something?
   def isPolicyStable[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
@@ -182,9 +183,12 @@ object ValueFunction {
       epsilon: Double
   )(
       combine: (Double, Double) => Double
-  ): Boolean =
-    Ordering[Double].lt(
-      Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, combine),
-      epsilon
-    )
+  ): Boolean = Ordering[Double].lt(diffValue(l, r, combine), epsilon)
+
+  def diffValue[Obs, A[_], B[_], C[_], D[_]](
+      l: ValueFunction[Obs, A, B],
+      r: ValueFunction[Obs, C, D],
+      combine: (Double, Double) => Double
+  ): Double =
+    Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, combine),
 }

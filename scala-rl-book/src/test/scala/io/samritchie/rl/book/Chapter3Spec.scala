@@ -53,7 +53,7 @@ class Chapter3Spec extends FunSuite {
 
   val expectedThreeFive = Bellman(
     Map(
-      Position.of(0, 0) -> 19.8896,
+      Position.of(0, 0) -> 21.9774,
       Position.of(0, 1) -> 24.4194,
       Position.of(0, 2) -> 21.9774,
       Position.of(0, 3) -> 19.4194,
@@ -103,7 +103,6 @@ class Chapter3Spec extends FunSuite {
       Chapter3.shouldStop _,
       inPlace = true
     )
-
     assert(ValueFunction.diff(actual, expectedThreeFive, epsilon)(_.max(_)))
   }
 }

@@ -45,7 +45,10 @@ object Chapter4 {
       inPlace = inPlace
     )
 
-  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Cat, Cat], Long) = {
+  def fourTwo(
+      inPlace: Boolean,
+      valueIteration: Boolean = false
+  ): (ValueFunction[CarRental.InvPair, Cat, Cat], Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
     import Cat.Poisson.Lambda
 
@@ -84,7 +87,8 @@ object Chapter4 {
       _ => stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](empty),
       sweep,
       shouldStop(_, _, _, true),
-      inPlace = inPlace
+      inPlace = inPlace,
+      valueIteration = valueIteration
     )
     println(
       s"""Stable? ${ValueFunction.isPolicyStable(

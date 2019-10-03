@@ -59,9 +59,9 @@ object Chapter3 {
       .toSeq
       .map(_.toSeq)
 
-  def printFigure(
+  def printFigure[M[_], S[_]](
       conf: GridWorld.Config,
-      pair: (ValueFunction[Position, Cat, Id], Long),
+      pair: (ValueFunction[Position, M, S], Long),
       title: String
   ): Unit = {
     val (valueFn, iterations) = pair
