@@ -80,7 +80,8 @@ object Chapter3 {
       _ => Random.id[Move, Double],
       gridConf.stateSweep,
       shouldStop _,
-      inPlace = true
+      inPlace = true,
+      valueIteration = false
     )
 
   /**
@@ -92,7 +93,8 @@ object Chapter3 {
       fn => Greedy.Config[Double](0.0, value.Decaying(Double.NegativeInfinity, gamma)).id(fn),
       gridConf.stateSweep,
       shouldStop _,
-      inPlace = true
+      inPlace = true,
+      valueIteration = true
     )
 
   /**

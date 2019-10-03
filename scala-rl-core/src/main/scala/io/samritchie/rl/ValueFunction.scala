@@ -111,7 +111,7 @@ object ValueFunction {
       states: Traversable[State[A, Obs, R, S]],
       stopFn: (ValueFunction[Obs, M, S], ValueFunction[Obs, M, S], Long) => Boolean,
       inPlace: Boolean,
-      valueIteration: Boolean = true
+      valueIteration: Boolean
   ): (ValueFunction[Obs, M, S], Long) =
     Util.loopWhile((valueFn, 0)) {
       case (fn, nIterations) =>

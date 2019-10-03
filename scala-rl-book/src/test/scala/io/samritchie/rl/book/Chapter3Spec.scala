@@ -101,7 +101,8 @@ class Chapter3Spec extends FunSuite {
       stochasticConf.stochastic[Move, Position](_),
       Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter3.shouldStop _,
-      inPlace = true
+      inPlace = true,
+      valueIteration = true
     )
     assert(ValueFunction.diff(actual, expectedThreeFive, epsilon)(_.max(_)))
   }
