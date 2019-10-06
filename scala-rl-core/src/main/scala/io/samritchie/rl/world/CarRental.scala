@@ -29,7 +29,7 @@ object CarRental {
   // One of these comes in for each location.
   case class Update(rentalRequests: Int, returns: Int)
 
-  sealed trait DistConf
+  sealed trait DistConf extends Product with Serializable
   case class PoissonConfig(upperBound: Int, mean: Lambda) extends DistConf
   case class ConstantConfig(mean: Int) extends DistConf
   case class Location(

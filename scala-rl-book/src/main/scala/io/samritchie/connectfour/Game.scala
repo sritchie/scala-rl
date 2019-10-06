@@ -18,11 +18,11 @@ object Game {
     * Represents the color of a game piece. Board positions are
     * represented with Option[Color.]
     */
-  sealed trait Color
-  case object Red extends Color
-  case object Black extends Color
+  sealed trait Color extends Product with Serializable
 
   object Color {
+    final case object Red extends Color
+    final case object Black extends Color
 
     /**
       * Returns the... other color. Useful for alternating turns.

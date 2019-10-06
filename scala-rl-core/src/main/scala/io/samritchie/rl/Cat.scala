@@ -164,14 +164,12 @@ private[rl] object CatMonad extends Monad[Cat] {
   def tailRecM[A, B](a: A)(f: A => Cat[Either[A, B]]): Cat[B] = {
     @tailrec
     def run(acc: Map[B, Double], queue: Queue[(Either[A, B], Double)]): Map[B, Double] =
-      if (queue.isEmpty) acc
-      else {
-        queue.head match {
-          case (Left(a), v) =>
-            run(acc, queue.tail ++ f(a).pmfSeq.map { case (eab, d) => (eab, d * v) })
-          case (Right(b), v) =>
-            run(Util.mergeV(acc, b, v), queue.tail)
-        }
+      queue.headOption match {
+        case None => acc
+        case Some((Left(a), v)) =>
+          run(acc, queue.drop(1) ++ f(a).pmfSeq.map { case (eab, d) => (eab, d * v) })
+        case Some((Right(b), v)) =>
+          run(Util.mergeV(acc, b, v), queue.drop(1))
       }
     val pmf = run(Map.empty, f(a).pmfSeq.to[Queue])
     Cat[B](pmf)

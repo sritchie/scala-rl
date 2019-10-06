@@ -31,15 +31,15 @@ object IO {
       case "" =>
         println("You entered nothing. We'll default to red.")
         println
-        Red
+        Color.Red
       case "red" =>
         println("Red it is!")
         println
-        Red
+        Color.Red
       case "black" =>
         println("Black it is!")
         println
-        Red
+        Color.Black
       case _ =>
         println("I'm afraid that's not a valid input. Try again!")
         println

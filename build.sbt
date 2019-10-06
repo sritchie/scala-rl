@@ -1,6 +1,7 @@
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import microsites.{CdnDirectives, MicrositeEditButton}
 import sbtorgpolicies.utils.getEnvVar
+import wartremover.Wart
 
 /* dependency versions */
 lazy val V = new {
@@ -32,6 +33,12 @@ val consoleExclusions = Seq(
   "-Ywarn-unused:imports", "-Xfatal-warnings", "-Xlint"
 )
 
+val ignoredWarts: Set[Wart] =
+  Set(Wart.DefaultArguments, Wart.TraversableOps, Wart.Any, Wart.NonUnitStatements)
+
+def unsafeWartsExcept(ws: Set[wartremover.Wart]): Seq[wartremover.Wart] =
+  Warts.unsafe.filterNot(w => ws.exists(_.clazz == w.clazz))
+
 val sharedSettings = Seq(
   organization := "io.samritchie",
   scalaVersion := V.scala,
@@ -40,6 +47,7 @@ val sharedSettings = Seq(
   cancelable in Global := true,
   parallelExecution in Test := true,
   scalafmtOnCompile in ThisBuild := true,
+  wartremoverErrors ++= unsafeWartsExcept(ignoredWarts),
   unmanagedBase in Global := baseDirectory.value / "lib",
   resolvers ++= Seq(
     Resolver.bintrayRepo("cibotech", "public")
