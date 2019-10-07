@@ -4,13 +4,10 @@
 package io.samritchie.rl
 package world
 
-import com.stripe.rainier.core.Generator
+import com.stripe.rainier.core.{Categorical, Generator}
 
 object Blackjack {
   case class Config() {
-    val nextCard: Generator[Card] =
-      Cat.seq((1 to 14).map(n => Card(math.min(10, n)))).toRainier.generator
-
     def build(startingState: Observation): Blackjack =
       Blackjack(this, startingState)
 
@@ -45,6 +42,9 @@ object Blackjack {
       aceCount: Sum,
       dealerCard: Card
   )
+
+  val nextCard: Generator[Card] =
+    Categorical.list((1 to 14).map(n => Card(math.min(10, n)))).generator
 }
 
 /**
@@ -67,8 +67,8 @@ case class Blackjack(
       Map.empty
     else
       Map(
-        Action.Hit -> config.nextCard.map(hit(_)),
-        Action.Stay -> config.nextCard.map(dealerTurn(_))
+        Action.Hit -> Blackjack.nextCard.map(hit(_)),
+        Action.Stay -> Blackjack.nextCard.map(dealerTurn(_))
       )
 
   def someoneWon: Boolean = ???
