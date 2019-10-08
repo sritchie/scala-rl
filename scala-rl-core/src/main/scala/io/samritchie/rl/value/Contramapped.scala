@@ -11,14 +11,17 @@ class Contramapped[Obs, M[_], N[_], S[_]](
     self: ValueFunction[Obs, M, S],
     policyFn: FunctionK[N, M]
 ) extends ValueFunction[Obs, N, S] {
-  def seen: Iterable[Obs] = self.seen
-  def stateValue(obs: Obs): Value[Double] = self.stateValue(obs)
+  override def seen: Iterable[Obs] = self.seen
+  override def stateValue(obs: Obs): Value[Double] = self.stateValue(obs)
 
-  def evaluate[A, R: ToDouble](state: State[A, Obs, R, S], policy: Policy[A, Obs, R, N, S]): Value[Double] =
+  override def evaluate[A, R: ToDouble](
+      state: State[A, Obs, R, S],
+      policy: Policy[A, Obs, R, N, S]
+  ): Value[Double] =
     self.evaluate(state, policy.mapK(policyFn))
 
-  def update[A, R](state: State[A, Obs, R, S], value: Value[Double]): ValueFunction[Obs, N, S] =
-    new Contramapped(self.update(state, value), policyFn)
+  override def update(obs: Obs, value: Value[Double]): ValueFunction[Obs, N, S] =
+    new Contramapped(self.update(obs, value), policyFn)
 
   override def evaluateAndUpdate[A, R: ToDouble](
       state: State[A, Obs, R, S],

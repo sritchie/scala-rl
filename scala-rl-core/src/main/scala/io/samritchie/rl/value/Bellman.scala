@@ -56,9 +56,6 @@ case class Bellman[Obs, M[_]: ExpectedValue, S[_]: ExpectedValue](
     This is currently an 'expected update', because it's using expectations vs any
     sampling.
     */
-  override def update[A, R](
-      state: State[A, Obs, R, S],
-      value: Value[Double]
-  ): ValueFunction[Obs, M, S] =
-    copy(m = m.updated(state.observation, value))
+  override def update(observation: Obs, value: Value[Double]): ValueFunction[Obs, M, S] =
+    copy(m = m.updated(observation, value))
 }

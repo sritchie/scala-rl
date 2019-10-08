@@ -32,15 +32,12 @@ trait ValueFunction[Obs, M[_], S[_]] { self =>
       policy: Policy[A, Obs, R, M, S]
   ): Value[Double]
 
-  def update[A, R](
-      state: State[A, Obs, R, S],
-      value: Value[Double]
-  ): ValueFunction[Obs, M, S]
+  def update(state: Obs, value: Value[Double]): ValueFunction[Obs, M, S]
 
   def evaluateAndUpdate[A, R: ToDouble](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
-  ): ValueFunction[Obs, M, S] = update(state, evaluate(state, policy))
+  ): ValueFunction[Obs, M, S] = update(state.observation, evaluate(state, policy))
 
   def contramapK[N[_]](f: FunctionK[N, M]): ValueFunction[Obs, N, S] =
     new value.Contramapped[Obs, M, N, S](self, f)
@@ -99,7 +96,7 @@ object ValueFunction {
       .foldLeft((valueFn, policyFn(valueFn))) {
         case ((vf, p), state) =>
           val baseVf = if (inPlace) vf else valueFn
-          val newFn = vf.update(state, baseVf.evaluate(state, p))
+          val newFn = vf.update(state.observation, baseVf.evaluate(state, p))
           val newPolicy = if (valueIteration) policyFn(newFn) else p
           (newFn, newPolicy)
       }

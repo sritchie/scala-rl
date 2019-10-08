@@ -65,6 +65,17 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
       override def actions: Set[A] = self.actions
     }
 
+  def mapReward[T](f: R => T)(implicit M: Functor[M]): State[A, Obs, T, M] =
+    new State[A, Obs, T, M] {
+      private def innerMap(pair: M[(R, State[A, Obs, R, M])]): M[(T, State[A, Obs, T, M])] =
+        M.map(pair) { case (r, s) => (f(r), s.mapReward(f)) }
+
+      override def observation = self.observation
+      override def dynamics = self.dynamics.mapValues(innerMap(_))
+      override def act(action: A) = self.act(action).map(innerMap(_))
+      override def actions: Set[A] = self.actions
+    }
+
   def mapK[N[_]](f: FunctionK[M, N])(implicit N: Functor[N]): State[A, Obs, R, N] = new State[A, Obs, R, N] {
     private def innerMap(pair: M[(R, State[A, Obs, R, M])]): N[(R, State[A, Obs, R, N])] =
       N.map(f(pair)) { case (r, s) => (r, s.mapK(f)) }

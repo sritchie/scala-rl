@@ -39,6 +39,13 @@ trait Policy[A, Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
         self.learn(state.mapObservation(f), action, reward).contramapObservation(f)
     }
 
+  def contramapReward[T](f: T => R)(implicit S: Functor[S]): Policy[A, Obs, T, M, S] =
+    new Policy[A, Obs, T, M, S] {
+      override def choose(state: State[A, Obs, T, S]) = self.choose(state.mapReward(f))
+      override def learn(state: State[A, Obs, T, S], action: A, reward: T) =
+        self.learn(state.mapReward(f), action, f(reward)).contramapReward(f)
+    }
+
   /**
     * Just an idea to see if I can make stochastic deciders out of
     * deterministic deciders. We'll see how this develops.
