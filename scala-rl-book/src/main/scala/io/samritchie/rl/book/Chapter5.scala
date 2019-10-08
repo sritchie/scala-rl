@@ -6,7 +6,10 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import com.stripe.rainier.cats._
+import com.stripe.rainier.core.Generator
 import io.samritchie.rl.policy.Random
+import io.samritchie.rl.util.CardDeck
 import io.samritchie.rl.world.Blackjack
 
 object Chapter5 {
@@ -44,6 +47,12 @@ object Chapter5 {
     stickHigh(hitBelow).mapK(Util.idToMonad[Cat])
 
   def random[S[_]]: Policy[Action, AgentView, Double, Cat, S] = Random()
+
+  val starter: Generator[Blackjack] =
+    Blackjack.Config(CardDeck.basic).stateGen
+
+  val limited: Generator[State[Action, AgentView, Double, Generator]] =
+    starter.map(_.mapObservation(_.agentView))
 
   def main(items: Array[String]): Unit = {
     println("Hello, chapter 5!")

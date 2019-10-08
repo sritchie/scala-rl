@@ -91,7 +91,7 @@ object Chapter2 {
       { case (_, r, _) => Normal(r, stdDev).generator }
     )
 
-  def play(policy: CategoricalPolicy[Arm, Any, Double, Generator]): List[Double] =
+  def play(policy: CategoricalPolicy[Arm, Unit, Double, Generator]): List[Double] =
     playBandit(
       policy.mapK(Cat.catToGenerator),
       nArmedTestbed(10, 0.0, 1.0),

@@ -40,7 +40,7 @@ object Chapter4 {
   def fourOne(inPlace: Boolean): (ValueFunction[Position, Cat, Id], Long) =
     ValueFunction.sweepUntil[Move, Position, Double, Cat, Id](
       emptyFn,
-      _ => Random.id[Move, Double],
+      _ => Random.id[Move, Position, Double],
       gridConf.stateSweep,
       shouldStop(_, _, _),
       inPlace,

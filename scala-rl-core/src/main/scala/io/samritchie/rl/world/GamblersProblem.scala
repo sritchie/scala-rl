@@ -34,11 +34,9 @@ case class GamblersProblem(
 
   override val observation = amount
 
-  override def dynamics[_ >: Amount]: Map[Amount, Cat[(Double, GamblersProblem)]] = fixedDynamics
-
   private val headsDist: Cat[Boolean] = Cat.boolean(config.headProb)
 
-  private lazy val fixedDynamics: Map[Amount, Cat[(Double, GamblersProblem)]] =
+  override lazy val dynamics: Map[Amount, Cat[(Double, GamblersProblem)]] =
     if (amount >= config.winningAmount || amount.p <= 0)
       Map.empty
     else

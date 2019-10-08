@@ -129,11 +129,8 @@ object Blackjack {
 sealed trait Blackjack extends State[Blackjack.Action, Blackjack.Game, Double, Generator]
 
 case class Dead(game: Blackjack.Game) extends Blackjack {
-  import Blackjack.{Action, Game}
-
   override val observation = game.showAll
-  override def dynamics[O2 >: Game]: Map[Action, Generator[(Double, Blackjack)]] =
-    Map.empty
+  override val dynamics = Map.empty
 }
 
 /**
@@ -149,7 +146,7 @@ case class Alive(config: Blackjack.Config, game: Blackjack.Game) extends Blackja
   // I think we're not going to be able to ever need to call this from the
   // current set of techniques... so maybe we move this to some place where we
   // have an expected value?
-  override def dynamics[O2 >: Game]: Map[Action, Generator[(Double, Blackjack)]] =
+  override def dynamics: Map[Action, Generator[(Double, Blackjack)]] =
     Map(
       Action.Hit -> config.getCard.map(hit(_)),
       Action.Stay -> dealerTurn(config.getCard)

@@ -92,7 +92,7 @@ case class CarRental(
   override val observation: InvPair = (a, b)
 
   /**
-      Go through all possibilities...
+    Go through all possibilities...
 
     FIRST move the cars.
     THEN calculate the cost.
@@ -105,14 +105,13 @@ case class CarRental(
     TODO filter this so that we don't present moves that will more than
     deplete some spot. Overloading is fine, since it gets the cars off the
     board... I guess?
-    */
-  override def dynamics[_ >: InvPair]: Map[Move, Cat[(Double, CarRental)]] = fixedDynamics
 
-  // TODO I THINK we can only make this faster if we decide to use an Eval...
-  // get an EvalT going for the monads, and define an expected value instance
-  // there. But then the first person to go and iterate through will evaluate
-  // everything.
-  private lazy val fixedDynamics: Map[Move, Cat[(Double, CarRental)]] =
+    TODO I THINK we can only make this faster if we decide to use an Eval...
+    get an EvalT going for the monads, and define an expected value instance
+    there. But then the first person to go and iterate through will evaluate
+    everything.
+    */
+  override lazy val dynamics: Map[Move, Cat[(Double, CarRental)]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
       pmf.map {
         case (aUpdate, bUpdate) =>

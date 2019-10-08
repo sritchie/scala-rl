@@ -3,7 +3,7 @@
   */
 package io.samritchie.rl
 
-import cats.Monad
+import cats.{Functor, Monad}
 import cats.arrow.FunctionK
 import cats.implicits._
 
@@ -21,7 +21,7 @@ import scala.language.higherKinds
   * M - the monadic type offered by the policy.
   * S - the monad for the state.
   */
-trait Policy[A, -Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { self =>
+trait Policy[A, Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { self =>
   def choose(state: State[A, Obs, R, S]): M[A]
 
   /**
@@ -32,13 +32,20 @@ trait Policy[A, -Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { se
     */
   def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, M, S] = self
 
+  def contramapObservation[P](f: P => Obs)(implicit S: Functor[S]): Policy[A, P, R, M, S] =
+    new Policy[A, P, R, M, S] {
+      override def choose(state: State[A, P, R, S]) = self.choose(state.mapObservation(f))
+      override def learn(state: State[A, P, R, S], action: A, reward: R) =
+        self.learn(state.mapObservation(f), action, reward).contramapObservation(f)
+    }
+
   /**
     * Just an idea to see if I can make stochastic deciders out of
     * deterministic deciders. We'll see how this develops.
     */
   def mapK[N[_]](f: FunctionK[M, N]): Policy[A, Obs, R, N, S] =
     new Policy[A, Obs, R, N, S] {
-      def choose(state: State[A, Obs, R, S]): N[A] = f(self.choose(state))
+      override def choose(state: State[A, Obs, R, S]): N[A] = f(self.choose(state))
       override def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, N, S] =
         self.learn(state, action, reward).mapK(f)
     }

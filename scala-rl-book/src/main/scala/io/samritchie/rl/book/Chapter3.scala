@@ -77,7 +77,7 @@ object Chapter3 {
   def threeTwo: (ValueFunction[Position, Cat, Id], Long) =
     ValueFunction.sweepUntil(
       emptyFn,
-      _ => Random.id[Move, Double],
+      _ => Random.id[Move, Position, Double],
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,

@@ -18,8 +18,7 @@ case class StaticMapState[A, R, S[_]](
 )(implicit S: Functor[S])
     extends State[A, Unit, R, S] {
   override val observation: Unit = ()
-
-  override def dynamics[O2 >: Unit]: Map[A, S[(R, State[A, O2, R, S])]] =
+  override def dynamics: Map[A, S[(R, State[A, Unit, R, S])]] =
     rewards.mapValues(S.map(_)(r => (r, this)))
 }
 
@@ -33,7 +32,7 @@ case class MapState[A, Obs, R, S[_]](
 )(implicit S: Functor[S])
     extends State[A, Obs, R, S] {
 
-  private def updateForA[O2 >: Obs](a: A, r: R): State[A, O2, R, S] = {
+  private def updateForA(a: A, r: R): State[A, Obs, R, S] = {
     val (newObservation, newGen) = step(a, observation, r, rewards(a))
     MapState(
       newObservation,
@@ -42,9 +41,9 @@ case class MapState[A, Obs, R, S[_]](
     )
   }
 
-  override def dynamics[O2 >: Obs]: Map[A, S[(R, State[A, O2, R, S])]] =
+  override def dynamics: Map[A, S[(R, State[A, Obs, R, S])]] =
     rewards.map {
-      case (a, g) => (a, S.map(g)(r => (r, updateForA[O2](a, r))))
+      case (a, g) => (a, S.map(g)(r => (r, updateForA(a, r))))
     }
 }
 

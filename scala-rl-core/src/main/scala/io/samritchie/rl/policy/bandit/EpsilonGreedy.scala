@@ -14,22 +14,22 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[A, R, T: Semigroup: Ordering, S[_]](
+case class EpsilonGreedy[A, Obs, R, T: Semigroup: Ordering, S[_]](
     config: EpsilonGreedy.Config[R, T],
     actionValues: Map[A, T]
-) extends CategoricalPolicy[A, Any, R, S] {
+) extends CategoricalPolicy[A, Obs, R, S] {
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
 
-  private def allActions(state: State[A, Any, R, S]): Cat[A] =
+  private def allActions(state: State[A, Obs, R, S]): Cat[A] =
     Cat.fromSet(state.actions)
 
-  private def greedy(state: State[A, Any, R, S]): Cat[A] =
+  private def greedy(state: State[A, Obs, R, S]): Cat[A] =
     Cat.fromSet(
       Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
     )
 
-  override def choose(state: State[A, Any, R, S]): Cat[A] =
+  override def choose(state: State[A, Obs, R, S]): Cat[A] =
     Monad[Cat]
       .ifM(explore)(
         allActions(state),
@@ -37,10 +37,10 @@ case class EpsilonGreedy[A, R, T: Semigroup: Ordering, S[_]](
       )
 
   override def learn(
-      state: State[A, Any, R, S],
+      state: State[A, Obs, R, S],
       action: A,
       reward: R
-  ): EpsilonGreedy[A, R, T, S] =
+  ): EpsilonGreedy[A, Obs, R, T, S] =
     copy(actionValues = Util.mergeV(actionValues, action, config.prepare(reward)))
 }
 
@@ -54,7 +54,7 @@ object EpsilonGreedy {
       prepare: R => T,
       initial: T
   ) {
-    def policy[A, S[_]]: EpsilonGreedy[A, R, T, S] =
+    def policy[A, Obs, S[_]]: EpsilonGreedy[A, Obs, R, T, S] =
       EpsilonGreedy(this, Map.empty)
   }
 
