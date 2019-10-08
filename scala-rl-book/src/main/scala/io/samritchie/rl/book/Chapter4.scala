@@ -152,6 +152,7 @@ object Chapter4 {
 
     - add support for policy evaluation and policy stability checks, alternating.
     - come up with some way of actually turning a particular policy's decisions into a heat map that's not so hardcoded
+    - NOT have the graph library explode when I cancel a run, for Heatmap.
     */
   def runCarRental(): Unit = {
     val (vf, config, _) = fourTwo(true)
@@ -163,8 +164,10 @@ object Chapter4 {
         dataMap((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).toDouble
       }.toSeq
     }.toSeq
-    println(inputs)
-    Plot.heatMap(inputs, 11)
+
+    // The default color palette doesn't have enough colors to properly
+    // represent things here.
+    Plot.heatMap(inputs, 20)
   }
   def main(items: Array[String]): Unit = {
     println("Hello, chapter 4!")
