@@ -23,9 +23,9 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 /**
 Base logic for greedy policies.
   */
-class Greedy[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
+class Greedy[A, Obs, R: ToDouble, S[_]: ExpectedValue](
     config: Greedy.Config[R],
-    valueFn: ValueFunction[Obs, M, S]
+    valueFn: ValueFunction[Obs]
 ) extends Policy[A, Obs, R, Cat, S] { self =>
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
@@ -44,13 +44,10 @@ class Greedy[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
 
 object Greedy {
   case class Config[R: ToDouble](epsilon: Double, default: Value[Double]) {
-    def id[A, Obs](
-        valueFn: ValueFunction[Obs, Cat, Id]
-    ): Policy[A, Obs, R, Cat, Id] =
-      new Greedy(this, valueFn)
+    def id[A, Obs](valueFn: ValueFunction[Obs]): Policy[A, Obs, R, Cat, Id] = policy(valueFn)
+    def stochastic[A, Obs](valueFn: ValueFunction[Obs]): Policy[A, Obs, R, Cat, Cat] = policy(valueFn)
 
-    def stochastic[A, Obs](
-        valueFn: ValueFunction[Obs, Cat, Cat]
-    ): Policy[A, Obs, R, Cat, Cat] = new Greedy(this, valueFn)
+    def policy[A, Obs, S[_]: ExpectedValue](valueFn: ValueFunction[Obs]): Policy[A, Obs, R, Cat, S] =
+      new Greedy[A, Obs, R, S](this, valueFn)
   }
 }

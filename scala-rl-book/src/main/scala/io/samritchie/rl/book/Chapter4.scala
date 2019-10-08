@@ -23,9 +23,9 @@ object Chapter4 {
   val epsilon: Double = 1e-4
   val emptyFn = ValueFunction.decaying[Position](gamma)
 
-  def shouldStop[Obs, M[_], S[_]](
-      l: ValueFunction[Obs, M, S],
-      r: ValueFunction[Obs, M, S],
+  def shouldStop[Obs](
+      l: ValueFunction[Obs],
+      r: ValueFunction[Obs],
       iterations: Long,
       verbose: Boolean = false
   ): Boolean = {
@@ -37,7 +37,7 @@ object Chapter4 {
     ValueFunction.diffBelow(l, r, epsilon)(_.max(_))
   }
 
-  def fourOne(inPlace: Boolean): (ValueFunction[Position, Cat, Id], Long) =
+  def fourOne(inPlace: Boolean): (ValueFunction[Position], Long) =
     ValueFunction.sweepUntil[Move, Position, Double, Cat, Id](
       emptyFn,
       _ => Random.id[Move, Position, Double],
@@ -47,7 +47,7 @@ object Chapter4 {
       valueIteration = false
     )
 
-  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Cat, Cat], CarRental.Config, Long) = {
+  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair], CarRental.Config, Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
     import Cat.Poisson.Lambda
 
@@ -72,7 +72,7 @@ object Chapter4 {
     val sweep = config.stateSweep
     val gamma = 0.9
     val zeroValue = value.Decaying(0.0, gamma)
-    val empty = value.Bellman[CarRental.InvPair, Cat, Cat](
+    val empty = value.Bellman[CarRental.InvPair](
       Map.empty,
       zeroValue
     )
@@ -134,7 +134,7 @@ object Chapter4 {
     This currently is not great because we don't have a way of automatically
     binning the data and generating that graph. This is custom.
     */
-  def vfToSeqPoints(vf: ValueFunction[CarRental.InvPair, Cat, Cat]): Seq[Seq[Double]] =
+  def vfToSeqPoints(vf: ValueFunction[CarRental.InvPair]): Seq[Seq[Double]] =
     (0 to 20).map { row =>
       (0 to 20).map { col =>
         vf.stateValue((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).get

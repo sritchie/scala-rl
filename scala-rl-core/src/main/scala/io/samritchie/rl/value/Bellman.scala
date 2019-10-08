@@ -30,10 +30,10 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
   want to be able to look forward many steps in the model, and create an algebra
   that will let us talk well about this.
   */
-case class Bellman[Obs, M[_]: ExpectedValue, S[_]: ExpectedValue](
+case class Bellman[Obs](
     m: Map[Obs, Value[Double]],
     default: Value[Double]
-) extends ValueFunction[Obs, M, S] {
+) extends ValueFunction[Obs] {
   def seen: Iterable[Obs] = m.keys
 
   override def stateValue(obs: Obs): Value[Double] =
@@ -41,7 +41,7 @@ case class Bellman[Obs, M[_]: ExpectedValue, S[_]: ExpectedValue](
 
   // TODO... should this move to the trait? Is anyone ever going to implement
   // this differently? And how about the other methods?
-  override def evaluate[A, R: ToDouble](
+  override def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
   ): Value[Double] =
@@ -56,6 +56,6 @@ case class Bellman[Obs, M[_]: ExpectedValue, S[_]: ExpectedValue](
     This is currently an 'expected update', because it's using expectations vs any
     sampling.
     */
-  override def update(observation: Obs, value: Value[Double]): ValueFunction[Obs, M, S] =
+  override def update(observation: Obs, value: Value[Double]): ValueFunction[Obs] =
     copy(m = m.updated(observation, value))
 }

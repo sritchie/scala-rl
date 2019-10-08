@@ -10,8 +10,6 @@
   */
 package io.samritchie.rl
 
-import cats.Id
-import cats.arrow.FunctionK
 import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 /**
@@ -20,58 +18,52 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
   We need some way for this to learn, or see new observations, that's part of
   the trait.
   */
-trait ValueFunction[Obs, M[_], S[_]] { self =>
+trait ValueFunction[Obs] { self =>
   def seen: Iterable[Obs]
   def stateValue(obs: Obs): Value[Double]
+  def update(state: Obs, value: Value[Double]): ValueFunction[Obs]
 
   /**
     Evaluate the state using the supplied policy.
     */
-  def evaluate[A, R: ToDouble](
+  def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
   ): Value[Double]
 
-  def update(state: Obs, value: Value[Double]): ValueFunction[Obs, M, S]
-
-  def evaluateAndUpdate[A, R: ToDouble](
+  def evaluateAndUpdate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
-  ): ValueFunction[Obs, M, S] = update(state.observation, evaluate(state, policy))
-
-  def contramapK[N[_]](f: FunctionK[N, M]): ValueFunction[Obs, N, S] =
-    new value.Contramapped[Obs, M, N, S](self, f)
+  ): ValueFunction[Obs] =
+    update(state.observation, evaluate(state, policy))
 }
 
-trait ActionValueFunction[A, Obs, M[_], S[_]] extends ValueFunction[Obs, M, S] { self =>
+trait ActionValueFunction[A, Obs] extends ValueFunction[Obs] { self =>
   def seen(obs: Obs): Set[A]
   def actionValue(obs: Obs, a: A): Value[Double]
 
-  def learn[R](
+  def learn[R, M[_], S[_]](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S],
       action: A,
       reward: R
-  ): ActionValueFunction[A, Obs, M, S]
-
-  override def contramapK[N[_]](f: FunctionK[N, M]): ActionValueFunction[A, Obs, N, S] =
-    new value.ContramappedAV[A, Obs, M, N, S](self, f)
+  ): ActionValueFunction[A, Obs]
 }
 
 object ValueFunction {
-  def apply[Obs](default: Value[Double]): ValueFunction[Obs, Cat, Id] =
+  def apply[Obs](default: Value[Double]): ValueFunction[Obs] =
     value.Bellman(Map.empty[Obs, Value[Double]], default)
 
   /**
     Returns a new value function that absorbs rewards with decay.
     */
-  def decaying[Obs](gamma: Double): ValueFunction[Obs, Cat, Id] =
+  def decaying[Obs](gamma: Double): ValueFunction[Obs] =
     decaying(0.0, gamma)
 
   /**
     Returns a new value function that absorbs rewards with decay.
     */
-  def decaying[Obs](default: Double, gamma: Double): ValueFunction[Obs, Cat, Id] =
+  def decaying[Obs](default: Double, gamma: Double): ValueFunction[Obs] =
     ValueFunction[Obs](value.Decaying(default, gamma))
 
   /**
@@ -85,13 +77,13 @@ object ValueFunction {
     This function does NOT currently return the final policy, since you can just
     make it yourself, given the return value and the function.
     */
-  def sweep[A, Obs, R: ToDouble, M[_], S[_]](
-      valueFn: ValueFunction[Obs, M, S],
-      policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
+  def sweep[A, Obs, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
+      valueFn: ValueFunction[Obs],
+      policyFn: ValueFunction[Obs] => Policy[A, Obs, R, M, S],
       states: Traversable[State[A, Obs, R, S]],
       inPlace: Boolean,
       valueIteration: Boolean
-  ): ValueFunction[Obs, M, S] =
+  ): ValueFunction[Obs] =
     states
       .foldLeft((valueFn, policyFn(valueFn))) {
         case ((vf, p), state) =>
@@ -102,14 +94,14 @@ object ValueFunction {
       }
       ._1
 
-  def sweepUntil[A, Obs, R: ToDouble, M[_], S[_]](
-      valueFn: ValueFunction[Obs, M, S],
-      policyFn: ValueFunction[Obs, M, S] => Policy[A, Obs, R, M, S],
+  def sweepUntil[A, Obs, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
+      valueFn: ValueFunction[Obs],
+      policyFn: ValueFunction[Obs] => Policy[A, Obs, R, M, S],
       states: Traversable[State[A, Obs, R, S]],
-      stopFn: (ValueFunction[Obs, M, S], ValueFunction[Obs, M, S], Long) => Boolean,
+      stopFn: (ValueFunction[Obs], ValueFunction[Obs], Long) => Boolean,
       inPlace: Boolean,
       valueIteration: Boolean
-  ): (ValueFunction[Obs, M, S], Long) =
+  ): (ValueFunction[Obs], Long) =
     Util.loopWhile((valueFn, 0)) {
       case (fn, nIterations) =>
         val updated =
@@ -123,8 +115,8 @@ object ValueFunction {
 
   // Is there some way to make an ExpectedValue typeclass or something?
   def isPolicyStable[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
-      l: ValueFunction[Obs, M, S],
-      r: ValueFunction[Obs, M, S],
+      l: ValueFunction[Obs],
+      r: ValueFunction[Obs],
       default: Value[Double],
       states: Traversable[State[A, Obs, R, S]]
   ): Boolean =
@@ -135,7 +127,7 @@ object ValueFunction {
     an action value function. Working.
     */
   def greedyOptions[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
-      valueFn: ValueFunction[Obs, M, S],
+      valueFn: ValueFunction[Obs],
       state: State[A, Obs, R, S],
       defaultActionValue: Value[Double]
   ): Set[A] =
@@ -148,7 +140,7 @@ object ValueFunction {
     state.
     */
   def actionValue[A, Obs, R, M[_], S[_]](
-      valueFn: ValueFunction[Obs, M, S],
+      valueFn: ValueFunction[Obs],
       state: S[(R, State[A, Obs, R, S])],
       default: Value[Double]
   )(implicit toDouble: ToDouble[R], EV: ExpectedValue[S]): Value[Double] =
@@ -158,7 +150,7 @@ object ValueFunction {
     }
 
   def expectedActionValue[A, Obs, R, M[_], S[_]](
-      valueFn: ValueFunction[Obs, M, S],
+      valueFn: ValueFunction[Obs],
       action: M[A],
       next: A => S[(R, State[A, Obs, R, S])],
       // TODO what exactly does this mean?
@@ -174,17 +166,17 @@ object ValueFunction {
     observation... the final aggregated value must be less than epsilon to
     return true, false otherwise.
     */
-  def diffBelow[Obs, A[_], B[_], C[_], D[_]](
-      l: ValueFunction[Obs, A, B],
-      r: ValueFunction[Obs, C, D],
+  def diffBelow[Obs](
+      l: ValueFunction[Obs],
+      r: ValueFunction[Obs],
       epsilon: Double
   )(
       combine: (Double, Double) => Double
   ): Boolean = Ordering[Double].lt(diffValue(l, r, combine), epsilon)
 
-  def diffValue[Obs, A[_], B[_], C[_], D[_]](
-      l: ValueFunction[Obs, A, B],
-      r: ValueFunction[Obs, C, D],
+  def diffValue[Obs](
+      l: ValueFunction[Obs],
+      r: ValueFunction[Obs],
       combine: (Double, Double) => Double
   ): Double =
     Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, combine),

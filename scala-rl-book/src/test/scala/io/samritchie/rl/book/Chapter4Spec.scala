@@ -45,7 +45,7 @@ class Chapter4Spec extends FunSuite {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = value.Bellman[Position, Cat, Cat](Map.empty, zeroValue)
+    val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
 
     val (actual, _) = ValueFunction.sweepUntil[Move, Position, Double, Cat, Cat](
       emptyFn,

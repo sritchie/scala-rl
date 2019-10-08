@@ -91,7 +91,7 @@ class Chapter3Spec extends FunSuite {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = value.Bellman[Position, Cat, Cat](Map.empty, zeroValue)
+    val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
 
     // Build a Stochastic version of the greedy policy.
     val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
