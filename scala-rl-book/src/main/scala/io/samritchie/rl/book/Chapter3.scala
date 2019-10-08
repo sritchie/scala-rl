@@ -59,9 +59,9 @@ object Chapter3 {
       .toSeq
       .map(_.toSeq)
 
-  def printFigure(
+  def printFigure[M[_], S[_]](
       conf: GridWorld.Config,
-      pair: (ValueFunction[Position, Cat, Id], Long),
+      pair: (ValueFunction[Position, M, S], Long),
       title: String
   ): Unit = {
     val (valueFn, iterations) = pair
@@ -80,7 +80,8 @@ object Chapter3 {
       _ => Random.id[Move, Double],
       gridConf.stateSweep,
       shouldStop _,
-      inPlace = true
+      inPlace = true,
+      valueIteration = false
     )
 
   /**
@@ -92,7 +93,8 @@ object Chapter3 {
       fn => Greedy.Config[Double](0.0, value.Decaying(Double.NegativeInfinity, gamma)).id(fn),
       gridConf.stateSweep,
       shouldStop _,
-      inPlace = true
+      inPlace = true,
+      valueIteration = true
     )
 
   /**

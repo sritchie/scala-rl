@@ -13,12 +13,12 @@
 package io.samritchie.rl
 package plot
 
-import com.cibo.evilplot.plot.aesthetics.Theme
 import com.cibo.evilplot.colors.{HTMLNamedColors, RGB}
 import com.cibo.evilplot.displayPlot
 import com.cibo.evilplot.numeric.{Bounds, Point}
-import com.cibo.evilplot.plot.{FunctionPlot, LinePlot, Overlay}
+import com.cibo.evilplot.plot.{FunctionPlot, Heatmap, LinePlot, Overlay}
 import com.cibo.evilplot.plot.aesthetics.DefaultTheme
+import com.cibo.evilplot.numeric.Point
 
 object Plot {
   import DefaultTheme._
@@ -65,13 +65,7 @@ object Plot {
   }
 
   def gridPlot(): Unit = {
-    val data = Seq.tabulate(100) { i =>
-      Point(i.toDouble, scala.util.Random.nextDouble())
-    }
-    val theme = implicitly[Theme]
-
     import com.cibo.evilplot.demo.DemoPlots
-
     displayPlot(DemoPlots.axesTesting)
     // displayPlot(
 
@@ -95,6 +89,14 @@ object Plot {
     //     .render()
     // )
   }
+
+  def heatMap(data: Seq[Seq[Double]], colorCount: Int): Unit =
+    displayPlot(
+      Heatmap(data, colorCount)
+        .standard()
+        .rightLegend()
+        .render()
+    )
 
   def main(items: Array[String]): Unit =
     // lineChart(Seq(Seq.tabulate(100) { i =>

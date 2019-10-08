@@ -53,6 +53,7 @@ object Util {
   def allMaxBy[A, B: Ordering](as: Set[A])(f: A => B): Set[A] =
     if (as.isEmpty) Set.empty
     else {
+
       val maxB = f(as.maxBy(f))
       as.filter(a => Ordering[B].equiv(maxB, f(a)))
     }

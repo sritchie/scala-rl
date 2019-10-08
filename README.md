@@ -39,6 +39,7 @@ Want to contribute examples or use this stuff?
 probability Monad:
 https://www.chrisstucchio.com/blog/2016/probability_the_monad.html
 - We use ScalaFMT https://scalameta.org/scalafmt/docs/installation.html
+- also, wartremover http://www.wartremover.org
 
 
 ## License

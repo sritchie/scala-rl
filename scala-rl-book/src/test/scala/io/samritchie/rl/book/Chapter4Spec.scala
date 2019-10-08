@@ -52,7 +52,8 @@ class Chapter4Spec extends FunSuite {
       _ => policy.Random.cat[Move, Double],
       Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter4.shouldStop(_, _, _),
-      inPlace = true
+      inPlace = true,
+      valueIteration = true
     )
     assert(ValueFunction.diff(actual, expectedFourOne, epsilon)(_.max(_)))
   }

@@ -37,7 +37,7 @@ class ConnectFourTest extends org.scalatest.FunSuite {
 trait ConnectFourGen {
   import Game._
 
-  implicit val genColor: Gen[Color] = Gen.oneOf(Red, Black)
+  implicit val genColor: Gen[Color] = Gen.oneOf(Color.Red, Color.Black)
 
   implicit val genMove: Gen[Move] = for {
     column <- Gen.posNum[Int]

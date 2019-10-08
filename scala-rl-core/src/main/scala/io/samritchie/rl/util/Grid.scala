@@ -8,12 +8,12 @@ package util
 import scala.util.{Failure, Success, Try}
 
 object Grid {
-  sealed trait Move
+  sealed trait Move extends Product with Serializable
   object Move {
-    case object Left extends Move
-    case object Right extends Move
-    case object Up extends Move
-    case object Down extends Move
+    final case object Left extends Move
+    final case object Right extends Move
+    final case object Up extends Move
+    final case object Down extends Move
 
     val all: Set[Move] = Set(Left, Right, Up, Down)
   }

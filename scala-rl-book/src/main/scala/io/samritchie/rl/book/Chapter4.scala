@@ -6,6 +6,7 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.Random
 import io.samritchie.rl.world.{CarRental, GridWorld}
 
@@ -42,10 +43,11 @@ object Chapter4 {
       _ => Random.id[Move, Double],
       gridConf.stateSweep,
       shouldStop(_, _, _),
-      inPlace = inPlace
+      inPlace,
+      valueIteration = false
     )
 
-  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Cat, Cat], Long) = {
+  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Cat, Cat], CarRental.Config, Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
     import Cat.Poisson.Lambda
 
@@ -78,39 +80,98 @@ object Chapter4 {
     // Build a Stochastic version of the greedy policy.
     val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
 
-    // This simulates a version that does NOT update itself.
-    val p = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    /**
+      The big differences from the book version are:
+
+      - Currently our Poisson distribution normalizes over the allowed values,
+        rather than just truncating the chance of a value greater than the max
+        to zero.
+      - our Greedy policy randomly chooses from the entire greedy set, vs just
+        choosing the "first" thing, like Numpy does.
+
+      The Python version also keeps an actual greedy policy, which means that
+      the policy starts by returning 0 no matter what, by design, instead of by
+      acting as a random policy until it knows any better.
+
+      Without that the generated values match.
+
+      TODO ALSO... currently, the sweepUntil function only supports
+      valueIteration or updating on every single sweep. The book actually wants
+      to do a full round of policy evaluation before doing any policy
+      improvement.
+
+      We need to support that.
+
+      */
+    val (roundOne, _) = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
       empty,
-      _ => stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](empty),
+      _ => stochasticConf.stochastic(empty),
       sweep,
       shouldStop(_, _, _, true),
-      inPlace = inPlace
+      inPlace,
+      valueIteration = false
     )
     println(
       s"""Stable? ${ValueFunction.isPolicyStable(
         empty,
-        p._1,
+        roundOne,
         zeroValue,
         sweep
       )}"""
     )
-    val p2 = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
-      p._1,
-      _ => stochasticConf.stochastic[CarRental.Move, CarRental.InvPair](p._1),
+    val (vf, iter) = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+      roundOne,
+      _ => stochasticConf.stochastic(roundOne),
       sweep,
       shouldStop(_, _, _, true),
-      inPlace = inPlace
+      inPlace,
+      valueIteration = false
     )
-    p2
+    (vf, config, iter)
   }
 
+  /**
+    This currently is not great because we don't have a way of automatically
+    binning the data and generating that graph. This is custom.
+    */
+  def vfToSeqPoints(vf: ValueFunction[CarRental.InvPair, Cat, Cat]): Seq[Seq[Double]] =
+    (0 to 20).map { row =>
+      (0 to 20).map { col =>
+        vf.stateValue((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).get
+      }.toSeq
+    }.toSeq
+
+  def figureFourOne(): Unit = {
+    Chapter3.printFigure(gridConf, fourOne(true), "Figure 4.1 (in-place)")
+    Chapter3.printFigure(gridConf, fourOne(false), "Figure 4.1 (not in-place)")
+    ()
+  }
+
+  /**
+    I'm leaving this in a nightmare state for now. To finish this out, we really need to:
+
+    - add support for policy evaluation and policy stability checks, alternating.
+    - come up with some way of actually turning a particular policy's decisions into a heat map that's not so hardcoded
+    - NOT have the graph library explode when I cancel a run, for Heatmap.
+    */
+  def runCarRental(): Unit = {
+    val (vf, config, _) = fourTwo(true)
+    val dataMap = config.stateSweep.foldLeft(Map.empty[CarRental.InvPair, Int]) { (acc, state) =>
+      acc.updated(state.observation, ValueFunction.greedyOptions(vf, state, value.Decaying(0.0, 0.9)).head.n)
+    }
+    val inputs = (0 to 20).map { row =>
+      (0 to 20).map { col =>
+        dataMap((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).toDouble
+      }.toSeq
+    }.toSeq
+
+    // The default color palette doesn't have enough colors to properly
+    // represent things here.
+    Plot.heatMap(inputs, 20)
+  }
   def main(items: Array[String]): Unit = {
     println("Hello, chapter 4!")
-    // Chapter3.printFigure(gridConf, fourOne(true), "Figure 4.1 (in-place)")
-    // Chapter3.printFigure(gridConf, fourOne(false), "Figure 4.1 (not in-place)")
-
-    fourTwo(true)
-    // I think we'd only go three iterations if we had stopped when the policy
-    // was stable.
+    runCarRental()
+    ()
   }
 }

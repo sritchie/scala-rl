@@ -37,7 +37,7 @@ object Tabulator {
       (for ((item, size) <- row.zip(colSizes))
         yield
           if (size == 0) ""
-          else ("%" + size + "s").format(item))
+          else ("%" + size.toString + "s").format(item))
     cells.mkString("|", "|", "|")
   }
 
