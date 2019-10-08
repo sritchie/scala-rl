@@ -93,7 +93,7 @@ case class GridWorld(
 
   override val observation: Position = grid.position
 
-  override def dynamics: Map[Move, (Double, GridWorld)] =
+  override lazy val dynamics: Map[Move, (Double, GridWorld)] =
     if (terminalStates(grid.position))
       Map.empty
     else

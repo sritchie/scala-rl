@@ -14,6 +14,9 @@ object GamblersProblem {
       winningAmount: Amount,
       winningReward: Double
   ) {
+    val headsDistribution: Cat[Boolean] =
+      Cat.boolean(headProb)
+
     def build(startingAmount: Amount): GamblersProblem =
       GamblersProblem(this, startingAmount)
 
@@ -34,8 +37,6 @@ case class GamblersProblem(
 
   override val observation = amount
 
-  private val headsDist: Cat[Boolean] = Cat.boolean(config.headProb)
-
   override lazy val dynamics: Map[Amount, Cat[(Double, GamblersProblem)]] =
     if (amount >= config.winningAmount || amount.p <= 0)
       Map.empty
@@ -43,7 +44,7 @@ case class GamblersProblem(
       Util.makeMapUnsafe(
         (1 to math.min(amount.p, config.winningAmount.p - amount.p)).map(Amount(_))
       ) { move =>
-        headsDist.map { winningBet =>
+        config.headsDistribution.map { winningBet =>
           val newAmount = if (winningBet) move.p + amount.p else move.p - amount.p
           val reward =
             if (newAmount == config.winningAmount.p)
