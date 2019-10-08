@@ -38,7 +38,7 @@ class Chapter4Spec extends FunSuite {
 
   test("Figure 4.1's value function matches the gold set") {
     val (actual, _) = Chapter4.fourOne(inPlace = false)
-    assert(ValueFunction.diff(actual, expectedFourOne, epsilon)(_.max(_)))
+    assert(ValueFunction.diffBelow(actual, expectedFourOne, epsilon)(_.max(_)))
   }
 
   test("Figure 4.1's calculation matches the full categorical version") {
@@ -55,6 +55,6 @@ class Chapter4Spec extends FunSuite {
       inPlace = true,
       valueIteration = true
     )
-    assert(ValueFunction.diff(actual, expectedFourOne, epsilon)(_.max(_)))
+    assert(ValueFunction.diffBelow(actual, expectedFourOne, epsilon)(_.max(_)))
   }
 }

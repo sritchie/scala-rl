@@ -177,7 +177,7 @@ object ValueFunction {
     observation... the final aggregated value must be less than epsilon to
     return true, false otherwise.
     */
-  def diff[Obs, A[_], B[_], C[_], D[_]](
+  def diffBelow[Obs, A[_], B[_], C[_], D[_]](
       l: ValueFunction[Obs, A, B],
       r: ValueFunction[Obs, C, D],
       epsilon: Double

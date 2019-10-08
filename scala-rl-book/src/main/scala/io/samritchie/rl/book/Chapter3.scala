@@ -40,7 +40,7 @@ object Chapter3 {
   def valueFunctionConverged[Obs, M[_], S[_]](
       l: ValueFunction[Obs, M, S],
       r: ValueFunction[Obs, M, S]
-  ): Boolean = ValueFunction.diff(l, r, epsilon)(_ + _)
+  ): Boolean = ValueFunction.diffBelow(l, r, epsilon)(_ + _)
 
   def shouldStop[Obs, M[_], S[_]](
       l: ValueFunction[Obs, M, S],

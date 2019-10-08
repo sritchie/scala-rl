@@ -48,7 +48,7 @@ class Chapter3Spec extends FunSuite {
       zeroValue
     )
 
-    assert(ValueFunction.diff(actual, expected, epsilon)(_.max(_)))
+    assert(ValueFunction.diffBelow(actual, expected, epsilon)(_.max(_)))
   }
 
   val expectedThreeFive = Bellman(
@@ -84,7 +84,7 @@ class Chapter3Spec extends FunSuite {
 
   test("Figure 3.5's value function matches the gold set.") {
     val (actual, _) = Chapter3.threeFive
-    assert(ValueFunction.diff(actual, expectedThreeFive, epsilon)(_.max(_)))
+    assert(ValueFunction.diffBelow(actual, expectedThreeFive, epsilon)(_.max(_)))
   }
 
   test("Figure 3.5's calculation matches the full categorical version") {
@@ -104,6 +104,6 @@ class Chapter3Spec extends FunSuite {
       inPlace = true,
       valueIteration = true
     )
-    assert(ValueFunction.diff(actual, expectedThreeFive, epsilon)(_.max(_)))
+    assert(ValueFunction.diffBelow(actual, expectedThreeFive, epsilon)(_.max(_)))
   }
 }

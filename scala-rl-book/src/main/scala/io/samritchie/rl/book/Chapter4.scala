@@ -34,7 +34,7 @@ object Chapter4 {
         s"Max diff seen: ${Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, _.max(_))}"
       )
     Chapter3.notConverging(iterations, allowedIterations) ||
-    ValueFunction.diff(l, r, epsilon)(_.max(_))
+    ValueFunction.diffBelow(l, r, epsilon)(_.max(_))
   }
 
   def fourOne(inPlace: Boolean): (ValueFunction[Position, Cat, Id], Long) =
