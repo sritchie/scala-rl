@@ -6,6 +6,7 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.Random
 import io.samritchie.rl.world.{CarRental, GridWorld}
 
@@ -46,7 +47,7 @@ object Chapter4 {
       valueIteration = false
     )
 
-  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Cat, Cat], Long) = {
+  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Cat, Cat], CarRental.Config, Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
     import Cat.Poisson.Lambda
 
@@ -118,7 +119,7 @@ object Chapter4 {
         sweep
       )}"""
     )
-    ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    val (vf, iter) = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
       roundOne,
       _ => stochasticConf.stochastic(roundOne),
       sweep,
@@ -126,12 +127,48 @@ object Chapter4 {
       inPlace,
       valueIteration = false
     )
+    (vf, config, iter)
   }
 
+  /**
+    This currently is not great because we don't have a way of automatically
+    binning the data and generating that graph. This is custom.
+    */
+  def vfToSeqPoints(vf: ValueFunction[CarRental.InvPair, Cat, Cat]): Seq[Seq[Double]] =
+    (0 to 20).map { row =>
+      (0 to 20).map { col =>
+        vf.stateValue((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).get
+      }.toSeq
+    }.toSeq
+
+  def figureFourOne(): Unit = {
+    Chapter3.printFigure(gridConf, fourOne(true), "Figure 4.1 (in-place)")
+    Chapter3.printFigure(gridConf, fourOne(false), "Figure 4.1 (not in-place)")
+    ()
+  }
+
+  /**
+    I'm leaving this in a nightmare state for now. To finish this out, we really need to:
+
+    - add support for policy evaluation and policy stability checks, alternating.
+    - come up with some way of actually turning a particular policy's decisions into a heat map that's not so hardcoded
+    */
+  def runCarRental(): Unit = {
+    val (vf, config, _) = fourTwo(true)
+    val dataMap = config.stateSweep.foldLeft(Map.empty[CarRental.InvPair, Int]) { (acc, state) =>
+      acc.updated(state.observation, ValueFunction.greedyOptions(vf, state, value.Decaying(0.0, 0.9)).head.n)
+    }
+    val inputs = (0 to 20).map { row =>
+      (0 to 20).map { col =>
+        dataMap((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).toDouble
+      }.toSeq
+    }.toSeq
+    println(inputs)
+    Plot.heatMap(inputs, 11)
+  }
   def main(items: Array[String]): Unit = {
     println("Hello, chapter 4!")
-    //Chapter3.printFigure(gridConf, fourOne(true), "Figure 4.1 (in-place)")
-    //Chapter3.printFigure(gridConf, fourOne(false), "Figure 4.1 (not in-place)")
-    fourTwo(true)
+    runCarRental()
+    ()
   }
 }
