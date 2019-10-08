@@ -25,6 +25,11 @@ trait ValueFunction[Obs] { self =>
 
   /**
     Evaluate the state using the supplied policy.
+
+    TODO should an evaluator be its own thing? We could take the evaluation
+    strategy from Bellman, for example, and use it with all sorts of different
+    strategies for evaluating far forward. Why not look two steps into the
+    future?
     */
   def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       state: State[A, Obs, R, S],
@@ -113,7 +118,6 @@ object ValueFunction {
         )
     }
 
-  // Is there some way to make an ExpectedValue typeclass or something?
   def isPolicyStable[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
       l: ValueFunction[Obs],
       r: ValueFunction[Obs],

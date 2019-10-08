@@ -29,6 +29,9 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
   TODO note that this only lets you look forward a single step. We're going to
   want to be able to look forward many steps in the model, and create an algebra
   that will let us talk well about this.
+
+  I made a note in ValueFunction about how we should probably split out the
+  value function storage abstraction from the actual evaluator.
   */
 case class Bellman[Obs](
     m: Map[Obs, Value[Double]],
@@ -39,8 +42,6 @@ case class Bellman[Obs](
   override def stateValue(obs: Obs): Value[Double] =
     m.getOrElse(obs, default)
 
-  // TODO... should this move to the trait? Is anyone ever going to implement
-  // this differently? And how about the other methods?
   override def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
