@@ -144,7 +144,7 @@ case class Alive(config: Blackjack.Config, game: Blackjack.Game) extends Blackja
   import Blackjack.{Action, Game, Hand}
   import CardDeck.Card
 
-  override val observation = game
+  override val observation: Game = game
 
   // I think we're not going to be able to ever need to call this from the
   // current set of techniques... so maybe we move this to some place where we

@@ -61,10 +61,10 @@ object CarRental {
         case (a, b, c, d) => (Update(a, b), Update(c, d))
       }
 
-    def build(a: Inventory, b: Inventory): State[Move, (Inventory, Inventory), Double, Cat] =
+    def build(a: Inventory, b: Inventory): CarRental =
       CarRental(this, dist, a, b)
 
-    def stateSweep: Traversable[State[Move, (Inventory, Inventory), Double, Cat]] =
+    def stateSweep: Traversable[CarRental] =
       for {
         a <- (0 to aConfig.maxCars)
         b <- (0 to bConfig.maxCars)
@@ -86,9 +86,10 @@ case class CarRental(
     pmf: Cat[(Update, Update)],
     a: Inventory,
     b: Inventory
-) extends State[Move, (Inventory, Inventory), Double, Cat] {
+) extends State[Move, CarRental.InvPair, Double, Cat] {
+  import CarRental.InvPair
 
-  val observation: (Inventory, Inventory) = (a, b)
+  override val observation: InvPair = (a, b)
 
   /**
       Go through all possibilities...
@@ -105,14 +106,13 @@ case class CarRental(
     deplete some spot. Overloading is fine, since it gets the cars off the
     board... I guess?
     */
-  def dynamics[O2 >: (Inventory, Inventory)]: Map[Move, Cat[(Double, State[Move, O2, Double, Cat])]] =
-    fixedDynamics
+  override def dynamics[_ >: InvPair]: Map[Move, Cat[(Double, CarRental)]] = fixedDynamics
 
   // TODO I THINK we can only make this faster if we decide to use an Eval...
   // get an EvalT going for the monads, and define an expected value instance
   // there. But then the first person to go and iterate through will evaluate
   // everything.
-  private lazy val fixedDynamics: Map[Move, Cat[(Double, State[Move, (Inventory, Inventory), Double, Cat])]] =
+  private lazy val fixedDynamics: Map[Move, Cat[(Double, CarRental)]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
       pmf.map {
         case (aUpdate, bUpdate) =>

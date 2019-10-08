@@ -17,7 +17,7 @@ object GamblersProblem {
     def build(startingAmount: Amount): GamblersProblem =
       GamblersProblem(this, startingAmount)
 
-    def stateSweep: Traversable[State[Amount, Amount, Double, Cat]] =
+    def stateSweep: Traversable[GamblersProblem] =
       for (amt <- (0 until winningAmount.p)) yield build(Amount(amt))
   }
 }
@@ -32,12 +32,13 @@ case class GamblersProblem(
 ) extends State[GamblersProblem.Amount, GamblersProblem.Amount, Double, Cat] {
   import GamblersProblem.Amount
 
-  val observation = amount
-  val headsDist: Cat[Boolean] = Cat.boolean(config.headProb)
+  override val observation = amount
 
-  def dynamics[O2 >: Amount]: Map[Amount, Cat[(Double, State[Amount, O2, Double, Cat])]] = fixedDynamics
+  override def dynamics[_ >: Amount]: Map[Amount, Cat[(Double, GamblersProblem)]] = fixedDynamics
 
-  private lazy val fixedDynamics: Map[Amount, Cat[(Double, State[Amount, Amount, Double, Cat])]] =
+  private val headsDist: Cat[Boolean] = Cat.boolean(config.headProb)
+
+  private lazy val fixedDynamics: Map[Amount, Cat[(Double, GamblersProblem)]] =
     if (amount >= config.winningAmount || amount.p <= 0)
       Map.empty
     else
