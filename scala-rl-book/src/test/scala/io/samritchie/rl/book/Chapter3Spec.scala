@@ -1,6 +1,7 @@
 package io.samritchie.rl
 package book
 
+import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.util.Grid
 import io.samritchie.rl.value.{Bellman, Decaying}
 import org.scalatest.FunSuite
@@ -96,7 +97,7 @@ class Chapter3Spec extends FunSuite {
     // Build a Stochastic version of the greedy policy.
     val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
 
-    val (actual, _) = ValueFunction.sweepUntil[Move, Position, Double, Cat, Cat](
+    val (actual, _) = Sweep.sweepUntil[Move, Position, Double, Cat, Cat](
       emptyFn,
       stochasticConf.stochastic[Move, Position](_),
       Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),

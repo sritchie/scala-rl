@@ -6,6 +6,7 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.Random
 import io.samritchie.rl.world.{CarRental, GridWorld}
@@ -38,7 +39,7 @@ object Chapter4 {
   }
 
   def fourOne(inPlace: Boolean): (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double, Cat, Id](
+    Sweep.sweepUntil[Move, Position, Double, Cat, Id](
       emptyFn,
       _ => Random.id[Move, Position, Double],
       gridConf.stateSweep,
@@ -103,7 +104,7 @@ object Chapter4 {
       We need to support that.
 
       */
-    val (roundOne, _) = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    val (roundOne, _) = Sweep.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
       empty,
       _ => stochasticConf.stochastic(empty),
       sweep,
@@ -119,7 +120,7 @@ object Chapter4 {
         sweep
       )}"""
     )
-    val (vf, iter) = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    val (vf, iter) = Sweep.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
       roundOne,
       _ => stochasticConf.stochastic(roundOne),
       sweep,

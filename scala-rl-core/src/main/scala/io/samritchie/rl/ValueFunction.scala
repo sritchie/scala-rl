@@ -71,53 +71,6 @@ object ValueFunction {
   def decaying[Obs](default: Double, gamma: Double): ValueFunction[Obs] =
     ValueFunction[Obs](value.Decaying(default, gamma))
 
-  /**
-    This sweeps across the whole state space and updates the policy every single
-    time IF you set valueIteration to true. Otherwise it creates a policy once
-    and then uses it each time.
-
-    What we really want is the ability to ping between updates to the value
-    function or learning steps; to insert them every so often.
-
-    This function does NOT currently return the final policy, since you can just
-    make it yourself, given the return value and the function.
-    */
-  def sweep[A, Obs, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      valueFn: ValueFunction[Obs],
-      policyFn: ValueFunction[Obs] => Policy[A, Obs, R, M, S],
-      states: Traversable[State[A, Obs, R, S]],
-      inPlace: Boolean,
-      valueIteration: Boolean
-  ): ValueFunction[Obs] =
-    states
-      .foldLeft((valueFn, policyFn(valueFn))) {
-        case ((vf, p), state) =>
-          val baseVf = if (inPlace) vf else valueFn
-          val newFn = vf.update(state.observation, baseVf.evaluate(state, p))
-          val newPolicy = if (valueIteration) policyFn(newFn) else p
-          (newFn, newPolicy)
-      }
-      ._1
-
-  def sweepUntil[A, Obs, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      valueFn: ValueFunction[Obs],
-      policyFn: ValueFunction[Obs] => Policy[A, Obs, R, M, S],
-      states: Traversable[State[A, Obs, R, S]],
-      stopFn: (ValueFunction[Obs], ValueFunction[Obs], Long) => Boolean,
-      inPlace: Boolean,
-      valueIteration: Boolean
-  ): (ValueFunction[Obs], Long) =
-    Util.loopWhile((valueFn, 0)) {
-      case (fn, nIterations) =>
-        val updated =
-          ValueFunction.sweep(fn, policyFn, states, inPlace, valueIteration)
-        Either.cond(
-          stopFn(fn, updated, nIterations),
-          (updated, nIterations),
-          (updated, nIterations + 1)
-        )
-    }
-
   def isPolicyStable[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
       l: ValueFunction[Obs],
       r: ValueFunction[Obs],
@@ -180,6 +133,9 @@ object ValueFunction {
       combine: (Double, Double) => Double
   ): Boolean = Ordering[Double].lt(diffValue(l, r, combine), epsilon)
 
+  /**
+    TODO consider putting this on the actual trait.
+    */
   def diffValue[Obs](
       l: ValueFunction[Obs],
       r: ValueFunction[Obs],

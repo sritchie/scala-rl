@@ -1,6 +1,7 @@
 package io.samritchie.rl
 package book
 
+import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.util.Grid
 import io.samritchie.rl.value.{Bellman, Decaying}
 import org.scalatest.FunSuite
@@ -47,7 +48,7 @@ class Chapter4Spec extends FunSuite {
     // Empty value function to start.
     val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
 
-    val (actual, _) = ValueFunction.sweepUntil[Move, Position, Double, Cat, Cat](
+    val (actual, _) = Sweep.sweepUntil[Move, Position, Double, Cat, Cat](
       emptyFn,
       _ => policy.Random.cat[Move, Position, Double],
       Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),

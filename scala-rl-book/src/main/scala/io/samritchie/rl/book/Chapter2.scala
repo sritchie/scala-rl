@@ -7,6 +7,7 @@ import com.stripe.rainier.core.{Generator, Normal}
 import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
 import com.twitter.util.Stopwatch
+import io.samritchie.rl.logic.Episode
 import io.samritchie.rl.state.Bandit
 import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.bandit.EpsilonGreedy
@@ -50,7 +51,7 @@ object Chapter2 {
         .map(i => stateGen.map(s => (policy, s)))
         .sequence
         .flatMap { pairs =>
-          Policy.playManyN[A, Obs, R, Generator](
+          Episode.playManyN[A, Obs, R, Generator](
             pairs,
             penalty,
             timeSteps

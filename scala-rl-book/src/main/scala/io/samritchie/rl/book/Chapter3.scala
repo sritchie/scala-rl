@@ -8,6 +8,7 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Tabulator
 import io.samritchie.rl.policy.{Greedy, Random}
 import io.samritchie.rl.util.Grid
@@ -75,7 +76,7 @@ object Chapter3 {
     * everything. Lots of work to go.
     *   */
   def threeTwo: (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil(
+    Sweep.sweepUntil(
       emptyFn,
       _ => Random.id[Move, Position, Double],
       gridConf.stateSweep,
@@ -88,7 +89,7 @@ object Chapter3 {
     * This is Figure 3.5. This is currently working!
     */
   def threeFive: (ValueFunction[Position], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double, Cat, Id](
+    Sweep.sweepUntil[Move, Position, Double, Cat, Id](
       emptyFn,
       fn => Greedy.Config[Double](0.0, value.Decaying(Double.NegativeInfinity, gamma)).id(fn),
       gridConf.stateSweep,
