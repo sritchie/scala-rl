@@ -146,22 +146,24 @@ object ValueFunction {
   def actionValue[A, Obs, R, M[_], S[_]](
       valueFn: ValueFunction[Obs],
       state: S[(R, State[A, Obs, R, S])],
-      default: Value[Double]
-  )(implicit toDouble: ToDouble[R], EV: ExpectedValue[S]): Value[Double] =
-    EV.get(state, default) {
+      finalStateValue: Value[Double]
+  )(implicit toDouble: ToDouble[R], EVS: ExpectedValue[S]): Value[Double] =
+    EVS.get(state, finalStateValue) {
       case (reward, newState) =>
+        // THIS is where you can descend deeper.
         valueFn.stateValue(newState.observation).from(toDouble(reward))
     }
 
+  // TODO what would it mean here to go TWO levels deep?
   def expectedActionValue[A, Obs, R, M[_], S[_]](
       valueFn: ValueFunction[Obs],
       action: M[A],
       next: A => S[(R, State[A, Obs, R, S])],
-      // TODO what exactly does this mean?
-      default: Value[Double]
+      finalStateValue: Value[Double],
+      noActionValue: Value[Double]
   )(implicit toDouble: ToDouble[R], EVM: ExpectedValue[M], EVS: ExpectedValue[S]): Value[Double] =
-    EVM.get(action, default) { a =>
-      actionValue(valueFn, next(a), default)
+    EVM.get(action, noActionValue) { a =>
+      actionValue(valueFn, next(a), finalStateValue)
     }
 
   /**

@@ -1,12 +1,11 @@
 /**
-  Gambler's Problem! Chapter 4 again; this generates Figure 4.3.
+  Monadic Blackjack!
   */
 package io.samritchie.rl
 package world
 
 import cats.{Id, Monad}
-import com.stripe.rainier.cats._
-import com.stripe.rainier.core.Generator
+import cats.implicits._
 import io.samritchie.rl.util.CardDeck
 
 object Blackjack {
@@ -17,6 +16,14 @@ object Blackjack {
   object Action {
     final case object Hit extends Action
     final case object Stay extends Action
+  }
+
+  sealed trait Result extends Product with Serializable
+  object Result {
+    final case object Win extends Result
+    final case object Draw extends Result
+    final case object Lose extends Result
+    final case object Pending extends Result
   }
 
   def cardValue(card: Card): Int = card.rank match {
@@ -80,32 +87,31 @@ object Blackjack {
     val empty = Game(Hand.empty, Hand.empty)
   }
 
-  def dealerHand(getCard: Generator[Card]): Generator[Hand] =
+  def dealerHand[M[_]: Monad](getCard: M[Card]): M[Hand] =
     for {
       showing <- getCard
       hidden <- getCard
     } yield Hand(Seq(showing), Seq(hidden))
 
-  def playerHand(getCard: Generator[Card]): Generator[Hand] =
-    Monad[Generator].tailRecM[Hand, Hand](Hand.empty) { hand =>
+  def playerHand[M[_]: Monad](getCard: M[Card]): M[Hand] =
+    Monad[M].tailRecM[Hand, Hand](Hand.empty) { hand =>
       if (hand.totalScore < 12)
         getCard.map(card => Left(hand.takeCard(card, true)))
       else
-        Generator.constant(Right(hand))
+        Monad[M].pure(Right(hand))
     }
 
-  def gameGenerator(getCard: Generator[Card]): Generator[Game] =
+  def gameGenerator[M[_]: Monad](getCard: M[Card]): M[Game] =
     for {
       player <- playerHand(getCard)
       dealer <- dealerHand(getCard)
     } yield Game(player, dealer)
 
-  case class Config(getCard: Generator[Card]) {
-    def build(startingState: Game): Blackjack =
+  case class Config[M[_]: Monad](getCard: M[Card]) {
+    def build(startingState: Game): Blackjack[M] =
       Alive(this, startingState)
 
-    def stateGen: Generator[Blackjack] =
-      gameGenerator(getCard).map(build(_))
+    def stateM: M[Blackjack[M]] = gameGenerator(getCard).map(build(_))
   }
 
   /**
@@ -126,9 +132,11 @@ object Blackjack {
     }
 }
 
-sealed trait Blackjack extends State[Blackjack.Action, Blackjack.Game, Double, Generator]
+sealed trait Blackjack[M[_]] extends State[Blackjack.Action, Blackjack.Game, Blackjack.Result, M] {
+  def game: Blackjack.Game
+}
 
-case class Dead(game: Blackjack.Game) extends Blackjack {
+case class Dead[M[_]](game: Blackjack.Game) extends Blackjack[M] {
   override val observation = game.showAll
   override val dynamics = Map.empty
 }
@@ -137,8 +145,8 @@ case class Dead(game: Blackjack.Game) extends Blackjack {
   So this is PROBABLY a place where I actually need the full state, so I can
   track that the dealer has two cards, generated randomly.
   */
-case class Alive(config: Blackjack.Config, game: Blackjack.Game) extends Blackjack {
-  import Blackjack.{Action, Game, Hand}
+case class Alive[M[_]: Monad](config: Blackjack.Config[M], game: Blackjack.Game) extends Blackjack[M] {
+  import Blackjack.{Action, Game, Hand, Result}
   import CardDeck.Card
 
   override val observation: Game = game
@@ -146,39 +154,39 @@ case class Alive(config: Blackjack.Config, game: Blackjack.Game) extends Blackja
   // I think we're not going to be able to ever need to call this from the
   // current set of techniques... so maybe we move this to some place where we
   // have an expected value?
-  override def dynamics: Map[Action, Generator[(Double, Blackjack)]] =
+  override def dynamics: Map[Action, M[(Result, This)]] =
     Map(
       Action.Hit -> config.getCard.map(hit(_)),
       Action.Stay -> dealerTurn(config.getCard)
     )
 
-  private def hit(card: Card): (Double, Blackjack) = {
+  private def hit(card: Card): (Result, This) = {
     val newGame = Game(game.player.takeCard(card, true), game.dealer)
     if (newGame.player.busted)
-      (-1, Dead(newGame))
+      (Result.Lose, Dead(newGame))
     else
-      (0, copy(game = newGame))
+      (Result.Pending, copy(game = newGame))
   }
 
-  private def endingReward(player: Hand, dealer: Hand): Int =
+  private def endingResult(player: Hand, dealer: Hand): Result =
     if (dealer.busted || player.totalScore > dealer.totalScore)
-      1
+      Result.Win
     else if (game.player.totalScore == dealer.totalScore)
-      0
+      Result.Draw
     else
-      -1
+      Result.Lose
 
   // This is really a policy interaction... we should allow these to ping back
   // and forth. Can I just PLAY a policy?
   // TODO convert this to use the dealer policy that's in the config.
-  private def dealerTurn(getCard: Generator[Card]): Generator[(Double, Blackjack)] =
-    Monad[Generator].tailRecM[Hand, (Double, Blackjack)](game.dealer) { hand =>
+  private def dealerTurn(getCard: M[Card]) =
+    Monad[M].tailRecM[Hand, (Result, This)](game.dealer) { hand =>
       if (hand.totalScore < 17)
         getCard.map(card => Left(hand.takeCard(card, true)))
       else {
-        val reward = endingReward(game.player, hand)
-        val dead = Dead(game.copy(dealer = hand))
-        Generator.constant(Right((reward, dead)))
+        val result = endingResult(game.player, hand)
+        val dead = Dead[M](game.copy(dealer = hand))
+        Monad[M].pure(Right((result, dead)))
       }
     }
 }

@@ -52,4 +52,7 @@ object CardDeck {
     val size = Card.deck.size
     Generator.from((r, _) => Card.all(r.int(size)))
   }
+
+  val allCat: Cat[Card] = Cat.seq(Card.all)
+  val heartsCat: Cat[Card] = Cat.seq(Card.all.filter(_.suit == Suit.Hearts))
 }

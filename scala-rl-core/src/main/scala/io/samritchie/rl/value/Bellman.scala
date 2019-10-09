@@ -42,6 +42,9 @@ case class Bellman[Obs](
   override def stateValue(obs: Obs): Value[Double] =
     m.getOrElse(obs, default)
 
+  // TODO This function currently uses the default, for states it hasn't seen,
+  // as the value for final states AND for states that have no current actions.
+  // This needs some work.
   override def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       state: State[A, Obs, R, S],
       policy: Policy[A, Obs, R, M, S]
@@ -50,6 +53,7 @@ case class Bellman[Obs](
       this,
       policy.choose(state),
       (a: A) => state.dynamics(a),
+      default,
       default
     )
 

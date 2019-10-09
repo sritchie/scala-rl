@@ -5,7 +5,8 @@
 package io.samritchie.rl
 package book
 
-import cats.Id
+import cats.{Id, Monad}
+import cats.implicits._
 import com.stripe.rainier.cats._
 import com.stripe.rainier.core.Generator
 import io.samritchie.rl.policy.Random
@@ -13,7 +14,7 @@ import io.samritchie.rl.util.CardDeck
 import io.samritchie.rl.world.Blackjack
 
 object Chapter5 {
-  import Blackjack.{Action, AgentView}
+  import Blackjack.{Action, AgentView, Result}
 
   /**
     This is the figure that explores the stickHigh strategy over a bunch of
@@ -48,11 +49,18 @@ object Chapter5 {
 
   def random[S[_]]: Policy[Action, AgentView, Double, Cat, S] = Random()
 
-  val starter: Generator[Blackjack] =
-    Blackjack.Config(CardDeck.basic).stateGen
+  /**
+    Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
+    */
+  def limitedM[M[_]: Monad](state: M[Blackjack[M]]): M[State[Action, AgentView, Double, M]] =
+    state.map(_.mapObservation(_.agentView).mapReward {
+      case Result.Draw | Result.Pending => 0
+      case Result.Win                   => 1
+      case Result.Lose                  => -1
+    })
 
-  val limited: Generator[State[Action, AgentView, Double, Generator]] =
-    starter.map(_.mapObservation(_.agentView))
+  val starter: Generator[Blackjack[Generator]] = Blackjack.Config[Generator](CardDeck.basic).stateM
+  val limited: Generator[State[Action, AgentView, Double, Generator]] = limitedM(starter)
 
   def main(items: Array[String]): Unit = {
     println("Hello, chapter 5!")

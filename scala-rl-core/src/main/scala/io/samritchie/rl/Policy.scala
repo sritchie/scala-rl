@@ -22,6 +22,7 @@ import scala.language.higherKinds
   * S - the monad for the state.
   */
 trait Policy[A, Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { self =>
+
   def choose(state: State[A, Obs, R, S]): M[A]
 
   /**
