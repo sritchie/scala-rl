@@ -20,7 +20,7 @@ object Episode {
       policy: Policy[A, Obs, R, M, M],
       state: State[A, Obs, R, M],
       penalty: R
-  )(implicit M: Monad[M]): M[(Policy[A, Obs, R, M, M], R, State[A, Obs, R, M])] =
+  )(implicit M: Monad[M]): M[(policy.This, R, state.This)] =
     M.flatMap(policy.choose(state)) { a =>
       val next = state.act(a).getOrElse(M.pure((penalty, state)))
       M.map(next) { rs =>
@@ -37,7 +37,7 @@ object Episode {
       state: State[A, Obs, R, M],
       penalty: R,
       nTimes: Int
-  ): M[(Policy[A, Obs, R, M, M], Seq[R], State[A, Obs, R, M])] =
+  ): M[(policy.This, Seq[R], state.This)] =
     Util.iterateM(nTimes)((policy, Seq.empty[R], state)) {
       case (p, rs, s) =>
         play(p, s, penalty).map {

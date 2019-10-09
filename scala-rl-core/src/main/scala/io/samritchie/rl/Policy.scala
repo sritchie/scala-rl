@@ -21,6 +21,7 @@ import scala.language.higherKinds
   * S - the monad for the state.
   */
 trait Policy[A, Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { self =>
+  type This = Policy[A, Obs, R, M, S]
 
   def choose(state: State[A, Obs, R, S]): M[A]
 
@@ -30,7 +31,7 @@ trait Policy[A, Obs, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
 
     By default this just returns itself, no learning happening.
     */
-  def learn(state: State[A, Obs, R, S], action: A, reward: R): Policy[A, Obs, R, M, S] = self
+  def learn(state: State[A, Obs, R, S], action: A, reward: R): This = self
 
   def contramapObservation[P](f: P => Obs)(implicit S: Functor[S]): Policy[A, P, R, M, S] =
     new Policy[A, P, R, M, S] {
