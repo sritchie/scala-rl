@@ -8,27 +8,45 @@ import cats.{Monad, Monoid}
 import cats.implicits._
 
 object MonteCarlo {
-  case class FirstVisit[A, B](items: Vector[A], frequencies: Map[B, Int], f: A => B) {
-    def :+(a: A): FirstVisit[A, B] = FirstVisit(items :+ a, Util.mergeV(frequencies, f(a), 1), f)
-    def reverse: FirstVisit[A, B] = FirstVisit(items.reverse, frequencies, f)
+
+  /**
+    Aggregating thing that also keeps track of frequencies. The item will be
+    paired with a zero if this is the first time seeing it.
+    */
+  case class FirstVisit[A, B](items: Vector[(A, Int)], frequencies: Map[B, Int], f: A => B) {
+    def :+(a: A): FirstVisit[A, B] = {
+      val b = f(a)
+      val newFrequencies = Util.mergeV(frequencies, b, 1)
+      FirstVisit(items :+ ((a, newFrequencies(b) - 1)), newFrequencies, f)
+    }
+    def iterator: Iterator[(A, Int)] = items.iterator
+    def reverseIterator: Iterator[(A, Int)] = items.reverse.iterator
   }
   object FirstVisit {
-    def pure[A, B](a: A, f: A => B): FirstVisit[A, B] = FirstVisit(Vector(a), Map((f(a), 1)), f)
+    def empty[A, B](f: A => B): FirstVisit[A, B] = FirstVisit(Vector.empty, Map.empty[B, Int], f)
+    def pure[A, B](a: A, f: A => B): FirstVisit[A, B] = empty(f) :+ a
+
     def monoid[A, B](f: A => B): Monoid[FirstVisit[A, B]] = new Monoid[FirstVisit[A, B]] {
-      val empty: FirstVisit[A, B] = FirstVisit(Vector.empty, Map.empty[B, Int], f)
+      val empty: FirstVisit[A, B] = FirstVisit.empty(f)
       def combine(l: FirstVisit[A, B], r: FirstVisit[A, B]): FirstVisit[A, B] =
         FirstVisit(l.items ++ r.items, Monoid[Map[B, Int]].combine(l.frequencies, r.frequencies), l.f)
     }
   }
 
+  /**
+    Wrapper around a vector... maybe a vector by itself is enough.
+    */
   case class EveryVisit[A](value: Vector[A]) extends AnyVal {
     def :+(a: A): EveryVisit[A] = EveryVisit(value :+ a)
-    def reverse: EveryVisit[A] = EveryVisit(value.reverse)
+    def iterator: Iterator[A] = value.iterator
+    def reverseIterator: Iterator[A] = value.reverse.iterator
   }
   object EveryVisit {
-    def pure[A](a: A): EveryVisit[A] = EveryVisit(Vector(a))
+    def empty[A]: EveryVisit[A] = EveryVisit(Vector.empty)
+    def pure[A](a: A): EveryVisit[A] = empty :+ a
+
     implicit def monoid[A]: Monoid[EveryVisit[A]] = new Monoid[EveryVisit[A]] {
-      val empty: EveryVisit[A] = EveryVisit(Vector.empty)
+      val empty: EveryVisit[A] = EveryVisit.empty
       def combine(l: EveryVisit[A], r: EveryVisit[A]): EveryVisit[A] =
         EveryVisit(l.value ++ r.value)
     }
