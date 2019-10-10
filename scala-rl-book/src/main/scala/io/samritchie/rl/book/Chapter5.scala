@@ -36,9 +36,9 @@ object Chapter5 {
     */
   def figureFiveThree(): Unit = ()
 
-  def stickHigh[S[_]](hitBelow: Int): Policy[Action, AgentView, Double, Id, S] =
-    new Policy[Action, AgentView, Double, Id, S] {
-      override def choose(state: State[Action, AgentView, Double, S]): Action = {
+  def stickHigh[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Id, S] =
+    new Policy[AgentView, Action, Double, Id, S] {
+      override def choose(state: State[AgentView, Action, Double, S]): Action = {
         val score = state.observation.playerSum
         if (score < 20) Action.Hit else Action.Stay
       }
@@ -47,15 +47,15 @@ object Chapter5 {
   // I need it in this form for off-policy sampling, etc... but to do the
   // stochastic thing I need to be able to get a generator out of it. Or some
   // monadic thing that does not let me get expected value.
-  def stickHighCat[S[_]](hitBelow: Int): Policy[Action, AgentView, Double, Cat, S] =
+  def stickHighCat[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Cat, S] =
     stickHigh(hitBelow).mapK(Util.idToMonad[Cat])
 
-  def random[M[_]]: Policy[Action, AgentView, Double, Cat, M] = Random()
+  def random[M[_]]: Policy[AgentView, Action, Double, Cat, M] = Random()
 
   /**
     Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
     */
-  def limitedM[M[_]: Monad](state: M[Blackjack[M]]): M[State[Action, AgentView, Double, M]] =
+  def limitedM[M[_]: Monad](state: M[Blackjack[M]]): M[State[AgentView, Action, Double, M]] =
     state.map(_.mapObservation(_.agentView).mapReward {
       case Result.Draw | Result.Pending => 0
       case Result.Win                   => 1
@@ -63,7 +63,7 @@ object Chapter5 {
     })
 
   val starter: Generator[Blackjack[Generator]] = Blackjack.Config[Generator](CardDeck.basic).stateM
-  val limited: Generator[State[Action, AgentView, Double, Generator]] = limitedM(starter)
+  val limited: Generator[State[AgentView, Action, Double, Generator]] = limitedM(starter)
 
   def main(items: Array[String]): Unit = {
     implicit val rng: RNG = RNG.default
@@ -74,7 +74,7 @@ object Chapter5 {
 
     val (s, trajectory) = limited.flatMap { state =>
       MonteCarlo
-        .firstVisit[Action, AgentView, Double, Generator](
+        .firstVisit[AgentView, Action, Double, Generator](
           random[Generator].mapK(Cat.catToGenerator),
           state
         )

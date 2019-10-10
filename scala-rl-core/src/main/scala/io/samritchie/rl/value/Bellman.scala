@@ -46,8 +46,8 @@ case class Bellman[Obs](
   // as the value for final states AND for states that have no current actions.
   // This needs some work.
   override def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      state: State[A, Obs, R, S],
-      policy: Policy[A, Obs, R, M, S]
+      state: State[Obs, A, R, S],
+      policy: Policy[Obs, A, R, M, S]
   ): Value[Double] =
     ValueFunction.expectedActionValue(
       this,

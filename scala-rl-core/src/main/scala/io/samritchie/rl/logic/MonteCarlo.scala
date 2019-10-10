@@ -34,9 +34,9 @@ object MonteCarlo {
       }
   }
 
-  def playTurn[A, Obs, R, M[_]: Monad](
-      policy: Policy[A, Obs, R, M, M],
-      state: State[A, Obs, R, M]
+  def playTurn[Obs, A, R, M[_]: Monad](
+      policy: Policy[Obs, A, R, M, M],
+      state: State[Obs, A, R, M]
   ): M[(state.This, (Obs, A, R))] =
     policy.choose(state).flatMap { a =>
       state
@@ -49,9 +49,9 @@ object MonteCarlo {
     aren't allowed, and returns a context containing the final state and the
     trajectory that got us there.
     */
-  def playEpisode[A, Obs, R, M[_]: Monad, T](
-      policy: Policy[A, Obs, R, M, M],
-      state: State[A, Obs, R, M],
+  def playEpisode[Obs, A, R, M[_]: Monad, T](
+      policy: Policy[Obs, A, R, M, M],
+      state: State[Obs, A, R, M],
       tracker: Tracker[Obs, A, R, T]
   ): M[(state.This, Iterator[((Obs, A, R), Boolean)])] =
     Util.iterateUntilM(state, tracker)(
@@ -61,11 +61,11 @@ object MonteCarlo {
   /**
     Specialized version that keeps track of frequencies too.
     */
-  def firstVisit[A, Obs, R, M[_]: Monad](
-      policy: Policy[A, Obs, R, M, M],
-      state: State[A, Obs, R, M]
+  def firstVisit[Obs, A, R, M[_]: Monad](
+      policy: Policy[Obs, A, R, M, M],
+      state: State[Obs, A, R, M]
   ): M[(state.This, Iterator[((Obs, A, R), Boolean)])] =
-    playEpisode[A, Obs, R, M, FrequencyTracker[(Obs, A, R), Obs]](
+    playEpisode[Obs, A, R, M, FrequencyTracker[(Obs, A, R), Obs]](
       policy,
       state,
       Tracker.firstVisit

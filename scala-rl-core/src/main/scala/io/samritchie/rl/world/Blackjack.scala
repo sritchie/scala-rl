@@ -123,16 +123,16 @@ object Blackjack {
       dealerSum: Int
   )
 
-  def dealerPolicy[S[_]](hitBelow: Int): Policy[Action, Game, Double, Id, S] =
-    new Policy[Action, Game, Double, Id, S] {
-      override def choose(state: State[Action, Game, Double, S]): Action = {
+  def dealerPolicy[S[_]](hitBelow: Int): Policy[Game, Action, Double, Id, S] =
+    new Policy[Game, Action, Double, Id, S] {
+      override def choose(state: State[Game, Action, Double, S]): Action = {
         val hand = state.observation.dealer
         if (hand.totalScore < hitBelow) Action.Hit else Action.Stay
       }
     }
 }
 
-sealed trait Blackjack[M[_]] extends State[Blackjack.Action, Blackjack.Game, Blackjack.Result, M] {
+sealed trait Blackjack[M[_]] extends State[Blackjack.Game, Blackjack.Action, Blackjack.Result, M] {
   def game: Blackjack.Game
 }
 

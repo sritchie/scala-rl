@@ -88,7 +88,7 @@ case class GridWorld(
     jumps: GridWorld.Jumps,
     values: Map[Grid.Position, Double],
     terminalStates: Set[Grid.Position]
-) extends State[Grid.Move, Grid.Position, Double, Id] {
+) extends State[Grid.Position, Grid.Move, Double, Id] {
   import Grid.{Move, Position}
 
   override val observation: Position = grid.position

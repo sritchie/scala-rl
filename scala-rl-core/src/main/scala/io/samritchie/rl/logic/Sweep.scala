@@ -16,10 +16,10 @@ object Sweep {
     This function does NOT currently return the final policy, since you can just
     make it yourself, given the return value and the function.
     */
-  def sweep[A, Obs, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
+  def sweep[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       valueFn: ValueFunction[Obs],
-      policyFn: ValueFunction[Obs] => Policy[A, Obs, R, M, S],
-      states: Traversable[State[A, Obs, R, S]],
+      policyFn: ValueFunction[Obs] => Policy[Obs, A, R, M, S],
+      states: Traversable[State[Obs, A, R, S]],
       inPlace: Boolean,
       valueIteration: Boolean
   ): ValueFunction[Obs] =
@@ -33,10 +33,10 @@ object Sweep {
       }
       ._1
 
-  def sweepUntil[A, Obs, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
+  def sweepUntil[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       valueFn: ValueFunction[Obs],
-      policyFn: ValueFunction[Obs] => Policy[A, Obs, R, M, S],
-      states: Traversable[State[A, Obs, R, S]],
+      policyFn: ValueFunction[Obs] => Policy[Obs, A, R, M, S],
+      states: Traversable[State[Obs, A, R, S]],
       stopFn: (ValueFunction[Obs], ValueFunction[Obs], Long) => Boolean,
       inPlace: Boolean,
       valueIteration: Boolean

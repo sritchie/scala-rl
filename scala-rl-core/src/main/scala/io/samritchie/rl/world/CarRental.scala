@@ -79,15 +79,14 @@ object CarRental {
     }
 }
 
-import CarRental.{Inventory, Move, Update}
+import CarRental.{InvPair, Inventory, Move, Update}
 
 case class CarRental(
     config: CarRental.Config,
     pmf: Cat[(Update, Update)],
     a: Inventory,
     b: Inventory
-) extends State[Move, CarRental.InvPair, Double, Cat] {
-  import CarRental.InvPair
+) extends State[InvPair, Move, Double, Cat] {
 
   override val observation: InvPair = (a, b)
 

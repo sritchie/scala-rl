@@ -39,9 +39,9 @@ object Chapter4 {
   }
 
   def fourOne(inPlace: Boolean): (ValueFunction[Position], Long) =
-    Sweep.sweepUntil[Move, Position, Double, Cat, Id](
+    Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
-      _ => Random.id[Move, Position, Double],
+      _ => Random.id[Position, Move, Double],
       gridConf.stateSweep,
       shouldStop(_, _, _),
       inPlace,
@@ -104,7 +104,7 @@ object Chapter4 {
       We need to support that.
 
       */
-    val (roundOne, _) = Sweep.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    val (roundOne, _) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
       empty,
       _ => stochasticConf.stochastic(empty),
       sweep,
@@ -120,7 +120,7 @@ object Chapter4 {
         sweep
       )}"""
     )
-    val (vf, iter) = Sweep.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    val (vf, iter) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
       roundOne,
       _ => stochasticConf.stochastic(roundOne),
       sweep,

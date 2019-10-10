@@ -78,7 +78,7 @@ object Chapter3 {
   def threeTwo: (ValueFunction[Position], Long) =
     Sweep.sweepUntil(
       emptyFn,
-      _ => Random.id[Move, Position, Double],
+      _ => Random.id[Position, Move, Double],
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,
@@ -89,7 +89,7 @@ object Chapter3 {
     * This is Figure 3.5. This is currently working!
     */
   def threeFive: (ValueFunction[Position], Long) =
-    Sweep.sweepUntil[Move, Position, Double, Cat, Id](
+    Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
       fn => Greedy.Config[Double](0.0, value.Decaying(Double.NegativeInfinity, gamma)).id(fn),
       gridConf.stateSweep,

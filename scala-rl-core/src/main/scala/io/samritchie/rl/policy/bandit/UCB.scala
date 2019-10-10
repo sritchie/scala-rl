@@ -13,9 +13,9 @@ case class UCB[A, R, T, S[_]](
     config: UCB.Config[R, T],
     actionValues: Map[A, UCB.Choice[T]],
     time: Time
-) extends CategoricalPolicy[A, Any, R, S] {
+) extends CategoricalPolicy[Any, A, R, S] {
 
-  override def choose(state: State[A, Any, R, S]): Cat[A] =
+  override def choose(state: State[Any, A, R, S]): Cat[A] =
     Cat.fromSet(
       Util
         .allMaxBy(state.actions)(
@@ -24,7 +24,7 @@ case class UCB[A, R, T, S[_]](
     )
 
   override def learn(
-      state: State[A, Any, R, S],
+      state: State[Any, A, R, S],
       action: A,
       reward: R
   ): UCB[A, R, T, S] = {

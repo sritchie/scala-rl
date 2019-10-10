@@ -97,9 +97,9 @@ class Chapter3Spec extends FunSuite {
     // Build a Stochastic version of the greedy policy.
     val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
 
-    val (actual, _) = Sweep.sweepUntil[Move, Position, Double, Cat, Cat](
+    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, Cat, Cat](
       emptyFn,
-      stochasticConf.stochastic[Move, Position](_),
+      stochasticConf.stochastic[Position, Move](_),
       Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter3.shouldStop _,
       inPlace = true,

@@ -15,9 +15,9 @@ object Episode {
     * state. If the chosen state's not allowed, returns the supplied penalty and
     * sends the agent back to the initial state.
     */
-  def play[A, Obs, R, M[_]](
-      policy: Policy[A, Obs, R, M, M],
-      state: State[A, Obs, R, M]
+  def play[Obs, A, R, M[_]](
+      policy: Policy[Obs, A, R, M, M],
+      state: State[Obs, A, R, M]
   )(implicit M: Monad[M]): M[(policy.This, R, state.This)] =
     policy.choose(state).flatMap { a =>
       state.act(a).map {
@@ -30,9 +30,9 @@ object Episode {
     * Returns the final policy, a sequence of the rewards received and
     * the final state.
     */
-  def playN[A, Obs, R, M[_]: Monad](
-      policy: Policy[A, Obs, R, M, M],
-      state: State[A, Obs, R, M],
+  def playN[Obs, A, R, M[_]: Monad](
+      policy: Policy[Obs, A, R, M, M],
+      state: State[Obs, A, R, M],
       nTimes: Int
   ): M[(policy.This, Seq[R], state.This)] =
     Util.iterateM(nTimes)((policy, Seq.empty[R], state)) {
@@ -46,11 +46,11 @@ object Episode {
   /**
     * Takes an initial set of policies and a state...
     */
-  def playMany[A, Obs, R, M[_]: Monad](
-      pairs: List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])]
+  def playMany[Obs, A, R, M[_]: Monad](
+      pairs: List[(Policy[Obs, A, R, M, M], State[Obs, A, R, M])]
   )(
       rewardSum: List[R] => R
-  ): M[(List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])], R)] =
+  ): M[(List[(Policy[Obs, A, R, M, M], State[Obs, A, R, M])], R)] =
     pairs.toList
       .traverse {
         case (p, s) => play(p, s)
@@ -62,12 +62,12 @@ object Episode {
   /**
     * Takes an initial set of policies and a state...
     */
-  def playManyN[A, Obs, R, M[_]: Monad](
-      pairs: List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])],
+  def playManyN[Obs, A, R, M[_]: Monad](
+      pairs: List[(Policy[Obs, A, R, M, M], State[Obs, A, R, M])],
       nTimes: Int
   )(
       rewardSum: List[R] => R
-  ): M[(List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])], List[R])] =
+  ): M[(List[(Policy[Obs, A, R, M, M], State[Obs, A, R, M])], List[R])] =
     Util.iterateM(nTimes)((pairs, List.empty[R])) {
       case (ps, rs) =>
         playMany(ps)(rewardSum).map {

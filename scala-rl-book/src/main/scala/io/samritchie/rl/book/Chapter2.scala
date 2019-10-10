@@ -37,20 +37,20 @@ object Chapter2 {
     sum / n
   }
 
-  def playBandit[A, Obs, R](
-      policy: Policy[A, Obs, R, Generator, Generator],
-      stateGen: Generator[State[A, Obs, R, Generator]],
+  def playBandit[Obs, A, R](
+      policy: Policy[Obs, A, R, Generator, Generator],
+      stateGen: Generator[State[Obs, A, R, Generator]],
       nRuns: Int,
       timeSteps: Int
   )(
       reduce: List[R] => R
-  ): (List[(Policy[A, Obs, R, Generator, Generator], State[A, Obs, R, Generator])], List[R]) = {
+  ): (List[(Policy[Obs, A, R, Generator, Generator], State[Obs, A, R, Generator])], List[R]) = {
     val rewardSeqGen =
       (0 until nRuns).toList
         .map(i => stateGen.map(s => (policy, s)))
         .sequence
         .flatMap { pairs =>
-          Episode.playManyN[A, Obs, R, Generator](
+          Episode.playManyN[Obs, A, R, Generator](
             pairs,
             timeSteps
           )(reduce)
@@ -70,7 +70,7 @@ object Chapter2 {
       nArms: Int,
       meanMean: Double,
       stdDev: Double
-  ): Generator[State[Arm, Unit, Double, Generator]] = Bandit.stationary(
+  ): Generator[State[Unit, Arm, Double, Generator]] = Bandit.stationary(
     nArms,
     Normal(meanMean, stdDev).generator
       .map(mean => Normal(mean, stdDev).generator)
@@ -83,14 +83,14 @@ object Chapter2 {
       nArms: Int,
       mean: Double,
       stdDev: Double
-  ): Generator[State[Arm, Unit, Double, Generator]] =
+  ): Generator[State[Unit, Arm, Double, Generator]] =
     Bandit.nonStationary(
       nArms,
       Generator.constant(Normal(mean, stdDev).generator),
       { case (_, r, _) => Normal(r, stdDev).generator }
     )
 
-  def play(policy: CategoricalPolicy[Arm, Unit, Double, Generator]): List[Double] =
+  def play(policy: CategoricalPolicy[Unit, Arm, Double, Generator]): List[Double] =
     playBandit(
       policy.mapK(Cat.catToGenerator),
       nArmedTestbed(10, 0.0, 1.0),

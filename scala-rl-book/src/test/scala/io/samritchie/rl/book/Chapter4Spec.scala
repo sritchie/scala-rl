@@ -48,9 +48,9 @@ class Chapter4Spec extends FunSuite {
     // Empty value function to start.
     val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
 
-    val (actual, _) = Sweep.sweepUntil[Move, Position, Double, Cat, Cat](
+    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, Cat, Cat](
       emptyFn,
-      _ => policy.Random.cat[Move, Position, Double],
+      _ => policy.Random.cat[Position, Move, Double],
       Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter4.shouldStop(_, _, _),
       inPlace = true,

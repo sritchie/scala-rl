@@ -32,13 +32,13 @@ trait ValueFunction[Obs] { self =>
     future?
     */
   def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      state: State[A, Obs, R, S],
-      policy: Policy[A, Obs, R, M, S]
+      state: State[Obs, A, R, S],
+      policy: Policy[Obs, A, R, M, S]
   ): Value[Double]
 
   def evaluateAndUpdate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      state: State[A, Obs, R, S],
-      policy: Policy[A, Obs, R, M, S]
+      state: State[Obs, A, R, S],
+      policy: Policy[Obs, A, R, M, S]
   ): ValueFunction[Obs] =
     update(state.observation, evaluate(state, policy))
 }
@@ -69,11 +69,11 @@ object ValueFunction {
   def decaying[Obs](default: Double, gamma: Double): ValueFunction[Obs] =
     ValueFunction[Obs](value.Decaying(default, gamma))
 
-  def isPolicyStable[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
+  def isPolicyStable[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
       l: ValueFunction[Obs],
       r: ValueFunction[Obs],
       default: Value[Double],
-      states: Traversable[State[A, Obs, R, S]]
+      states: Traversable[State[Obs, A, R, S]]
   ): Boolean =
     states.forall(s => greedyOptions(l, s, default) == greedyOptions(r, s, default))
 
@@ -81,9 +81,9 @@ object ValueFunction {
     NOTE: The default action value would NOT be necessary of we were looking at
     an action value function. Working.
     */
-  def greedyOptions[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
+  def greedyOptions[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
       valueFn: ValueFunction[Obs],
-      state: State[A, Obs, R, S],
+      state: State[Obs, A, R, S],
       defaultActionValue: Value[Double]
   ): Set[A] =
     Util.allMaxBy[A, Value[Double]](state.actions) { a =>
@@ -94,9 +94,9 @@ object ValueFunction {
     This returns the value of the action, given categorical dynamics of the
     state.
     */
-  def actionValue[A, Obs, R, M[_], S[_]](
+  def actionValue[Obs, A, R, M[_], S[_]](
       valueFn: ValueFunction[Obs],
-      state: S[(R, State[A, Obs, R, S])],
+      state: S[(R, State[Obs, A, R, S])],
       finalStateValue: Value[Double]
   )(implicit toDouble: ToDouble[R], EVS: ExpectedValue[S]): Value[Double] =
     EVS.get(state, finalStateValue) {
@@ -106,10 +106,10 @@ object ValueFunction {
     }
 
   // TODO what would it mean here to go TWO levels deep?
-  def expectedActionValue[A, Obs, R, M[_], S[_]](
+  def expectedActionValue[Obs, A, R, M[_], S[_]](
       valueFn: ValueFunction[Obs],
       action: M[A],
-      next: A => S[(R, State[A, Obs, R, S])],
+      next: A => S[(R, State[Obs, A, R, S])],
       finalStateValue: Value[Double],
       noActionValue: Value[Double]
   )(implicit toDouble: ToDouble[R], EVM: ExpectedValue[M], EVS: ExpectedValue[S]): Value[Double] =

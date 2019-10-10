@@ -30,8 +30,8 @@ import cats.arrow.FunctionK
   * model; for the bandit we only have a single state, not that
   * useful.
   */
-trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
-  type This = State[A, Obs, R, M]
+trait State[Obs, A, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
+  type This = State[Obs, A, R, M]
 
   def observation: Obs
 
@@ -53,9 +53,9 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
     */
   def isTerminal: Boolean = actions.isEmpty
 
-  def mapObservation[P](f: Obs => P)(implicit M: Functor[M]): State[A, P, R, M] =
-    new State[A, P, R, M] {
-      private def innerMap(pair: M[(R, State[A, Obs, R, M])]) =
+  def mapObservation[P](f: Obs => P)(implicit M: Functor[M]): State[P, A, R, M] =
+    new State[P, A, R, M] {
+      private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
         M.map(pair) { case (r, s) => (r, s.mapObservation(f)) }
       override def observation = f(self.observation)
       override def dynamics = self.dynamics.mapValues(innerMap(_))
@@ -64,9 +64,9 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
       override def actions: Set[A] = self.actions
     }
 
-  def mapReward[T](f: R => T)(implicit M: Functor[M]): State[A, Obs, T, M] =
-    new State[A, Obs, T, M] {
-      private def innerMap(pair: M[(R, State[A, Obs, R, M])]) =
+  def mapReward[T](f: R => T)(implicit M: Functor[M]): State[Obs, A, T, M] =
+    new State[Obs, A, T, M] {
+      private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
         M.map(pair) { case (r, s) => (f(r), s.mapReward(f)) }
 
       override def observation = self.observation
@@ -76,8 +76,8 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
       override def actions: Set[A] = self.actions
     }
 
-  def mapK[N[_]](f: FunctionK[M, N])(implicit N: Functor[N]): State[A, Obs, R, N] = new State[A, Obs, R, N] {
-    private def innerMap(pair: M[(R, State[A, Obs, R, M])]) =
+  def mapK[N[_]](f: FunctionK[M, N])(implicit N: Functor[N]): State[Obs, A, R, N] = new State[Obs, A, R, N] {
+    private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
       N.map(f(pair)) { case (r, s) => (r, s.mapK(f)) }
     override def observation = self.observation
     override def dynamics = self.dynamics.mapValues(innerMap(_))
