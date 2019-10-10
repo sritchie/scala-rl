@@ -136,7 +136,8 @@ sealed trait Blackjack[M[_]] extends State[Blackjack.Action, Blackjack.Game, Bla
   def game: Blackjack.Game
 }
 
-case class Dead[M[_]](game: Blackjack.Game) extends Blackjack[M] {
+case class Dead[M[_]: Monad](game: Blackjack.Game) extends Blackjack[M] {
+  override val invalidMove = Monad[M].pure((Blackjack.Result.Lose, this))
   override val observation = game.showAll
   override val dynamics = Map.empty
 }
@@ -159,6 +160,7 @@ case class Alive[M[_]: Monad](config: Blackjack.Config[M], game: Blackjack.Game)
       Action.Hit -> config.getCard.map(hit(_)),
       Action.Stay -> dealerTurn(config.getCard)
     )
+  override val invalidMove = Monad[M].pure((Blackjack.Result.Pending, this))
 
   private def hit(card: Card): (Result, This) = {
     val newGame = Game(game.player.takeCard(card, true), game.dealer)

@@ -37,6 +37,9 @@ case class GamblersProblem(
 
   override val observation = amount
 
+  // Maybe we want a real penalty here.
+  override val invalidMove = Cat.pure((0.0, this))
+
   override lazy val dynamics: Map[Amount, Cat[(Double, GamblersProblem)]] =
     if (amount >= config.winningAmount || amount.p <= 0)
       Map.empty

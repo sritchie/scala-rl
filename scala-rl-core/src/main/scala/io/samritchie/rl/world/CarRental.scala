@@ -119,6 +119,7 @@ case class CarRental(
           (reward, copy(a = newA, b = newB))
       }
     }
+  override val invalidMove = Cat.pure((0.0, this))
 
   private def processAll(
       move: Move,

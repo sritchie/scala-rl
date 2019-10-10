@@ -27,8 +27,10 @@ object Bandit {
   def stationary(
       nArms: Int,
       gen: Generator[Generator[Double]]
-  ): Generator[State[Arm, Unit, Double, Generator]] =
-    MapState.static(arms(nArms), gen)
+  ): Generator[State[Arm, Unit, Double, Generator]] = {
+    val penalty = Generator.constant(0.0)
+    MapState.static(arms(nArms), penalty, gen)
+  }
 
   /**
     * Returns a Generator that splits out states for each of the games
@@ -42,8 +44,15 @@ object Bandit {
       nArms: Int,
       gen: Generator[Generator[Double]],
       updater: (Arm, Double, Generator[Double]) => Generator[Double]
-  ): Generator[State[Arm, Unit, Double, Generator]] =
-    MapState.updating[Arm, Unit, Double](arms(nArms), (), gen, { (a, obs, r, gen) =>
-      ((), updater(a, r, gen))
-    })
+  ): Generator[State[Arm, Unit, Double, Generator]] = {
+    val penalty = Generator.constant(0.0)
+    MapState.updating[Arm, Unit, Double](
+      arms(nArms),
+      (),
+      penalty,
+      gen, { (a, obs, r, gen) =>
+        ((), updater(a, r, gen))
+      }
+    )
+  }
 }

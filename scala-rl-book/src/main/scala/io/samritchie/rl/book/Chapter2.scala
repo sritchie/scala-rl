@@ -41,8 +41,7 @@ object Chapter2 {
       policy: Policy[A, Obs, R, Generator, Generator],
       stateGen: Generator[State[A, Obs, R, Generator]],
       nRuns: Int,
-      timeSteps: Int,
-      penalty: R
+      timeSteps: Int
   )(
       reduce: List[R] => R
   ): (List[(Policy[A, Obs, R, Generator, Generator], State[A, Obs, R, Generator])], List[R]) = {
@@ -53,7 +52,6 @@ object Chapter2 {
         .flatMap { pairs =>
           Episode.playManyN[A, Obs, R, Generator](
             pairs,
-            penalty,
             timeSteps
           )(reduce)
         }
@@ -97,8 +95,7 @@ object Chapter2 {
       policy.mapK(Cat.catToGenerator),
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,
-      timeSteps = 1000,
-      penalty = 0.0
+      timeSteps = 1000
     )(average(_))._2
 
   def main(items: Array[String]): Unit =

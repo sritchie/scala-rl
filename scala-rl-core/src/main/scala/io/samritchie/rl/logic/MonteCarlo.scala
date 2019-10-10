@@ -36,13 +36,11 @@ object MonteCarlo {
 
   def playTurn[A, Obs, R, M[_]: Monad](
       policy: Policy[A, Obs, R, M, M],
-      state: State[A, Obs, R, M],
-      penalty: R
+      state: State[A, Obs, R, M]
   ): M[(state.This, (Obs, A, R))] =
     policy.choose(state).flatMap { a =>
       state
         .act(a)
-        .getOrElse((penalty, state).pure[M])
         .map { case (r, s2) => (s2, (state.observation, a, r)) }
     }
 
@@ -54,11 +52,10 @@ object MonteCarlo {
   def playEpisode[A, Obs, R, M[_]: Monad, T](
       policy: Policy[A, Obs, R, M, M],
       state: State[A, Obs, R, M],
-      tracker: Tracker[Obs, A, R, T],
-      penalty: R
+      tracker: Tracker[Obs, A, R, T]
   ): M[(state.This, Iterator[((Obs, A, R), Boolean)])] =
     Util.iterateUntilM(state, tracker)(
-      playTurn(policy, _, penalty)
+      playTurn(policy, _)
     )(_.isTerminal)
 
   /**
@@ -66,14 +63,12 @@ object MonteCarlo {
     */
   def firstVisit[A, Obs, R, M[_]: Monad](
       policy: Policy[A, Obs, R, M, M],
-      state: State[A, Obs, R, M],
-      penalty: R
+      state: State[A, Obs, R, M]
   ): M[(state.This, Iterator[((Obs, A, R), Boolean)])] =
     playEpisode[A, Obs, R, M, FrequencyTracker[(Obs, A, R), Obs]](
       policy,
       state,
-      Tracker.firstVisit,
-      penalty
+      Tracker.firstVisit
     )
 
   def processFirstVisit[Obs, A, R](

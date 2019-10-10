@@ -17,12 +17,10 @@ object Episode {
     */
   def play[A, Obs, R, M[_]](
       policy: Policy[A, Obs, R, M, M],
-      state: State[A, Obs, R, M],
-      penalty: R
+      state: State[A, Obs, R, M]
   )(implicit M: Monad[M]): M[(policy.This, R, state.This)] =
     policy.choose(state).flatMap { a =>
-      val next = state.act(a).getOrElse(M.pure((penalty, state)))
-      next.map {
+      state.act(a).map {
         case (r, s) =>
           (policy.learn(state, a, r), r, s)
       }
@@ -35,12 +33,11 @@ object Episode {
   def playN[A, Obs, R, M[_]: Monad](
       policy: Policy[A, Obs, R, M, M],
       state: State[A, Obs, R, M],
-      penalty: R,
       nTimes: Int
   ): M[(policy.This, Seq[R], state.This)] =
     Util.iterateM(nTimes)((policy, Seq.empty[R], state)) {
       case (p, rs, s) =>
-        play(p, s, penalty).map {
+        play(p, s).map {
           case (newP, r, newS) =>
             (newP, rs :+ r, newS)
         }
@@ -50,14 +47,13 @@ object Episode {
     * Takes an initial set of policies and a state...
     */
   def playMany[A, Obs, R, M[_]: Monad](
-      pairs: List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])],
-      penalty: R
+      pairs: List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])]
   )(
       rewardSum: List[R] => R
   ): M[(List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])], R)] =
     pairs.toList
       .traverse {
-        case (p, s) => play(p, s, penalty)
+        case (p, s) => play(p, s)
       }
       .map { results =>
         (results.map { case (a, b, c) => (a, c) }, rewardSum(results.map(_._2)))
@@ -68,14 +64,13 @@ object Episode {
     */
   def playManyN[A, Obs, R, M[_]: Monad](
       pairs: List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])],
-      penalty: R,
       nTimes: Int
   )(
       rewardSum: List[R] => R
   ): M[(List[(Policy[A, Obs, R, M, M], State[A, Obs, R, M])], List[R])] =
     Util.iterateM(nTimes)((pairs, List.empty[R])) {
       case (ps, rs) =>
-        playMany(ps, penalty)(rewardSum).map {
+        playMany(ps)(rewardSum).map {
           case (newPS, r) =>
             (newPS, rs :+ r)
         }

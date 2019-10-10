@@ -76,8 +76,7 @@ object Chapter5 {
       MonteCarlo
         .firstVisit[Action, AgentView, Double, Generator](
           random[Generator].mapK(Cat.catToGenerator),
-          state,
-          0.0
+          state
         )
     }.get
 

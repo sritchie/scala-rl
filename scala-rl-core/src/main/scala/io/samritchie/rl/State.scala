@@ -42,14 +42,10 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
     * better interface. Good enough for now.
     */
   def dynamics: Map[A, M[(R, This)]]
-  def actions: Set[A] = dynamics.keySet
+  def invalidMove: M[(R, This)]
 
-  /**
-    NOTE - The state is responsible for returning a penalty if the action is
-    invalid.
-    */
-  def act(action: A): Option[M[(R, This)]] =
-    dynamics.get(action)
+  def actions: Set[A] = dynamics.keySet
+  def act(action: A): M[(R, This)] = dynamics.getOrElse(action, invalidMove)
 
   /**
     * Returns a list of possible actions to take from this state. To specify the
@@ -63,7 +59,8 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
         M.map(pair) { case (r, s) => (r, s.mapObservation(f)) }
       override def observation = f(self.observation)
       override def dynamics = self.dynamics.mapValues(innerMap(_))
-      override def act(action: A) = self.act(action).map(innerMap(_))
+      override def invalidMove = innerMap(self.invalidMove)
+      override def act(action: A) = innerMap(self.act(action))
       override def actions: Set[A] = self.actions
     }
 
@@ -74,7 +71,8 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
 
       override def observation = self.observation
       override def dynamics = self.dynamics.mapValues(innerMap(_))
-      override def act(action: A) = self.act(action).map(innerMap(_))
+      override def invalidMove = innerMap(self.invalidMove)
+      override def act(action: A) = innerMap(self.act(action))
       override def actions: Set[A] = self.actions
     }
 
@@ -83,7 +81,8 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
       N.map(f(pair)) { case (r, s) => (r, s.mapK(f)) }
     override def observation = self.observation
     override def dynamics = self.dynamics.mapValues(innerMap(_))
-    override def act(action: A) = self.act(action).map(innerMap(_))
+    override def invalidMove = innerMap(self.invalidMove)
+    override def act(action: A) = innerMap(self.act(action))
     override def actions: Set[A] = self.actions
   }
 }
