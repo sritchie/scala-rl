@@ -5,10 +5,10 @@ package io.samritchie.rl
 
 import cats.{Comonad, Id, Monad}
 import cats.arrow.FunctionK
+import cats.data.StateT
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
 import io.samritchie.rl.util.ToDouble
 
-import scala.annotation.tailrec
 import scala.language.higherKinds
 
 object Util {
@@ -72,7 +72,7 @@ object Util {
   def iterateUntilM[M[_], A, B, C, D](init: A, agg: MonoidAggregator[B, C, D])(
       f: A => M[(A, B)]
   )(p: A => Boolean)(implicit M: Monad[M]): M[(A, D)] =
-    M.iterateWhileM((init, agg.monoid.zero)) {
+    M.iterateUntilM((init, agg.monoid.zero)) {
         case (a, c) =>
           f(a).map {
             case (a2, b) =>
@@ -86,11 +86,16 @@ object Util {
   )(p: A => Boolean): M[(A, D)] =
     iterateUntilM(init, agg)(f)(!p(_))
 
-  @tailrec
-  def loopWhile[A, B](init: A)(f: A => Either[A, B]): B =
-    f(init) match {
-      case Left(a)  => loopWhile(a)(f)
-      case Right(b) => b
+  /**
+    Unused for now... TODO try this out, get the interface going in state monad
+    style!
+    */
+  def runUntilM[M[_]: Monad, S, A, B, C](
+      state: StateT[M, S, A],
+      agg: MonoidAggregator[A, B, C]
+  )(p: S => Boolean): StateT[M, S, C] =
+    StateT[M, S, C] { s =>
+      iterateUntilM(s, agg)(state.run(_))(p)
     }
 
   /**

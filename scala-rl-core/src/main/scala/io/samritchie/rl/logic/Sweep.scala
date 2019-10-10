@@ -1,6 +1,7 @@
 package io.samritchie.rl
 package logic
 
+import cats.{Id, Monad}
 import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 object Sweep {
@@ -41,7 +42,7 @@ object Sweep {
       inPlace: Boolean,
       valueIteration: Boolean
   ): (ValueFunction[Obs], Long) =
-    Util.loopWhile((valueFn, 0)) {
+    Monad[Id].tailRecM((valueFn, 0L)) {
       case (fn, nIterations) =>
         val updated = sweep(fn, policyFn, states, inPlace, valueIteration)
         Either.cond(

@@ -54,9 +54,8 @@ object MonteCarlo {
     }
 
   /**
-    Takes a static policy and a starting state, and a penalty for moves that
-    aren't allowed, and returns a context containing the final state and the
-    trajectory that got us there.
+    Takes a static policy and a starting state and returns an M containing the
+    final state and the trajectory that got us there.
     */
   def playEpisode[Obs, A, R, M[_]: Monad, T](
       policy: Policy[Obs, A, R, M, M],
