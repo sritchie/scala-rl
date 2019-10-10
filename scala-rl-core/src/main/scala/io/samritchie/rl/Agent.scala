@@ -1,6 +1,9 @@
 /**
   A combo of a policy and its value function. Could be helpful navigating the
   monte carlo stuff.
+
+  The bandits are actually agent instances. AND, they probably need to each keep
+  their own internal aggregation types to use inside their value functions.
   */
 package io.samritchie.rl
 

@@ -80,18 +80,23 @@ object MonteCarlo {
       Tracker.firstVisit
     )
 
-  def processFirstVisit[Obs, A, R](
-      firstVisit: FrequencyTracker[(Obs, A, R), Obs],
+  /**
+    We almost have all of the pieces. Now, to do it right, we need to zip back
+    and forth along trajectories, updating the value function each time... maybe
+    not updating the policy though.
+    */
+  def processTrajectory[Obs, A, R](
+      trajectory: Trajectory[Obs, A, R],
       valueFn: ActionValueFunction[Obs, A, R],
       zero: Value[R]
   ): ActionValueFunction[Obs, A, R] =
     // I think we HAVE to start with zero here, since we always have some sort
     // of zero value for the final state, even if we use a new aggregation type.
-    firstVisit.reverseIterator
+    trajectory
       .foldLeft((valueFn, zero)) {
-        case ((vf, acc), ((obs, a, r), seenCount)) =>
+        case ((vf, acc), ((obs, a, r), shouldUpdate)) =>
           val newAcc = acc.from(r)
-          if (seenCount == 0) {
+          if (shouldUpdate.get) {
             (vf.learn(obs, a, newAcc.get), newAcc)
           } else (vf, newAcc)
       }

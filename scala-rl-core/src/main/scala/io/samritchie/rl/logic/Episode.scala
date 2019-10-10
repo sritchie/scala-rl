@@ -11,14 +11,33 @@ object Episode {
   import cats.syntax.functor._
 
   /**
+    Similar to what's below... except it doesn't learn. That is a bandit thing,
+    and we need to figure out how to make sense of that.
+
+    Oh, yeah, action values can get updated immediately. So learn really does
+    make no sense for a policy by itself.
+
+    The bandits are really agents that keep action value functions.
+    */
+  def playStatic[Obs, A, R, M[_]: Monad](
+      policy: Policy[Obs, A, R, M, M],
+      state: State[Obs, A, R, M]
+  ): M[(state.This, (Obs, A, R))] =
+    policy.choose(state).flatMap { a =>
+      state
+        .act(a)
+        .map { case (r, s2) => (s2, (state.observation, a, r)) }
+    }
+
+  /**
     * Plays a single turn and returns an M containing the reward and the next
     * state. If the chosen state's not allowed, returns the supplied penalty and
     * sends the agent back to the initial state.
     */
-  def play[Obs, A, R, M[_]](
+  def play[Obs, A, R, M[_]: Monad](
       policy: Policy[Obs, A, R, M, M],
       state: State[Obs, A, R, M]
-  )(implicit M: Monad[M]): M[(policy.This, R, state.This)] =
+  ): M[(policy.This, R, state.This)] =
     policy.choose(state).flatMap { a =>
       state.act(a).map {
         case (r, s) =>

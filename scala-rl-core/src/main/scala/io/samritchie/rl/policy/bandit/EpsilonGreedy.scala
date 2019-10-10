@@ -16,7 +16,7 @@ import Util.Instances._
   */
 case class EpsilonGreedy[Obs, A, R, T: Semigroup: Ordering, S[_]](
     config: EpsilonGreedy.Config[R, T],
-    actionValues: Map[A, T]
+    actionValues: Map[Obs, Map[A, T]]
 ) extends CategoricalPolicy[Obs, A, R, S] {
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
@@ -24,10 +24,14 @@ case class EpsilonGreedy[Obs, A, R, T: Semigroup: Ordering, S[_]](
   private def allActions(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(state.actions)
 
-  private def greedy(state: State[Obs, A, R, S]): Cat[A] =
+  private def greedy(state: State[Obs, A, R, S]): Cat[A] = {
+    val actionM = actionValues.getOrElse(state.observation, Map.empty[A, T])
     Cat.fromSet(
-      Util.allMaxBy(state.actions)(actionValues.getOrElse(_, config.initial))
+      Util.allMaxBy(state.actions)(
+        actionM.getOrElse(_, config.initial)
+      )
     )
+  }
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Monad[Cat]
@@ -40,8 +44,12 @@ case class EpsilonGreedy[Obs, A, R, T: Semigroup: Ordering, S[_]](
       state: State[Obs, A, R, S],
       action: A,
       reward: R
-  ): EpsilonGreedy[Obs, A, R, T, S] =
-    copy(actionValues = Util.mergeV(actionValues, action, config.prepare(reward)))
+  ): EpsilonGreedy[Obs, A, R, T, S] = {
+    val obs = state.observation
+    val actionM = actionValues.getOrElse(obs, Map.empty[A, T])
+    val newM = Util.mergeV(actionM, action, config.prepare(reward))
+    copy(actionValues = actionValues.updated(obs, newM))
+  }
 }
 
 // Oh boy, this really does look like it needs an aggregator... maybe
