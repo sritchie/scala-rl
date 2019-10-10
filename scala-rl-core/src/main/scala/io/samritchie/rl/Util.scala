@@ -12,6 +12,8 @@ import scala.annotation.tailrec
 import scala.language.higherKinds
 
 object Util {
+  import cats.syntax.functor._
+
   def prepareMonoid[A, B: Monoid: ToDouble](
       prepare: A => B
   ): MonoidAggregator[A, B, Double] =
@@ -58,14 +60,31 @@ object Util {
       as.filter(a => Ordering[B].equiv(maxB, f(a)))
     }
 
-  def iterateM[F[_]: Monad, A](n: Int)(a: A)(f: A => F[A]): F[A] =
-    Monad[F].tailRecM[Tuple2[Int, A], A]((n, a)) {
+  def iterateM[M[_], A](n: Int)(a: A)(f: A => M[A])(implicit M: Monad[M]): M[A] =
+    M.tailRecM[Tuple2[Int, A], A]((n, a)) {
       case (k, a) =>
         if (k <= 0)
-          Monad[F].pure(Right(a))
+          M.pure(Right(a))
         else
-          Monad[F].map(f(a))(a2 => Left((k - 1, a2)))
+          f(a).map(a2 => Left((k - 1, a2)))
     }
+
+  def iterateUntilM[M[_], A, B, C, D](init: A, agg: MonoidAggregator[B, C, D])(
+      f: A => M[(A, B)]
+  )(p: A => Boolean)(implicit M: Monad[M]): M[(A, D)] =
+    M.iterateWhileM((init, agg.monoid.zero)) {
+        case (a, c) =>
+          f(a).map {
+            case (a2, b) =>
+              (a2, agg.append(c, b))
+          }
+      }(pair => p(pair._1))
+      .map { case (a, c) => (a, agg.present(c)) }
+
+  def iterateWhileM[M[_]: Monad, A, B, C, D](init: A, agg: MonoidAggregator[B, C, D])(
+      f: A => M[(A, B)]
+  )(p: A => Boolean): M[(A, D)] =
+    iterateUntilM(init, agg)(f)(!p(_))
 
   @tailrec
   def loopWhile[A, B](init: A)(f: A => Either[A, B]): B =

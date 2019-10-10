@@ -72,7 +72,7 @@ object Chapter5 {
     println("Hello, chapter 5!")
     println("Let's play blackjack!")
 
-    val (s, fv) = limited.flatMap { state =>
+    val (s, trajectory) = limited.flatMap { state =>
       MonteCarlo
         .firstVisit[Action, AgentView, Double, Generator](
           random[Generator].mapK(Cat.catToGenerator),
@@ -80,7 +80,8 @@ object Chapter5 {
           0.0
         )
     }.get
-    println((fv.items, s.observation))
+
+    println((trajectory.toList, s.observation))
     ()
   }
 }

@@ -22,8 +22,9 @@ object Episode {
   )(implicit M: Monad[M]): M[(policy.This, R, state.This)] =
     policy.choose(state).flatMap { a =>
       val next = state.act(a).getOrElse(M.pure((penalty, state)))
-      next.map { rs =>
-        (policy.learn(state, a, rs._1), rs._1, rs._2)
+      next.map {
+        case (r, s) =>
+          (policy.learn(state, a, r), r, s)
       }
     }
 

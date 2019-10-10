@@ -45,8 +45,8 @@ trait State[A, Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
   def actions: Set[A] = dynamics.keySet
 
   /**
-    * Return None if it's an invalid action, otherwise gives us the
-    * next state. (Make this better later.)
+    NOTE - The state is responsible for returning a penalty if the action is
+    invalid.
     */
   def act(action: A): Option[M[(R, This)]] =
     dynamics.get(action)
