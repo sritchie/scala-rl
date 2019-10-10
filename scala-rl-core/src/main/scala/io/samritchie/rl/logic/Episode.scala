@@ -11,19 +11,18 @@ object Episode {
   import cats.syntax.functor._
 
   /**
-    * Plays a single turn and returns a generator that returns the
-    * reward and the next state. If the chosen state's not allowed,
-    * returns the supplied penalty and sends the agent back to the
-    * initial state.
+    * Plays a single turn and returns an M containing the reward and the next
+    * state. If the chosen state's not allowed, returns the supplied penalty and
+    * sends the agent back to the initial state.
     */
   def play[A, Obs, R, M[_]](
       policy: Policy[A, Obs, R, M, M],
       state: State[A, Obs, R, M],
       penalty: R
   )(implicit M: Monad[M]): M[(policy.This, R, state.This)] =
-    M.flatMap(policy.choose(state)) { a =>
+    policy.choose(state).flatMap { a =>
       val next = state.act(a).getOrElse(M.pure((penalty, state)))
-      M.map(next) { rs =>
+      next.map { rs =>
         (policy.learn(state, a, rs._1), rs._1, rs._2)
       }
     }

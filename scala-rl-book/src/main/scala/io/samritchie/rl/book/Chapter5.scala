@@ -8,7 +8,10 @@ package book
 import cats.{Id, Monad}
 import cats.implicits._
 import com.stripe.rainier.cats._
+import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.core.Generator
+import com.stripe.rainier.sampler.RNG
+import io.samritchie.rl.logic.MonteCarlo
 import io.samritchie.rl.policy.Random
 import io.samritchie.rl.util.CardDeck
 import io.samritchie.rl.world.Blackjack
@@ -47,7 +50,7 @@ object Chapter5 {
   def stickHighCat[S[_]](hitBelow: Int): Policy[Action, AgentView, Double, Cat, S] =
     stickHigh(hitBelow).mapK(Util.idToMonad[Cat])
 
-  def random[S[_]]: Policy[Action, AgentView, Double, Cat, S] = Random()
+  def random[M[_]]: Policy[Action, AgentView, Double, Cat, M] = Random()
 
   /**
     Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
@@ -63,7 +66,21 @@ object Chapter5 {
   val limited: Generator[State[Action, AgentView, Double, Generator]] = limitedM(starter)
 
   def main(items: Array[String]): Unit = {
+    implicit val rng: RNG = RNG.default
+    implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
+
     println("Hello, chapter 5!")
     println("Let's play blackjack!")
+
+    val (s, fv) = limited.flatMap { state =>
+      MonteCarlo
+        .firstVisit[Action, AgentView, Double, Generator](
+          random[Generator].mapK(Cat.catToGenerator),
+          state,
+          0.0
+        )
+    }.get
+    println((fv.items, s.observation))
+    ()
   }
 }
