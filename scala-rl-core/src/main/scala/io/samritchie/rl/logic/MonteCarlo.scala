@@ -6,11 +6,18 @@ package logic
 
 import cats.Monad
 import cats.implicits._
-import com.twitter.algebird.{Aggregator, Monoid, MonoidAggregator}
+import com.twitter.algebird.{Aggregator, MonoidAggregator}
 import io.samritchie.rl.util.FrequencyTracker
 
 object MonteCarlo {
-  type Tracker[Obs, A, R, T] = MonoidAggregator[(Obs, A, R), T, Iterator[((Obs, A, R), Boolean)]]
+  case class ShouldUpdateState(get: Boolean) extends AnyVal
+  object ShouldUpdateState {
+    val yes = ShouldUpdateState(true)
+    val no = ShouldUpdateState(false)
+  }
+
+  type Trajectory[Obs, A, R] = Iterator[((Obs, A, R), ShouldUpdateState)]
+  type Tracker[Obs, A, R, T] = MonoidAggregator[(Obs, A, R), T, Trajectory[Obs, A, R]]
 
   object Tracker {
     type FirstVisit[Obs, A, R] = Tracker[Obs, A, R, FrequencyTracker[(Obs, A, R), Obs]]
@@ -18,23 +25,25 @@ object MonteCarlo {
 
     def firstVisit[Obs, A, R]: FirstVisit[Obs, A, R] = {
       implicit val m = FrequencyTracker.monoid[(Obs, A, R), Obs](_._1)
-      Aggregator
-        .appendMonoid[(Obs, A, R), FrequencyTracker[(Obs, A, R), Obs], Iterator[((Obs, A, R), Boolean)]](
-          _ :+ _,
-          _.reverseIterator.map { case (t, seen) => (t, seen == 0) }
-        )
+      Aggregator.appendMonoid(
+        appnd = _ :+ _,
+        pres = _.reverseIterator.map { case (t, seen) => (t, ShouldUpdateState(seen == 0)) }
+      )
     }
 
+    /**
+      Aggregator that returns an iterator of a trajectory, with each state
+      paired with a boolean signalling whether or not it should trigger a state
+      update.
+      */
     def everyVisit[Obs, A, R]: EveryVisit[Obs, A, R] =
-      new EveryVisit[Obs, A, R] {
-        def prepare(input: (Obs, A, R)) = Vector(input)
-        val monoid = implicitly[Monoid[Vector[(Obs, A, R)]]]
-        override def present(t: Vector[(Obs, A, R)]) =
-          t.reverseIterator.map((_, true))
-      }
+      Aggregator.appendMonoid(
+        appnd = _ :+ _,
+        pres = _.reverseIterator.map((_, ShouldUpdateState.yes))
+      )
   }
 
-  def playTurn[Obs, A, R, M[_]: Monad](
+  def play[Obs, A, R, M[_]: Monad](
       policy: Policy[Obs, A, R, M, M],
       state: State[Obs, A, R, M]
   ): M[(state.This, (Obs, A, R))] =
@@ -53,9 +62,9 @@ object MonteCarlo {
       policy: Policy[Obs, A, R, M, M],
       state: State[Obs, A, R, M],
       tracker: Tracker[Obs, A, R, T]
-  ): M[(state.This, Iterator[((Obs, A, R), Boolean)])] =
+  ): M[(state.This, Trajectory[Obs, A, R])] =
     Util.iterateUntilM(state, tracker)(
-      playTurn(policy, _)
+      play(policy, _)
     )(_.isTerminal)
 
   /**
@@ -64,7 +73,7 @@ object MonteCarlo {
   def firstVisit[Obs, A, R, M[_]: Monad](
       policy: Policy[Obs, A, R, M, M],
       state: State[Obs, A, R, M]
-  ): M[(state.This, Iterator[((Obs, A, R), Boolean)])] =
+  ): M[(state.This, Trajectory[Obs, A, R])] =
     playEpisode[Obs, A, R, M, FrequencyTracker[(Obs, A, R), Obs]](
       policy,
       state,

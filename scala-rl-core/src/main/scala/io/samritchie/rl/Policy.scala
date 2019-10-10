@@ -1,5 +1,8 @@
 /**
   Policies are key.
+
+  TODO maybe we should make an Agent that is actually a policy AND a value
+  function.
   */
 package io.samritchie.rl
 
