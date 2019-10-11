@@ -6,18 +6,13 @@ package io.samritchie.rl
 import cats.{Comonad, Id, Monad}
 import cats.arrow.FunctionK
 import cats.data.StateT
-import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, MonoidAggregator, Semigroup}
+import com.twitter.algebird.{AveragedValue, MonoidAggregator, Semigroup}
 import io.samritchie.rl.util.ToDouble
 
 import scala.language.higherKinds
 
 object Util {
   import cats.syntax.functor._
-
-  def prepareMonoid[A, B: Monoid: ToDouble](
-      prepare: A => B
-  ): MonoidAggregator[A, B, Double] =
-    Aggregator.prepareMonoid(prepare).andThenPresent(ToDouble[B].apply(_))
 
   object Instances {
     implicit val averageValueOrd: Ordering[AveragedValue] =
@@ -30,13 +25,8 @@ object Util {
   def confine[A](a: A, min: A, max: A)(implicit ord: Ordering[A]): A =
     ord.min(ord.max(a, min), max)
 
-  def makeMap[K, V](keys: Set[K], default: => V)(f: K => Option[V]): Map[K, V] =
-    keys.foldLeft(Map.empty[K, V]) {
-      case (m, k) =>
-        m.updated(k, f(k).getOrElse(default))
-    }
-
   def makeMap[K, V](keys: Set[K])(f: K => V): Map[K, V] = makeMapUnsafe(keys)(f)
+
   def makeMapUnsafe[K, V](keys: TraversableOnce[K])(f: K => V): Map[K, V] =
     keys.foldLeft(Map.empty[K, V]) {
       case (m, k) =>
@@ -61,14 +51,16 @@ object Util {
     }
 
   def iterateM[M[_], A](n: Int)(a: A)(f: A => M[A])(implicit M: Monad[M]): M[A] =
-    M.tailRecM[Tuple2[Int, A], A]((n, a)) {
-      case (k, a) =>
-        if (k <= 0)
-          M.pure(Right(a))
-        else
-          f(a).map(a2 => Left((k - 1, a2)))
-    }
+    M.iterateWhileM((n, a)) {
+        case (k, a) =>
+          f(a).map((k - 1, _))
+      }(_._1 > 0)
+      .map(_._2)
 
+  /**
+    A version of iterateUntilM that uses an aggregator to store the auxiliary
+    results kicked out by the step function.
+    */
   def iterateUntilM[M[_], A, B, C, D](init: A, agg: MonoidAggregator[B, C, D])(
       f: A => M[(A, B)]
   )(p: A => Boolean)(implicit M: Monad[M]): M[(A, D)] =
@@ -81,14 +73,17 @@ object Util {
       }(pair => p(pair._1))
       .map { case (a, c) => (a, agg.present(c)) }
 
+  /**
+    A version of iterateWhileM that uses an aggregator to store the auxiliary
+    results kicked out by the step function.
+    */
   def iterateWhileM[M[_]: Monad, A, B, C, D](init: A, agg: MonoidAggregator[B, C, D])(
       f: A => M[(A, B)]
   )(p: A => Boolean): M[(A, D)] =
     iterateUntilM(init, agg)(f)(!p(_))
 
   /**
-    Unused for now... TODO try this out, get the interface going in state monad
-    style!
+    Unused for now... TODO try this out, get the interface going in state monad style!
     */
   def runUntilM[M[_]: Monad, S, A, B, C](
       state: StateT[M, S, A],
