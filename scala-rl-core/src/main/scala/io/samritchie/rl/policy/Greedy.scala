@@ -25,7 +25,7 @@ Base logic for greedy policies.
   */
 class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
     config: Greedy.Config[R],
-    valueFn: ValueFunction[Obs]
+    valueFn: StateValueFn[Obs]
 ) extends Policy[Obs, A, R, Cat, S] { self =>
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
@@ -35,7 +35,7 @@ class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
 
   private def greedy(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(
-      ValueFunction.greedyOptions(valueFn, state, config.default)
+      StateValueFn.greedyOptions(valueFn, state, config.default)
     )
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
@@ -44,10 +44,10 @@ class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
 
 object Greedy {
   case class Config[R: ToDouble](epsilon: Double, default: Value[Double]) {
-    def id[Obs, A](valueFn: ValueFunction[Obs]): Policy[Obs, A, R, Cat, Id] = policy(valueFn)
-    def stochastic[Obs, A](valueFn: ValueFunction[Obs]): Policy[Obs, A, R, Cat, Cat] = policy(valueFn)
+    def id[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Id] = policy(valueFn)
+    def stochastic[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Cat] = policy(valueFn)
 
-    def policy[Obs, A, S[_]: ExpectedValue](valueFn: ValueFunction[Obs]): Policy[Obs, A, R, Cat, S] =
+    def policy[Obs, A, S[_]: ExpectedValue](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, S] =
       new Greedy[Obs, A, R, S](this, valueFn)
   }
 }

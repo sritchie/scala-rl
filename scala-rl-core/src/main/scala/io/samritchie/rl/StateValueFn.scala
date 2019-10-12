@@ -18,10 +18,10 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
   We need some way for this to learn, or see new observations, that's part of
   the trait.
   */
-trait ValueFunction[Obs] { self =>
+trait StateValueFn[Obs] { self =>
   def seen: Iterable[Obs]
   def stateValue(obs: Obs): Value[Double]
-  def update(state: Obs, value: Value[Double]): ValueFunction[Obs]
+  def update(state: Obs, value: Value[Double]): StateValueFn[Obs]
 
   /**
     Evaluate the state using the supplied policy.
@@ -39,29 +39,29 @@ trait ValueFunction[Obs] { self =>
   def evaluateAndUpdate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       state: State[Obs, A, R, S],
       policy: Policy[Obs, A, R, M, S]
-  ): ValueFunction[Obs] =
+  ): StateValueFn[Obs] =
     update(state.observation, evaluate(state, policy))
 }
 
-object ValueFunction {
-  def apply[Obs](default: Value[Double]): ValueFunction[Obs] =
+object StateValueFn {
+  def apply[Obs](default: Value[Double]): StateValueFn[Obs] =
     value.Bellman(Map.empty[Obs, Value[Double]], default)
 
   /**
     Returns a new value function that absorbs rewards with decay.
     */
-  def decaying[Obs](gamma: Double): ValueFunction[Obs] =
+  def decaying[Obs](gamma: Double): StateValueFn[Obs] =
     decaying(0.0, gamma)
 
   /**
     Returns a new value function that absorbs rewards with decay.
     */
-  def decaying[Obs](default: Double, gamma: Double): ValueFunction[Obs] =
-    ValueFunction[Obs](value.Decaying(default, gamma))
+  def decaying[Obs](default: Double, gamma: Double): StateValueFn[Obs] =
+    StateValueFn[Obs](value.Decaying(default, gamma))
 
   def isPolicyStable[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs],
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs],
       default: Value[Double],
       states: Traversable[State[Obs, A, R, S]]
   ): Boolean =
@@ -72,7 +72,7 @@ object ValueFunction {
     an action value function. Working.
     */
   def greedyOptions[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
-      valueFn: ValueFunction[Obs],
+      valueFn: StateValueFn[Obs],
       state: State[Obs, A, R, S],
       defaultActionValue: Value[Double]
   ): Set[A] =
@@ -85,7 +85,7 @@ object ValueFunction {
     state.
     */
   def actionValue[Obs, A, R, M[_], S[_]](
-      valueFn: ValueFunction[Obs],
+      valueFn: StateValueFn[Obs],
       state: S[(R, State[Obs, A, R, S])],
       finalStateValue: Value[Double]
   )(implicit toDouble: ToDouble[R], EVS: ExpectedValue[S]): Value[Double] =
@@ -97,7 +97,7 @@ object ValueFunction {
 
   // TODO what would it mean here to go TWO levels deep?
   def expectedActionValue[Obs, A, R, M[_], S[_]](
-      valueFn: ValueFunction[Obs],
+      valueFn: StateValueFn[Obs],
       action: M[A],
       next: A => S[(R, State[Obs, A, R, S])],
       finalStateValue: Value[Double],
@@ -114,8 +114,8 @@ object ValueFunction {
     return true, false otherwise.
     */
   def diffBelow[Obs](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs],
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs],
       epsilon: Double
   )(
       combine: (Double, Double) => Double
@@ -125,8 +125,8 @@ object ValueFunction {
     TODO consider putting this on the actual trait.
     */
   def diffValue[Obs](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs],
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs],
       combine: (Double, Double) => Double
   ): Double =
     Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, combine),

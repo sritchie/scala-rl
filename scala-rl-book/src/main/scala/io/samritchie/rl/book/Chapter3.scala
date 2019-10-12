@@ -26,7 +26,7 @@ object Chapter3 {
   val allowedIterations: Long = 10000
   val epsilon: Double = 1e-4
   val gamma: Double = 0.9
-  val emptyFn = ValueFunction.decaying[Position](gamma)
+  val emptyFn = StateValueFn.decaying[Position](gamma)
   val zero = value.Decaying(0.0, gamma)
 
   def notConverging(iterations: Long, allowed: Long): Boolean =
@@ -39,13 +39,13 @@ object Chapter3 {
     is less than epsilon.
     */
   def valueFunctionConverged[Obs](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs]
-  ): Boolean = ValueFunction.diffBelow(l, r, epsilon)(_ + _)
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs]
+  ): Boolean = StateValueFn.diffBelow(l, r, epsilon)(_ + _)
 
   def shouldStop[Obs](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs],
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs],
       iterations: Long
   ): Boolean =
     notConverging(iterations, allowedIterations) ||
@@ -62,7 +62,7 @@ object Chapter3 {
 
   def printFigure(
       conf: GridWorld.Config,
-      pair: (ValueFunction[Position], Long),
+      pair: (StateValueFn[Position], Long),
       title: String
   ): Unit = {
     val (valueFn, iterations) = pair
@@ -75,7 +75,7 @@ object Chapter3 {
     * This is Figure 3.2, with proper stopping conditions and
     * everything. Lots of work to go.
     *   */
-  def threeTwo: (ValueFunction[Position], Long) =
+  def threeTwo: (StateValueFn[Position], Long) =
     Sweep.sweepUntil(
       emptyFn,
       _ => Random.id[Position, Move, Double],
@@ -88,7 +88,7 @@ object Chapter3 {
   /**
     * This is Figure 3.5. This is currently working!
     */
-  def threeFive: (ValueFunction[Position], Long) =
+  def threeFive: (StateValueFn[Position], Long) =
     Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
       fn => Greedy.Config[Double](0.0, value.Decaying(Double.NegativeInfinity, gamma)).id(fn),

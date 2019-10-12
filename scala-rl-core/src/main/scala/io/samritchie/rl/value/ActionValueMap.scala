@@ -8,7 +8,7 @@ case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
     m: Map[Obs, Map[A, T]],
     prepare: R => T,
     default: T
-) extends ActionValueFunction[Obs, A, R] { self =>
+) extends ActionValueFn[Obs, A, R] { self =>
   def seenStates: Iterable[Obs] = m.keySet
 
   override def seen(obs: Obs): Iterable[A] = m.get(obs) match {
@@ -28,12 +28,10 @@ case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
   // val actionM = actionValues.getOrElse(obs, Map.empty[A, T])
   // val newM = Util.mergeV(actionM, action, config.prepare(reward))
 
-  def update(state: Obs, value: Value[Double]): ValueFunction[Obs] = ???
-
   def toValueFunction[M[_]: ExpectedValue](
       policy: Policy[Obs, A, R, M, Any],
       default: Value[Double]
-  ): ValueFunction[Obs] = ???
+  ): StateValueFn[Obs] = ???
 
   /**
     This is not doing well, now and exposing some of the faults of my older

@@ -18,7 +18,7 @@ import Util.Instances._
   */
 case class EpsilonGreedy[Obs, A, R, S[_]](
     config: EpsilonGreedy.Config[R, _],
-    valueFn: ActionValueFunction[Obs, A, R]
+    valueFn: ActionValueFn[Obs, A, R]
 ) extends CategoricalPolicy[Obs, A, R, S] {
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)

@@ -30,13 +30,13 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
   want to be able to look forward many steps in the model, and create an algebra
   that will let us talk well about this.
 
-  I made a note in ValueFunction about how we should probably split out the
+  I made a note in StateValueFn about how we should probably split out the
   value function storage abstraction from the actual evaluator.
   */
 case class Bellman[Obs](
     m: Map[Obs, Value[Double]],
     default: Value[Double]
-) extends ValueFunction[Obs] {
+) extends StateValueFn[Obs] {
   def seen: Iterable[Obs] = m.keys
 
   override def stateValue(obs: Obs): Value[Double] =
@@ -49,7 +49,7 @@ case class Bellman[Obs](
       state: State[Obs, A, R, S],
       policy: Policy[Obs, A, R, M, S]
   ): Value[Double] =
-    ValueFunction.expectedActionValue(
+    StateValueFn.expectedActionValue(
       this,
       policy.choose(state),
       (a: A) => state.dynamics(a),
@@ -61,6 +61,6 @@ case class Bellman[Obs](
     This is currently an 'expected update', because it's using expectations vs any
     sampling.
     */
-  override def update(observation: Obs, value: Value[Double]): ValueFunction[Obs] =
+  override def update(observation: Obs, value: Value[Double]): StateValueFn[Obs] =
     copy(m = m.updated(observation, value))
 }

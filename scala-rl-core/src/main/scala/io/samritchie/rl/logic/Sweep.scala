@@ -18,12 +18,12 @@ object Sweep {
     make it yourself, given the return value and the function.
     */
   def sweep[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      valueFn: ValueFunction[Obs],
-      policyFn: ValueFunction[Obs] => Policy[Obs, A, R, M, S],
+      valueFn: StateValueFn[Obs],
+      policyFn: StateValueFn[Obs] => Policy[Obs, A, R, M, S],
       states: Traversable[State[Obs, A, R, S]],
       inPlace: Boolean,
       valueIteration: Boolean
-  ): ValueFunction[Obs] =
+  ): StateValueFn[Obs] =
     states
       .foldLeft((valueFn, policyFn(valueFn))) {
         case ((vf, p), state) =>
@@ -35,13 +35,13 @@ object Sweep {
       ._1
 
   def sweepUntil[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      valueFn: ValueFunction[Obs],
-      policyFn: ValueFunction[Obs] => Policy[Obs, A, R, M, S],
+      valueFn: StateValueFn[Obs],
+      policyFn: StateValueFn[Obs] => Policy[Obs, A, R, M, S],
       states: Traversable[State[Obs, A, R, S]],
-      stopFn: (ValueFunction[Obs], ValueFunction[Obs], Long) => Boolean,
+      stopFn: (StateValueFn[Obs], StateValueFn[Obs], Long) => Boolean,
       inPlace: Boolean,
       valueIteration: Boolean
-  ): (ValueFunction[Obs], Long) =
+  ): (StateValueFn[Obs], Long) =
     Monad[Id].tailRecM((valueFn, 0L)) {
       case (fn, nIterations) =>
         val updated = sweep(fn, policyFn, states, inPlace, valueIteration)

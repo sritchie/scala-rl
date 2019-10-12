@@ -14,7 +14,7 @@ trait Agent[Obs, A, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
 
   def monad: Monad[M]
   def policy: Policy[Obs, A, R, M, M]
-  def valueFunction: ValueFunction[Obs]
+  def valueFunction: StateValueFn[Obs]
 
   def play(state: State[Obs, A, R, M]): M[(state.This, (Obs, A, R))] =
     monad.flatMap(policy.choose(state)) { a =>
@@ -31,7 +31,7 @@ object Agent {
     */
   case class StaticAgent[Obs, A, R, M[_]](
       policy: Policy[Obs, A, R, M, M],
-      valueFunction: ValueFunction[Obs]
+      valueFunction: StateValueFn[Obs]
   )(implicit val monad: Monad[M])
       extends Agent[Obs, A, R, M]
 }

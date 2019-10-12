@@ -22,11 +22,11 @@ object Chapter4 {
   val allowedIterations: Long = 10000
   val gamma: Double = 1.0
   val epsilon: Double = 1e-4
-  val emptyFn = ValueFunction.decaying[Position](gamma)
+  val emptyFn = StateValueFn.decaying[Position](gamma)
 
   def shouldStop[Obs](
-      l: ValueFunction[Obs],
-      r: ValueFunction[Obs],
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs],
       iterations: Long,
       verbose: Boolean = false
   ): Boolean = {
@@ -35,10 +35,10 @@ object Chapter4 {
         s"Max diff seen: ${Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, _.max(_))}"
       )
     Chapter3.notConverging(iterations, allowedIterations) ||
-    ValueFunction.diffBelow(l, r, epsilon)(_.max(_))
+    StateValueFn.diffBelow(l, r, epsilon)(_.max(_))
   }
 
-  def fourOne(inPlace: Boolean): (ValueFunction[Position], Long) =
+  def fourOne(inPlace: Boolean): (StateValueFn[Position], Long) =
     Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
       _ => Random.id[Position, Move, Double],
@@ -48,7 +48,7 @@ object Chapter4 {
       valueIteration = false
     )
 
-  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair], CarRental.Config, Long) = {
+  def fourTwo(inPlace: Boolean): (StateValueFn[CarRental.InvPair], CarRental.Config, Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
     import Cat.Poisson.Lambda
 
@@ -113,7 +113,7 @@ object Chapter4 {
       valueIteration = false
     )
     println(
-      s"""Stable? ${ValueFunction.isPolicyStable(
+      s"""Stable? ${StateValueFn.isPolicyStable(
         empty,
         roundOne,
         zeroValue,
@@ -135,7 +135,7 @@ object Chapter4 {
     This currently is not great because we don't have a way of automatically
     binning the data and generating that graph. This is custom.
     */
-  def vfToSeqPoints(vf: ValueFunction[CarRental.InvPair]): Seq[Seq[Double]] =
+  def vfToSeqPoints(vf: StateValueFn[CarRental.InvPair]): Seq[Seq[Double]] =
     (0 to 20).map { row =>
       (0 to 20).map { col =>
         vf.stateValue((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).get
@@ -158,7 +158,10 @@ object Chapter4 {
   def runCarRental(): Unit = {
     val (vf, config, _) = fourTwo(true)
     val dataMap = config.stateSweep.foldLeft(Map.empty[CarRental.InvPair, Int]) { (acc, state) =>
-      acc.updated(state.observation, ValueFunction.greedyOptions(vf, state, value.Decaying(0.0, 0.9)).head.n)
+      acc.updated(
+        state.observation,
+        StateValueFn.greedyOptions(vf, state, value.Decaying(0.0, 0.9)).head.n
+      )
     }
     val inputs = (0 to 20).map { row =>
       (0 to 20).map { col =>

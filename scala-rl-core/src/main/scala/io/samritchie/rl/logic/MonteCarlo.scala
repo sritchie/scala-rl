@@ -86,9 +86,9 @@ object MonteCarlo {
     */
   def processTrajectory[Obs, A, R](
       trajectory: Trajectory[Obs, A, R],
-      valueFn: ActionValueFunction[Obs, A, R],
+      valueFn: ActionValueFn[Obs, A, R],
       zero: Value[R]
-  ): ActionValueFunction[Obs, A, R] =
+  ): ActionValueFn[Obs, A, R] =
     // I think we HAVE to start with zero here, since we always have some sort
     // of zero value for the final state, even if we use a new aggregation type.
     trajectory
