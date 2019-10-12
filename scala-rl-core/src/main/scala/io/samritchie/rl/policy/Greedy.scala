@@ -23,34 +23,31 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 /**
 Base logic for greedy policies.
   */
-class Greedy[A, Obs, R: ToDouble, M[_], S[_]: ExpectedValue](
+class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
     config: Greedy.Config[R],
-    valueFn: ValueFunction[Obs, M, S]
-) extends Policy[A, Obs, R, Cat, S] { self =>
+    valueFn: StateValueFn[Obs]
+) extends Policy[Obs, A, R, Cat, S] { self =>
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
 
-  private def allActions(state: State[A, Obs, R, S]): Cat[A] =
+  private def allActions(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(state.actions)
 
-  private def greedy(state: State[A, Obs, R, S]): Cat[A] =
+  private def greedy(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(
-      ValueFunction.greedyOptions(valueFn, state, config.default)
+      StateValueFn.greedyOptions(valueFn, state, config.default)
     )
 
-  override def choose(state: State[A, Obs, R, S]): Cat[A] =
+  override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Monad[Cat].ifM(explore)(allActions(state), greedy(state))
 }
 
 object Greedy {
   case class Config[R: ToDouble](epsilon: Double, default: Value[Double]) {
-    def id[A, Obs](
-        valueFn: ValueFunction[Obs, Cat, Id]
-    ): Policy[A, Obs, R, Cat, Id] =
-      new Greedy(this, valueFn)
+    def id[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Id] = policy(valueFn)
+    def stochastic[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Cat] = policy(valueFn)
 
-    def stochastic[A, Obs](
-        valueFn: ValueFunction[Obs, Cat, Cat]
-    ): Policy[A, Obs, R, Cat, Cat] = new Greedy(this, valueFn)
+    def policy[Obs, A, S[_]: ExpectedValue](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, S] =
+      new Greedy[Obs, A, R, S](this, valueFn)
   }
 }

@@ -19,7 +19,7 @@ import io.samritchie.rl.util.ToDouble
 case class Gradient[A: Equiv, R: ToDouble, T: ToDouble, S[_]](
     config: Gradient.Config[R, T],
     actionValues: Map[A, Gradient.Item[T]]
-) extends CategoricalPolicy[A, Any, R, S] {
+) extends CategoricalPolicy[Any, A, R, S] {
 
   /**
     * Let's try out this style for a bit. This gives us a way to
@@ -33,10 +33,10 @@ case class Gradient[A: Equiv, R: ToDouble, T: ToDouble, S[_]](
         actionValues.getOrElse(_, config.initial)
       )
 
-  override def choose(state: State[A, Any, R, S]): Cat[A] =
+  override def choose(state: State[Any, A, R, S]): Cat[A] =
     Cat.softmax(state.actions)
 
-  override def learn(state: State[A, Any, R, S], action: A, reward: R): Gradient[A, R, T, S] = {
+  override def learn(state: State[Any, A, R, S], action: A, reward: R): Gradient[A, R, T, S] = {
     val pmf = Cat.softmax(state.actions).pmf
 
     val updated = state.actions.foldLeft(Map.empty[A, Gradient.Item[T]]) {

@@ -14,10 +14,13 @@ object GamblersProblem {
       winningAmount: Amount,
       winningReward: Double
   ) {
+    val headsDistribution: Cat[Boolean] =
+      Cat.boolean(headProb)
+
     def build(startingAmount: Amount): GamblersProblem =
       GamblersProblem(this, startingAmount)
 
-    def stateSweep: Traversable[State[Amount, Amount, Double, Cat]] =
+    def stateSweep: Traversable[GamblersProblem] =
       for (amt <- (0 until winningAmount.p)) yield build(Amount(amt))
   }
 }
@@ -32,19 +35,19 @@ case class GamblersProblem(
 ) extends State[GamblersProblem.Amount, GamblersProblem.Amount, Double, Cat] {
   import GamblersProblem.Amount
 
-  val observation = amount
-  val headsDist: Cat[Boolean] = Cat.boolean(config.headProb)
+  override val observation = amount
 
-  def dynamics[O2 >: Amount]: Map[Amount, Cat[(Double, State[Amount, O2, Double, Cat])]] = fixedDynamics
+  // Maybe we want a real penalty here.
+  override val invalidMove = Cat.pure((0.0, this))
 
-  private lazy val fixedDynamics: Map[Amount, Cat[(Double, State[Amount, Amount, Double, Cat])]] =
+  override lazy val dynamics: Map[Amount, Cat[(Double, GamblersProblem)]] =
     if (amount >= config.winningAmount || amount.p <= 0)
       Map.empty
     else
       Util.makeMapUnsafe(
         (1 to math.min(amount.p, config.winningAmount.p - amount.p)).map(Amount(_))
       ) { move =>
-        headsDist.map { winningBet =>
+        config.headsDistribution.map { winningBet =>
           val newAmount = if (winningBet) move.p + amount.p else move.p - amount.p
           val reward =
             if (newAmount == config.winningAmount.p)

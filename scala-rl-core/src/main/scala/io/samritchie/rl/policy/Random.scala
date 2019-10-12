@@ -9,12 +9,12 @@ import cats.Id
 /**
   * Random policy.
   */
-case class Random[A, R, S[_]]() extends Policy[A, Any, R, Cat, S] {
-  override def choose(state: State[A, Any, R, S]): Cat[A] =
+case class Random[Obs, A, R, S[_]]() extends Policy[Obs, A, R, Cat, S] {
+  override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(state.actions)
 }
 
 object Random {
-  def cat[A, R]: Random[A, R, Cat] = Random()
-  def id[A, R]: Random[A, R, Id] = Random()
+  def cat[Obs, A, R]: Random[Obs, A, R, Cat] = Random()
+  def id[Obs, A, R]: Random[Obs, A, R, Id] = Random()
 }

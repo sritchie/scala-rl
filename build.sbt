@@ -3,6 +3,8 @@ import microsites.{CdnDirectives, MicrositeEditButton}
 import sbtorgpolicies.utils.getEnvVar
 import wartremover.Wart
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
 /* dependency versions */
 lazy val V = new {
   val algebird = "0.13.5"
@@ -47,7 +49,7 @@ val sharedSettings = Seq(
   cancelable in Global := true,
   parallelExecution in Test := true,
   scalafmtOnCompile in ThisBuild := true,
-  wartremoverErrors ++= unsafeWartsExcept(ignoredWarts),
+  wartremoverErrors in (ThisBuild, compile) ++= unsafeWartsExcept(ignoredWarts),
   unmanagedBase in Global := baseDirectory.value / "lib",
   resolvers ++= Seq(
     Resolver.bintrayRepo("cibotech", "public")

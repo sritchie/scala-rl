@@ -29,26 +29,31 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
   TODO note that this only lets you look forward a single step. We're going to
   want to be able to look forward many steps in the model, and create an algebra
   that will let us talk well about this.
+
+  I made a note in StateValueFn about how we should probably split out the
+  value function storage abstraction from the actual evaluator.
   */
-case class Bellman[Obs, M[_]: ExpectedValue, S[_]: ExpectedValue](
+case class Bellman[Obs](
     m: Map[Obs, Value[Double]],
     default: Value[Double]
-) extends ValueFunction[Obs, M, S] {
+) extends StateValueFn[Obs] {
   def seen: Iterable[Obs] = m.keys
 
   override def stateValue(obs: Obs): Value[Double] =
     m.getOrElse(obs, default)
 
-  // TODO... should this move to the trait? Is anyone ever going to implement
-  // this differently? And how about the other methods?
-  override def evaluate[A, R: ToDouble](
-      state: State[A, Obs, R, S],
-      policy: Policy[A, Obs, R, M, S]
+  // TODO This function currently uses the default, for states it hasn't seen,
+  // as the value for final states AND for states that have no current actions.
+  // This needs some work.
+  override def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
+      state: State[Obs, A, R, S],
+      policy: Policy[Obs, A, R, M, S]
   ): Value[Double] =
-    ValueFunction.expectedActionValue(
+    StateValueFn.expectedActionValue(
       this,
       policy.choose(state),
       (a: A) => state.dynamics(a),
+      default,
       default
     )
 
@@ -56,9 +61,6 @@ case class Bellman[Obs, M[_]: ExpectedValue, S[_]: ExpectedValue](
     This is currently an 'expected update', because it's using expectations vs any
     sampling.
     */
-  override def update[A, R](
-      state: State[A, Obs, R, S],
-      value: Value[Double]
-  ): ValueFunction[Obs, M, S] =
-    copy(m = m.updated(state.observation, value))
+  override def update(observation: Obs, value: Value[Double]): StateValueFn[Obs] =
+    copy(m = m.updated(observation, value))
 }

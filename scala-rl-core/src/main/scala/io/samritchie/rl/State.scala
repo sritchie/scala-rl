@@ -30,7 +30,9 @@ import cats.arrow.FunctionK
   * model; for the bandit we only have a single state, not that
   * useful.
   */
-trait State[A, +Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
+trait State[Obs, A, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
+  type This = State[Obs, A, R, M]
+
   def observation: Obs
 
   /**
@@ -39,40 +41,48 @@ trait State[A, +Obs, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
     * want the full distribution we're going to have to build out a
     * better interface. Good enough for now.
     */
-  def dynamics[O2 >: Obs]: Map[A, M[(R, State[A, O2, R, M])]]
+  def dynamics: Map[A, M[(R, This)]]
+  def invalidMove: M[(R, This)]
 
-  /**
-    * Return None if it's an invalid action, otherwise gives us the
-    * next state. (Make this better later.)
-    */
-  def act[O2 >: Obs](action: A): Option[M[(R, State[A, O2, R, M])]] =
-    dynamics.get(action)
+  def actions: Set[A] = dynamics.keySet
+  def act(action: A): M[(R, This)] = dynamics.getOrElse(action, invalidMove)
 
   /**
     * Returns a list of possible actions to take from this state. To specify the
     * terminal state, return an empty set.
     */
-  def actions: Set[A] = dynamics.keySet
-
   def isTerminal: Boolean = actions.isEmpty
 
-  /**
-    * Just an idea to see if I can make stochastic deciders out of
-    * deterministic deciders. We'll see how this develops.
-    */
-  def mapK[N[_]: Functor](f: FunctionK[M, N]): State[A, Obs, R, N] = new State[A, Obs, R, N] {
+  def mapObservation[P](f: Obs => P)(implicit M: Functor[M]): State[P, A, R, M] =
+    new State[P, A, R, M] {
+      private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
+        M.map(pair) { case (r, s) => (r, s.mapObservation(f)) }
+      override def observation = f(self.observation)
+      override def dynamics = self.dynamics.mapValues(innerMap(_))
+      override def invalidMove = innerMap(self.invalidMove)
+      override def act(action: A) = innerMap(self.act(action))
+      override def actions: Set[A] = self.actions
+    }
 
-    private def mapPair[T, U >: T](pair: M[(R, State[A, T, R, M])]): N[(R, State[A, U, R, N])] =
-      Functor[N].map(f(pair)) { case (r, s) => (r, s.mapK(f)) }
+  def mapReward[T](f: R => T)(implicit M: Functor[M]): State[Obs, A, T, M] =
+    new State[Obs, A, T, M] {
+      private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
+        M.map(pair) { case (r, s) => (f(r), s.mapReward(f)) }
 
-    def observation = self.observation
+      override def observation = self.observation
+      override def dynamics = self.dynamics.mapValues(innerMap(_))
+      override def invalidMove = innerMap(self.invalidMove)
+      override def act(action: A) = innerMap(self.act(action))
+      override def actions: Set[A] = self.actions
+    }
 
-    def dynamics[O2 >: Obs]: Map[A, N[(R, State[A, O2, R, N])]] =
-      self.dynamics.mapValues(mapPair[O2, O2](_))
-
-    override def act[O2 >: Obs](action: A): Option[N[(R, State[A, O2, R, N])]] =
-      self.act(action).map(mapPair[Obs, O2](_))
-
+  def mapK[N[_]](f: FunctionK[M, N])(implicit N: Functor[N]): State[Obs, A, R, N] = new State[Obs, A, R, N] {
+    private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
+      N.map(f(pair)) { case (r, s) => (r, s.mapK(f)) }
+    override def observation = self.observation
+    override def dynamics = self.dynamics.mapValues(innerMap(_))
+    override def invalidMove = innerMap(self.invalidMove)
+    override def act(action: A) = innerMap(self.act(action))
     override def actions: Set[A] = self.actions
   }
 }

@@ -6,6 +6,7 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.Random
 import io.samritchie.rl.world.{CarRental, GridWorld}
@@ -21,11 +22,11 @@ object Chapter4 {
   val allowedIterations: Long = 10000
   val gamma: Double = 1.0
   val epsilon: Double = 1e-4
-  val emptyFn = ValueFunction.decaying[Position](gamma)
+  val emptyFn = StateValueFn.decaying[Position](gamma)
 
-  def shouldStop[Obs, M[_], S[_]](
-      l: ValueFunction[Obs, M, S],
-      r: ValueFunction[Obs, M, S],
+  def shouldStop[Obs](
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs],
       iterations: Long,
       verbose: Boolean = false
   ): Boolean = {
@@ -34,20 +35,20 @@ object Chapter4 {
         s"Max diff seen: ${Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, _.max(_))}"
       )
     Chapter3.notConverging(iterations, allowedIterations) ||
-    ValueFunction.diff(l, r, epsilon)(_.max(_))
+    StateValueFn.diffBelow(l, r, epsilon)(_.max(_))
   }
 
-  def fourOne(inPlace: Boolean): (ValueFunction[Position, Cat, Id], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double, Cat, Id](
+  def fourOne(inPlace: Boolean): (StateValueFn[Position], Long) =
+    Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
-      _ => Random.id[Move, Double],
+      _ => Random.id[Position, Move, Double],
       gridConf.stateSweep,
       shouldStop(_, _, _),
       inPlace,
       valueIteration = false
     )
 
-  def fourTwo(inPlace: Boolean): (ValueFunction[CarRental.InvPair, Cat, Cat], CarRental.Config, Long) = {
+  def fourTwo(inPlace: Boolean): (StateValueFn[CarRental.InvPair], CarRental.Config, Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
     import Cat.Poisson.Lambda
 
@@ -72,7 +73,7 @@ object Chapter4 {
     val sweep = config.stateSweep
     val gamma = 0.9
     val zeroValue = value.Decaying(0.0, gamma)
-    val empty = value.Bellman[CarRental.InvPair, Cat, Cat](
+    val empty = value.Bellman[CarRental.InvPair](
       Map.empty,
       zeroValue
     )
@@ -103,7 +104,7 @@ object Chapter4 {
       We need to support that.
 
       */
-    val (roundOne, _) = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    val (roundOne, _) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
       empty,
       _ => stochasticConf.stochastic(empty),
       sweep,
@@ -112,14 +113,14 @@ object Chapter4 {
       valueIteration = false
     )
     println(
-      s"""Stable? ${ValueFunction.isPolicyStable(
+      s"""Stable? ${StateValueFn.isPolicyStable(
         empty,
         roundOne,
         zeroValue,
         sweep
       )}"""
     )
-    val (vf, iter) = ValueFunction.sweepUntil[CarRental.Move, CarRental.InvPair, Double, Cat, Cat](
+    val (vf, iter) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
       roundOne,
       _ => stochasticConf.stochastic(roundOne),
       sweep,
@@ -134,7 +135,7 @@ object Chapter4 {
     This currently is not great because we don't have a way of automatically
     binning the data and generating that graph. This is custom.
     */
-  def vfToSeqPoints(vf: ValueFunction[CarRental.InvPair, Cat, Cat]): Seq[Seq[Double]] =
+  def vfToSeqPoints(vf: StateValueFn[CarRental.InvPair]): Seq[Seq[Double]] =
     (0 to 20).map { row =>
       (0 to 20).map { col =>
         vf.stateValue((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).get
@@ -157,7 +158,10 @@ object Chapter4 {
   def runCarRental(): Unit = {
     val (vf, config, _) = fourTwo(true)
     val dataMap = config.stateSweep.foldLeft(Map.empty[CarRental.InvPair, Int]) { (acc, state) =>
-      acc.updated(state.observation, ValueFunction.greedyOptions(vf, state, value.Decaying(0.0, 0.9)).head.n)
+      acc.updated(
+        state.observation,
+        StateValueFn.greedyOptions(vf, state, value.Decaying(0.0, 0.9)).head.n
+      )
     }
     val inputs = (0 to 20).map { row =>
       (0 to 20).map { col =>

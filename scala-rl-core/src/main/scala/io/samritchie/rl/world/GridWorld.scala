@@ -88,16 +88,17 @@ case class GridWorld(
     jumps: GridWorld.Jumps,
     values: Map[Grid.Position, Double],
     terminalStates: Set[Grid.Position]
-) extends State[Grid.Move, Grid.Position, Double, Id] {
+) extends State[Grid.Position, Grid.Move, Double, Id] {
   import Grid.{Move, Position}
 
-  val observation: Position = grid.position
+  override val observation: Position = grid.position
+  override val invalidMove = (penalty, this)
 
-  def dynamics[O2 >: Grid.Position]: Map[Move, (Double, State[Move, O2, Double, Id])] =
+  override lazy val dynamics: Map[Move, (Double, GridWorld)] =
     if (terminalStates(grid.position))
       Map.empty
     else
-      Util.makeMap(Grid.Move.all)(m => actNow(m))
+      Util.makeMap(Grid.Move.all)(actNow(_))
 
   private def positionValue(position: Position): Double =
     values.getOrElse(position, defaultReward)
@@ -110,7 +111,7 @@ case class GridWorld(
     * CAN look ahead, and don't hide it behind a delay, then boom, we
     * have the ability to do the checkers example.
     */
-  private def actNow(move: Move): (Double, State[Move, Position, Double, Id]) =
+  private def actNow(move: Move): (Double, GridWorld) =
     jumps.get(grid.position) match {
       case None =>
         grid

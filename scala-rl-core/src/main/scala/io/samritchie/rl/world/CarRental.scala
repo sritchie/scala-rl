@@ -61,10 +61,10 @@ object CarRental {
         case (a, b, c, d) => (Update(a, b), Update(c, d))
       }
 
-    def build(a: Inventory, b: Inventory): State[Move, (Inventory, Inventory), Double, Cat] =
+    def build(a: Inventory, b: Inventory): CarRental =
       CarRental(this, dist, a, b)
 
-    def stateSweep: Traversable[State[Move, (Inventory, Inventory), Double, Cat]] =
+    def stateSweep: Traversable[CarRental] =
       for {
         a <- (0 to aConfig.maxCars)
         b <- (0 to bConfig.maxCars)
@@ -79,19 +79,19 @@ object CarRental {
     }
 }
 
-import CarRental.{Inventory, Move, Update}
+import CarRental.{InvPair, Inventory, Move, Update}
 
 case class CarRental(
     config: CarRental.Config,
     pmf: Cat[(Update, Update)],
     a: Inventory,
     b: Inventory
-) extends State[Move, (Inventory, Inventory), Double, Cat] {
+) extends State[InvPair, Move, Double, Cat] {
 
-  val observation: (Inventory, Inventory) = (a, b)
+  override val observation: InvPair = (a, b)
 
   /**
-      Go through all possibilities...
+    Go through all possibilities...
 
     FIRST move the cars.
     THEN calculate the cost.
@@ -104,15 +104,13 @@ case class CarRental(
     TODO filter this so that we don't present moves that will more than
     deplete some spot. Overloading is fine, since it gets the cars off the
     board... I guess?
-    */
-  def dynamics[O2 >: (Inventory, Inventory)]: Map[Move, Cat[(Double, State[Move, O2, Double, Cat])]] =
-    fixedDynamics
 
-  // TODO I THINK we can only make this faster if we decide to use an Eval...
-  // get an EvalT going for the monads, and define an expected value instance
-  // there. But then the first person to go and iterate through will evaluate
-  // everything.
-  private lazy val fixedDynamics: Map[Move, Cat[(Double, State[Move, (Inventory, Inventory), Double, Cat])]] =
+    TODO I THINK we can only make this faster if we decide to use an Eval...
+    get an EvalT going for the monads, and define an expected value instance
+    there. But then the first person to go and iterate through will evaluate
+    everything.
+    */
+  override lazy val dynamics: Map[Move, Cat[(Double, CarRental)]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
       pmf.map {
         case (aUpdate, bUpdate) =>
@@ -120,6 +118,7 @@ case class CarRental(
           (reward, copy(a = newA, b = newB))
       }
     }
+  override val invalidMove = Cat.pure((0.0, this))
 
   private def processAll(
       move: Move,

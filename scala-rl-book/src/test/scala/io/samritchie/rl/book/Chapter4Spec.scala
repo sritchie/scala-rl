@@ -1,6 +1,7 @@
 package io.samritchie.rl
 package book
 
+import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.util.Grid
 import io.samritchie.rl.value.{Bellman, Decaying}
 import org.scalatest.FunSuite
@@ -38,23 +39,23 @@ class Chapter4Spec extends FunSuite {
 
   test("Figure 4.1's value function matches the gold set") {
     val (actual, _) = Chapter4.fourOne(inPlace = false)
-    assert(ValueFunction.diff(actual, expectedFourOne, epsilon)(_.max(_)))
+    assert(StateValueFn.diffBelow(actual, expectedFourOne, epsilon)(_.max(_)))
   }
 
   test("Figure 4.1's calculation matches the full categorical version") {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = value.Bellman[Position, Cat, Cat](Map.empty, zeroValue)
+    val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
 
-    val (actual, _) = ValueFunction.sweepUntil[Move, Position, Double, Cat, Cat](
+    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, Cat, Cat](
       emptyFn,
-      _ => policy.Random.cat[Move, Double],
+      _ => policy.Random.cat[Position, Move, Double],
       Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter4.shouldStop(_, _, _),
       inPlace = true,
       valueIteration = true
     )
-    assert(ValueFunction.diff(actual, expectedFourOne, epsilon)(_.max(_)))
+    assert(StateValueFn.diffBelow(actual, expectedFourOne, epsilon)(_.max(_)))
   }
 }

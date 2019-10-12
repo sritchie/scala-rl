@@ -8,6 +8,7 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Tabulator
 import io.samritchie.rl.policy.{Greedy, Random}
 import io.samritchie.rl.util.Grid
@@ -25,7 +26,7 @@ object Chapter3 {
   val allowedIterations: Long = 10000
   val epsilon: Double = 1e-4
   val gamma: Double = 0.9
-  val emptyFn = ValueFunction.decaying[Position](gamma)
+  val emptyFn = StateValueFn.decaying[Position](gamma)
   val zero = value.Decaying(0.0, gamma)
 
   def notConverging(iterations: Long, allowed: Long): Boolean =
@@ -37,14 +38,14 @@ object Chapter3 {
     function instead here to get this working, to check that the maximum delta
     is less than epsilon.
     */
-  def valueFunctionConverged[Obs, M[_], S[_]](
-      l: ValueFunction[Obs, M, S],
-      r: ValueFunction[Obs, M, S]
-  ): Boolean = ValueFunction.diff(l, r, epsilon)(_ + _)
+  def valueFunctionConverged[Obs](
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs]
+  ): Boolean = StateValueFn.diffBelow(l, r, epsilon)(_ + _)
 
-  def shouldStop[Obs, M[_], S[_]](
-      l: ValueFunction[Obs, M, S],
-      r: ValueFunction[Obs, M, S],
+  def shouldStop[Obs](
+      l: StateValueFn[Obs],
+      r: StateValueFn[Obs],
       iterations: Long
   ): Boolean =
     notConverging(iterations, allowedIterations) ||
@@ -59,9 +60,9 @@ object Chapter3 {
       .toSeq
       .map(_.toSeq)
 
-  def printFigure[M[_], S[_]](
+  def printFigure(
       conf: GridWorld.Config,
-      pair: (ValueFunction[Position, M, S], Long),
+      pair: (StateValueFn[Position], Long),
       title: String
   ): Unit = {
     val (valueFn, iterations) = pair
@@ -74,10 +75,10 @@ object Chapter3 {
     * This is Figure 3.2, with proper stopping conditions and
     * everything. Lots of work to go.
     *   */
-  def threeTwo: (ValueFunction[Position, Cat, Id], Long) =
-    ValueFunction.sweepUntil(
+  def threeTwo: (StateValueFn[Position], Long) =
+    Sweep.sweepUntil(
       emptyFn,
-      _ => Random.id[Move, Double],
+      _ => Random.id[Position, Move, Double],
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,
@@ -87,8 +88,8 @@ object Chapter3 {
   /**
     * This is Figure 3.5. This is currently working!
     */
-  def threeFive: (ValueFunction[Position, Cat, Id], Long) =
-    ValueFunction.sweepUntil[Move, Position, Double, Cat, Id](
+  def threeFive: (StateValueFn[Position], Long) =
+    Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
       fn => Greedy.Config[Double](0.0, value.Decaying(Double.NegativeInfinity, gamma)).id(fn),
       gridConf.stateSweep,
