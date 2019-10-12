@@ -4,18 +4,16 @@
   */
 package io.samritchie.rl
 
-import io.samritchie.rl.util.ExpectedValue
+import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
-trait ActionValueFn[Obs, A, R] { self =>
+trait ActionValueFn[Obs, A, T] { self =>
   def seen(obs: Obs): Iterable[A]
   def actionValue(obs: Obs, a: A): Value[Double]
 
-  // This obviously does not fit with the others, since it makes no assumptions
-  // about Double rewards, etc, like we've seen above in ValueFunction. Let's
-  // see how it settles out.
-  def learn(obs: Obs, action: A, value: R): ActionValueFn[Obs, A, R]
+  // So this receives some ALREADY AGGREGATED THING??
+  def learn(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T]
 
-  def toValueFunction[M[_]: ExpectedValue](
+  def toValueFunction[R: ToDouble, M[_]: ExpectedValue](
       policy: Policy[Obs, A, R, M, Any],
       default: Value[Double]
   ): StateValueFn[Obs]

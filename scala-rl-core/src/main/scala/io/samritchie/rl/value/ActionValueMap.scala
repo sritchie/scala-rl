@@ -28,8 +28,8 @@ case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
   // val actionM = actionValues.getOrElse(obs, Map.empty[A, T])
   // val newM = Util.mergeV(actionM, action, config.prepare(reward))
 
-  def toValueFunction[M[_]: ExpectedValue](
-      policy: Policy[Obs, A, R, M, Any],
+  def toValueFunction[R2: ToDouble, M[_]: ExpectedValue](
+      policy: Policy[Obs, A, R2, M, Any],
       default: Value[Double]
   ): StateValueFn[Obs] = ???
 

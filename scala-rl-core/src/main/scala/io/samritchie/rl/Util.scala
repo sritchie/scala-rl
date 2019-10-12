@@ -6,7 +6,7 @@ package io.samritchie.rl
 import cats.{Comonad, Id, Monad}
 import cats.arrow.FunctionK
 import cats.data.StateT
-import com.twitter.algebird.{AveragedValue, MonoidAggregator, Semigroup}
+import com.twitter.algebird.{AveragedValue, Fold, MonoidAggregator, Semigroup}
 import io.samritchie.rl.util.ToDouble
 
 import scala.language.higherKinds
@@ -72,6 +72,35 @@ object Util {
           }
       }(pair => p(pair._1))
       .map { case (a, c) => (a, agg.present(c)) }
+
+  /**
+    A version of iterateUntilM that uses a Fold to store the auxiliary
+    results kicked out by the step function.
+    */
+  def foldUntilM[M[_], A, B, C](init: A, fold: Fold[B, C])(
+      f: A => M[(A, B)]
+  )(p: A => Boolean)(implicit M: Monad[M]): M[(A, C)] = {
+    val foldState = fold.build()
+    M.iterateUntilM((init, foldState.start)) {
+        case (a, c) =>
+          f(a).map {
+            case (a2, b) =>
+              (a2, foldState.add(c, b))
+          }
+      }(pair => p(pair._1))
+      .map { case (a, c) => (a, foldState.end(c)) }
+  }
+
+  /**
+    And a helper function that will let me test this out with monoid
+    aggregators, like the ones I wrote to walk trajectories.
+    */
+  def aggToFold[A, B, C](agg: MonoidAggregator[A, B, C]): Fold[A, C] =
+    Fold.fold[B, A, C](
+      start = agg.monoid.zero,
+      add = (b, a) => agg.monoid.plus(b, agg.prepare(a)),
+      end = agg.present(_)
+    )
 
   /**
     A version of iterateWhileM that uses an aggregator to store the auxiliary
