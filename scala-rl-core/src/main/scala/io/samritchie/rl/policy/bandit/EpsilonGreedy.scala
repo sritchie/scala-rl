@@ -7,6 +7,8 @@ package bandit
 
 import cats.Monad
 import com.twitter.algebird.{AveragedValue, Semigroup}
+import io.samritchie.rl.util.ToDouble
+import io.samritchie.rl.value.ActionValueMap
 import Util.Instances._
 
 /**
@@ -14,9 +16,9 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[Obs, A, R, T: Semigroup: Ordering, S[_]](
-    config: EpsilonGreedy.Config[R, T],
-    actionValues: Map[Obs, Map[A, T]]
+case class EpsilonGreedy[Obs, A, R, S[_]](
+    config: EpsilonGreedy.Config[R, _],
+    valueFn: ActionValueFunction[Obs, A, R]
 ) extends CategoricalPolicy[Obs, A, R, S] {
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
@@ -25,10 +27,11 @@ case class EpsilonGreedy[Obs, A, R, T: Semigroup: Ordering, S[_]](
     Cat.fromSet(state.actions)
 
   private def greedy(state: State[Obs, A, R, S]): Cat[A] = {
-    val actionM = actionValues.getOrElse(state.observation, Map.empty[A, T])
+    val obs = state.observation
     Cat.fromSet(
       Util.allMaxBy(state.actions)(
-        actionM.getOrElse(_, config.initial)
+        // TODO deal with initial values?
+        valueFn.actionValue(obs, _)
       )
     )
   }
@@ -39,17 +42,12 @@ case class EpsilonGreedy[Obs, A, R, T: Semigroup: Ordering, S[_]](
         allActions(state),
         greedy(state)
       )
-
   override def learn(
       state: State[Obs, A, R, S],
       action: A,
       reward: R
-  ): EpsilonGreedy[Obs, A, R, T, S] = {
-    val obs = state.observation
-    val actionM = actionValues.getOrElse(obs, Map.empty[A, T])
-    val newM = Util.mergeV(actionM, action, config.prepare(reward))
-    copy(actionValues = actionValues.updated(obs, newM))
-  }
+  ): EpsilonGreedy[Obs, A, R, S] =
+    copy(valueFn = valueFn.learn(state.observation, action, reward))
 }
 
 // Oh boy, this really does look like it needs an aggregator... maybe
@@ -57,13 +55,18 @@ case class EpsilonGreedy[Obs, A, R, T: Semigroup: Ordering, S[_]](
 // elsewhere? Or maybe I build to the cats interfaces, then I have an
 // algebird package? More for later.
 object EpsilonGreedy {
-  case class Config[R, T: Semigroup: Ordering](
+  // TODO - restructure this, and UCB and gradient, so they just take an action
+  // value function. Then they become solid policies that I can use.
+  //
+  // I DON'T THINK I need to worry about the ToDouble thing. I just need
+  // rankings, right?? Is that all that's important for a policy?
+  case class Config[R, T: Semigroup: Ordering: ToDouble](
       epsilon: Double,
       prepare: R => T,
       initial: T
   ) {
-    def policy[A, Obs, S[_]]: EpsilonGreedy[Obs, A, R, T, S] =
-      EpsilonGreedy(this, Map.empty)
+    def policy[A, Obs, S[_]]: EpsilonGreedy[Obs, A, R, S] =
+      EpsilonGreedy(this, ActionValueMap.empty(prepare, initial))
   }
 
   /**
