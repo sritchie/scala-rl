@@ -86,9 +86,9 @@ object MonteCarlo {
     */
   def processTrajectory[Obs, A, R, T](
       trajectory: Trajectory[Obs, A, R],
-      valueFn: ActionValueFn[Obs, A, T],
-      agg: MonoidAggregator[R, T, T]
-  ): ActionValueFn[Obs, A, T] =
+      valueFn: ActionValueFn[Obs, A, R],
+      agg: MonoidAggregator[R, T, R]
+  ): ActionValueFn[Obs, A, R] =
     // I think we HAVE to start with zero here, since we always have some sort
     // of zero value for the final state, even if we use a new aggregation type.
     trajectory
@@ -96,7 +96,7 @@ object MonteCarlo {
         case ((vf, t), ((obs, a, r), shouldUpdate)) =>
           val t2 = agg.append(t, r)
           if (shouldUpdate.get) {
-            (vf.learn(obs, a, t2), t2)
+            (vf.learn(obs, a, agg.present(t2)), t2)
           } else (vf, t2)
       }
       ._1

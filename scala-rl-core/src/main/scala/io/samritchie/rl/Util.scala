@@ -6,7 +6,8 @@ package io.samritchie.rl
 import cats.{Comonad, Id, Monad}
 import cats.arrow.FunctionK
 import cats.data.StateT
-import com.twitter.algebird.{AveragedValue, Fold, MonoidAggregator, Semigroup}
+import com.twitter.algebird.{AveragedValue, Fold, MonoidAggregator, Ring, Semigroup, VectorSpace}
+import com.stripe.rainier.compute.Real
 import io.samritchie.rl.util.ToDouble
 
 import scala.language.higherKinds
@@ -20,6 +21,20 @@ object Util {
 
     implicit val avToDouble: ToDouble[AveragedValue] =
       ToDouble.instance(_.value)
+
+    implicit val realRing: Ring[Real] = RealRing
+
+    implicit def idVectorSpace[R](implicit R: Ring[R]): VectorSpace[R, Id] =
+      VectorSpace.from[R, Id](R.times(_, _))
+
+    object RealRing extends Ring[Real] {
+      override def one = Real.one
+      override def zero = Real.zero
+      override def negate(v: Real) = -v
+      override def plus(l: Real, r: Real) = l + r
+      override def minus(l: Real, r: Real) = l - r
+      override def times(l: Real, r: Real) = l * r
+    }
   }
 
   def confine[A](a: A, min: A, max: A)(implicit ord: Ordering[A]): A =

@@ -4,16 +4,35 @@
   */
 package io.samritchie.rl
 
-import io.samritchie.rl.util.{ExpectedValue, ToDouble}
+import io.samritchie.rl.util.ExpectedValue
 
-trait ActionValueFn[Obs, A, T] { self =>
+/**
+  TODO for the morning:
+
+  - convert the action value functions to directly return an R, not a
+    Value[Double]. They can use a T to aggregate internally... then we don't
+    need the weighted thing.
+  - Make the Bellman and ActionValueMap implementations take an aggregator.
+  - make DecayState work with a RING, not with anything so generic! And
+    specialize it.
+  - we want the aggregator that currently deals with Value instances to take a
+    Double only in the case with gamma = 1.0, a Left(instance) in the case where
+    gamma = 0.0, and some generic thing...
+
+  Remember that the goal here is to lock down the types [R, T, R] for the monte
+  carlo stuff so that I can actually get that shit working.
+
+  Then convert the bandits to use it.
+
+  */
+trait ActionValueFn[Obs, A, R] { self =>
   def seen(obs: Obs): Iterable[A]
   def actionValue(obs: Obs, a: A): Value[Double]
 
-  // So this receives some ALREADY AGGREGATED THING??
-  def learn(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T]
+  // TODO So this receives some ALREADY AGGREGATED THING!
+  def learn(obs: Obs, action: A, value: R): ActionValueFn[Obs, A, R]
 
-  def toValueFunction[R: ToDouble, M[_]: ExpectedValue](
+  def toValueFunction[M[_]: ExpectedValue](
       policy: Policy[Obs, A, R, M, Any],
       default: Value[Double]
   ): StateValueFn[Obs]
