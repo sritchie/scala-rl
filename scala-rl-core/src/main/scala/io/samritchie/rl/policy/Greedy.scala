@@ -35,7 +35,7 @@ class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
 
   private def greedy(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(
-      StateValueFn.greedyOptions(valueFn, state, config.default)
+      StateValueFn.greedyOptions(valueFn, state.dynamics, config.default)
     )
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =

@@ -160,7 +160,14 @@ object Chapter4 {
     val dataMap = config.stateSweep.foldLeft(Map.empty[CarRental.InvPair, Int]) { (acc, state) =>
       acc.updated(
         state.observation,
-        StateValueFn.greedyOptions(vf, state, value.Decaying(0.0, 0.9)).head.n
+        StateValueFn
+          .greedyOptions[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
+            vf,
+            state.dynamics,
+            value.Decaying(0.0, 0.9)
+          )
+          .head
+          .n
       )
     }
     val inputs = (0 to 20).map { row =>

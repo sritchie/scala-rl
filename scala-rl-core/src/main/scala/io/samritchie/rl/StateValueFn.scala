@@ -65,7 +65,10 @@ object StateValueFn {
       default: Value[Double],
       states: Traversable[State[Obs, A, R, S]]
   ): Boolean =
-    states.forall(s => greedyOptions(l, s, default) == greedyOptions(r, s, default))
+    states.forall { s =>
+      val dynamics = s.dynamics
+      greedyOptions(l, dynamics, default) == greedyOptions(r, dynamics, default)
+    }
 
   /**
     NOTE: The default action value would NOT be necessary of we were looking at
@@ -73,12 +76,12 @@ object StateValueFn {
     */
   def greedyOptions[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
       valueFn: StateValueFn[Obs],
-      state: State[Obs, A, R, S],
+      dynamics: State.Dynamics[Obs, A, R, S],
       defaultActionValue: Value[Double]
   ): Set[A] =
-    Util.allMaxBy[A, Value[Double]](state.actions) { a =>
-      actionValue(valueFn, state.dynamics(a), defaultActionValue)
-    }
+    Util.maxKeys[A, Value[Double]](
+      dynamics.mapValues(actionValue(valueFn, _, defaultActionValue))
+    )
 
   /**
     This returns the value of the action, given categorical dynamics of the
@@ -86,10 +89,10 @@ object StateValueFn {
     */
   def actionValue[Obs, A, R, M[_], S[_]](
       valueFn: StateValueFn[Obs],
-      state: S[(R, State[Obs, A, R, S])],
+      view: State.ActionView[Obs, A, R, S],
       finalStateValue: Value[Double]
   )(implicit toDouble: ToDouble[R], EVS: ExpectedValue[S]): Value[Double] =
-    EVS.get(state, finalStateValue) {
+    EVS.get(view, finalStateValue) {
       case (reward, newState) =>
         // THIS is where you can descend deeper.
         valueFn.stateValue(newState.observation).from(toDouble(reward))

@@ -57,6 +57,8 @@ object Util {
       case Some(v) => Semigroup.plus[V](v, delta)
     }
 
+  def maxKeys[A, B: Ordering](m: Map[A, B]): Set[A] = allMaxBy(m.keySet)(m(_))
+
   def allMaxBy[A, B: Ordering](as: Set[A])(f: A => B): Set[A] =
     if (as.isEmpty) Set.empty
     else {
