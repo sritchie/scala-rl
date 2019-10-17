@@ -3,7 +3,7 @@ package book
 
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.util.Grid
-import io.samritchie.rl.value.{Bellman, Decaying}
+import io.samritchie.rl.value.{Decaying, StateValueMap}
 import org.scalatest.FunSuite
 
 /**
@@ -18,7 +18,7 @@ class Chapter3Spec extends FunSuite {
 
   test("Figure 3.2's value function matches the gold set") {
     val (actual, _) = Chapter3.threeTwo
-    val expected = Bellman(
+    val expected = StateValueMap(
       Map(
         Position.of(0, 0) -> 3.3090,
         Position.of(0, 1) -> 8.7893,
@@ -52,7 +52,7 @@ class Chapter3Spec extends FunSuite {
     assert(StateValueFn.diffBelow(actual, expected, epsilon)(_.max(_)))
   }
 
-  val expectedThreeFive = Bellman(
+  val expectedThreeFive = StateValueMap(
     Map(
       Position.of(0, 0) -> 21.9774,
       Position.of(0, 1) -> 24.4194,
@@ -92,7 +92,7 @@ class Chapter3Spec extends FunSuite {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
+    val emptyFn = StateValueFn[Position](zeroValue)
 
     // Build a Stochastic version of the greedy policy.
     val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
@@ -100,6 +100,7 @@ class Chapter3Spec extends FunSuite {
     val (actual, _) = Sweep.sweepUntil[Position, Move, Double, Cat, Cat](
       emptyFn,
       stochasticConf.stochastic[Position, Move](_),
+      (vf, p) => Estimator.bellman(vf, p, zeroValue, zeroValue),
       Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter3.shouldStop _,
       inPlace = true,

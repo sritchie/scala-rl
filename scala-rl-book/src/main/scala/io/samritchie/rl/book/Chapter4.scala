@@ -38,10 +38,13 @@ object Chapter4 {
     StateValueFn.diffBelow(l, r, epsilon)(_.max(_))
   }
 
+  val defaultVal = value.Decaying(0.0, gamma)
+
   def fourOne(inPlace: Boolean): (StateValueFn[Position], Long) =
     Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
       _ => Random.id[Position, Move, Double],
+      (fn, p) => Estimator.bellman(fn, p, defaultVal, defaultVal),
       gridConf.stateSweep,
       shouldStop(_, _, _),
       inPlace,
@@ -73,10 +76,7 @@ object Chapter4 {
     val sweep = config.stateSweep
     val gamma = 0.9
     val zeroValue = value.Decaying(0.0, gamma)
-    val empty = value.Bellman[CarRental.InvPair](
-      Map.empty,
-      zeroValue
-    )
+    val empty = StateValueFn[CarRental.InvPair](zeroValue)
 
     // Build a Stochastic version of the greedy policy.
     val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
@@ -107,6 +107,7 @@ object Chapter4 {
     val (roundOne, _) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
       empty,
       _ => stochasticConf.stochastic(empty),
+      (fn, p) => Estimator.bellman(fn, p, zeroValue, zeroValue),
       sweep,
       shouldStop(_, _, _, true),
       inPlace,
@@ -123,6 +124,7 @@ object Chapter4 {
     val (vf, iter) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
       roundOne,
       _ => stochasticConf.stochastic(roundOne),
+      (fn, p) => Estimator.bellman(fn, p, zeroValue, zeroValue),
       sweep,
       shouldStop(_, _, _, true),
       inPlace,

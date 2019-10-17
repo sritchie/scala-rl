@@ -20,23 +20,25 @@ object Sweep {
   def sweep[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       valueFn: StateValueFn[Obs],
       policyFn: StateValueFn[Obs] => Policy[Obs, A, R, M, S],
+      estimatorFn: (StateValueFn[Obs], Policy[Obs, A, R, M, S]) => Estimator.StateValue[Obs, A, R, S],
       states: Traversable[State[Obs, A, R, S]],
       inPlace: Boolean,
       valueIteration: Boolean
   ): StateValueFn[Obs] =
     states
-      .foldLeft((valueFn, policyFn(valueFn))) {
-        case ((vf, p), state) =>
-          val baseVf = if (inPlace) vf else valueFn
-          val newFn = vf.update(state.observation, baseVf.evaluate(state, p))
+      .foldLeft((valueFn, estimatorFn(valueFn, policyFn(valueFn)), policyFn(valueFn))) {
+        case ((vf, est, p), state) =>
+          val newFn = vf.update(state.observation, est.estimate(state))
           val newPolicy = if (valueIteration) policyFn(newFn) else p
-          (newFn, newPolicy)
+          val newEst = if (inPlace) estimatorFn(newFn, newPolicy) else est
+          (newFn, newEst, newPolicy)
       }
       ._1
 
   def sweepUntil[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       valueFn: StateValueFn[Obs],
       policyFn: StateValueFn[Obs] => Policy[Obs, A, R, M, S],
+      estimatorFn: (StateValueFn[Obs], Policy[Obs, A, R, M, S]) => Estimator.StateValue[Obs, A, R, S],
       states: Traversable[State[Obs, A, R, S]],
       stopFn: (StateValueFn[Obs], StateValueFn[Obs], Long) => Boolean,
       inPlace: Boolean,
@@ -44,7 +46,7 @@ object Sweep {
   ): (StateValueFn[Obs], Long) =
     Monad[Id].tailRecM((valueFn, 0L)) {
       case (fn, nIterations) =>
-        val updated = sweep(fn, policyFn, states, inPlace, valueIteration)
+        val updated = sweep(fn, policyFn, estimatorFn, states, inPlace, valueIteration)
         Either.cond(
           stopFn(fn, updated, nIterations),
           (updated, nIterations),

@@ -79,6 +79,8 @@ object Chapter3 {
     Sweep.sweepUntil(
       emptyFn,
       _ => Random.id[Position, Move, Double],
+      (fn: StateValueFn[Position], p: Policy[Position, Move, Double, Cat, Id]) =>
+        Estimator.bellman(fn, p, zero, zero),
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,
@@ -91,7 +93,8 @@ object Chapter3 {
   def threeFive: (StateValueFn[Position], Long) =
     Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
-      fn => Greedy.Config[Double](0.0, value.Decaying(Double.NegativeInfinity, gamma)).id(fn),
+      fn => Greedy.Config[Double](0.0, zero).id(fn),
+      (fn, p) => Estimator.bellman(fn, p, zero, zero),
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,

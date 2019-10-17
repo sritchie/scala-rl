@@ -22,42 +22,23 @@ trait StateValueFn[Obs] { self =>
   def seen: Iterable[Obs]
   def stateValue(obs: Obs): Value[Double]
   def update(state: Obs, value: Value[Double]): StateValueFn[Obs]
-
-  /**
-    Evaluate the state using the supplied policy.
-
-    TODO should an evaluator be its own thing? We could take the evaluation
-    strategy from Bellman, for example, and use it with all sorts of different
-    strategies for evaluating far forward. Why not look two steps into the
-    future?
-    */
-  def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      state: State[Obs, A, R, S],
-      policy: Policy[Obs, A, R, M, S]
-  ): Value[Double]
-
-  def evaluateAndUpdate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      state: State[Obs, A, R, S],
-      policy: Policy[Obs, A, R, M, S]
-  ): StateValueFn[Obs] =
-    update(state.observation, evaluate(state, policy))
 }
 
 object StateValueFn {
   def apply[Obs](default: Value[Double]): StateValueFn[Obs] =
-    value.Bellman(Map.empty[Obs, Value[Double]], default)
+    value.StateValueMap(Map.empty[Obs, Value[Double]], default)
+
+  /**
+    Returns a new value function that absorbs rewards with decay.
+    */
+  def decaying[Obs](default: Double, gamma: Double): StateValueFn[Obs] =
+    apply(value.Decaying(default, gamma))
 
   /**
     Returns a new value function that absorbs rewards with decay.
     */
   def decaying[Obs](gamma: Double): StateValueFn[Obs] =
     decaying(0.0, gamma)
-
-  /**
-    Returns a new value function that absorbs rewards with decay.
-    */
-  def decaying[Obs](default: Double, gamma: Double): StateValueFn[Obs] =
-    StateValueFn[Obs](value.Decaying(default, gamma))
 
   def isPolicyStable[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
       l: StateValueFn[Obs],

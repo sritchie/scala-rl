@@ -32,8 +32,8 @@ object Estimator {
       finalStateValue: Value[Double]
   ): ActionValue[Obs, A, R, S] =
     StateValue
-      .Fn[Obs, A, R, S](valueFn)
-      .andThen(ActionValue.ByStateValue(_, finalStateValue))
+      .fn[Obs, A, R, S](valueFn)
+      .byStateValue(finalStateValue)
 
   def bellman[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       valueFn: StateValueFn[Obs],
@@ -42,14 +42,16 @@ object Estimator {
       noActionValue: Value[Double]
   ): StateValue[Obs, A, R, S] =
     StateValue
-      .Fn[Obs, A, R, S](valueFn)
-      .andThen(ActionValue.ByStateValue(_, finalStateValue))
-      .andThen(StateValue.ByPolicy(policy, _, noActionValue))
+      .fn[Obs, A, R, S](valueFn)
+      .byStateValue(finalStateValue)
+      .byPolicy(policy, noActionValue)
 
   sealed trait StateValue[Obs, A, R, S[_]] extends Product with Serializable {
     def estimate(state: State[Obs, A, R, S]): Value[Double]
-    def andThen(f: StateValue[Obs, A, R, S] => ActionValue[Obs, A, R, S]): ActionValue[Obs, A, R, S] =
-      f(this)
+    def byStateValue(
+        finalStateValue: Value[Double]
+    )(implicit R: ToDouble[R], S: ExpectedValue[S]): ActionValue[Obs, A, R, S] =
+      ActionValue.ByStateValue(this, finalStateValue)
   }
   sealed trait ActionValue[Obs, A, R, S[_]] extends Product with Serializable {
     def estimate(state: State[Obs, A, R, S], a: A): Value[Double]
@@ -57,11 +59,15 @@ object Estimator {
     def greedyOptions(state: State[Obs, A, R, S]): Set[A] =
       Util.allMaxBy[A, Value[Double]](state.actions)(estimate(state, _))
 
-    def andThen(f: ActionValue[Obs, A, R, S] => StateValue[Obs, A, R, S]): StateValue[Obs, A, R, S] =
-      f(this)
+    def byPolicy[M[_]: ExpectedValue](
+        policy: Policy[Obs, A, R, M, S],
+        noActionValue: Value[Double]
+    ): StateValue[Obs, A, R, S] =
+      StateValue.ByPolicy(this, policy, noActionValue)
   }
 
   object StateValue {
+    def fn[Obs, A, R, S[_]](f: StateValueFn[Obs]): StateValue[Obs, A, R, S] = Fn(f)
 
     /**
     This estimates the state's value directly.
@@ -76,8 +82,8 @@ object Estimator {
     policy's chance of choosing each action.
       */
     final case class ByPolicy[Obs, A, R, M[_]: ExpectedValue, S[_]](
-        policy: Policy[Obs, A, R, M, S],
         estimator: ActionValue[Obs, A, R, S],
+        policy: Policy[Obs, A, R, M, S],
         noActionValue: Value[Double]
     ) extends StateValue[Obs, A, R, S] {
       def estimate(state: State[Obs, A, R, S]): Value[Double] =
@@ -112,5 +118,4 @@ object Estimator {
         }
     }
   }
-
 }

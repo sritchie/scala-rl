@@ -42,20 +42,11 @@ class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
 
 object Greedy {
   case class Config[R: ToDouble](epsilon: Double, default: Value[Double]) {
-    import Estimator.{ActionValue, StateValue}
-
-    private def estimator[Obs, A, M[_], S[_]: ExpectedValue](
-        valueFn: StateValueFn[Obs]
-    ): ActionValue[Obs, A, R, S] =
-      StateValue
-        .Fn[Obs, A, R, S](valueFn)
-        .andThen(ActionValue.ByStateValue(_, default))
-
     def id[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Id] = policy(valueFn)
     def stochastic[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Cat] =
       policy(valueFn)
 
     def policy[Obs, A, S[_]: ExpectedValue](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, S] =
-      new Greedy[Obs, A, R, S](this, estimator(valueFn))
+      new Greedy[Obs, A, R, S](this, Estimator.oneAhead(valueFn, default))
   }
 }

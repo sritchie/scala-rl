@@ -3,7 +3,7 @@ package book
 
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.util.Grid
-import io.samritchie.rl.value.{Bellman, Decaying}
+import io.samritchie.rl.value.{Decaying, StateValueMap}
 import org.scalatest.FunSuite
 
 /**
@@ -15,7 +15,7 @@ class Chapter4Spec extends FunSuite {
   val gamma = 1.0
   val epsilon = 1e-3
   val zeroValue = Decaying(0.0, gamma)
-  val expectedFourOne = Bellman(
+  val expectedFourOne = StateValueMap(
     Map(
       Position.of(0, 0) -> 0.0,
       Position.of(0, 1) -> -13.9989,
@@ -46,11 +46,12 @@ class Chapter4Spec extends FunSuite {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
+    val emptyFn = value.StateValueMap[Position](Map.empty, zeroValue)
 
     val (actual, _) = Sweep.sweepUntil[Position, Move, Double, Cat, Cat](
       emptyFn,
       _ => policy.Random.cat[Position, Move, Double],
+      (vf, p) => Estimator.bellman(vf, p, zeroValue, zeroValue),
       Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter4.shouldStop(_, _, _),
       inPlace = true,
