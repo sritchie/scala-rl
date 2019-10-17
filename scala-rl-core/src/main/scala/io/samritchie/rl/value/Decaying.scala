@@ -1,7 +1,7 @@
 package io.samritchie.rl
 package value
 
-import com.twitter.algebird.Monoid
+import com.twitter.algebird.Group
 
 /**
   This represents a value that's weighted as you move away from it. This is
@@ -14,9 +14,15 @@ case class Decaying(get: Double, gamma: Double) extends Value[Double] {
 }
 
 object Decaying {
-  implicit def monoidDecaying(gamma: Double): Monoid[Decaying] =
-    new Monoid[Decaying] {
+  def module(gamma: Double): Module[Double, Decaying] = {
+    implicit val group: Group[Decaying] = decayingGroup(gamma)
+    Module.from((r, d) => Decaying(r * d.get, d.gamma))
+  }
+
+  def decayingGroup(gamma: Double): Group[Decaying] =
+    new Group[Decaying] {
       override val zero = Decaying(0.0, gamma)
       override def plus(l: Decaying, r: Decaying) = l.plus(r)
+      override def negate(d: Decaying) = Decaying(-d.get, gamma)
     }
 }

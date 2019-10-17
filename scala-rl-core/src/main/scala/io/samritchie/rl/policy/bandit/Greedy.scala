@@ -16,8 +16,8 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[Obs, A, R, S[_]](
-    config: EpsilonGreedy.Config[R, _],
+case class Greedy[Obs, A, R, S[_]](
+    config: Greedy.Config[R, _],
     valueFn: ActionValueFn[Obs, A, R]
 ) extends CategoricalPolicy[Obs, A, R, S] {
   private val explore: Cat[Boolean] =
@@ -46,7 +46,7 @@ case class EpsilonGreedy[Obs, A, R, S[_]](
       state: State[Obs, A, R, S],
       action: A,
       reward: R
-  ): EpsilonGreedy[Obs, A, R, S] =
+  ): Greedy[Obs, A, R, S] =
     copy(valueFn = valueFn.learn(state.observation, action, reward))
 }
 
@@ -54,7 +54,7 @@ case class EpsilonGreedy[Obs, A, R, S[_]](
 // I build it without, but then include the algebird versions
 // elsewhere? Or maybe I build to the cats interfaces, then I have an
 // algebird package? More for later.
-object EpsilonGreedy {
+object Greedy {
   // TODO - restructure this, and UCB and gradient, so they just take an action
   // value function. Then they become solid policies that I can use.
   //
@@ -65,8 +65,8 @@ object EpsilonGreedy {
       prepare: R => T,
       initial: T
   ) {
-    def policy[A, Obs, S[_]]: EpsilonGreedy[Obs, A, R, S] =
-      EpsilonGreedy(this, ActionValueMap.empty(prepare, initial))
+    def policy[A, Obs, S[_]]: Greedy[Obs, A, R, S] =
+      Greedy(this, ActionValueMap.empty(prepare, initial))
   }
 
   /**

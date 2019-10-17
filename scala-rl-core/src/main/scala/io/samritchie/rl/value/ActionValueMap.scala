@@ -21,12 +21,15 @@ case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
       t <- at.get(a)
     } yield t
     val ret = ToDouble[T].apply(tOpt.getOrElse(default))
+    // TODO - how do I turn this thing into a Value[double]?
     ???
   }
 
-  override def learn(obs: Obs, action: A, value: R): ActionValueMap[Obs, A, R, T] = ???
-  // val actionM = actionValues.getOrElse(obs, Map.empty[A, T])
-  // val newM = Util.mergeV(actionM, action, config.prepare(reward))
+  override def learn(obs: Obs, action: A, value: R): ActionValueMap[Obs, A, R, T] = {
+    val actionM = m.getOrElse(obs, Map.empty[A, T])
+    val newM = Util.mergeV(actionM, action, prepare(value))
+    copy(m = m.updated(obs, newM))
+  }
 
   def toValueFunction[M[_]: ExpectedValue](
       policy: Policy[Obs, A, R, M, Any],

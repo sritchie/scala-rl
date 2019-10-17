@@ -1,0 +1,29 @@
+package io.samritchie.rl
+
+import com.twitter.algebird.{Group, Ring}
+
+/**
+  * This class represents a module. For the required properties see:
+  *
+  * https://en.wikipedia.org/wiki/Module_(mathematics)
+  *
+  */
+object Module {
+  @inline final def apply[R, G](implicit M: Module[R, G]): Module[R, G] = M
+
+  implicit def ringModule[R: Ring]: Module[R, R] = from(Ring.times(_, _))
+
+  def from[R, G](scaleFn: (R, G) => G)(implicit R: Ring[R], G: Group[G]): Module[R, G] =
+    new Module[R, G] {
+      override def ring = R
+      override def group = G
+      def scale(r: R, g: G) =
+        if (R.isNonZero(r)) scaleFn(r, g) else G.zero
+    }
+}
+
+trait Module[R, G] extends Serializable {
+  implicit def ring: Ring[R]
+  implicit def group: Group[G]
+  def scale(r: R, g: G): G
+}

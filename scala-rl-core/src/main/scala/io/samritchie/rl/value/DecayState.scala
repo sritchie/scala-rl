@@ -1,13 +1,12 @@
 package io.samritchie.rl
 package value
 
-import com.twitter.algebird.Monoid
+import com.twitter.algebird.Group
 
 /**
   This represents a value that's weighted as you move away from it. This is
   useful because we can KEEP GOING, and continue to weight it.
   */
-// Play with this as a way to make the monoid a thing.
 sealed trait DecayState extends Product with Serializable {
   def toValue: DecayedValue
   def toDouble: Double = toValue.get
@@ -20,9 +19,24 @@ case class DecayedValue(get: Double) extends DecayState {
 }
 
 object DecayState {
-  implicit def monoidDecayState(gamma: Double): Monoid[DecayState] =
-    new Monoid[DecayState] {
+  def module(gamma: Double): Module[Double, DecayState] = {
+    implicit val group: Group[DecayState] = decayStateGroup(gamma)
+    Module.from(
+      (r, d) =>
+        d match {
+          case Reward(reward)  => Reward(r * reward)
+          case DecayedValue(v) => DecayedValue(r * v)
+        }
+    )
+  }
+
+  def decayStateGroup(gamma: Double): Group[DecayState] =
+    new Group[DecayState] {
       override val zero = DecayedValue(0.0)
+      override def negate(d: DecayState) = d match {
+        case Reward(r)       => Reward(-r)
+        case DecayedValue(v) => DecayedValue(-v)
+      }
       override def plus(l: DecayState, r: DecayState) = (l, r) match {
         case (Reward(a), Reward(b))             => Reward(a + b)
         case (DecayedValue(a), Reward(b))       => DecayedValue((a * gamma) + b)

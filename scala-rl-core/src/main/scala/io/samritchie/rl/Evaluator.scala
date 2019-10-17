@@ -13,6 +13,7 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
   and that internal to the valuefn, we have Agg[T, U, T]
   */
 object Evaluator {
+
   /**
     Evaluator that uses a world's dynamics to estimate the value of a given
     action.

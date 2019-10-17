@@ -10,7 +10,7 @@ import com.twitter.util.Stopwatch
 import io.samritchie.rl.logic.Episode
 import io.samritchie.rl.state.Bandit
 import io.samritchie.rl.plot.Plot
-import io.samritchie.rl.policy.bandit.EpsilonGreedy
+import io.samritchie.rl.policy.bandit.Greedy
 
 /**
   * Playing the game, currently. This is my test harness.
@@ -100,8 +100,8 @@ object Chapter2 {
 
   def main(items: Array[String]): Unit =
     Plot.lineChartSeq(
-      (play(EpsilonGreedy.incrementalConfig(0.0).policy), "0.0"),
-      (play(EpsilonGreedy.incrementalConfig(0.01).policy), "0.01"),
-      (play(EpsilonGreedy.incrementalConfig(0.1).policy), "0.1")
+      (play(Greedy.incrementalConfig(0.0).policy), "0.0"),
+      (play(Greedy.incrementalConfig(0.01).policy), "0.01"),
+      (play(Greedy.incrementalConfig(0.1).policy), "0.1")
     )
 }
