@@ -2,6 +2,27 @@ package io.samritchie.rl
 
 import io.samritchie.rl.util.ExpectedValue
 
+/**
+  The trick here is to figure out what is going on with aggregation, and with
+  the aggregation types. I think I can solve this this evening, given a bit of
+  time.
+
+  One problem is aggregating back across an episode.
+
+  One guess I had is that the trajectory is Agg[R, T, T]
+  and that internal to the valuefn, we have Agg[T, U, T]
+
+  Let's see how this plays out.
+
+   Tasks:
+
+  - Get this business compiling.
+  - Remove the Value[Double] wrapper around Double.
+  - get the Double type more general...
+  - replace Bellman with a think that uses an evaluator
+  - add a "val bellman" to this file
+
+  */
 sealed trait StateValueEstimator[Obs, A, R, S[_]] {
   def estimate(state: State[Obs, A, R, S]): Double
 }
@@ -65,11 +86,11 @@ object ActionValueEstimator {
   case class BySV[Obs, A, R, M[_], S[_]: ExpectedValue](
       valueFn: StateValueEstimator[Obs, A, R, S]
   ) extends ActionValueEstimator[Obs, A, R, S] {
-    def estimate(state: State[Obs, A, R, S], a: A): Double =
-      ExpectedValue[S].get(state.act(a), ???) {
-        case (r, s) =>
-          valueFn.estimate(s) // Add r back in
-      }
+    def estimate(state: State[Obs, A, R, S], a: A): Double = ???
+    // ExpectedValue[S].get(state.act(a), ???) {
+    //   case (r, s) =>
+    //     valueFn.estimate(s)
+    // }
   }
 
   case class PolicyAV[Obs, A, R, M[_]: ExpectedValue, S[_]: ExpectedValue](
