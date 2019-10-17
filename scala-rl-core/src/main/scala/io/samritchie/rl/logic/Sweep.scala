@@ -5,6 +5,11 @@ import cats.{Id, Monad}
 import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 object Sweep {
+  sealed trait Update extends Product with Serializable
+  object Update {
+    final case object Single
+    final case object SweepComplete
+  }
 
   /**
     This sweeps across the whole state space and updates the policy every single

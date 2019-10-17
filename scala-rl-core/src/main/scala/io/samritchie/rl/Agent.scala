@@ -1,7 +1,6 @@
 /**
   An Agent is a combination of a Policy and a value function.
 
-
   The whole markov decision process is a weighted, directed graph. The backup
   diagrams we see are subgraphs;
 
@@ -16,6 +15,7 @@
   StateValueFn instances are records of the values at particular State nodes.
 
   So to get the value of an ACTION node you need either:
+
   - To track it directly, with an ActionValueFn, or
   - to estimate it with some model of the dynamics of the system.
 
@@ -26,22 +26,6 @@
     to 1. (Read more about affine combinations here:
     https://www.sciencedirect.com/topics/computer-science/affine-combination)
   - Does that mean that we have a StateValueFn of ONLY DOUBLES?
-  - Do I split out an Evaluator instance that knows how to use a specific...
-    policy, and model, to calculate the value of a particular state, then update it?
-
-  - You can
-    - use the estimate directly
-    - go update the estimate, given:
-      - a policy and an action value function
-      - a policy and a model of the environment
-
-  Which can then recursively do the same thing, all the way down.
-
-  - For action values, you can:
-    - use the estimate directly,
-    - update the estimate given:
-      - a model of the environment and a state value fn
-      - a model of the environment and a new policy
 
   # The four key ideas:
   (Policy, EnvModel are a pair)
