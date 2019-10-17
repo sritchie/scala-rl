@@ -80,7 +80,7 @@ object Chapter3 {
       emptyFn,
       _ => Random.id[Position, Move, Double],
       (fn: StateValueFn[Position], p: Policy[Position, Move, Double, Cat, Id]) =>
-        Estimator.bellman(fn, p, zero, zero),
+        Evaluator.bellman(fn, p, zero, zero),
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,
@@ -94,7 +94,7 @@ object Chapter3 {
     Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
       fn => Greedy.Config[Double](0.0, zero).id(fn),
-      (fn, p) => Estimator.bellman(fn, p, zero, zero),
+      (fn, p) => Evaluator.bellman(fn, p, zero, zero),
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,

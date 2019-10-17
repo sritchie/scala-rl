@@ -20,25 +20,25 @@ object Sweep {
   def sweep[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       valueFn: StateValueFn[Obs],
       policyFn: StateValueFn[Obs] => Policy[Obs, A, R, M, S],
-      estimatorFn: (StateValueFn[Obs], Policy[Obs, A, R, M, S]) => Estimator.StateValue[Obs, A, R, S],
+      evaluatorFn: (StateValueFn[Obs], Policy[Obs, A, R, M, S]) => Evaluator.StateValue[Obs, A, R, S],
       states: Traversable[State[Obs, A, R, S]],
       inPlace: Boolean,
       valueIteration: Boolean
   ): StateValueFn[Obs] =
     states
-      .foldLeft((valueFn, estimatorFn(valueFn, policyFn(valueFn)), policyFn(valueFn))) {
-        case ((vf, est, p), state) =>
-          val newFn = vf.update(state.observation, est.estimate(state))
+      .foldLeft((valueFn, evaluatorFn(valueFn, policyFn(valueFn)), policyFn(valueFn))) {
+        case ((vf, ev, p), state) =>
+          val newFn = vf.update(state.observation, ev.evaluate(state))
           val newPolicy = if (valueIteration) policyFn(newFn) else p
-          val newEst = if (inPlace) estimatorFn(newFn, newPolicy) else est
-          (newFn, newEst, newPolicy)
+          val newEv = if (inPlace) evaluatorFn(newFn, newPolicy) else ev
+          (newFn, newEv, newPolicy)
       }
       ._1
 
   def sweepUntil[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       valueFn: StateValueFn[Obs],
       policyFn: StateValueFn[Obs] => Policy[Obs, A, R, M, S],
-      estimatorFn: (StateValueFn[Obs], Policy[Obs, A, R, M, S]) => Estimator.StateValue[Obs, A, R, S],
+      evaluatorFn: (StateValueFn[Obs], Policy[Obs, A, R, M, S]) => Evaluator.StateValue[Obs, A, R, S],
       states: Traversable[State[Obs, A, R, S]],
       stopFn: (StateValueFn[Obs], StateValueFn[Obs], Long) => Boolean,
       inPlace: Boolean,
@@ -46,7 +46,7 @@ object Sweep {
   ): (StateValueFn[Obs], Long) =
     Monad[Id].tailRecM((valueFn, 0L)) {
       case (fn, nIterations) =>
-        val updated = sweep(fn, policyFn, estimatorFn, states, inPlace, valueIteration)
+        val updated = sweep(fn, policyFn, evaluatorFn, states, inPlace, valueIteration)
         Either.cond(
           stopFn(fn, updated, nIterations),
           (updated, nIterations),

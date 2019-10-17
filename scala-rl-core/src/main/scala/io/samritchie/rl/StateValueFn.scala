@@ -46,10 +46,10 @@ object StateValueFn {
       default: Value[Double],
       states: Traversable[State[Obs, A, R, S]]
   ): Boolean = {
-    val lEstimator = Estimator.oneAhead[Obs, A, R, M, S](l, default)
-    val rEstimator = Estimator.oneAhead[Obs, A, R, M, S](r, default)
+    val lEvaluator = Evaluator.oneAhead[Obs, A, R, M, S](l, default)
+    val rEvaluator = Evaluator.oneAhead[Obs, A, R, M, S](r, default)
     states.forall { s =>
-      lEstimator.greedyOptions(s) == rEstimator.greedyOptions(s)
+      lEvaluator.greedyOptions(s) == rEvaluator.greedyOptions(s)
     }
   }
 

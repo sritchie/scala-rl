@@ -16,17 +16,19 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
    Tasks:
 
-  - Get this business compiling.
-  - Remove the Value[Double] wrapper around Double.
-  - get the Double type more general...
-  - replace Bellman with a think that uses an evaluator
-  - add a "val bellman" to this file
+  - get the Value[Double] type more general...
 
-  TODO Holy fuck...if I stack two of these, somehow, rethink it... does that get
-  me an OFF POLICY UPDATE??? If I do an expected value of both?
+  TODO Holy fuck...if I stack two of these, like, a double by-policy, rethink
+  it... does that get me an OFF POLICY UPDATE??? If I do an expected value of
+  both?
 
   */
-object Estimator {
+object Evaluator {
+
+  /**
+    Evaluator that uses a world's dynamics to estimate the value of a given
+    action.
+    */
   def oneAhead[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
       valueFn: StateValueFn[Obs],
       finalStateValue: Value[Double]
@@ -35,6 +37,10 @@ object Estimator {
       .fn[Obs, A, R, S](valueFn)
       .byStateValue(finalStateValue)
 
+  /**
+    The full bellman estimation, where we know the dynamics of the policy and of
+    the system.
+    */
   def bellman[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       valueFn: StateValueFn[Obs],
       policy: Policy[Obs, A, R, M, S],
@@ -47,17 +53,17 @@ object Estimator {
       .byPolicy(policy, noActionValue)
 
   sealed trait StateValue[Obs, A, R, S[_]] extends Product with Serializable {
-    def estimate(state: State[Obs, A, R, S]): Value[Double]
+    def evaluate(state: State[Obs, A, R, S]): Value[Double]
     def byStateValue(
         finalStateValue: Value[Double]
     )(implicit R: ToDouble[R], S: ExpectedValue[S]): ActionValue[Obs, A, R, S] =
       ActionValue.ByStateValue(this, finalStateValue)
   }
   sealed trait ActionValue[Obs, A, R, S[_]] extends Product with Serializable {
-    def estimate(state: State[Obs, A, R, S], a: A): Value[Double]
+    def evaluate(state: State[Obs, A, R, S], a: A): Value[Double]
 
     def greedyOptions(state: State[Obs, A, R, S]): Set[A] =
-      Util.allMaxBy[A, Value[Double]](state.actions)(estimate(state, _))
+      Util.allMaxBy[A, Value[Double]](state.actions)(evaluate(state, _))
 
     def byPolicy[M[_]: ExpectedValue](
         policy: Policy[Obs, A, R, M, S],
@@ -70,25 +76,25 @@ object Estimator {
     def fn[Obs, A, R, S[_]](f: StateValueFn[Obs]): StateValue[Obs, A, R, S] = Fn(f)
 
     /**
-    This estimates the state's value directly.
+    This evaluates the state's value directly.
       */
     final case class Fn[Obs, A, R, S[_]](f: StateValueFn[Obs]) extends StateValue[Obs, A, R, S] {
-      def estimate(state: State[Obs, A, R, S]): Value[Double] =
+      def evaluate(state: State[Obs, A, R, S]): Value[Double] =
         f.stateValue(state.observation)
     }
 
     /**
-    Estimates the state's value by weighting estimated action values by the
+    Evaluates the state's value by weighting evaluated action values by the
     policy's chance of choosing each action.
       */
     final case class ByPolicy[Obs, A, R, M[_]: ExpectedValue, S[_]](
-        estimator: ActionValue[Obs, A, R, S],
+        evaluator: ActionValue[Obs, A, R, S],
         policy: Policy[Obs, A, R, M, S],
         noActionValue: Value[Double]
     ) extends StateValue[Obs, A, R, S] {
-      def estimate(state: State[Obs, A, R, S]): Value[Double] =
+      def evaluate(state: State[Obs, A, R, S]): Value[Double] =
         ExpectedValue[M].get(policy.choose(state), noActionValue) { a =>
-          estimator.estimate(state, a)
+          evaluator.evaluate(state, a)
         }
 
     }
@@ -97,24 +103,24 @@ object Estimator {
   object ActionValue {
 
     /**
-    Estimates the action's value directly.
+    Evaluates the action's value directly.
       */
     final case class Fn[Obs, A, R, S[_]](f: ActionValueFn[Obs, A, R]) extends ActionValue[Obs, A, R, S] {
-      def estimate(state: State[Obs, A, R, S], a: A): Value[Double] =
+      def evaluate(state: State[Obs, A, R, S], a: A): Value[Double] =
         f.actionValue(state.observation, a)
     }
 
     /**
-    Estimates the action's value by using the dynamics of the new state, plus a
-    state value estimator, to figure out the value.
+    Evaluates the action's value by using the dynamics of the new state, plus a
+    state value evaluator, to figure out the value.
       */
     final case class ByStateValue[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
-        estimator: StateValue[Obs, A, R, S],
+        evaluator: StateValue[Obs, A, R, S],
         finalStateValue: Value[Double]
     ) extends ActionValue[Obs, A, R, S] {
-      def estimate(state: State[Obs, A, R, S], a: A): Value[Double] =
+      def evaluate(state: State[Obs, A, R, S], a: A): Value[Double] =
         ExpectedValue[S].get(state.act(a), finalStateValue) {
-          case (r, s) => estimator.estimate(s).from(ToDouble[R].apply(r))
+          case (r, s) => evaluator.evaluate(s).from(ToDouble[R].apply(r))
         }
     }
   }

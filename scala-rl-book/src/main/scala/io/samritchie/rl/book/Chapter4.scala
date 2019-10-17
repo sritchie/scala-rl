@@ -44,7 +44,7 @@ object Chapter4 {
     Sweep.sweepUntil[Position, Move, Double, Cat, Id](
       emptyFn,
       _ => Random.id[Position, Move, Double],
-      (fn, p) => Estimator.bellman(fn, p, defaultVal, defaultVal),
+      (fn, p) => Evaluator.bellman(fn, p, defaultVal, defaultVal),
       gridConf.stateSweep,
       shouldStop(_, _, _),
       inPlace,
@@ -107,7 +107,7 @@ object Chapter4 {
     val (roundOne, _) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
       empty,
       _ => stochasticConf.stochastic(empty),
-      (fn, p) => Estimator.bellman(fn, p, zeroValue, zeroValue),
+      (fn, p) => Evaluator.bellman(fn, p, zeroValue, zeroValue),
       sweep,
       shouldStop(_, _, _, true),
       inPlace,
@@ -124,7 +124,7 @@ object Chapter4 {
     val (vf, iter) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
       roundOne,
       _ => stochasticConf.stochastic(roundOne),
-      (fn, p) => Estimator.bellman(fn, p, zeroValue, zeroValue),
+      (fn, p) => Evaluator.bellman(fn, p, zeroValue, zeroValue),
       sweep,
       shouldStop(_, _, _, true),
       inPlace,
@@ -161,8 +161,8 @@ object Chapter4 {
     val (vf, config, _) = fourTwo(true)
     val zero = value.Decaying(0.0, 0.9)
 
-    val estimator: Estimator.ActionValue[CarRental.InvPair, CarRental.Move, Double, Cat] =
-      Estimator.oneAhead(vf, zero)
+    val estimator: Evaluator.ActionValue[CarRental.InvPair, CarRental.Move, Double, Cat] =
+      Evaluator.oneAhead(vf, zero)
 
     val dataMap = config.stateSweep.foldLeft(Map.empty[CarRental.InvPair, Int]) { (acc, state) =>
       acc.updated(

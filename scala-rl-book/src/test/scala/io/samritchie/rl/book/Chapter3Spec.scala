@@ -100,7 +100,7 @@ class Chapter3Spec extends FunSuite {
     val (actual, _) = Sweep.sweepUntil[Position, Move, Double, Cat, Cat](
       emptyFn,
       stochasticConf.stochastic[Position, Move](_),
-      (vf, p) => Estimator.bellman(vf, p, zeroValue, zeroValue),
+      (vf, p) => Evaluator.bellman(vf, p, zeroValue, zeroValue),
       Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter3.shouldStop _,
       inPlace = true,

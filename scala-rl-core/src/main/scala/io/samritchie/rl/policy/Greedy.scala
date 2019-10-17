@@ -25,7 +25,7 @@ Base logic for greedy policies.
   */
 class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
     config: Greedy.Config[R],
-    estimator: Estimator.ActionValue[Obs, A, R, S]
+    evaluator: Evaluator.ActionValue[Obs, A, R, S]
 ) extends Policy[Obs, A, R, Cat, S] { self =>
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
@@ -34,7 +34,7 @@ class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
     Cat.fromSet(state.actions)
 
   private def greedy(state: State[Obs, A, R, S]): Cat[A] =
-    Cat.fromSet(estimator.greedyOptions(state))
+    Cat.fromSet(evaluator.greedyOptions(state))
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Monad[Cat].ifM(explore)(allActions(state), greedy(state))
@@ -47,6 +47,6 @@ object Greedy {
       policy(valueFn)
 
     def policy[Obs, A, S[_]: ExpectedValue](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, S] =
-      new Greedy[Obs, A, R, S](this, Estimator.oneAhead(valueFn, default))
+      new Greedy[Obs, A, R, S](this, Evaluator.oneAhead(valueFn, default))
   }
 }
