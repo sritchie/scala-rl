@@ -1,14 +1,3 @@
-/**
-  Value function implementations.
-
-  TODO:
-
-  * - estimating the values for each action, and then:
-  * - immediately updating the value of the state to be the value of the top one.
-  *
-  * This is equivalent to updating the policy immediately to maximize
-  * value, and then updating the value function immediately.
-  */
 package io.samritchie.rl
 package value
 
@@ -33,7 +22,7 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
   I made a note in StateValueFn about how we should probably split out the
   value function storage abstraction from the actual evaluator.
   */
-case class Bellman[Obs](
+case class StateValueMap[Obs](
     m: Map[Obs, Value[Double]],
     default: Value[Double]
 ) extends StateValueFn[Obs] {
@@ -42,26 +31,16 @@ case class Bellman[Obs](
   override def stateValue(obs: Obs): Value[Double] =
     m.getOrElse(obs, default)
 
-  // TODO This function currently uses the default, for states it hasn't seen,
-  // as the value for final states AND for states that have no current actions.
-  // This needs some work.
+  override def update(observation: Obs, value: Value[Double]): StateValueFn[Obs] =
+    copy(m = m.updated(observation, value))
+
   override def evaluate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
       state: State[Obs, A, R, S],
       policy: Policy[Obs, A, R, M, S]
-  ): Value[Double] =
-    Estimator
-      .bellman(
-        this,
-        policy,
-        default,
-        default
-      )
-      .estimate(state)
+  ): Value[Double] = ???
 
-  /**
-    This is currently an 'expected update', because it's using expectations vs any
-    sampling.
-    */
-  override def update(observation: Obs, value: Value[Double]): StateValueFn[Obs] =
-    copy(m = m.updated(observation, value))
+  override def evaluateAndUpdate[A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
+      state: State[Obs, A, R, S],
+      policy: Policy[Obs, A, R, M, S]
+  ): StateValueFn[Obs] = ???
 }

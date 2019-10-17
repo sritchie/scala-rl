@@ -5,7 +5,8 @@ import cats.arrow.FunctionK
 import cats.kernel.Semigroup
 import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.{Categorical, Generator, ToGenerator}
-import io.samritchie.rl.util.{ExpectedValue, ToDouble}
+import com.twitter.algebird.DoubleRing
+import io.samritchie.rl.util.{AffineCombination, ExpectedValue, ToDouble}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
@@ -134,6 +135,13 @@ trait CatInstances {
             }
           )
           .getOrElse(default)
+    }
+
+  implicit val catAffineCombination: AffineCombination[Cat, Double] =
+    new AffineCombination[Cat, Double] {
+      implicit val ring = DoubleRing
+      def get[A](a: Cat[A])(f: A => Double) =
+        AffineCombination.take(a.pmfSeq.iterator)(f)
     }
 
   val catToCategorical: FunctionK[Cat, Categorical] =

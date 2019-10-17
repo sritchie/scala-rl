@@ -3,7 +3,6 @@ package util
 
 import cats.Id
 import cats.kernel.Semigroup
-import com.twitter.algebird.Ring
 import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.Categorical
 
@@ -16,18 +15,6 @@ import com.stripe.rainier.core.Categorical
   */
 trait ExpectedValue[M[_]] {
   def get[A](ma: M[A], default: Value[Double])(f: A => Value[Double]): Value[Double]
-}
-
-trait AffineCombination[M[_], R] {
-  implicit def ring: Ring[R]
-  def get[A](ma: M[A])(f: A => R): R
-}
-
-object AffineCombination {
-  // Contract is that if all A == R.one, and f = _ => R.one, the fn returns
-  // R.one.
-  def take[A, R: Ring](items: Iterator[(A, R)])(f: A => R)(implicit R: Ring[R]): R =
-    R.sum(items.map { case (a, r) => R.times(f(a), r) })
 }
 
 object ExpectedValue {

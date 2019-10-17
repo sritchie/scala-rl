@@ -157,17 +157,15 @@ object Chapter4 {
     */
   def runCarRental(): Unit = {
     val (vf, config, _) = fourTwo(true)
+    val zero = value.Decaying(0.0, 0.9)
+
+    val estimator: Estimator.ActionValue[CarRental.InvPair, CarRental.Move, Double, Cat] =
+      Estimator.oneAhead(vf, zero)
+
     val dataMap = config.stateSweep.foldLeft(Map.empty[CarRental.InvPair, Int]) { (acc, state) =>
       acc.updated(
         state.observation,
-        StateValueFn
-          .greedyOptions[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
-            vf,
-            state.dynamics,
-            value.Decaying(0.0, 0.9)
-          )
-          .head
-          .n
+        estimator.greedyOptions(state).head.n
       )
     }
     val inputs = (0 to 20).map { row =>

@@ -64,51 +64,13 @@ object StateValueFn {
       r: StateValueFn[Obs],
       default: Value[Double],
       states: Traversable[State[Obs, A, R, S]]
-  ): Boolean =
+  ): Boolean = {
+    val lEstimator = Estimator.oneAhead[Obs, A, R, M, S](l, default)
+    val rEstimator = Estimator.oneAhead[Obs, A, R, M, S](r, default)
     states.forall { s =>
-      val dynamics = s.dynamics
-      greedyOptions(l, dynamics, default) == greedyOptions(r, dynamics, default)
+      lEstimator.greedyOptions(s) == rEstimator.greedyOptions(s)
     }
-
-  /**
-    NOTE: The default action value would NOT be necessary of we were looking at
-    an action value function. Working.
-    */
-  def greedyOptions[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
-      valueFn: StateValueFn[Obs],
-      dynamics: State.Dynamics[Obs, A, R, S],
-      defaultActionValue: Value[Double]
-  ): Set[A] =
-    Util.maxKeys[A, Value[Double]](
-      dynamics.mapValues(actionValue(valueFn, _, defaultActionValue))
-    )
-
-  /**
-    This returns the value of the action, given categorical dynamics of the
-    state.
-    */
-  def actionValue[Obs, A, R, M[_], S[_]](
-      valueFn: StateValueFn[Obs],
-      view: State.ActionView[Obs, A, R, S],
-      finalStateValue: Value[Double]
-  )(implicit toDouble: ToDouble[R], EVS: ExpectedValue[S]): Value[Double] =
-    EVS.get(view, finalStateValue) {
-      case (reward, newState) =>
-        // THIS is where you can descend deeper.
-        valueFn.stateValue(newState.observation).from(toDouble(reward))
-    }
-
-  // TODO what would it mean here to go TWO levels deep?
-  def expectedActionValue[Obs, A, R, M[_], S[_]](
-      valueFn: StateValueFn[Obs],
-      action: M[A],
-      next: A => S[(R, State[Obs, A, R, S])],
-      finalStateValue: Value[Double],
-      noActionValue: Value[Double]
-  )(implicit toDouble: ToDouble[R], EVM: ExpectedValue[M], EVS: ExpectedValue[S]): Value[Double] =
-    EVM.get(action, noActionValue) { a =>
-      actionValue(valueFn, next(a), finalStateValue)
-    }
+  }
 
   /**
     Helper to tell if we can stop iterating. The combine function is used to

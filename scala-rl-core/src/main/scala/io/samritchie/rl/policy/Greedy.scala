@@ -25,7 +25,7 @@ Base logic for greedy policies.
   */
 class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
     config: Greedy.Config[R],
-    valueFn: StateValueFn[Obs]
+    estimator: Estimator.ActionValue[Obs, A, R, S]
 ) extends Policy[Obs, A, R, Cat, S] { self =>
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
@@ -34,9 +34,7 @@ class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
     Cat.fromSet(state.actions)
 
   private def greedy(state: State[Obs, A, R, S]): Cat[A] =
-    Cat.fromSet(
-      StateValueFn.greedyOptions(valueFn, state.dynamics, config.default)
-    )
+    Cat.fromSet(estimator.greedyOptions(state))
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Monad[Cat].ifM(explore)(allActions(state), greedy(state))
@@ -44,10 +42,20 @@ class Greedy[Obs, A, R: ToDouble, S[_]: ExpectedValue](
 
 object Greedy {
   case class Config[R: ToDouble](epsilon: Double, default: Value[Double]) {
+    import Estimator.{ActionValue, StateValue}
+
+    private def estimator[Obs, A, M[_], S[_]: ExpectedValue](
+        valueFn: StateValueFn[Obs]
+    ): ActionValue[Obs, A, R, S] =
+      StateValue
+        .Fn[Obs, A, R, S](valueFn)
+        .andThen(ActionValue.ByStateValue(_, default))
+
     def id[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Id] = policy(valueFn)
-    def stochastic[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Cat] = policy(valueFn)
+    def stochastic[Obs, A](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, Cat] =
+      policy(valueFn)
 
     def policy[Obs, A, S[_]: ExpectedValue](valueFn: StateValueFn[Obs]): Policy[Obs, A, R, Cat, S] =
-      new Greedy[Obs, A, R, S](this, valueFn)
+      new Greedy[Obs, A, R, S](this, estimator(valueFn))
   }
 }
