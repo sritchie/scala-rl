@@ -19,7 +19,7 @@ case class DecayedValue(get: Double) extends DecayState {
 }
 
 object DecayState {
-  def module(gamma: Double): Module[Double, DecayState] = {
+  def decayStateModule(gamma: Double): Module[Double, DecayState] = {
     implicit val group: Group[DecayState] = decayStateGroup(gamma)
     Module.from(
       (r, d) =>

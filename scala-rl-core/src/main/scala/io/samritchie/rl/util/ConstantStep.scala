@@ -1,7 +1,7 @@
 package io.samritchie.rl
 package util
 
-import com.twitter.algebird.Monoid
+import com.twitter.algebird.Group
 
 /**
   * Exponential recency-weighted average. This is similar to a
@@ -51,17 +51,22 @@ object ConstantStep {
   def buildReward[T](reward: T, alpha: Alpha, time: Time)(implicit num: Numeric[T]): ConstantStep =
     ConstantStep(alpha * num.toDouble(reward), time.tick)
 
-  def monoid(alpha: Alpha, eps: Epsilon): Monoid[ConstantStep] =
-    new ConstantStepMonoid(alpha, eps)
+  def group(alpha: Alpha, eps: Epsilon): Group[ConstantStep] =
+    new ConstantStepGroup(alpha, eps)
+
+  implicit def module(implicit G: Group[ConstantStep]): Module[Double, ConstantStep] =
+    Module.from((d, cs) => ConstantStep(cs.value * d, cs.time))
 }
 
-case class ConstantStepMonoid(
+class ConstantStepGroup(
     alpha: ConstantStep.Alpha,
     eps: ConstantStep.Epsilon
-) extends Monoid[ConstantStep] {
+) extends Group[ConstantStep] {
   override val zero: ConstantStep = ConstantStep.zero
 
   override def isNonZero(cs: ConstantStep) = (cs.value != 0L)
+
+  override def negate(v: ConstantStep) = ConstantStep(-v.value, v.time)
 
   override def plus(l: ConstantStep, r: ConstantStep) = {
     val (a, b, t) =

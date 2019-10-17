@@ -14,7 +14,7 @@ case class Decaying(get: Double, gamma: Double) extends Value[Double] {
 }
 
 object Decaying {
-  def module(gamma: Double): Module[Double, Decaying] = {
+  def decayingModule(gamma: Double): Module[Double, Decaying] = {
     implicit val group: Group[Decaying] = decayingGroup(gamma)
     Module.from((r, d) => Decaying(r * d.get, d.gamma))
   }

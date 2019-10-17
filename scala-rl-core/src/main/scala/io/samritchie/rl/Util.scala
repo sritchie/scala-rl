@@ -22,6 +22,9 @@ object Util {
     implicit val avToDouble: ToDouble[AveragedValue] =
       ToDouble.instance(_.value)
 
+    implicit val avModule: Module[Double, AveragedValue] =
+      Module.from((r, av) => AveragedValue(av.count, r * av.value))
+
     implicit val realRing: Ring[Real] = RealRing
 
     implicit def idVectorSpace[R](implicit R: Ring[R]): VectorSpace[R, Id] =

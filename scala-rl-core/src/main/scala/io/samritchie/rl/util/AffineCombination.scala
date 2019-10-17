@@ -2,9 +2,7 @@ package io.samritchie.rl
 package util
 
 import cats.Id
-import com.twitter.algebird.{DoubleRing, Ring}
-import com.stripe.rainier.compute.Real
-import com.stripe.rainier.core.Categorical
+import com.twitter.algebird.Ring
 
 /**
   Another attempt at a better thing, here... but I don't know if this solves my
@@ -33,18 +31,5 @@ object AffineCombination {
     new AffineCombination[M, R] {
       implicit def ring = W.ring
       def get[A](ma: M[A])(f: A => R) = take(W.weights(ma))(f)
-    }
-
-  implicit val categoricalReal: AffineCombination[Categorical, Real] =
-    new AffineCombination[Categorical, Real] {
-      implicit val ring = Util.Instances.RealRing
-      def get[A](a: Categorical[A])(f: A => Real) = take(a.pmf.iterator)(f)
-    }
-
-  implicit def categoricalDouble(implicit n: Numeric[Real]): AffineCombination[Categorical, Double] =
-    new AffineCombination[Categorical, Double] {
-      implicit val ring = DoubleRing
-      def get[A](a: Categorical[A])(f: A => Double) =
-        take(a.pmf.iterator.map { case (a, r) => (a, n.toDouble(r)) })(f)
     }
 }

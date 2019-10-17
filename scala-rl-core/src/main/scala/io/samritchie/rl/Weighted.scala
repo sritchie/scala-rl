@@ -19,10 +19,17 @@ object Weighted {
       override def weights[A](a: A): Iterator[(A, R)] = Iterator((a, R.one))
     }
 
-  implicit def categorical(implicit n: Numeric[Real]): Weighted[Categorical, Double] =
+  implicit def categoricalDouble(implicit n: Numeric[Real]): Weighted[Categorical, Double] =
     new Weighted[Categorical, Double] {
       override val ring = Ring.doubleRing
       override def weights[A](ma: Categorical[A]): Iterator[(A, Double)] =
         ma.pmf.iterator.map { case (a, r) => (a, n.toDouble(r)) }
+    }
+
+  implicit val categoricalReal: Weighted[Categorical, Real] =
+    new Weighted[Categorical, Real] {
+      override val ring = Util.Instances.RealRing
+      override def weights[A](ma: Categorical[A]): Iterator[(A, Real)] =
+        ma.pmf.iterator
     }
 }
