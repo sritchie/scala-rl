@@ -40,6 +40,7 @@ object StateValueFn {
   def decaying[Obs](gamma: Double): StateValueFn[Obs] =
     decaying(0.0, gamma)
 
+  // TODO - this probably needs to take evaluators directly.
   def isPolicyStable[Obs, A, R: ToDouble, M[_], S[_]: ExpectedValue](
       l: StateValueFn[Obs],
       r: StateValueFn[Obs],

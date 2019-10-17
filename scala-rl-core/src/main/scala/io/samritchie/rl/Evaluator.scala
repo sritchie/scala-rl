@@ -11,17 +11,6 @@ import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
   One guess I had is that the trajectory is Agg[R, T, T]
   and that internal to the valuefn, we have Agg[T, U, T]
-
-  Let's see how this plays out.
-
-   Tasks:
-
-  - get the Value[Double] type more general...
-
-  TODO Holy fuck...if I stack two of these, like, a double by-policy, rethink
-  it... does that get me an OFF POLICY UPDATE??? If I do an expected value of
-  both?
-
   */
 object Evaluator {
 
