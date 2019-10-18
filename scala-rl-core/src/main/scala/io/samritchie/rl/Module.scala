@@ -1,6 +1,6 @@
 package io.samritchie.rl
 
-import com.twitter.algebird.{Group, Ring}
+import com.twitter.algebird.{Group, Ring, VectorSpace}
 
 /**
   * This class represents a module. For the required properties see:
@@ -20,6 +20,11 @@ object Module {
       def scale(r: R, g: G) =
         if (R.isNonZero(r)) scaleFn(r, g) else G.zero
     }
+
+  def fromVectorSpace[F, C[_]](implicit R: Ring[F], V: VectorSpace[F, C]): Module[F, C[F]] = {
+    implicit val g = V.group
+    from[F, C[F]](V.scale(_, _))
+  }
 }
 
 trait Module[R, G] extends Serializable {
