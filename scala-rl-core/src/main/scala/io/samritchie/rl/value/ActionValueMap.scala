@@ -8,21 +8,19 @@ case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
     m: Map[Obs, Map[A, T]],
     prepare: R => T,
     default: T
-) extends ActionValueFn[Obs, A, R] { self =>
+) extends ActionValueFn[Obs, A, R, T] { self =>
   def seenStates: Iterable[Obs] = m.keySet
 
   override def seen(obs: Obs): Iterable[A] = m.get(obs) match {
     case None    => Seq.empty
     case Some(m) => m.keySet
   }
-  override def actionValue(obs: Obs, a: A): Value[Double] = {
+  override def actionValue(obs: Obs, a: A): T = {
     val tOpt = for {
       at <- m.get(obs)
       t <- at.get(a)
     } yield t
-    val ret = ToDouble[T].apply(tOpt.getOrElse(default))
-    // TODO - how do I turn this thing into a Value[double]?
-    ???
+    tOpt.getOrElse(default)
   }
 
   override def learn(obs: Obs, action: A, value: R): ActionValueMap[Obs, A, R, T] = {
@@ -33,8 +31,8 @@ case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
 
   def toValueFunction[M[_]: ExpectedValue](
       policy: Policy[Obs, A, R, M, Any],
-      default: Value[Double]
-  ): StateValueFn[Obs] = ???
+      default: T
+  ): StateValueFn[Obs, T] = ???
 
   /**
     This is not doing well, now and exposing some of the faults of my older

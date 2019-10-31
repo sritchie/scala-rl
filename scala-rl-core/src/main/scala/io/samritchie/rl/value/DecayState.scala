@@ -8,17 +8,17 @@ import com.twitter.algebird.{Group, Ring, VectorSpace}
   useful because we can KEEP GOING, and continue to weight it.
   */
 sealed trait DecayState[A] extends Product with Serializable {
-  def toValue: DecayedValue[A]
+  def toValue: DecayState.DecayedValue[A]
   def get: A
 }
-case class Reward[A](get: A) extends DecayState[A] {
-  override lazy val toValue: DecayedValue[A] = DecayedValue(get)
-}
-case class DecayedValue[A](get: A) extends DecayState[A] {
-  override val toValue: DecayedValue[A] = this
-}
-
 object DecayState {
+  case class Reward[A](get: A) extends DecayState[A] {
+    override lazy val toValue: DecayedValue[A] = DecayedValue(get)
+  }
+  case class DecayedValue[A](get: A) extends DecayState[A] {
+    override val toValue: DecayedValue[A] = this
+  }
+
   def decayStateModule[A](gamma: Double)(implicit M: Module[Double, A]): Module[Double, DecayState[A]] = {
     implicit val group: Group[DecayState[A]] = decayStateGroup(gamma)
     Module.from(

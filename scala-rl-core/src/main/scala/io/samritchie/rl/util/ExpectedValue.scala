@@ -2,7 +2,6 @@ package io.samritchie.rl
 package util
 
 import cats.Id
-import cats.kernel.Semigroup
 
 /**
   This definitely works, but I need to think through how we're going to be able
@@ -12,25 +11,23 @@ import cats.kernel.Semigroup
   NOTE the implementation is responsible for normalizing.
   */
 trait ExpectedValue[M[_]] {
-  def get[A](ma: M[A], default: Value[Double])(f: A => Value[Double]): Value[Double]
+  def get[A, B](a: M[A])(f: A => B)(implicit M: Module[Double, B]): B
 }
 
-object ExpectedValue extends LowPriorityEVInstances {
+object ExpectedValue extends ExpectedValueImplicits {
   @inline final def apply[M[_]](implicit M: ExpectedValue[M]): ExpectedValue[M] = M
 
   implicit val id: ExpectedValue[Id] = new ExpectedValue[Id] {
-    def get[A](a: A, default: Value[Double])(f: A => Value[Double]): Value[Double] = f(a)
+    def get[A, B](a: A)(f: A => B)(implicit M: Module[Double, B]): B = f(a)
   }
 }
 
-trait LowPriorityEVInstances {
+trait ExpectedValueImplicits {
   implicit def fromWeighted[M[_]](implicit W: Weighted[M, Double]): ExpectedValue[M] =
     new ExpectedValue[M] {
-      def get[A](a: M[A], default: Value[Double])(f: A => Value[Double]): Value[Double] =
-        Semigroup[Value[Double]]
-          .combineAllOption(
-            W.weights(a).map { case (a, weight) => f(a).weighted(weight) }
-          )
-          .getOrElse(default)
+      def get[A, B](a: M[A])(f: A => B)(implicit M: Module[Double, B]): B =
+        M.group.sum(
+          W.weights(a).map { case (a, weight) => M.scale(weight, f(a)) }
+        )
     }
 }

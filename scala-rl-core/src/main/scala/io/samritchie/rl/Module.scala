@@ -9,6 +9,8 @@ import com.twitter.algebird.{Group, Ring, VectorSpace}
   *
   */
 object Module {
+  type DModule[T] = Module[Double, T]
+
   @inline final def apply[R, G](implicit M: Module[R, G]): Module[R, G] = M
 
   implicit def ringModule[R: Ring]: Module[R, R] = from(Ring.times(_, _))
