@@ -84,20 +84,20 @@ object MonteCarlo {
     and forth along trajectories, updating the value function each time... maybe
     not updating the policy though.
     */
-  def processTrajectory[Obs, A, R](
+  def processTrajectory[Obs, A, R, T](
       trajectory: Trajectory[Obs, A, R],
-      valueFn: ActionValueFn[Obs, A, R],
-      zero: Value[R]
-  ): ActionValueFn[Obs, A, R] =
+      valueFn: ActionValueFn[Obs, A, T],
+      agg: MonoidAggregator[R, T, T]
+  ): ActionValueFn[Obs, A, T] =
     // I think we HAVE to start with zero here, since we always have some sort
     // of zero value for the final state, even if we use a new aggregation type.
     trajectory
-      .foldLeft((valueFn, zero)) {
-        case ((vf, acc), ((obs, a, r), shouldUpdate)) =>
-          val newAcc = acc.from(r)
+      .foldLeft((valueFn, agg.monoid.zero)) {
+        case ((vf, t), ((obs, a, r), shouldUpdate)) =>
+          val t2 = agg.append(t, r)
           if (shouldUpdate.get) {
-            (vf.learn(obs, a, newAcc.get), newAcc)
-          } else (vf, newAcc)
+            (vf.learn(obs, a, agg.present(t2)), t2)
+          } else (vf, t2)
       }
       ._1
 }

@@ -6,7 +6,8 @@ package io.samritchie.rl
 import cats.{Comonad, Id, Monad}
 import cats.arrow.FunctionK
 import cats.data.StateT
-import com.twitter.algebird.{AveragedValue, MonoidAggregator, Semigroup}
+import com.twitter.algebird.{AveragedValue, Fold, MonoidAggregator, Ring, Semigroup, VectorSpace}
+import com.stripe.rainier.compute.Real
 import io.samritchie.rl.util.ToDouble
 
 import scala.language.higherKinds
@@ -20,6 +21,23 @@ object Util {
 
     implicit val avToDouble: ToDouble[AveragedValue] =
       ToDouble.instance(_.value)
+
+    implicit val avModule: Module[Double, AveragedValue] =
+      Module.from((r, av) => AveragedValue(av.count, r * av.value))
+
+    implicit val realRing: Ring[Real] = RealRing
+
+    implicit def idVectorSpace[R](implicit R: Ring[R]): VectorSpace[R, Id] =
+      VectorSpace.from[R, Id](R.times(_, _))
+
+    object RealRing extends Ring[Real] {
+      override def one = Real.one
+      override def zero = Real.zero
+      override def negate(v: Real) = -v
+      override def plus(l: Real, r: Real) = l + r
+      override def minus(l: Real, r: Real) = l - r
+      override def times(l: Real, r: Real) = l * r
+    }
   }
 
   def confine[A](a: A, min: A, max: A)(implicit ord: Ordering[A]): A =
@@ -42,10 +60,11 @@ object Util {
       case Some(v) => Semigroup.plus[V](v, delta)
     }
 
+  def maxKeys[A, B: Ordering](m: Map[A, B]): Set[A] = allMaxBy(m.keySet)(m(_))
+
   def allMaxBy[A, B: Ordering](as: Set[A])(f: A => B): Set[A] =
     if (as.isEmpty) Set.empty
     else {
-
       val maxB = f(as.maxBy(f))
       as.filter(a => Ordering[B].equiv(maxB, f(a)))
     }
@@ -72,6 +91,35 @@ object Util {
           }
       }(pair => p(pair._1))
       .map { case (a, c) => (a, agg.present(c)) }
+
+  /**
+    A version of iterateUntilM that uses a Fold to store the auxiliary
+    results kicked out by the step function.
+    */
+  def foldUntilM[M[_], A, B, C](init: A, fold: Fold[B, C])(
+      f: A => M[(A, B)]
+  )(p: A => Boolean)(implicit M: Monad[M]): M[(A, C)] = {
+    val foldState = fold.build()
+    M.iterateUntilM((init, foldState.start)) {
+        case (a, c) =>
+          f(a).map {
+            case (a2, b) =>
+              (a2, foldState.add(c, b))
+          }
+      }(pair => p(pair._1))
+      .map { case (a, c) => (a, foldState.end(c)) }
+  }
+
+  /**
+    And a helper function that will let me test this out with monoid
+    aggregators, like the ones I wrote to walk trajectories.
+    */
+  def aggToFold[A, B, C](agg: MonoidAggregator[A, B, C]): Fold[A, C] =
+    Fold.fold[B, A, C](
+      start = agg.monoid.zero,
+      add = (b, a) => agg.monoid.plus(b, agg.prepare(a)),
+      end = agg.present(_)
+    )
 
   /**
     A version of iterateWhileM that uses an aggregator to store the auxiliary

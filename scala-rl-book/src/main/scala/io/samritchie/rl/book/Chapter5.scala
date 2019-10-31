@@ -11,6 +11,7 @@ import com.stripe.rainier.cats._
 import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.core.Generator
 import com.stripe.rainier.sampler.RNG
+import com.twitter.algebird.Aggregator
 import io.samritchie.rl.logic.MonteCarlo
 import io.samritchie.rl.policy.Random
 import io.samritchie.rl.util.CardDeck
@@ -79,8 +80,16 @@ object Chapter5 {
           state
         )
     }.get
-
-    println((trajectory.toList, s.observation))
+    val processed =
+      MonteCarlo.processTrajectory[AgentView, Action, Double, Double](
+        trajectory,
+        value.ActionValueMap(
+          Map.empty,
+          0.0
+        ),
+        Aggregator.fromMonoid
+      )
+    println((processed, s.observation))
     ()
   }
 }

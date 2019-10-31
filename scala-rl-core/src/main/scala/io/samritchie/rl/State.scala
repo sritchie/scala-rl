@@ -23,6 +23,11 @@ package io.samritchie.rl
 import cats.Functor
 import cats.arrow.FunctionK
 
+object State {
+  type ActionView[Obs, A, R, M[_]] = M[(R, State[Obs, A, R, M])]
+  type Dynamics[Obs, A, R, M[_]] = Map[A, ActionView[Obs, A, R, M]]
+}
+
 /**
   * A world should probably have a generator of states and
   * actions... and then you can use that to get to the next

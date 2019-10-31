@@ -16,9 +16,9 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class EpsilonGreedy[Obs, A, R, S[_]](
-    config: EpsilonGreedy.Config[R, _],
-    valueFn: ActionValueFn[Obs, A, R]
+case class Greedy[Obs, A, R, T: Ordering, S[_]](
+    config: Greedy.Config[R, T],
+    valueFn: ActionValueFn[Obs, A, T]
 ) extends CategoricalPolicy[Obs, A, R, S] {
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
@@ -30,7 +30,6 @@ case class EpsilonGreedy[Obs, A, R, S[_]](
     val obs = state.observation
     Cat.fromSet(
       Util.allMaxBy(state.actions)(
-        // TODO deal with initial values?
         valueFn.actionValue(obs, _)
       )
     )
@@ -46,15 +45,21 @@ case class EpsilonGreedy[Obs, A, R, S[_]](
       state: State[Obs, A, R, S],
       action: A,
       reward: R
-  ): EpsilonGreedy[Obs, A, R, S] =
-    copy(valueFn = valueFn.learn(state.observation, action, reward))
+  ): Greedy[Obs, A, R, T, S] =
+    copy(
+      valueFn = valueFn.learn(
+        state.observation,
+        action,
+        config.prepare(reward)
+      )
+    )
 }
 
 // Oh boy, this really does look like it needs an aggregator... maybe
 // I build it without, but then include the algebird versions
 // elsewhere? Or maybe I build to the cats interfaces, then I have an
 // algebird package? More for later.
-object EpsilonGreedy {
+object Greedy {
   // TODO - restructure this, and UCB and gradient, so they just take an action
   // value function. Then they become solid policies that I can use.
   //
@@ -65,8 +70,8 @@ object EpsilonGreedy {
       prepare: R => T,
       initial: T
   ) {
-    def policy[A, Obs, S[_]]: EpsilonGreedy[Obs, A, R, S] =
-      EpsilonGreedy(this, ActionValueMap.empty(prepare, initial))
+    def policy[A, Obs, S[_]]: Greedy[Obs, A, R, T, S] =
+      Greedy(this, ActionValueMap.empty(initial))
   }
 
   /**

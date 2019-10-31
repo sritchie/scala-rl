@@ -2,10 +2,10 @@ package io.samritchie.rl
 
 import cats.{Applicative, Monad, Monoid}
 import cats.arrow.FunctionK
-import cats.kernel.Semigroup
 import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.{Categorical, Generator, ToGenerator}
-import io.samritchie.rl.util.{ExpectedValue, ToDouble}
+import com.twitter.algebird.DoubleRing
+import io.samritchie.rl.util.ToDouble
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
@@ -124,16 +124,11 @@ trait CatInstances {
     new ToGenerator[Cat[T], T] {
       def apply(c: Cat[T]) = c.toRainier.generator
     }
-  implicit val expectedValue: ExpectedValue[Cat] =
-    new ExpectedValue[Cat] {
-      def get[A](a: Cat[A], default: Value[Double])(f: A => Value[Double]): Value[Double] =
-        Semigroup[Value[Double]]
-          .combineAllOption(
-            a.pmfSeq.map {
-              case (a, weight) => f(a).weighted(weight)
-            }
-          )
-          .getOrElse(default)
+  implicit val weighted: Weighted[Cat, Double] =
+    new Weighted[Cat, Double] {
+      override val ring = DoubleRing
+      override def weights[A](ma: Cat[A]): Iterator[(A, Double)] =
+        ma.pmfSeq.iterator
     }
 
   val catToCategorical: FunctionK[Cat, Categorical] =

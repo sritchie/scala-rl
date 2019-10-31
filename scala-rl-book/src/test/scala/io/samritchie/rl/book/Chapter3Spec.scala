@@ -3,7 +3,7 @@ package book
 
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.util.Grid
-import io.samritchie.rl.value.{Bellman, Decaying}
+import io.samritchie.rl.value.{DecayState, StateValueMap}
 import org.scalatest.FunSuite
 
 /**
@@ -12,13 +12,13 @@ import org.scalatest.FunSuite
 class Chapter3Spec extends FunSuite {
   import Grid.{Move, Position}
 
-  val gamma = 0.9
   val epsilon = 1e-4
-  val zeroValue = Decaying(0.0, gamma)
+  val gamma = 0.9
+  val zeroValue = DecayState.DecayedValue(0.0)
 
   test("Figure 3.2's value function matches the gold set") {
     val (actual, _) = Chapter3.threeTwo
-    val expected = Bellman(
+    val expected = StateValueMap[Position, DecayState[Double]](
       Map(
         Position.of(0, 0) -> 3.3090,
         Position.of(0, 1) -> 8.7893,
@@ -45,14 +45,14 @@ class Chapter3Spec extends FunSuite {
         Position.of(4, 2) -> -1.2292,
         Position.of(4, 3) -> -1.4229,
         Position.of(4, 4) -> -1.9751
-      ).mapValues(Decaying(_, gamma)),
+      ).mapValues(DecayState.DecayedValue(_)),
       zeroValue
     )
 
     assert(StateValueFn.diffBelow(actual, expected, epsilon)(_.max(_)))
   }
 
-  val expectedThreeFive = Bellman(
+  val expectedThreeFive = StateValueMap[Position, DecayState[Double]](
     Map(
       Position.of(0, 0) -> 21.9774,
       Position.of(0, 1) -> 24.4194,
@@ -79,7 +79,7 @@ class Chapter3Spec extends FunSuite {
       Position.of(4, 2) -> 14.4194,
       Position.of(4, 3) -> 12.9774,
       Position.of(4, 4) -> 11.6797
-    ).mapValues(Decaying(_, gamma)),
+    ).mapValues(DecayState.DecayedValue(_)),
     zeroValue
   )
 
@@ -92,14 +92,21 @@ class Chapter3Spec extends FunSuite {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = value.Bellman[Position](Map.empty, zeroValue)
+    val emptyFn = StateValueFn[Position, DecayState[Double]](zeroValue)
 
     // Build a Stochastic version of the greedy policy.
-    val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
+    implicit val dm = DecayState.decayStateModule(gamma)
+    val stochasticConf = policy.Greedy.Config[Double, DecayState[Double]](
+      0.0,
+      DecayState.Reward(_),
+      (a, b) => DecayState.decayStateGroup[Double](gamma).plus(a, b),
+      zeroValue
+    )
 
-    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, Cat, Cat](
+    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Cat](
       emptyFn,
       stochasticConf.stochastic[Position, Move](_),
+      DecayState.bellmanFn(gamma),
       Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter3.shouldStop _,
       inPlace = true,
