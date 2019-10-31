@@ -28,7 +28,6 @@ object Chapter3 {
   val epsilon: Double = 1e-4
   val gamma: Double = 0.9
   val emptyFn = StateValueFn.decaying[Position, Double](gamma)
-  val zero = value.Decaying(0.0, gamma)
 
   def notConverging(iterations: Long, allowed: Long): Boolean =
     iterations >= allowed

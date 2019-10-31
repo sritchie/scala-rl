@@ -43,8 +43,6 @@ object Chapter4 {
     StateValueFn.diffBelow(l, r, epsilon)(_.max(_))
   }
 
-  val defaultVal = value.Decaying(0.0, gamma)
-
   def fourOne(inPlace: Boolean): (StateValueFn[Position, DecayState[Double]], Long) =
     Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Id](
       emptyFn,
