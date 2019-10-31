@@ -4,11 +4,10 @@ package value
 import com.twitter.algebird.Semigroup
 import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
-case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
+case class ActionValueMap[Obs, A, T: Semigroup: Ordering: ToDouble](
     m: Map[Obs, Map[A, T]],
-    prepare: R => T,
     default: T
-) extends ActionValueFn[Obs, A, R, T] { self =>
+) extends ActionValueFn[Obs, A, T] { self =>
   def seenStates: Iterable[Obs] = m.keySet
 
   override def seen(obs: Obs): Iterable[A] = m.get(obs) match {
@@ -23,13 +22,13 @@ case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
     tOpt.getOrElse(default)
   }
 
-  override def learn(obs: Obs, action: A, value: R): ActionValueMap[Obs, A, R, T] = {
+  override def learn(obs: Obs, action: A, value: T): ActionValueMap[Obs, A, T] = {
     val actionM = m.getOrElse(obs, Map.empty[A, T])
-    val newM = Util.mergeV(actionM, action, prepare(value))
+    val newM = Util.mergeV(actionM, action, value)
     copy(m = m.updated(obs, newM))
   }
 
-  def toValueFunction[M[_]: ExpectedValue](
+  override def toValueFunction[R, M[_]: ExpectedValue](
       policy: Policy[Obs, A, R, M, Any],
       default: T
   ): StateValueFn[Obs, T] = ???
@@ -53,9 +52,8 @@ case class ActionValueMap[Obs, A, R, T: Semigroup: Ordering: ToDouble](
 }
 
 object ActionValueMap {
-  def empty[Obs, A, R, T: Semigroup: Ordering: ToDouble](
-      prepare: R => T,
+  def empty[Obs, A, T: Semigroup: Ordering: ToDouble](
       default: T
-  ): ActionValueMap[Obs, A, R, T] =
-    ActionValueMap(Map.empty[Obs, Map[A, T]], prepare, default)
+  ): ActionValueMap[Obs, A, T] =
+    ActionValueMap(Map.empty[Obs, Map[A, T]], default)
 }

@@ -95,7 +95,7 @@ object Evaluator {
     /**
     Evaluates the action's value directly.
       */
-    final case class Fn[Obs, A, R, T, S[_]](f: ActionValueFn[Obs, A, R, T])
+    final case class Fn[Obs, A, R, T, S[_]](f: ActionValueFn[Obs, A, T])
         extends ActionValue[Obs, A, R, T, S] {
       def evaluate(state: State[Obs, A, R, S], a: A): T =
         f.actionValue(state.observation, a)

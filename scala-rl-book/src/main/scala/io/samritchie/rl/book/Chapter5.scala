@@ -85,7 +85,6 @@ object Chapter5 {
         trajectory,
         value.ActionValueMap(
           Map.empty,
-          x => x,
           0.0
         ),
         Aggregator.fromMonoid

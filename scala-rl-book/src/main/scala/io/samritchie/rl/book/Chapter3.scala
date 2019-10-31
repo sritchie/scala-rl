@@ -11,7 +11,8 @@ import cats.Id
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Tabulator
 import io.samritchie.rl.policy.{Greedy, Random}
-import io.samritchie.rl.util.Grid
+import io.samritchie.rl.util.{Grid, ToDouble}
+import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.GridWorld
 
 object Chapter3 {
@@ -26,7 +27,7 @@ object Chapter3 {
   val allowedIterations: Long = 10000
   val epsilon: Double = 1e-4
   val gamma: Double = 0.9
-  val emptyFn = StateValueFn.decaying[Position](gamma)
+  val emptyFn = StateValueFn.decaying[Position, Double](gamma)
   val zero = value.Decaying(0.0, gamma)
 
   def notConverging(iterations: Long, allowed: Long): Boolean =
@@ -38,14 +39,14 @@ object Chapter3 {
     function instead here to get this working, to check that the maximum delta
     is less than epsilon.
     */
-  def valueFunctionConverged[Obs](
-      l: StateValueFn[Obs],
-      r: StateValueFn[Obs]
+  def valueFunctionConverged[Obs, T: ToDouble](
+      l: StateValueFn[Obs, T],
+      r: StateValueFn[Obs, T]
   ): Boolean = StateValueFn.diffBelow(l, r, epsilon)(_ + _)
 
-  def shouldStop[Obs](
-      l: StateValueFn[Obs],
-      r: StateValueFn[Obs],
+  def shouldStop[Obs, T: ToDouble](
+      l: StateValueFn[Obs, T],
+      r: StateValueFn[Obs, T],
       iterations: Long
   ): Boolean =
     notConverging(iterations, allowedIterations) ||
@@ -60,14 +61,14 @@ object Chapter3 {
       .toSeq
       .map(_.toSeq)
 
-  def printFigure(
+  def printFigure[T: ToDouble](
       conf: GridWorld.Config,
-      pair: (StateValueFn[Position], Long),
+      pair: (StateValueFn[Position, T], Long),
       title: String
   ): Unit = {
     val (valueFn, iterations) = pair
     println(s"${title}:")
-    println(Tabulator.format(toTable(conf, valueFn.stateValue(_).get)))
+    println(Tabulator.format(toTable(conf, p => ToDouble[T].apply(valueFn.stateValue(p)))))
     println(s"That took $iterations iterations, for the record.")
   }
 
@@ -75,12 +76,11 @@ object Chapter3 {
     * This is Figure 3.2, with proper stopping conditions and
     * everything. Lots of work to go.
     *   */
-  def threeTwo: (StateValueFn[Position], Long) =
-    Sweep.sweepUntil(
+  def threeTwo: (StateValueFn[Position, DecayState[Double]], Long) =
+    Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Id](
       emptyFn,
       _ => Random.id[Position, Move, Double],
-      (fn: StateValueFn[Position], p: Policy[Position, Move, Double, Cat, Id]) =>
-        Evaluator.bellman(fn, p, zero, zero),
+      DecayState.bellmanFn(gamma),
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,
@@ -90,16 +90,26 @@ object Chapter3 {
   /**
     * This is Figure 3.5. This is currently working!
     */
-  def threeFive: (StateValueFn[Position], Long) =
-    Sweep.sweepUntil[Position, Move, Double, Cat, Id](
+  def threeFive: (StateValueFn[Position, DecayState[Double]], Long) = {
+    implicit val dm = DecayState.decayStateModule(gamma)
+    Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Id](
       emptyFn,
-      fn => Greedy.Config[Double](0.0, zero).id(fn),
-      (fn, p) => Evaluator.bellman(fn, p, zero, zero),
+      fn =>
+        Greedy
+          .Config[Double, DecayState[Double]](
+            0.0,
+            DecayState.Reward(_),
+            (a, b) => DecayState.decayStateGroup[Double](gamma).plus(a, b),
+            DecayState.DecayedValue(0.0)
+          )
+          .id(fn),
+      DecayState.bellmanFn(gamma),
       gridConf.stateSweep,
       shouldStop _,
       inPlace = true,
       valueIteration = true
     )
+  }
 
   /**
     * This currently works, and displays rough tables for each of the required

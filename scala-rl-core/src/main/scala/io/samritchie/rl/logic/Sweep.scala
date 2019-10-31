@@ -2,7 +2,7 @@ package io.samritchie.rl
 package logic
 
 import cats.{Id, Monad}
-import io.samritchie.rl.util.{ExpectedValue, ToDouble}
+import io.samritchie.rl.util.ExpectedValue
 
 object Sweep {
   sealed trait Update extends Product with Serializable
@@ -22,14 +22,14 @@ object Sweep {
     This function does NOT currently return the final policy, since you can just
     make it yourself, given the return value and the function.
     */
-  def sweep[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      valueFn: StateValueFn[Obs],
-      policyFn: StateValueFn[Obs] => Policy[Obs, A, R, M, S],
-      evaluatorFn: (StateValueFn[Obs], Policy[Obs, A, R, M, S]) => Evaluator.StateValue[Obs, A, R, S],
+  def sweep[Obs, A, R, T, M[_]: ExpectedValue, S[_]: ExpectedValue](
+      valueFn: StateValueFn[Obs, T],
+      policyFn: StateValueFn[Obs, T] => Policy[Obs, A, R, M, S],
+      evaluatorFn: (StateValueFn[Obs, T], Policy[Obs, A, R, M, S]) => Evaluator.StateValue[Obs, A, R, T, S],
       states: Traversable[State[Obs, A, R, S]],
       inPlace: Boolean,
       valueIteration: Boolean
-  ): StateValueFn[Obs] =
+  ): StateValueFn[Obs, T] =
     states
       .foldLeft((valueFn, evaluatorFn(valueFn, policyFn(valueFn)), policyFn(valueFn))) {
         case ((vf, ev, p), state) =>
@@ -40,15 +40,15 @@ object Sweep {
       }
       ._1
 
-  def sweepUntil[Obs, A, R: ToDouble, M[_]: ExpectedValue, S[_]: ExpectedValue](
-      valueFn: StateValueFn[Obs],
-      policyFn: StateValueFn[Obs] => Policy[Obs, A, R, M, S],
-      evaluatorFn: (StateValueFn[Obs], Policy[Obs, A, R, M, S]) => Evaluator.StateValue[Obs, A, R, S],
+  def sweepUntil[Obs, A, R, T, M[_]: ExpectedValue, S[_]: ExpectedValue](
+      valueFn: StateValueFn[Obs, T],
+      policyFn: StateValueFn[Obs, T] => Policy[Obs, A, R, M, S],
+      evaluatorFn: (StateValueFn[Obs, T], Policy[Obs, A, R, M, S]) => Evaluator.StateValue[Obs, A, R, T, S],
       states: Traversable[State[Obs, A, R, S]],
-      stopFn: (StateValueFn[Obs], StateValueFn[Obs], Long) => Boolean,
+      stopFn: (StateValueFn[Obs, T], StateValueFn[Obs, T], Long) => Boolean,
       inPlace: Boolean,
       valueIteration: Boolean
-  ): (StateValueFn[Obs], Long) =
+  ): (StateValueFn[Obs, T], Long) =
     Monad[Id].tailRecM((valueFn, 0L)) {
       case (fn, nIterations) =>
         val updated = sweep(fn, policyFn, evaluatorFn, states, inPlace, valueIteration)

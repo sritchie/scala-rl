@@ -2,6 +2,7 @@ package io.samritchie.rl
 package value
 
 import com.twitter.algebird.{Group, Ring, VectorSpace}
+import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 /**
   This represents a value that's weighted as you move away from it. This is
@@ -12,11 +13,24 @@ sealed trait DecayState[A] extends Product with Serializable {
   def get: A
 }
 object DecayState {
+  import Module.DModule
+
   case class Reward[A](get: A) extends DecayState[A] {
     override lazy val toValue: DecayedValue[A] = DecayedValue(get)
   }
   case class DecayedValue[A](get: A) extends DecayState[A] {
     override val toValue: DecayedValue[A] = this
+  }
+
+  def bellmanFn[Obs, A, R: DModule, T, M[_]: ExpectedValue, S[_]: ExpectedValue](
+      gamma: Double
+  ): (
+      StateValueFn[Obs, DecayState[R]],
+      Policy[Obs, A, R, M, S]
+  ) => Evaluator.StateValue[Obs, A, R, DecayState[R], S] = {
+    val group = decayStateGroup[R](gamma)
+    implicit val module = decayStateModule[R](gamma)
+    (f, p) => Evaluator.bellman[Obs, A, R, DecayState[R], M, S](f, p, Reward(_), group.plus(_, _))
   }
 
   def decayStateModule[A](gamma: Double)(implicit M: Module[Double, A]): Module[Double, DecayState[A]] = {
@@ -59,4 +73,10 @@ object DecayState {
         case (DecayedValue(a), DecayedValue(b)) => DecayedValue(GA.plus(a, b))
       }
     }
+
+  implicit def toDouble[A](implicit A: ToDouble[A]): ToDouble[DecayState[A]] =
+    A.contramap(_.get)
+
+  implicit def dsOrd[A: Ordering]: Ordering[DecayState[A]] =
+    Ordering.by(_.get)
 }

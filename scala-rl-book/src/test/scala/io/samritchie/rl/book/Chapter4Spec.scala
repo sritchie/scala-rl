@@ -3,7 +3,7 @@ package book
 
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.util.Grid
-import io.samritchie.rl.value.{Decaying, StateValueMap}
+import io.samritchie.rl.value.{DecayState, StateValueMap}
 import org.scalatest.FunSuite
 
 /**
@@ -14,8 +14,8 @@ class Chapter4Spec extends FunSuite {
 
   val gamma = 1.0
   val epsilon = 1e-3
-  val zeroValue = Decaying(0.0, gamma)
-  val expectedFourOne = StateValueMap(
+  val zeroValue = DecayState.DecayedValue(0.0)
+  val expectedFourOne = StateValueMap[Position, DecayState[Double]](
     Map(
       Position.of(0, 0) -> 0.0,
       Position.of(0, 1) -> -13.9989,
@@ -33,7 +33,7 @@ class Chapter4Spec extends FunSuite {
       Position.of(3, 1) -> -19.9984,
       Position.of(3, 2) -> -13.9989,
       Position.of(3, 3) -> 0.0
-    ).mapValues(value.Decaying(_, gamma)),
+    ).mapValues(DecayState.DecayedValue(_)),
     zeroValue
   )
 
@@ -46,12 +46,12 @@ class Chapter4Spec extends FunSuite {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = value.StateValueMap[Position](Map.empty, zeroValue)
+    val emptyFn = value.StateValueMap[Position, DecayState[Double]](Map.empty, zeroValue)
 
-    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, Cat, Cat](
+    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Cat](
       emptyFn,
       _ => policy.Random.cat[Position, Move, Double],
-      (vf, p) => Evaluator.bellman(vf, p, zeroValue, zeroValue),
+      DecayState.bellmanFn(gamma),
       Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter4.shouldStop(_, _, _),
       inPlace = true,

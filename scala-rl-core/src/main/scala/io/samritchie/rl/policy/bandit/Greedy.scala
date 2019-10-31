@@ -16,9 +16,9 @@ import Util.Instances._
   *
   * @param epsilon number between 0 and 1.
   */
-case class Greedy[Obs, A, R, S[_]](
-    config: Greedy.Config[R, _],
-    valueFn: ActionValueFn[Obs, A, R]
+case class Greedy[Obs, A, R, T: Ordering, S[_]](
+    config: Greedy.Config[R, T],
+    valueFn: ActionValueFn[Obs, A, T]
 ) extends CategoricalPolicy[Obs, A, R, S] {
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
@@ -30,7 +30,6 @@ case class Greedy[Obs, A, R, S[_]](
     val obs = state.observation
     Cat.fromSet(
       Util.allMaxBy(state.actions)(
-        // TODO deal with initial values?
         valueFn.actionValue(obs, _)
       )
     )
@@ -46,8 +45,14 @@ case class Greedy[Obs, A, R, S[_]](
       state: State[Obs, A, R, S],
       action: A,
       reward: R
-  ): Greedy[Obs, A, R, S] =
-    copy(valueFn = valueFn.learn(state.observation, action, reward))
+  ): Greedy[Obs, A, R, T, S] =
+    copy(
+      valueFn = valueFn.learn(
+        state.observation,
+        action,
+        config.prepare(reward)
+      )
+    )
 }
 
 // Oh boy, this really does look like it needs an aggregator... maybe
@@ -65,8 +70,8 @@ object Greedy {
       prepare: R => T,
       initial: T
   ) {
-    def policy[A, Obs, S[_]]: Greedy[Obs, A, R, S] =
-      Greedy(this, ActionValueMap.empty(prepare, initial))
+    def policy[A, Obs, S[_]]: Greedy[Obs, A, R, T, S] =
+      Greedy(this, ActionValueMap.empty(initial))
   }
 
   /**

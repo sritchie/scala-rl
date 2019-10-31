@@ -75,12 +75,12 @@ package io.samritchie.rl
 
 import cats.Monad
 
-trait Agent[Obs, A, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
-  type This = Agent[Obs, A, R, M]
+trait Agent[Obs, A, @specialized(Int, Long, Float, Double) R, T, M[_]] { self =>
+  type This = Agent[Obs, A, R, T, M]
 
   def monad: Monad[M]
   def policy: Policy[Obs, A, R, M, M]
-  def valueFunction: StateValueFn[Obs]
+  def valueFunction: StateValueFn[Obs, T]
 
   def play(state: State[Obs, A, R, M]): M[(state.This, (Obs, A, R))] =
     monad.flatMap(policy.choose(state)) { a =>
@@ -95,9 +95,9 @@ object Agent {
   /**
     Agent that can't learn.
     */
-  case class StaticAgent[Obs, A, R, M[_]](
+  case class StaticAgent[Obs, A, R, T, M[_]](
       policy: Policy[Obs, A, R, M, M],
-      valueFunction: StateValueFn[Obs]
+      valueFunction: StateValueFn[Obs, T]
   )(implicit val monad: Monad[M])
-      extends Agent[Obs, A, R, M]
+      extends Agent[Obs, A, R, T, M]
 }

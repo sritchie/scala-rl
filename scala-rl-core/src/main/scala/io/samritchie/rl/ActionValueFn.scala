@@ -25,11 +25,11 @@ import io.samritchie.rl.util.ExpectedValue
   Then convert the bandits to use it.
 
   */
-trait ActionValueFn[Obs, A, R, T] { self =>
+trait ActionValueFn[Obs, A, T] { self =>
   def seen(obs: Obs): Iterable[A]
   def actionValue(obs: Obs, a: A): T
-  def learn(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, R, T]
-  def toValueFunction[M[_]: ExpectedValue](
+  def learn(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T]
+  def toValueFunction[R, M[_]: ExpectedValue](
       policy: Policy[Obs, A, R, M, Any],
       default: T
   ): StateValueFn[Obs, T]

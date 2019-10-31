@@ -9,6 +9,8 @@ import cats.Id
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.Random
+import io.samritchie.rl.util.ToDouble
+import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.{CarRental, GridWorld}
 
 object Chapter4 {
@@ -22,36 +24,41 @@ object Chapter4 {
   val allowedIterations: Long = 10000
   val gamma: Double = 1.0
   val epsilon: Double = 1e-4
-  val emptyFn = StateValueFn.decaying[Position](gamma)
+  val emptyFn = StateValueFn.decaying[Position, Double](0.0)
 
-  def shouldStop[Obs](
-      l: StateValueFn[Obs],
-      r: StateValueFn[Obs],
+  def shouldStop[Obs, T: ToDouble](
+      l: StateValueFn[Obs, T],
+      r: StateValueFn[Obs, T],
       iterations: Long,
       verbose: Boolean = false
   ): Boolean = {
-    if (verbose)
+    if (verbose) {
+      def doubleFn(fn: StateValueFn[Obs, T]): Obs => Double =
+        obs => ToDouble[T].apply(fn.stateValue(obs))
       println(
-        s"Max diff seen: ${Util.diff[Obs]((l.seen ++ r.seen), l.stateValue(_).get, r.stateValue(_).get, _.max(_))}"
+        s"""Max diff seen: ${Util.diff[Obs]((l.seen ++ r.seen), doubleFn(l), doubleFn(r), _.max(_))}"""
       )
+    }
     Chapter3.notConverging(iterations, allowedIterations) ||
     StateValueFn.diffBelow(l, r, epsilon)(_.max(_))
   }
 
   val defaultVal = value.Decaying(0.0, gamma)
 
-  def fourOne(inPlace: Boolean): (StateValueFn[Position], Long) =
-    Sweep.sweepUntil[Position, Move, Double, Cat, Id](
+  def fourOne(inPlace: Boolean): (StateValueFn[Position, DecayState[Double]], Long) =
+    Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Id](
       emptyFn,
       _ => Random.id[Position, Move, Double],
-      (fn, p) => Evaluator.bellman(fn, p, defaultVal, defaultVal),
+      DecayState.bellmanFn(gamma),
       gridConf.stateSweep,
       shouldStop(_, _, _),
       inPlace,
       valueIteration = false
     )
 
-  def fourTwo(inPlace: Boolean): (StateValueFn[CarRental.InvPair], CarRental.Config, Long) = {
+  def fourTwo(
+      inPlace: Boolean
+  ): (StateValueFn[CarRental.InvPair, DecayState[Double]], CarRental.Config, Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
     import Cat.Poisson.Lambda
 
@@ -75,11 +82,17 @@ object Chapter4 {
 
     val sweep = config.stateSweep
     val gamma = 0.9
-    val zeroValue = value.Decaying(0.0, gamma)
-    val empty = StateValueFn[CarRental.InvPair](zeroValue)
+
+    val empty = StateValueFn.decaying[CarRental.InvPair, Double](0.0)
+    implicit val dm = DecayState.decayStateModule(gamma)
 
     // Build a Stochastic version of the greedy policy.
-    val stochasticConf = policy.Greedy.Config[Double](0.0, zeroValue)
+    val stochasticConf = policy.Greedy.Config[Double, DecayState[Double]](
+      0.0,
+      DecayState.Reward(_),
+      (a, b) => DecayState.decayStateGroup[Double](gamma).plus(a, b),
+      DecayState.DecayedValue(0.0)
+    )
 
     /**
       The big differences from the book version are:
@@ -104,32 +117,36 @@ object Chapter4 {
       We need to support that.
 
       */
-    val (roundOne, _) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
-      empty,
-      _ => stochasticConf.stochastic(empty),
-      (fn, p) => Evaluator.bellman(fn, p, zeroValue, zeroValue),
-      sweep,
-      shouldStop(_, _, _, true),
-      inPlace,
-      valueIteration = false
-    )
-    println(
-      s"""Stable? ${StateValueFn.isPolicyStable(
+    val (roundOne, _) =
+      Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, DecayState[Double], Cat, Cat](
         empty,
+        _ => stochasticConf.stochastic(empty),
+        DecayState.bellmanFn(gamma),
+        sweep,
+        shouldStop(_, _, _, true),
+        inPlace,
+        valueIteration = false
+      )
+    println(
+      s"""Stable? ${StateValueFn
+        .isPolicyStable[CarRental.InvPair, CarRental.Move, Double, DecayState[Double], Cat, Cat](
+          empty,
+          roundOne,
+          DecayState.Reward(_),
+          (a, b) => DecayState.decayStateGroup[Double](gamma).plus(a, b),
+          sweep
+        )}"""
+    )
+    val (vf, iter) =
+      Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, DecayState[Double], Cat, Cat](
         roundOne,
-        zeroValue,
-        sweep
-      )}"""
-    )
-    val (vf, iter) = Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, Cat, Cat](
-      roundOne,
-      _ => stochasticConf.stochastic(roundOne),
-      (fn, p) => Evaluator.bellman(fn, p, zeroValue, zeroValue),
-      sweep,
-      shouldStop(_, _, _, true),
-      inPlace,
-      valueIteration = false
-    )
+        _ => stochasticConf.stochastic(roundOne),
+        DecayState.bellmanFn(gamma),
+        sweep,
+        shouldStop(_, _, _, true),
+        inPlace,
+        valueIteration = false
+      )
     (vf, config, iter)
   }
 
@@ -137,10 +154,12 @@ object Chapter4 {
     This currently is not great because we don't have a way of automatically
     binning the data and generating that graph. This is custom.
     */
-  def vfToSeqPoints(vf: StateValueFn[CarRental.InvPair]): Seq[Seq[Double]] =
+  def vfToSeqPoints(vf: StateValueFn[CarRental.InvPair, DecayState[Double]]): Seq[Seq[Double]] =
     (0 to 20).map { row =>
       (0 to 20).map { col =>
-        vf.stateValue((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20))).get
+        ToDouble[DecayState[Double]].apply(
+          vf.stateValue((CarRental.Inventory(row, 20), CarRental.Inventory(col, 20)))
+        )
       }.toSeq
     }.toSeq
 
@@ -158,11 +177,16 @@ object Chapter4 {
     - NOT have the graph library explode when I cancel a run, for Heatmap.
     */
   def runCarRental(): Unit = {
+    val gamma = 0.9
     val (vf, config, _) = fourTwo(true)
-    val zero = value.Decaying(0.0, 0.9)
+    implicit val dm = DecayState.decayStateModule(gamma)
 
-    val estimator: Evaluator.ActionValue[CarRental.InvPair, CarRental.Move, Double, Cat] =
-      Evaluator.oneAhead(vf, zero)
+    val estimator: Evaluator.ActionValue[CarRental.InvPair, CarRental.Move, Double, DecayState[Double], Cat] =
+      Evaluator.oneAhead(
+        vf,
+        DecayState.Reward(_),
+        (a, b) => DecayState.decayStateGroup[Double](gamma).plus(a, b)
+      )
 
     val dataMap = config.stateSweep.foldLeft(Map.empty[CarRental.InvPair, Int]) { (acc, state) =>
       acc.updated(
