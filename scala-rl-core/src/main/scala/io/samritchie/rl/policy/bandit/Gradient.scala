@@ -20,7 +20,6 @@ case class Gradient[A: Equiv, R: ToDouble, T: ToDouble, S[_]](
     config: Gradient.Config[R, T],
     actionValues: Map[A, Gradient.Item[T]]
 ) extends CategoricalPolicy[Any, A, R, S] {
-
   /**
     * Let's try out this style for a bit. This gives us a way to
     * convert an action directly into a probability, using our
@@ -75,7 +74,6 @@ object Gradient {
       prepare: R => T,
       plus: (T, T) => T
   ) {
-
     /**
       * Generates an actual policy from the supplied config.
       */

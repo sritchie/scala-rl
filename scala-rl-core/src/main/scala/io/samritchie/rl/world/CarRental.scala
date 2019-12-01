@@ -87,7 +87,6 @@ case class CarRental(
     a: Inventory,
     b: Inventory
 ) extends State[InvPair, Move, Double, Cat] {
-
   override val observation: InvPair = (a, b)
 
   /**

@@ -86,12 +86,10 @@ object Evaluator {
         ExpectedValue[M].get(policy.choose(state)) { a =>
           evaluator.evaluate(state, a)
         }
-
     }
   }
 
   object ActionValue {
-
     /**
     Evaluates the action's value directly.
       */

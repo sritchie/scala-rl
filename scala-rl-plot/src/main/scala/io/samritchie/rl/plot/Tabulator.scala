@@ -11,7 +11,6 @@ package plot
   * I'm using this to print tables for Gridworld.
   */
 object Tabulator {
-
   def csv(table: Iterable[Iterable[Any]]): String = table.map(_.mkString(",")).mkString("\n")
 
   def format(table: Iterable[Iterable[Any]]): String =

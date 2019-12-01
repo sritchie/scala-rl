@@ -14,7 +14,6 @@ case class UCB[A, R, T, S[_]](
     actionValues: Map[A, UCB.Choice[T]],
     time: Time
 ) extends CategoricalPolicy[Any, A, R, S] {
-
   override def choose(state: State[Any, A, R, S]): Cat[A] =
     Cat.fromSet(
       Util
@@ -37,7 +36,6 @@ case class UCB[A, R, T, S[_]](
 }
 
 object UCB {
-
   /**
     * Generates a Config instance from an algebird Aggregator and a
     * UCB parameter.
@@ -56,7 +54,6 @@ object UCB {
       plus: (T, T) => T,
       present: T => Double
   ) {
-
     /**
       * Returns a fresh policy instance using this config.
       */
@@ -93,7 +90,6 @@ object UCB {
       param: Param,
       toDouble: T => Double
   ) {
-
     /**
       * Updates the contained value, increments the visits.
       */

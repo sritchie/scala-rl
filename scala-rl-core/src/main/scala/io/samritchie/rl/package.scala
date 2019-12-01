@@ -4,7 +4,6 @@ import cats.Id
 import com.stripe.rainier.core.Generator
 
 package object rl {
-
   /**
     I'm leaving these here for now, since I think they WILL be helpful once
     everything settles down... but for now, let's avoid using these.

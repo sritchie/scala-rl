@@ -62,7 +62,6 @@ object Grid {
             s"Column $value is invalid: Must be between 0 and $numColumns."
           )
         )
-
   }
 
   object Position {

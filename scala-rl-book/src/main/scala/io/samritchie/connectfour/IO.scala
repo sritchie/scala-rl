@@ -83,7 +83,6 @@ object IO {
             if (newBoard.isFull) {
               println("Oh no, the board is full! Thanks for playing.")
               System.exit(0)
-
             } else {
               gameLoop(newBoard, Color.other(turnColor))
             }

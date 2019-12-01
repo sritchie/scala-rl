@@ -32,7 +32,6 @@ case class MapState[Obs, A, R, S[_]: Functor](
     penalty: S[R],
     step: (Obs, A, R, S[R]) => (Obs, S[R])
 ) extends State[Obs, A, R, S] {
-
   private def updateForA(a: A, r: R): State[Obs, A, R, S] = {
     val (newObservation, newGen) = step(observation, a, r, rewards(a))
     MapState(

@@ -2,6 +2,7 @@ package io.samritchie.connectfour
 
 import org.scalacheck.{Arbitrary, Gen, Properties}
 import org.scalacheck.Prop.forAll
+import org.scalatest
 
 /**
   * I haven't written any tests yet, of course. This is a placeholder
@@ -24,7 +25,7 @@ object ConnectFourSpec extends Properties("ConnectFour") with ConnectFourArb {
 /**
   * And this is a placeholder for basic tests.
   */
-class ConnectFourTest extends org.scalatest.FunSuite {
+class ConnectFourTest extends scalatest.funsuite.AnyFunSuite {
   test("example.test") {
     val digits = List(1, 2, 3)
     assert(digits.sum === 6)

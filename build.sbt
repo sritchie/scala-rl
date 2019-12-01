@@ -14,7 +14,7 @@ lazy val V = new {
   val rainier = "0.2.3-rc5-SNAPSHOT"
   val scala = "2.12.10"
   val scalacheck = "1.14.2"
-  val scalatest = "3.0.8"
+  val scalatest = "3.1.0"
   val util = "19.11.0"
 }
 

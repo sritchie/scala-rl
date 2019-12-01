@@ -4,12 +4,12 @@ package book
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.util.Grid
 import io.samritchie.rl.value.{DecayState, StateValueMap}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 /**
   * And this is a placeholder for basic tests.
   */
-class Chapter4Spec extends FunSuite {
+class Chapter4Spec extends AnyFunSuite {
   import Grid.{Move, Position}
 
   val gamma = 1.0
