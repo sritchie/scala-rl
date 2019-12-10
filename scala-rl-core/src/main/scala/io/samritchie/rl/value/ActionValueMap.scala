@@ -2,9 +2,9 @@ package io.samritchie.rl
 package value
 
 import com.twitter.algebird.Semigroup
-import io.samritchie.rl.util.{ExpectedValue, ToDouble}
+import io.samritchie.rl.util.ExpectedValue
 
-case class ActionValueMap[Obs, A, T: Semigroup: Ordering: ToDouble](
+case class ActionValueMap[Obs, A, T: Semigroup](
     m: Map[Obs, Map[A, T]],
     default: T
 ) extends ActionValueFn[Obs, A, T] { self =>
@@ -52,7 +52,7 @@ case class ActionValueMap[Obs, A, T: Semigroup: Ordering: ToDouble](
 }
 
 object ActionValueMap {
-  def empty[Obs, A, T: Semigroup: Ordering: ToDouble](
+  def empty[Obs, A, T: Semigroup](
       default: T
   ): ActionValueMap[Obs, A, T] =
     ActionValueMap(Map.empty[Obs, Map[A, T]], default)

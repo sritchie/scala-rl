@@ -1,39 +1,46 @@
 /**
-  * Policy that accumulates using the UCB algo.
+  * Policy that accumulates using the UCB algorithm.
   *
   * TODO should I make an Empty Choice option with a sealed trait?
+
+  TODO back this off to Semigroup!
   */
 package io.samritchie.rl
 package policy
 package bandit
 
-import com.twitter.algebird.Aggregator
+import com.twitter.algebird.{Aggregator, Monoid}
+import io.samritchie.rl.value.ActionValueMap
 
-case class UCB[A, R, T, S[_]](
+case class UCB[Obs, A, R, T, S[_]](
     config: UCB.Config[R, T],
-    actionValues: Map[A, UCB.Choice[T]],
+    valueFn: ActionValueFn[Obs, A, UCB.Choice[T]],
     time: Time
-) extends CategoricalPolicy[Any, A, R, S] {
+) extends CategoricalPolicy[Obs, A, R, S] {
 
-  override def choose(state: State[Any, A, R, S]): Cat[A] =
+  override def choose(state: State[Obs, A, R, S]): Cat[A] = {
+    val obs = state.observation
     Cat.fromSet(
       Util
         .allMaxBy(state.actions)(
-          a => actionValues.getOrElse(a, config.initialChoice).totalValue(time)
+          a => valueFn.actionValue(obs, a).totalValue(time)
         )
     )
+  }
 
   override def learn(
-      state: State[Any, A, R, S],
+      state: State[Obs, A, R, S],
       action: A,
       reward: R
-  ): UCB[A, R, T, S] = {
-    val updated = Util.updateWith(actionValues, action) {
-      case None    => config.choice(reward)
-      case Some(v) => config.merge(v, reward)
-    }
-    copy(actionValues = updated, time = time.tick)
-  }
+  ): UCB[Obs, A, R, T, S] =
+    copy(
+      valueFn = valueFn.learn(
+        state.observation,
+        action,
+        config.choice(reward)
+      ),
+      time = time.tick
+    )
 }
 
 object UCB {
@@ -42,14 +49,14 @@ object UCB {
     * Generates a Config instance from an algebird Aggregator and a
     * UCB parameter.
     */
-  def fromAggregator[R, T: Ordering](
+  def fromAggregator[R, T: Monoid](
       initial: T,
       param: Param,
       agg: Aggregator[R, T, Double]
   ): Config[R, T] =
     Config(param, initial, agg.prepare _, agg.semigroup.plus _, agg.present _)
 
-  case class Config[R, T: Ordering](
+  case class Config[R, T: Monoid](
       param: Param,
       initial: T,
       prepare: R => T,
@@ -60,15 +67,20 @@ object UCB {
     /**
       * Returns a fresh policy instance using this config.
       */
-    def policy[A, S[_]]: UCB[A, R, T, S] = UCB(this, Map.empty, Time.Zero)
+    def policy[Obs, A, S[_]]: UCB[Obs, A, R, T, S] = {
+      implicit val monoid = Choice.choiceMonoid(param, present)
+
+      val avm = ActionValueMap.empty[Obs, A, Choice[T]](Choice.zero(initial, param)(present))
+      UCB(this, avm, Time.Zero)
+    }
 
     // These are private and embedded in the config to make it easy to
     // share the fns without crossing the beams.
     private[rl] def merge(choice: Choice[T], r: R) = choice.update(plus(_, prepare(r)))
     private[rl] def choice(r: R): Choice[T] =
-      UCB.Choice.one(prepare(r), param)(present)
+      Choice.one(prepare(r), param)(present)
 
-    def initialChoice: Choice[T] = UCB.Choice.zero(initial, param)(present)
+    def initialChoice: Choice[T] = Choice.zero(initial, param)(present)
   }
 
   /**
@@ -77,10 +89,27 @@ object UCB {
   case class Param(c: Int) extends AnyVal
 
   object Choice {
-    def zero[T: Ordering](initial: T, param: Param)(toDouble: T => Double): Choice[T] =
-      Choice(initial, 1L, param, toDouble)
 
-    def one[T: Ordering](t: T, param: Param)(toDouble: T => Double): Choice[T] =
+    /**
+      Returns a monoid...
+      */
+    def choiceMonoid[T](param: Param, toDouble: T => Double)(
+        implicit T: Monoid[T]
+    ): Monoid[Choice[T]] = {
+      val z = Choice.zero(T.zero, param)(toDouble)
+
+      Monoid.from(z) {
+        case (Choice(lt, lVisits, _, _), Choice(rt, rVisits, _, _)) =>
+          Choice(T.plus(lt, rt), lVisits + rVisits, param, toDouble)
+      }
+    }
+
+    implicit def ord[T: Ordering]: Ordering[Choice[T]] = Ordering.by(_.t)
+
+    def zero[T](initial: T, param: Param)(toDouble: T => Double): Choice[T] =
+      Choice(initial, 0L, param, toDouble)
+
+    def one[T](t: T, param: Param)(toDouble: T => Double): Choice[T] =
       Choice(t, 1L, param, toDouble)
   }
 
