@@ -9,7 +9,7 @@ package io.samritchie.rl
 package policy
 package bandit
 
-import com.twitter.algebird.{Aggregator, Monoid}
+import com.twitter.algebird.{Aggregator, Monoid, Semigroup}
 import io.samritchie.rl.value.ActionValueMap
 
 case class UCB[Obs, A, R, T, S[_]](
@@ -28,6 +28,11 @@ case class UCB[Obs, A, R, T, S[_]](
     )
   }
 
+  /**
+    learn here passes directly through to the ActionValueFn now, which is the
+    new thing. Does this mean that we shouldn't learn at all? Should that get
+    delegated to an agent?
+    */
   override def learn(
       state: State[Obs, A, R, S],
       action: A,
@@ -49,14 +54,14 @@ object UCB {
     * Generates a Config instance from an algebird Aggregator and a
     * UCB parameter.
     */
-  def fromAggregator[R, T: Monoid](
+  def fromAggregator[R, T](
       initial: T,
       param: Param,
       agg: Aggregator[R, T, Double]
   ): Config[R, T] =
     Config(param, initial, agg.prepare _, agg.semigroup.plus _, agg.present _)
 
-  case class Config[R, T: Monoid](
+  case class Config[R, T](
       param: Param,
       initial: T,
       prepare: R => T,
@@ -68,8 +73,7 @@ object UCB {
       * Returns a fresh policy instance using this config.
       */
     def policy[Obs, A, S[_]]: UCB[Obs, A, R, T, S] = {
-      implicit val monoid = Choice.choiceMonoid(param, present)
-
+      implicit val sg: Semigroup[T] = Semigroup.from(plus)
       val avm = ActionValueMap.empty[Obs, A, Choice[T]](Choice.zero(initial, param)(present))
       UCB(this, avm, Time.Zero)
     }
@@ -88,24 +92,32 @@ object UCB {
     */
   case class Param(c: Int) extends AnyVal
 
+  /**
+    Needs documentation; this is a way of tracking how many times a particular
+    thing was chosen along with its value.
+    */
   object Choice {
-
-    /**
-      Returns a monoid...
-      */
-    def choiceMonoid[T](param: Param, toDouble: T => Double)(
-        implicit T: Monoid[T]
-    ): Monoid[Choice[T]] = {
-      val z = Choice.zero(T.zero, param)(toDouble)
-
-      Monoid.from(z) {
-        case (Choice(lt, lVisits, _, _), Choice(rt, rVisits, _, _)) =>
-          Choice(T.plus(lt, rt), lVisits + rVisits, param, toDouble)
-      }
+    // Classes...
+    class ChoiceSemigroup[T](implicit T: Semigroup[T]) extends Semigroup[Choice[T]] {
+      override def plus(l: Choice[T], r: Choice[T]): Choice[T] =
+        l.copy(t = T.plus(l.t, r.t), visits = l.visits + r.visits)
     }
 
+    // Monoid instance, not used for now but meaningful, I think.
+    class ChoiceMonoid[T](param: Param, toDouble: T => Double)(implicit T: Monoid[T])
+        extends ChoiceSemigroup[T]
+        with Monoid[Choice[T]] {
+      override val zero: Choice[T] =
+        Choice.zero[T](T.zero, param)(toDouble)
+    }
+
+    // implicit instances.
+    implicit def semigroup[T: Semigroup]: Semigroup[Choice[T]] = new ChoiceSemigroup[T]
     implicit def ord[T: Ordering]: Ordering[Choice[T]] = Ordering.by(_.t)
 
+    def monoid[T: Monoid](param: Param, toDouble: T => Double) = new ChoiceMonoid[T](param, toDouble)
+
+    // constructors.
     def zero[T](initial: T, param: Param)(toDouble: T => Double): Choice[T] =
       Choice(initial, 0L, param, toDouble)
 
