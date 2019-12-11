@@ -73,6 +73,10 @@ object Chapter5 {
     println("Hello, chapter 5!")
     println("Let's play blackjack!")
 
+    // This will start with the limited world and get a single state... then run
+    // the first visit tracker. This is only important because it keeps track of
+    // the frequencies that you saw each state; it needs this when you go walk
+    // the trajectory later, so you can only apply the goods on a first visit.
     val (s, trajectory) = limited.flatMap { state =>
       MonteCarlo
         .firstVisit[AgentView, Action, Double, Generator](
@@ -80,6 +84,15 @@ object Chapter5 {
           state
         )
     }.get
+
+    // Here we process the trajectory backwards and get ourselves a new action
+    // value function. And that's it! The action value function work that I was
+    // doing with the bandits was really preparation for the next chapter, and
+    // shouldn't have taken up so much time here.
+    //
+    // I think from here... I should make sure that this plays correctly, then
+    // not worry too much about the actual charts. Once I get the abstraction
+    // fully locked down I can go build the charts in Python.
     val processed =
       MonteCarlo.processTrajectory[AgentView, Action, Double, Double](
         trajectory,
