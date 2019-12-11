@@ -7,7 +7,6 @@ package bandit
 
 import cats.Monad
 import com.twitter.algebird.{AveragedValue, Semigroup}
-import io.samritchie.rl.util.ToDouble
 import io.samritchie.rl.value.ActionValueMap
 import Util.Instances._
 
@@ -55,17 +54,12 @@ case class Greedy[Obs, A, R, T: Ordering, S[_]](
     )
 }
 
-// Oh boy, this really does look like it needs an aggregator... maybe
+// TODO Oh boy, this really does look like it needs an aggregator... maybe
 // I build it without, but then include the algebird versions
 // elsewhere? Or maybe I build to the cats interfaces, then I have an
 // algebird package? More for later.
 object Greedy {
-  // TODO - restructure this, and UCB and gradient, so they just take an action
-  // value function. Then they become solid policies that I can use.
-  //
-  // I DON'T THINK I need to worry about the ToDouble thing. I just need
-  // rankings, right?? Is that all that's important for a policy?
-  case class Config[R, T: Semigroup: Ordering: ToDouble](
+  case class Config[R, T: Semigroup: Ordering](
       epsilon: Double,
       prepare: R => T,
       initial: T
