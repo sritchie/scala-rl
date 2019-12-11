@@ -51,6 +51,10 @@ object Util {
         m.updated(k, f(k))
     }
 
+  /**
+    Update the key in the supplied map using the function - the function handles
+    both cases, when the item is there and when it's not.
+    */
   def updateWith[K, V](m: Map[K, V], k: K)(f: Option[V] => V): Map[K, V] =
     m.updated(k, f(m.get(k)))
 
