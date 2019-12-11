@@ -13,8 +13,14 @@ import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.bandit.Greedy
 
 /**
-  * Playing the game, currently. This is my test harness.
-  *
+  # Introduction to Chapter 2
+
+  This chapter is about Bandits. These are markov processes that know about a
+  single state, really. The trick here is going to be getting the stuff that
+  plays these particular states to be more general, and work with the same
+  machinery that rolls states forward.
+
+
   * What we REALLY NEED here is both the top and bottom graphs,
   * getting it done.
   *
@@ -32,6 +38,7 @@ object Chapter2 {
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
+  // Implementing it the way it does in the book.
   def average(s: Iterable[Double]): Double = {
     val (sum, n) = s.foldLeft((0.0, 0)) { case ((sum, n), i) => (sum + i, n + 1) }
     sum / n
@@ -90,7 +97,7 @@ object Chapter2 {
       { case (_, r, _) => Normal(r, stdDev).generator }
     )
 
-  def play(policy: CategoricalPolicy[Unit, Arm, Double, Generator]): List[Double] =
+  def play(policy: Policy[Unit, Arm, Double, Cat, Generator]): List[Double] =
     playBandit(
       policy.mapK(Cat.catToGenerator),
       nArmedTestbed(10, 0.0, 1.0),

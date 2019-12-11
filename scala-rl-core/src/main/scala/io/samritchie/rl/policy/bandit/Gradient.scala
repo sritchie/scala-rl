@@ -5,7 +5,8 @@ package io.samritchie.rl
 package policy
 package bandit
 
-import com.twitter.algebird.{Aggregator, AveragedValue}
+import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, Semigroup}
+import io.samritchie.rl.value.ActionValueMap
 import io.samritchie.rl.util.ToDouble
 
 /**
@@ -16,40 +17,58 @@ import io.samritchie.rl.util.ToDouble
   * T is the "average" type.
   *
   */
-case class Gradient[A: Equiv, R: ToDouble, T: ToDouble, S[_]](
+case class Gradient[Obs, A: Equiv, R: ToDouble, T: ToDouble, S[_]](
     config: Gradient.Config[R, T],
-    actionValues: Map[A, Gradient.Item[T]]
-) extends CategoricalPolicy[Any, A, R, S] {
+    valueFn: ActionValueFn[Obs, A, Gradient.Item[T]]
+) extends Policy[Obs, A, R, Cat, S] {
 
   /**
     * Let's try out this style for a bit. This gives us a way to
     * convert an action directly into a probability, using our
     * actionValue Map above.
+
+
     */
-  implicit val aToDouble: ToDouble[A] =
+  def aToDouble(obs: Obs): ToDouble[A] =
     Gradient.Item
       .itemToDouble[T]
       .contramap[A](
-        actionValues.getOrElse(_, config.initial)
+        valueFn.actionValue(obs, _)
       )
 
-  override def choose(state: State[Any, A, R, S]): Cat[A] =
+  override def choose(state: State[Obs, A, R, S]): Cat[A] = {
+    implicit val at = aToDouble(state.observation)
     Cat.softmax(state.actions)
+  }
 
-  override def learn(state: State[Any, A, R, S], action: A, reward: R): Gradient[A, R, T, S] = {
-    val pmf = Cat.softmax(state.actions).pmf
+  override def learn(state: State[Obs, A, R, S], action: A, reward: R): Gradient[Obs, A, R, T, S] = {
+    val pmf = choose(state).pmf
+    val obs = state.observation
 
-    val updated = state.actions.foldLeft(Map.empty[A, Gradient.Item[T]]) {
-      case (m, a) =>
-        val old = actionValues.getOrElse(a, config.initial)
-        val newV =
+    val updated = state.actions.foldLeft(valueFn) {
+      case (vfn, a) =>
+        // the new item has to get bootstrapped with the old value... that is
+        // SORT of associative, and works. Test soon.
+        val old = valueFn.actionValue(state.observation, a).t
+
+        // get the delta,
+        val delta = ToDouble[R].apply(reward) - ToDouble[T].apply(old)
+
+        // then there might be some nicer way of doing this.
+        val actionProb =
           if (Equiv[A].equiv(a, action))
-            config.combine(old, reward, pmf(a))
+            -pmf(a)
           else
-            config.combine(old, reward, 1 - pmf(a))
-        m.updated(a, newV)
+            1 - pmf(a)
+
+        // this is definitely the baseline.
+        val newItem = Gradient.Item(
+          actionProb * delta * config.stepSize,
+          config.prepare(reward)
+        )
+        vfn.learn(obs, a, newItem)
     }
-    copy(actionValues = updated)
+    copy(valueFn = updated)
   }
 }
 
@@ -57,12 +76,35 @@ object Gradient {
   import Util.Instances.avToDouble
 
   object Item {
-    implicit def itemToDouble[T]: ToDouble[Item[T]] =
-      ToDouble.instance(_.q)
+    class ItemSemigroup[T](implicit T: Semigroup[T]) extends Semigroup[Item[T]] {
+      override def plus(l: Item[T], r: Item[T]): Item[T] =
+        Item(l.q + r.q, T.plus(l.t, r.t))
+    }
+
+    // Monoid instance, not used for now but meaningful, I think.
+    class ItemMonoid[T](implicit T: Monoid[T]) extends ItemSemigroup[T] with Monoid[Item[T]] {
+      override val zero: Item[T] = Item(0, T.zero)
+    }
+
+    // implicit instances.
+    implicit def semigroup[T: Semigroup]: Semigroup[Item[T]] = new ItemSemigroup[T]
+    implicit def ord[T: Ordering]: Ordering[Item[T]] = Ordering.by(_.t)
+    implicit def monoid[T: Monoid] = new ItemMonoid[T]
+    implicit def itemToDouble[T]: ToDouble[Item[T]] = ToDouble.instance(_.q)
   }
 
   /**
-    * Represents an action value AND some sort of accumulated value.
+    * Represents an action value AND some sort of accumulated value. The action
+    * value is something we get by aggregating a reward in some way.
+
+    You might just sum, which would be goofy; you might do some averaged value,
+    or exponentially decaying average.
+
+    The t is the reward aggregator. The q is the item that's getting updated in
+    this funky way.
+
+    So how would you write a semigroup for this? You'd have to semigroup combine
+    the T... what is the monoid on the q?
     */
   case class Item[T](q: Double, t: T)
 
@@ -79,16 +121,10 @@ object Gradient {
     /**
       * Generates an actual policy from the supplied config.
       */
-    def policy[A, S[_]]: Gradient[A, R, T, S] = Gradient(this, Map.empty[A, Item[T]])
-
-    /**
-      * This performs the gradient update step.
-      */
-    private[rl] def combine(item: Item[T], reward: R, actionProb: Double): Item[T] =
-      Gradient.Item(
-        item.q + (stepSize * (ToDouble[R].apply(reward) - ToDouble[T].apply(item.t)) * actionProb),
-        plus(item.t, prepare(reward))
-      )
+    def policy[Obs, A, S[_]]: Gradient[Obs, A, R, T, S] = {
+      implicit val sg: Semigroup[T] = Semigroup.from(plus)
+      Gradient(this, ActionValueMap[Obs, A, Item[T]](Map.empty, initial))
+    }
   }
 
   /**

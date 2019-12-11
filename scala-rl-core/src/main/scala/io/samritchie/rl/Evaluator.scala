@@ -86,11 +86,11 @@ object Evaluator {
         ExpectedValue[M].get(policy.choose(state)) { a =>
           evaluator.evaluate(state, a)
         }
-
     }
   }
 
   object ActionValue {
+    def fn[Obs, A, R, T, S[_]](f: ActionValueFn[Obs, A, T]): ActionValue[Obs, A, R, T, S] = Fn(f)
 
     /**
     Evaluates the action's value directly.

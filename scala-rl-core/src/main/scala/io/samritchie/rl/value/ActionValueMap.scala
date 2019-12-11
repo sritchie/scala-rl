@@ -2,9 +2,8 @@ package io.samritchie.rl
 package value
 
 import com.twitter.algebird.Semigroup
-import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
-case class ActionValueMap[Obs, A, T: Semigroup: Ordering: ToDouble](
+case class ActionValueMap[Obs, A, T: Semigroup](
     m: Map[Obs, Map[A, T]],
     default: T
 ) extends ActionValueFn[Obs, A, T] { self =>
@@ -27,32 +26,10 @@ case class ActionValueMap[Obs, A, T: Semigroup: Ordering: ToDouble](
     val newM = Util.mergeV(actionM, action, value)
     copy(m = m.updated(obs, newM))
   }
-
-  override def toValueFunction[R, M[_]: ExpectedValue](
-      policy: Policy[Obs, A, R, M, Any],
-      default: T
-  ): StateValueFn[Obs, T] = ???
-
-  /**
-    This is not doing well, now and exposing some of the faults of my older
-    approach, and the relationship between action-value and state-value
-    functions. This is the good stuff, the most design fun!
-    */
-  // new ValueFunction[Obs] {
-  //   def seen: Iterable[Obs] = self.seenStates
-  //   def stateValue(obs: Obs): Value[Double] = {
-  //     val aMap = m.getOrElse(obs, Map.empty[A, T])
-  //     self.seen(obs).map { action =>
-  //       ExpectedValue[M].get(action, default) { a =>
-  //         aMap.getOrElse(action, default)
-  //       }
-  //     }
-  //   }
-  // }
 }
 
 object ActionValueMap {
-  def empty[Obs, A, T: Semigroup: Ordering: ToDouble](
+  def empty[Obs, A, T: Semigroup](
       default: T
   ): ActionValueMap[Obs, A, T] =
     ActionValueMap(Map.empty[Obs, Map[A, T]], default)
