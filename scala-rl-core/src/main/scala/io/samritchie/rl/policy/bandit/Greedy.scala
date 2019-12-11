@@ -18,7 +18,7 @@ import Util.Instances._
 case class Greedy[Obs, A, R, T: Ordering, S[_]](
     config: Greedy.Config[R, T],
     valueFn: ActionValueFn[Obs, A, T]
-) extends CategoricalPolicy[Obs, A, R, S] {
+) extends Policy[Obs, A, R, Cat, S] {
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
 

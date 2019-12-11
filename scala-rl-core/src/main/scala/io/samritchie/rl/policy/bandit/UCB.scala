@@ -16,17 +16,17 @@ case class UCB[Obs, A, R, T, S[_]](
     config: UCB.Config[R, T],
     valueFn: ActionValueFn[Obs, A, UCB.Choice[T]],
     time: Time
-) extends CategoricalPolicy[Obs, A, R, S] {
+) extends Policy[Obs, A, R, Cat, S] {
+  private val evaluator: Evaluator.ActionValue[Obs, A, R, UCB.Choice[T], S] =
+    Evaluator.ActionValue.fn(valueFn)
 
-  override def choose(state: State[Obs, A, R, S]): Cat[A] = {
-    val obs = state.observation
+  override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(
       Util
         .allMaxBy(state.actions)(
-          a => valueFn.actionValue(obs, a).totalValue(time)
+          evaluator.evaluate(state, _).totalValue(time)
         )
     )
-  }
 
   /**
     learn here passes directly through to the ActionValueFn now, which is the

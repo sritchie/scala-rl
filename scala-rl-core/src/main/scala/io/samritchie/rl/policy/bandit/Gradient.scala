@@ -20,7 +20,7 @@ import io.samritchie.rl.util.ToDouble
 case class Gradient[Obs, A: Equiv, R: ToDouble, T: ToDouble, S[_]](
     config: Gradient.Config[R, T],
     valueFn: ActionValueFn[Obs, A, Gradient.Item[T]]
-) extends CategoricalPolicy[Obs, A, R, S] {
+) extends Policy[Obs, A, R, Cat, S] {
 
   /**
     * Let's try out this style for a bit. This gives us a way to
