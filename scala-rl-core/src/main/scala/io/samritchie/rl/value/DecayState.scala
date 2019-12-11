@@ -35,12 +35,11 @@ object DecayState {
 
   def decayStateModule[A](gamma: Double)(implicit M: Module[Double, A]): Module[Double, DecayState[A]] = {
     implicit val group: Group[DecayState[A]] = decayStateGroup(gamma)
-    Module.from(
-      (r, d) =>
-        d match {
-          case Reward(reward)  => Reward(M.scale(r, reward))
-          case DecayedValue(v) => DecayedValue(M.scale(r, v))
-        }
+    Module.from((r, d) =>
+      d match {
+        case Reward(reward)  => Reward(M.scale(r, reward))
+        case DecayedValue(v) => DecayedValue(M.scale(r, v))
+      }
     )
   }
 
@@ -49,12 +48,11 @@ object DecayState {
       gamma: Double
   )(implicit M: Module[Double, A]): VectorSpace[A, DecayState] = {
     implicit val group: Group[DecayState[A]] = decayStateGroup(gamma)
-    VectorSpace.from(
-      (r, d) =>
-        d match {
-          case Reward(reward)  => Reward(Ring.times(r, reward))
-          case DecayedValue(v) => DecayedValue(Ring.times(r, v))
-        }
+    VectorSpace.from((r, d) =>
+      d match {
+        case Reward(reward)  => Reward(Ring.times(r, reward))
+        case DecayedValue(v) => DecayedValue(Ring.times(r, v))
+      }
     )
   }
 

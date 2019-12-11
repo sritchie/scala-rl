@@ -91,6 +91,7 @@ trait Agent[Obs, A, @specialized(Int, Long, Float, Double) R, T, M[_]] { self =>
 }
 
 object Agent {
+
   /**
     Agent that can't learn.
     */

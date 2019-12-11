@@ -7,6 +7,7 @@ import scala.util.{Failure, Success, Try}
   * implements the actual IO and the game loop.
   */
 object Game {
+
   /**
     * Convenient type aliases for use below.
     */
@@ -214,10 +215,12 @@ object Game {
   }
 
   object Board {
+
     /**
       * Class representing a position on the board.
       */
     case class Position(row: Row, column: Column) {
+
       /**
         * Returns a list of positions achieved by walking the position
         * using the supplied function.

@@ -49,6 +49,7 @@ case class UCB[Obs, A, R, T, S[_]](
 }
 
 object UCB {
+
   /**
     * Generates a Config instance from an algebird Aggregator and a
     * UCB parameter.
@@ -67,6 +68,7 @@ object UCB {
       plus: (T, T) => T,
       present: T => Double
   ) {
+
     /**
       * Returns a fresh policy instance using this config.
       */
@@ -132,6 +134,7 @@ object UCB {
       param: Param,
       toDouble: T => Double
   ) {
+
     /**
       * Updates the contained value, increments the visits.
       */

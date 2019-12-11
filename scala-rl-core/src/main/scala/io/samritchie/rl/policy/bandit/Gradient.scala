@@ -117,6 +117,7 @@ object Gradient {
       prepare: R => T,
       plus: (T, T) => T
   ) {
+
     /**
       * Generates an actual policy from the supplied config.
       */
