@@ -4,12 +4,10 @@
   */
 package io.samritchie.rl
 
-import io.samritchie.rl.util.ExpectedValue
-
 /**
   TODO:
 
-  - Make the Bellman and ActionValueMap implementations take an aggregator.
+  - Make the ActionValueMap implementation take an aggregator.
   - make DecayState work with a RING, not with anything so generic! And
     specialize it.
   - we want the aggregator that currently deals with Value instances to take a
@@ -18,16 +16,11 @@ import io.samritchie.rl.util.ExpectedValue
 
   Remember that the goal here is to lock down the types [R, T, T] for the monte
   carlo stuff so that I can actually get that shit working.
-
-  TODO Then convert the bandits to use it.
-
   */
 trait ActionValueFn[Obs, A, T] { self =>
+  // TODO should this be a set??
+  def seenStates: Iterable[Obs]
   def seen(obs: Obs): Iterable[A]
   def actionValue(obs: Obs, a: A): T
   def learn(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T]
-  def toValueFunction[R, M[_]: ExpectedValue](
-      policy: Policy[Obs, A, R, M, Any],
-      default: T
-  ): StateValueFn[Obs, T]
 }
