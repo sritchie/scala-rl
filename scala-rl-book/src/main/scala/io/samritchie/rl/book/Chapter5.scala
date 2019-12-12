@@ -53,13 +53,41 @@ object Chapter5 {
   val starter: Generator[Blackjack[Generator]] =
     Blackjack.Config[Generator](CardDeck.basic).stateM
 
-  // this obviously needs a better name BUT this is the generate that pops out
-  // uniform distributions over
-  val uniformFigureThree: Generator[Blackjack[Generator]] =
-    Blackjack.Config[Generator](CardDeck.basic).stateM
-
   val limited: Generator[State[AgentView, Action, Double, Generator]] =
     limitedM(starter)
+
+  val uniformStarts: Generator[Blackjack[Generator]] = {
+    val aceOfSpades = CardDeck.Card(CardDeck.Suit.Spades, CardDeck.Rank.Ace)
+    val five = CardDeck.Card(CardDeck.Suit.Spades, CardDeck.Rank.Number(5))
+    val six = CardDeck.Card(CardDeck.Suit.Spades, CardDeck.Rank.Number(6))
+
+    // Generate a uniform hand for the player with a score from 11-21. The
+    // actual cards don't really matter for this game.
+    val uniformPlayerHand: Generator[Blackjack.Hand] = for {
+      usableAce <- Generator.vector(Vector(true, false))
+      total <- Generator.vector((11 to 21).toVector)
+    } yield {
+      val card = CardDeck.Card(CardDeck.Suit.Spades, CardDeck.Rank.Number(total - 11))
+      val showing = if (usableAce) Seq(aceOfSpades, card) else Seq(five, six, card)
+      Blackjack.Hand(
+        showing,
+        Seq.empty
+      )
+    }
+
+    // dealer hand is the same as in any game.
+    val dealerHand: Generator[Blackjack.Hand] =
+      Blackjack.dealerHand(CardDeck.basic)
+
+    val conf = Blackjack.Config[Generator](CardDeck.basic)
+
+    val gameGenerator: Generator[Blackjack.Game] = for {
+      dealer <- dealerHand
+      player <- uniformPlayerHand
+    } yield Blackjack.Game(player, dealer)
+
+    gameGenerator.map(conf.build(_))
+  }
 
   type Loop[M[_], T] = T => M[T]
 
@@ -69,6 +97,25 @@ object Chapter5 {
   //
   // Inside, the policy's getting generated from the NEW value function. There's
   // probably some clearer way to write this thing.
+  //
+  // OKAY, so how does this relate?
+  //
+  // If you have a constant policy that does NOT get updated, then you've solved
+  // prediction. you're evaluating some policy.
+  //
+  // then we do exploring starts, if you toggle g to have it send out uniform
+  // states, and have a policy function that updates. If you do exploring starts
+  // you can use a fully greedy policy and count on the exploring starts to help
+  // you explore the full space.
+  //
+  // How do you relax the exploring starts?
+  //
+  // One way is to use an epsilon soft policy...
+  //
+  // but then we can use a greedy policy and lock down the importance sampling
+  // thing. This is where my derivation is going to get involved.
+  //
+  // The good stuff!
   def updateFn[Obs, A, R, T, M[_]: Monad](
       g: M[State[Obs, A, R, M]],
       agg: MonoidAggregator[R, T, T],
@@ -161,7 +208,7 @@ object Chapter5 {
     )
     val agg = Aggregator.prepareMonoid[Double, AveragedValue](AveragedValue(_))
     val fn = updateFn[AgentView, Action, Double, AveragedValue, Generator](
-      limited,
+      limitedM(uniformStarts),
       agg, { vfn =>
         val evaluator =
           Evaluator.ActionValue.fn[AgentView, Action, Double, AveragedValue, Generator](vfn)
@@ -173,6 +220,10 @@ object Chapter5 {
     Util.iterateM(500000)(base)(fn).get
     val t1 = elapsed()
     println(s"Time to play 500000 runs of blackjack: ${t1}")
+
+    // What's missing here is actually plotting the behavior of the optimal
+    // policy... I'm getting convinced that plotting in Scala is a waste of
+    // time. I'm going to wait.
     ()
   }
 
@@ -181,19 +232,53 @@ object Chapter5 {
     and compares ordinary and weighted off-policy sampling.
     */
   def figureFiveThree(): Unit = {
-    val all: Vector[CardDeck.Card] = for {
-      suit <- CardDeck.Suit.all
-      rank <- CardDeck.Rank.all
-    } yield CardDeck.Card(suit, rank)
+    // start with a static hand, the same as they used to generate the graph.
+    //
+    // From the textbook: "The value of this state under the target policy is
+    // approximately -0.27726 (this was determined by separately generating
+    // one-hundred million episodes using the target policy and averaging their
+    // returns)"
+    val trueValue = -0.27726
+    val playerHand = Blackjack.Hand(
+      Seq(
+        CardDeck.Card(CardDeck.Suit.Spades, CardDeck.Rank.Ace),
+        CardDeck.Card(CardDeck.Suit.Spades, CardDeck.Rank.Number(2))
+      ),
+      Seq.empty
+    )
 
-    // first step is to get the custom card deck going.
+    // dealer hand is the same as in any game.
+    val dealerHand: Generator[Blackjack.Hand] =
+      Blackjack.dealerHand(CardDeck.basic)
 
+    // config deals cards like normal once the game starts.
+    val conf = Blackjack.Config[Generator](CardDeck.basic)
+
+    // generator that starts in the prescribed state, always.
+    val blackjackGen: Generator[Blackjack[Generator]] =
+      dealerHand
+        .map(Blackjack.Game(playerHand, _))
+        .map(conf.build(_))
+
+    // the behavior policy is the random policy. We're going to randomly explore
+    // and see what we get.
+    val behavior = random[Generator].mapK(Cat.catToGenerator)
+
+    // then we're going to apply those results to the target policy.
+    val target = stickHigh[Generator](hitBelow = 20).mapK(Util.idToMonad[Generator])
+
+    // I think the trick is that we need to have two CATEGORICAL policies that
+    // we can use to interact with the generator world.
+    ()
   }
 
   def main(items: Array[String]): Unit = {
     println("Hello, chapter 5!")
     println("Let's play blackjack!")
-    figureFiveTwo()
+    figureFiveThree()
+
+    // TODO off policy MC prediction...
+    // TODO off policy MC control
     ()
   }
 }
