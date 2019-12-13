@@ -6,8 +6,9 @@ package logic
 
 import cats.Monad
 import cats.implicits._
-import com.twitter.algebird.{Aggregator, MonoidAggregator}
+import com.twitter.algebird.{Aggregator, Monoid, MonoidAggregator}
 import io.samritchie.rl.util.FrequencyTracker
+import scala.annotation.tailrec
 
 object MonteCarlo {
   case class ShouldUpdateState(get: Boolean) extends AnyVal
@@ -103,24 +104,83 @@ object MonteCarlo {
       ._1
 
   /**
-    So if you have G, your return...
-
-    first let's just do the weights.
+    So if you have G, your return... okay, this is a version that tracks the
+    weights, but doesn't give you a nice way to push the weights back. What if
+    we make the weight part of G? Try that in the next fn.
     */
   def processTrajectoryWeighted[Obs, A, R, G, M[_]](
       trajectory: Trajectory[Obs, A, R, M],
       valueFn: ActionValueFn[Obs, A, G],
-      agg: MonoidAggregator[R, G, G]
-  ): ActionValueFn[Obs, A, G] =
+      agg: MonoidAggregator[Snap[Obs, A, R, M], G, Option[G]]
+  ): ActionValueFn[Obs, A, G] = {
+
+    @tailrec
+    def loop(
+        t: Trajectory[Obs, A, R, M],
+        vfn: ActionValueFn[Obs, A, G],
+        g: G
+    ): ActionValueFn[Obs, A, G] =
+      if (t.isEmpty) vfn
+      else {
+        val (triple, shouldUpdate) = t.next
+        agg.present(agg.append(g, triple)) match {
+          case None => vfn
+          case Some(g2) =>
+            val newFn = if (shouldUpdate.get) {
+              val (s, a, r) = triple
+              vfn.learn(s.observation, a, g2)
+            } else vfn
+            loop(t, newFn, g2)
+        }
+      }
     // I think we HAVE to start with zero here, since we always have some sort
     // of zero value for the final state, even if we use a new aggregation type.
-    trajectory
-      .foldLeft((valueFn, agg.monoid.zero, 1)) {
-        case ((vf, g, w), ((s, a, r), shouldUpdate)) =>
-          val g2 = agg.append(g, r)
-          if (shouldUpdate.get) {
-            (vf.learn(s.observation, a, agg.present(g2)), g2, w)
-          } else (vf, g2, w)
+    loop(trajectory, valueFn, agg.monoid.zero)
+  }
+
+  case class Weight(w: Double) extends AnyVal {
+    def *(r: Weight): Weight = Weight(w + r.w)
+  }
+
+  object Weight {
+    val one: Weight = Weight(1.0)
+    val zero: Weight = Weight(0.0)
+    implicit val monoid: Monoid[Weight] = Monoid.from(one)(_ * _)
+  }
+
+  // generates a monoid aggregator that can handle weights! We'll need to pair
+  // this with a value function that knows how to handle weights on the way in,
+  // by keeping a count for each state, and handling the weight multiplication,
+  // that sort of thing.
+  def weighted[Obs, A, R, G, M[_]](
+      agg: MonoidAggregator[R, G, G],
+      fn: (State[Obs, A, R, M], A, R) => Weight
+  ): MonoidAggregator[Snap[Obs, A, R, M], (G, Weight), Option[(G, Weight)]] = {
+    implicit val m: Monoid[G] = agg.monoid
+    Aggregator
+      .appendMonoid[Snap[Obs, A, R, M], (G, Weight)] {
+        case ((g, w), (s, a, r)) =>
+          (agg.append(g, r), w * fn(s, a, r))
       }
-      ._1
+      .andThenPresent {
+        case (g, Weight(0.0)) => None
+        case pair             => Some(pair)
+
+      }
+  }
+
+  // generates a function that uses two policies to assign a weight. This is
+  // input into the stuff above.
+  def byPolicy[Obs, A, R, M[_]](
+      basePolicy: Policy[Obs, A, R, Cat, M],
+      targetPolicy: Policy[Obs, A, R, Cat, M]
+  ): (State[Obs, A, R, M], A, R) => Weight = {
+    case (s, a, _) =>
+      val num = targetPolicy.choose(s).pmf(a)
+      val denom = basePolicy.choose(s).pmf(a)
+      Weight(num / denom)
+  }
+
+  // function that always returns a weight of 1.a
+  def constant[Obs, A, R, M[_]]: (State[Obs, A, R, M], A, R) => Weight = { case (s, a, r) => Weight.one }
 }
