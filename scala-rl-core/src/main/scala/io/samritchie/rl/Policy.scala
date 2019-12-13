@@ -1,13 +1,9 @@
 /**
-  Policies are key.
-
-  TODO maybe we should make an Agent that is actually a policy AND a value
-  function.
+  Policy implementation, get some!
   */
 package io.samritchie.rl
 
 import cats.{Applicative, Functor, Id}
-import cats.implicits._
 import cats.arrow.FunctionK
 
 import scala.language.higherKinds
@@ -28,13 +24,6 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
   type This = Policy[Obs, A, R, M, S]
 
   def choose(state: State[Obs, A, R, S]): M[A]
-
-  /**
-    TODO Note - I can imagine that we wouldn't want to present a reward,
-    necessarily, but some aggregated thing.
-
-    By default this just returns itself, no learning happening.
-    */
   def learn(sars: SARS[Obs, A, R, S]): M[This]
 
   def contramapObservation[P](f: P => Obs)(implicit M: Functor[M], S: Functor[S]): Policy[P, A, R, M, S] =
@@ -72,15 +61,24 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
 object Policy {
 
   /**
-    If all you care about is a choose fn...
+    Build an instance.
+    */
+  def build[Obs, A, R, M[_], S[_]](
+      chooseFn: State[Obs, A, R, S] => M[A],
+      learnFn: (Policy[Obs, A, R, M, S], SARS[Obs, A, R, S]) => M[Policy[Obs, A, R, M, S]]
+  ): Policy[Obs, A, R, M, S] =
+    new Policy[Obs, A, R, M, S] { self =>
+      override def choose(state: State[Obs, A, R, S]): M[A] = chooseFn(state)
+      override def learn(sars: SARS[Obs, A, R, S]): M[This] = learnFn(self, sars)
+    }
+
+  /**
+    If all you care about is a choose fn.
     */
   def choose[Obs, A, R, M[_], S[_]](
       chooseFn: State[Obs, A, R, S] => M[A]
   )(implicit M: Applicative[M]): Policy[Obs, A, R, M, S] =
-    new Policy[Obs, A, R, M, S] { self =>
-      override def choose(state: State[Obs, A, R, S]): M[A] = chooseFn(state)
-      override def learn(sars: SARS[Obs, A, R, S]): M[This] = M.pure(self)
-    }
+    build(chooseFn, (self, _) => M.pure(self))
 
   /**
     Full exploration. mapK(Cat.setToCat) to get the usual Greedy.
@@ -93,7 +91,8 @@ object Policy {
     */
   def greedy[Obs, A, R, T: Ordering, S[_]](
       evaluator: Evaluator.ActionValue[Obs, A, R, T, S]
-  ): Policy[Obs, A, R, List, S] = choose(evaluator.greedyOptions(_).toList)
+  ): Policy[Obs, A, R, Cat, S] =
+    choose(s => Cat.fromSet(evaluator.greedyOptions(s)))
 
   /**
     In between. This is equal to
