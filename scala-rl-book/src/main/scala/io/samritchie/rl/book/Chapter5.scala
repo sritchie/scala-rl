@@ -119,18 +119,21 @@ object Chapter5 {
   //
 
   /**
+    Obs, A, R, M make sense here. They have to line up with the state. So what
+    is T? T is the type that you use to walk back along the trajectory.
 
+    If you have NO decay you want to supply a Double.
+
+    If you decay you need to supply a DecayState.
+
+    Then, internal to the value function, is the aggregation.
     */
   def updateFn[Obs, A, R, T, M[_]: Monad](
       g: M[State[Obs, A, R, M]],
       agg: MonoidAggregator[R, T, T],
-      policyFn: ActionValueFn[Obs, A, T] => Policy[
-        Obs,
-        A,
-        R,
-        M,
-        M
-      ]
+      // This is clearly going to share some structure with the monoid
+      // aggregator.
+      policyFn: ActionValueFn[Obs, A, T] => Policy[Obs, A, R, M, M]
   ): Loop[M, ActionValueFn[Obs, A, T]] = {
 
     // This will start with the limited world and get a single state... then run
@@ -178,17 +181,16 @@ object Chapter5 {
     println("Hello, chapter 5!")
     println("Let's play blackjack!")
 
+    // stick high policy from the book.
     val policy = stickHigh[Generator](hitBelow = 20).mapK(Util.idToMonad[Generator])
 
-    // I think this is actually the aggregator that walks back along the
-    // trajectory... which means we do NOT want to use this here. Or maybe we
-    // do, since you're just adding.
+    // This is a fine aggregator to use here since we're not accumulating
+    // anything special along the trajectory.
     val agg = Aggregator.fromMonoid[Double]
 
     val fn = updateFn[AgentView, Action, Double, Double, Generator](limited, agg, _ => policy)
-    val base: ActionValueFn[AgentView, Action, Double] = value.ActionValueMap(
-      Map.empty
-    )
+    val base: ActionValueFn[AgentView, Action, Double] = value.ActionValueMap.empty
+
     val elapsed = Stopwatch.start()
     Util.iterateM(10000)(base)(fn).get
     val t1 = elapsed()
@@ -211,15 +213,19 @@ object Chapter5 {
   def figureFiveTwo(): Unit = {
     import Util.Instances.averageValueOrd
 
-    val base: ActionValueFn[AgentView, Action, AveragedValue] = value.ActionValueMap(
-      Map.empty
-    )
-    val agg = Aggregator.prepareMonoid[Double, AveragedValue](AveragedValue(_))
-    val fn = updateFn[AgentView, Action, Double, AveragedValue, Generator](
+    // This is a data structure that internally uses an AveragedValue... but
+    // accepts and returns JUST doubles.
+    val base: ActionValueFn[AgentView, Action, Double] =
+      value.ActionValueMap
+        .empty[AgentView, Action, AveragedValue]
+        .fold(AveragedValue(_), _.value)
+
+    val fn = updateFn[AgentView, Action, Double, Double, Generator](
       limitedM(uniformStarts),
-      agg, { vfn =>
+      // you could also use a gamma = 1 DecayState.
+      Aggregator.fromMonoid[Double], { vfn =>
         val evaluator =
-          Evaluator.ActionValue.fn[AgentView, Action, Double, AveragedValue, Generator](vfn)
+          Evaluator.ActionValue.fn[AgentView, Action, Double, Double, Generator](vfn)
         new Greedy(evaluator, 0.0).mapK(Cat.catToGenerator)
       }
     )
@@ -289,7 +295,7 @@ object Chapter5 {
   def main(items: Array[String]): Unit = {
     println("Hello, chapter 5!")
     println("Let's play blackjack!")
-    figureFiveThree()
+    figureFiveTwo()
 
     // TODO off policy MC prediction...
     // TODO off policy MC control
