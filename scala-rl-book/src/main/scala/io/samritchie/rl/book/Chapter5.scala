@@ -14,7 +14,7 @@ import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.{Aggregator, AveragedValue, MonoidAggregator}
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.logic.{Episode, MonteCarlo}
-import io.samritchie.rl.policy.{Greedy, Random}
+import io.samritchie.rl.policy.Greedy
 import io.samritchie.rl.util.{CardDeck, Weight}
 import io.samritchie.rl.world.{Blackjack, InfiniteVariance}
 
@@ -37,7 +37,7 @@ object Chapter5 {
   def stickHighCat[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Cat, S] =
     stickHigh(hitBelow).mapK(Util.idToMonad[Cat])
 
-  def random[M[_]]: Policy[AgentView, Action, Double, Cat, M] = Random()
+  def random[M[_]]: Policy[AgentView, Action, Double, Cat, M] = Policy.random
 
   /**
     Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
@@ -307,7 +307,7 @@ object Chapter5 {
     val inf = InfiniteVariance.startingState
 
     // base explores equally.
-    val basePolicy = Random[View, Move, Int, Cat]
+    val basePolicy = Policy.random[View, Move, Int, Cat]
 
     // The target always moves left!
     val targetPolicy = Policy.constant[View, Move, Int, Cat](Move.Left)

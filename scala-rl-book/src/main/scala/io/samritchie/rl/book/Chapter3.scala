@@ -10,7 +10,7 @@ package book
 import cats.Id
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Tabulator
-import io.samritchie.rl.policy.{Greedy, Random}
+import io.samritchie.rl.policy.Greedy
 import io.samritchie.rl.util.{Grid, ToDouble}
 import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.GridWorld
@@ -78,7 +78,7 @@ object Chapter3 {
   def threeTwo: (StateValueFn[Position, DecayState[Double]], Long) =
     Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Id](
       emptyFn,
-      _ => Random.id[Position, Move, Double],
+      _ => Policy.random[Position, Move, Double, Id],
       DecayState.bellmanFn(gamma),
       gridConf.stateSweep,
       shouldStop _,

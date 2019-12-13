@@ -35,13 +35,13 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
 
     By default this just returns itself, no learning happening.
     */
-  def learn(state: State[Obs, A, R, S], action: A, reward: R, nextState: State[Obs, A, R, S]): M[This]
+  def learn(sars: SARS[Obs, A, R, S]): M[This]
 
   def contramapObservation[P](f: P => Obs)(implicit M: Functor[M], S: Functor[S]): Policy[P, A, R, M, S] =
     new Policy[P, A, R, M, S] {
       override def choose(state: State[P, A, R, S]) = self.choose(state.mapObservation(f))
-      override def learn(state: State[P, A, R, S], action: A, reward: R, next: State[P, A, R, S]) =
-        M.map(self.learn(state.mapObservation(f), action, reward, next.mapObservation(f)))(
+      override def learn(sars: SARS[P, A, R, S]) =
+        M.map(self.learn(sars.mapObservation(f)))(
           _.contramapObservation(f)
         )
     }
@@ -49,8 +49,8 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
   def contramapReward[T](f: T => R)(implicit M: Functor[M], S: Functor[S]): Policy[Obs, A, T, M, S] =
     new Policy[Obs, A, T, M, S] {
       override def choose(state: State[Obs, A, T, S]) = self.choose(state.mapReward(f))
-      override def learn(state: State[Obs, A, T, S], action: A, reward: T, next: State[Obs, A, T, S]) =
-        M.map(self.learn(state.mapReward(f), action, f(reward), next.mapReward(f)))(
+      override def learn(sars: SARS[Obs, A, T, S]) =
+        M.map(self.learn(sars.mapReward(f)))(
           _.contramapReward(f)
         )
     }
@@ -63,12 +63,9 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
     new Policy[Obs, A, R, N, S] { r =>
       override def choose(state: State[Obs, A, R, S]): N[A] = f(self.choose(state))
       override def learn(
-          state: State[Obs, A, R, S],
-          action: A,
-          reward: R,
-          next: State[Obs, A, R, S]
+          sars: SARS[Obs, A, R, S]
       ): N[Policy[Obs, A, R, N, S]] =
-        N.map(f(self.learn(state, action, reward, next)))(_.mapK(f))
+        N.map(f(self.learn(sars)))(_.mapK(f))
     }
 }
 
@@ -82,19 +79,14 @@ object Policy {
   )(implicit M: Applicative[M]): Policy[Obs, A, R, M, S] =
     new Policy[Obs, A, R, M, S] { self =>
       override def choose(state: State[Obs, A, R, S]): M[A] = chooseFn(state)
-      override def learn(
-          state: State[Obs, A, R, S],
-          action: A,
-          reward: R,
-          nextState: State[Obs, A, R, S]
-      ): M[This] = M.pure(self)
+      override def learn(sars: SARS[Obs, A, R, S]): M[This] = M.pure(self)
     }
 
   /**
     Full exploration. mapK(Cat.setToCat) to get the usual Greedy.
     */
-  def random[Obs, A, R, T: Ordering, S[_]]: Policy[Obs, A, R, List, S] =
-    choose(_.actions.toList)
+  def random[Obs, A, R, S[_]]: Policy[Obs, A, R, Cat, S] =
+    Policy.choose(s => Cat.fromSet(s.actions))
 
   /**
     Full greed. mapK(Cat.setToCat) to get the usual Greedy.

@@ -41,12 +41,9 @@ case class Gradient[Obs, A: Equiv, R: ToDouble, T: ToDouble, S[_]](
     Cat.softmax(state.actions)
   }
 
-  override def learn(
-      state: State[Obs, A, R, S],
-      action: A,
-      reward: R,
-      next: State[Obs, A, R, S]
-  ): Cat[Gradient[Obs, A, R, T, S]] = {
+  override def learn(sars: SARS[Obs, A, R, S]): Cat[This] = {
+    val SARS(state, action, reward, nextState) = sars
+
     val pmf = choose(state).pmf
     val obs = state.observation
 

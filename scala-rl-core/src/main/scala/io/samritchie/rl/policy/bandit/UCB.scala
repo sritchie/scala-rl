@@ -34,18 +34,13 @@ case class UCB[Obs, A, R, T, S[_]](
     new thing. Does this mean that we shouldn't learn at all? Should that get
     delegated to an agent?
     */
-  override def learn(
-      state: State[Obs, A, R, S],
-      action: A,
-      reward: R,
-      next: State[Obs, A, R, S]
-  ): Cat[UCB[Obs, A, R, T, S]] =
+  override def learn(sars: SARS[Obs, A, R, S]): Cat[This] =
     Cat.pure(
       copy(
         valueFn = valueFn.learn(
-          state.observation,
-          action,
-          config.choice(reward)
+          sars.state.observation,
+          sars.action,
+          config.choice(sars.reward)
         ),
         time = time.tick
       )

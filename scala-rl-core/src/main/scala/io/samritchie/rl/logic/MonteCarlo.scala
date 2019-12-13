@@ -11,7 +11,7 @@ import io.samritchie.rl.util.{FrequencyTracker, Weight}
 import scala.annotation.tailrec
 
 object MonteCarlo {
-  import Episode.{Moment, SARS}
+  import Episode.Moment
 
   case class ShouldUpdateState(get: Boolean) extends AnyVal
   object ShouldUpdateState {
@@ -131,7 +131,7 @@ object MonteCarlo {
     Aggregator
       .appendMonoid[Snap[Obs, A, R, M], (G, Weight)] {
         case ((g, w), sars) =>
-          (agg.append(g, sars.r), w * fn(sars))
+          (agg.append(g, sars.reward), w * fn(sars))
       }
       .andThenPresent {
         case (g, Weight(0.0)) => None

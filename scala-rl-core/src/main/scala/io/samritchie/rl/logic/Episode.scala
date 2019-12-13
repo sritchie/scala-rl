@@ -11,16 +11,6 @@ object Episode {
   import cats.syntax.functor._
 
   /**
-    Commonly used item.
-    */
-  case class SARS[Obs, A, R, M[_]](
-      state: State[Obs, A, R, M],
-      a: A,
-      r: R,
-      nextState: State[Obs, A, R, M]
-  )
-
-  /**
     Wrapper around a combination of state and policy. A moment in time. this
     wraps up a common thing that we interact with...
     */
@@ -33,8 +23,9 @@ object Episode {
     def act(a: A)(implicit M: Monad[M]): M[(Moment[Obs, A, R, M], SARS[Obs, A, R, M])] =
       state.act(a).flatMap {
         case (r, s2) =>
-          policy.learn(state, a, r, s2).map { p =>
-            (Moment(p, s2), SARS(state, a, r, s2))
+          val sars = SARS(state, a, r, s2)
+          policy.learn(sars).map { p =>
+            (Moment(p, s2), sars)
           }
       }
 

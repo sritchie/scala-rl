@@ -31,7 +31,7 @@ import io.samritchie.rl.world.Bandit
   */
 object Chapter2 {
   import Bandit.Arm
-  import Episode.{Moment, SARS}
+  import Episode.Moment
 
   /**
     * These are needed to actually call get on anything.
@@ -104,7 +104,7 @@ object Chapter2 {
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,
       timeSteps = 1000
-    ) { case items => average(items.map(_.r)) }._2
+    ) { case items => average(items.map(_.reward)) }._2
 
   def main(items: Array[String]): Unit =
     Plot.lineChartSeq(
