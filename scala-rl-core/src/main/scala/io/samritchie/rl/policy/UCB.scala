@@ -2,8 +2,6 @@
   * Policy that accumulates using the UCB algorithm.
   *
   * TODO should I make an Empty Choice option with a sealed trait?
-
-  TODO back this off to Semigroup!
   */
 package io.samritchie.rl
 package policy

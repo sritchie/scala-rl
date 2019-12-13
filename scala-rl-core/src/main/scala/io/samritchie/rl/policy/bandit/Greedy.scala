@@ -1,5 +1,6 @@
 /**
-  * Policy that accumulates via epsilon greedy.
+  * Policy that accumulates via epsilon greedy. This is only still here because
+  * it knows how to learn.
   */
 package io.samritchie.rl
 package policy
@@ -11,8 +12,6 @@ import io.samritchie.rl.value.ActionValueMap
 import Util.Instances._
 
 /**
-  * This is a version that accumulates the reward using a monoid.
-  *
   * @param epsilon number between 0 and 1.
   */
 case class Greedy[Obs, A, R, T: Ordering, S[_]](
