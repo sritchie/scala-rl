@@ -11,7 +11,7 @@ import io.samritchie.rl.util.{FrequencyTracker, Weight}
 import scala.annotation.tailrec
 
 object MonteCarlo {
-  import Episode.{Moment, SAR}
+  import Episode.{Moment, SARS}
 
   case class ShouldUpdateState(get: Boolean) extends AnyVal
   object ShouldUpdateState {
@@ -19,7 +19,7 @@ object MonteCarlo {
     val no = ShouldUpdateState(false)
   }
 
-  type Snap[Obs, A, R, M[_]] = SAR[Obs, A, R, M]
+  type Snap[Obs, A, R, M[_]] = SARS[Obs, A, R, M]
   type Trajectory[Obs, A, R, M[_]] = Iterator[(Snap[Obs, A, R, M], ShouldUpdateState)]
   type Tracker[Obs, A, R, T, M[_]] = MonoidAggregator[Snap[Obs, A, R, M], T, Trajectory[Obs, A, R, M]]
 
@@ -76,7 +76,7 @@ object MonteCarlo {
     // of zero value for the final state, even if we use a new aggregation type.
     trajectory
       .foldLeft((valueFn, agg.monoid.zero)) {
-        case ((vf, g), (SAR(s, a, r), shouldUpdate)) =>
+        case ((vf, g), (SARS(s, a, r, s2), shouldUpdate)) =>
           val g2 = agg.append(g, r)
           if (shouldUpdate.get) {
             (vf.learn(s.observation, a, agg.present(g2)), g2)
@@ -103,12 +103,12 @@ object MonteCarlo {
     ): ActionValueFn[Obs, A, G] =
       if (t.isEmpty) vfn
       else {
-        val (triple, shouldUpdate) = t.next
-        agg.present(agg.append(g, triple)) match {
+        val (sars, shouldUpdate) = t.next
+        agg.present(agg.append(g, sars)) match {
           case None => vfn
           case Some(g2) =>
             val newFn = if (shouldUpdate.get) {
-              val SAR(s, a, r) = triple
+              val SARS(s, a, r, s2) = sars
               vfn.learn(s.observation, a, g2)
             } else vfn
             loop(t, newFn, g2)
@@ -125,13 +125,13 @@ object MonteCarlo {
   // that sort of thing.
   def weighted[Obs, A, R, G, M[_]](
       agg: MonoidAggregator[R, G, G],
-      fn: (State[Obs, A, R, M], A, R) => Weight
+      fn: SARS[Obs, A, R, M] => Weight
   ): MonoidAggregator[Snap[Obs, A, R, M], (G, Weight), Option[(G, Weight)]] = {
     implicit val m: Monoid[G] = agg.monoid
     Aggregator
       .appendMonoid[Snap[Obs, A, R, M], (G, Weight)] {
-        case ((g, w), SAR(s, a, r)) =>
-          (agg.append(g, r), w * fn(s, a, r))
+        case ((g, w), sars) =>
+          (agg.append(g, sars.r), w * fn(sars))
       }
       .andThenPresent {
         case (g, Weight(0.0)) => None
@@ -152,6 +152,6 @@ object MonteCarlo {
       Weight(num / denom)
   }
 
-  // function that always returns a weight of 1.a
-  def constant[Obs, A, R, M[_]]: (State[Obs, A, R, M], A, R) => Weight = { case (s, a, r) => Weight.one }
+  // function that always returns a weight of 1.
+  def constant[Obs, A, R, M[_]]: SARS[Obs, A, R, M] => Weight = _ => Weight.one
 }

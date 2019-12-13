@@ -31,7 +31,7 @@ import io.samritchie.rl.world.Bandit
   */
 object Chapter2 {
   import Bandit.Arm
-  import Episode.{Moment, SAR}
+  import Episode.{Moment, SARS}
 
   /**
     * These are needed to actually call get on anything.
@@ -51,7 +51,7 @@ object Chapter2 {
       nRuns: Int,
       timeSteps: Int
   )(
-      reduce: List[SAR[Obs, A, R, Generator]] => R
+      reduce: List[SARS[Obs, A, R, Generator]] => R
   ): (List[Moment[Obs, A, R, Generator]], List[R]) = {
     val rewardSeqGen =
       (0 until nRuns).toList

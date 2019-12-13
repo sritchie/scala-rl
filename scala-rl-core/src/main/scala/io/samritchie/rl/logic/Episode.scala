@@ -13,10 +13,11 @@ object Episode {
   /**
     Commonly used item.
     */
-  case class SAR[Obs, A, R, M[_]](
+  case class SARS[Obs, A, R, M[_]](
       state: State[Obs, A, R, M],
       a: A,
-      r: R
+      r: R,
+      nextState: State[Obs, A, R, M]
   )
 
   /**
@@ -29,11 +30,11 @@ object Episode {
   ) {
     def choice: M[A] = policy.choose(state)
 
-    def act(a: A)(implicit M: Monad[M]): M[(Moment[Obs, A, R, M], SAR[Obs, A, R, M])] =
+    def act(a: A)(implicit M: Monad[M]): M[(Moment[Obs, A, R, M], SARS[Obs, A, R, M])] =
       state.act(a).flatMap {
         case (r, s2) =>
           policy.learn(state, a, r, s2).map { p =>
-            (Moment(p, s2), SAR(state, a, r))
+            (Moment(p, s2), SARS(state, a, r, s2))
           }
       }
 
@@ -43,7 +44,7 @@ object Episode {
     - pair of (the new policy that's learned, the new state you end up in)
     - triple of (state you came from, action you took, reward you received).
       */
-    def play(implicit M: Monad[M]): M[(Moment[Obs, A, R, M], SAR[Obs, A, R, M])] =
+    def play(implicit M: Monad[M]): M[(Moment[Obs, A, R, M], SARS[Obs, A, R, M])] =
       policy.choose(state).flatMap(act)
   }
 
@@ -65,7 +66,7 @@ object Episode {
   def playMany[Obs, A, R, M[_]: Monad](
       moments: List[Moment[Obs, A, R, M]]
   )(
-      rewardSum: List[SAR[Obs, A, R, M]] => R
+      rewardSum: List[SARS[Obs, A, R, M]] => R
   ): M[(List[Moment[Obs, A, R, M]], R)] =
     moments.traverse(_.play).map { results =>
       (
@@ -84,7 +85,7 @@ object Episode {
       moments: List[Moment[Obs, A, R, M]],
       nTimes: Int
   )(
-      rewardSum: List[SAR[Obs, A, R, M]] => R
+      rewardSum: List[SARS[Obs, A, R, M]] => R
   ): M[(List[Moment[Obs, A, R, M]], List[R])] =
     Util.iterateM(nTimes)((moments, List.empty[R])) {
       case (ps, rs) =>
