@@ -112,7 +112,7 @@ object Gradient {
     * Holds properties necessary to run the gradient algorithm.
     */
   case class Config[R: ToDouble, T: ToDouble](
-      initial: Item[T],
+      initial: T,
       stepSize: Double,
       prepare: R => T,
       plus: (T, T) => T
@@ -122,8 +122,8 @@ object Gradient {
       * Generates an actual policy from the supplied config.
       */
     def policy[Obs, A, S[_]]: Gradient[Obs, A, R, T, S] = {
-      implicit val sg: Semigroup[T] = Semigroup.from(plus)
-      Gradient(this, ActionValueMap[Obs, A, Item[T]](Map.empty, initial))
+      implicit val m: Monoid[T] = Monoid.from(initial)(plus)
+      Gradient(this, ActionValueMap[Obs, A, Item[T]](Map.empty))
     }
   }
 
@@ -132,7 +132,7 @@ object Gradient {
     * internally.
     */
   def incrementalConfig(stepSize: Double, initial: Double = 0.0): Config[Double, AveragedValue] =
-    Config(Item(0.0, AveragedValue(initial)), stepSize, AveragedValue(_), _ + _)
+    Config(AveragedValue(initial), stepSize, AveragedValue(_), _ + _)
 
   /**
     * Uses NO averaging baseline.
@@ -150,7 +150,7 @@ object Gradient {
   ): Config[R, T] = {
     implicit val tToDouble: ToDouble[T] = ToDouble.instance(agg.present(_))
     Config(
-      Item(0.0, initial),
+      initial,
       stepSize,
       agg.prepare(_),
       agg.semigroup.plus(_, _)

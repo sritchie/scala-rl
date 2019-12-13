@@ -48,11 +48,7 @@ object CardDeck {
   /**
     Generates cards from an infinite stream, with replacement.
     */
-  val basic: Generator[Card] = {
-    val size = Card.deck.size
-    Generator.from((r, _) => Card.all(r.int(size)))
-  }
-
+  val basic: Generator[Card] = Generator.vector(Card.all)
   val allCat: Cat[Card] = Cat.seq(Card.all)
   val heartsCat: Cat[Card] = Cat.seq(Card.all.filter(_.suit == Suit.Hearts))
 }

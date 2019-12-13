@@ -1,11 +1,10 @@
 package io.samritchie.rl
 package value
 
-import com.twitter.algebird.Semigroup
+import com.twitter.algebird.{Monoid, MonoidAggregator}
 
-case class ActionValueMap[Obs, A, T: Semigroup](
-    m: Map[Obs, Map[A, T]],
-    default: T
+case class ActionValueMap[Obs, A, T: Monoid](
+    m: Map[Obs, Map[A, T]]
 ) extends ActionValueFn[Obs, A, T] { self =>
   def seenStates: Iterable[Obs] = m.keySet
 
@@ -18,7 +17,7 @@ case class ActionValueMap[Obs, A, T: Semigroup](
       at <- m.get(obs)
       t <- at.get(a)
     } yield t
-    tOpt.getOrElse(default)
+    tOpt.getOrElse(Monoid.zero[T])
   }
 
   override def learn(obs: Obs, action: A, value: T): ActionValueMap[Obs, A, T] = {
@@ -29,8 +28,9 @@ case class ActionValueMap[Obs, A, T: Semigroup](
 }
 
 object ActionValueMap {
-  def empty[Obs, A, T: Semigroup](
-      default: T
-  ): ActionValueMap[Obs, A, T] =
-    ActionValueMap(Map.empty[Obs, Map[A, T]], default)
+  def empty[Obs, A, T: Monoid]: ActionValueMap[Obs, A, T] =
+    ActionValueMap(Map.empty[Obs, Map[A, T]])
+
+  def fromAggregator[Obs, A, T, U](agg: MonoidAggregator[U, T, U]): ActionValueFn[Obs, A, U] =
+    empty(agg.monoid).fold(agg.prepare, agg.present)
 }
