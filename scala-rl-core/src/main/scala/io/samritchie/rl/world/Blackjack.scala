@@ -126,11 +126,9 @@ object Blackjack {
   // TODO get the game below to use this as the "opponent" instead of manually
   // doing it.
   def dealerPolicy[S[_]](hitBelow: Int): Policy[Game, Action, Double, Id, S] =
-    new Policy[Game, Action, Double, Id, S] {
-      override def choose(state: State[Game, Action, Double, S]): Action = {
-        val hand = state.observation.dealer
-        if (hand.totalScore < hitBelow) Action.Hit else Action.Stay
-      }
+    Policy.choose { state =>
+      val hand = state.observation.dealer
+      if (hand.totalScore < hitBelow) Action.Hit else Action.Stay
     }
 }
 

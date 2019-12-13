@@ -17,6 +17,7 @@ case class UCB[Obs, A, R, T, S[_]](
     valueFn: ActionValueFn[Obs, A, UCB.Choice[T]],
     time: Time
 ) extends Policy[Obs, A, R, Cat, S] {
+
   private val evaluator: Evaluator.ActionValue[Obs, A, R, UCB.Choice[T], S] =
     Evaluator.ActionValue.fn(valueFn)
 
@@ -36,15 +37,18 @@ case class UCB[Obs, A, R, T, S[_]](
   override def learn(
       state: State[Obs, A, R, S],
       action: A,
-      reward: R
-  ): UCB[Obs, A, R, T, S] =
-    copy(
-      valueFn = valueFn.learn(
-        state.observation,
-        action,
-        config.choice(reward)
-      ),
-      time = time.tick
+      reward: R,
+      next: State[Obs, A, R, S]
+  ): Cat[UCB[Obs, A, R, T, S]] =
+    Cat.pure(
+      copy(
+        valueFn = valueFn.learn(
+          state.observation,
+          action,
+          config.choice(reward)
+        ),
+        time = time.tick
+      )
     )
 }
 

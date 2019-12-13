@@ -4,7 +4,7 @@
 package io.samritchie.rl
 package logic
 
-import cats.{Functor, Monad}
+import cats.Monad
 import cats.implicits._
 
 object Episode {
@@ -20,7 +20,8 @@ object Episode {
   )
 
   /**
-    Wrapper around a combination of state and policy. A moment in time.
+    Wrapper around a combination of state and policy. A moment in time. this
+    wraps up a common thing that we interact with...
     */
   case class Moment[Obs, A, R, M[_]](
       policy: Policy[Obs, A, R, M, M],
@@ -28,9 +29,12 @@ object Episode {
   ) {
     def choice: M[A] = policy.choose(state)
 
-    def act(a: A)(implicit M: Functor[M]): M[(Moment[Obs, A, R, M], SAR[Obs, A, R, M])] =
-      state.act(a).map {
-        case (r, s2) => (Moment(policy.learn(state, a, r), s2), SAR(state, a, r))
+    def act(a: A)(implicit M: Monad[M]): M[(Moment[Obs, A, R, M], SAR[Obs, A, R, M])] =
+      state.act(a).flatMap {
+        case (r, s2) =>
+          policy.learn(state, a, r, s2).map { p =>
+            (Moment(p, s2), SAR(state, a, r))
+          }
       }
 
     /**

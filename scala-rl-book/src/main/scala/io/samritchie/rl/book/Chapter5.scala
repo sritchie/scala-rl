@@ -5,7 +5,7 @@
 package io.samritchie.rl
 package book
 
-import cats.{Id, Monad}
+import cats.{Functor, Id, Monad}
 import cats.implicits._
 import com.stripe.rainier.cats._
 import com.stripe.rainier.compute.{Evaluator, Real}
@@ -26,11 +26,9 @@ object Chapter5 {
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
   def stickHigh[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Id, S] =
-    new Policy[AgentView, Action, Double, Id, S] {
-      override def choose(state: State[AgentView, Action, Double, S]): Action = {
-        val score = state.observation.playerSum
-        if (score < 20) Action.Hit else Action.Stay
-      }
+    Policy.choose { state =>
+      val score = state.observation.playerSum
+      if (score < hitBelow) Action.Hit else Action.Stay
     }
 
   // I need it in this form for off-policy sampling, etc... but to do the
@@ -44,7 +42,7 @@ object Chapter5 {
   /**
     Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
     */
-  def limitedM[M[_]: Monad](state: M[Blackjack[M]]): M[State[AgentView, Action, Double, M]] =
+  def limitedM[M[_]: Functor](state: M[Blackjack[M]]): M[State[AgentView, Action, Double, M]] =
     state.map(_.mapObservation(_.agentView).mapReward {
       case Result.Draw | Result.Pending => 0
       case Result.Win                   => 1

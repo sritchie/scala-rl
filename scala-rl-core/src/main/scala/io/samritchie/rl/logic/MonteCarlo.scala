@@ -53,7 +53,7 @@ object MonteCarlo {
   def firstVisit[Obs, A, R, M[_]: Monad](
       moment: Moment[Obs, A, R, M]
   ): M[(Moment[Obs, A, R, M], Trajectory[Obs, A, R, M])] =
-    Episode.playEpisode[Obs, A, R, M, FrequencyTracker[Snap[Obs, A, R, M], Obs]](
+    Episode.playEpisode(
       moment,
       Tracker.firstVisit
     )

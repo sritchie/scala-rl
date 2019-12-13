@@ -27,6 +27,7 @@ class Greedy[Obs, A, R, T: Ordering, S[_]](
     evaluator: Evaluator.ActionValue[Obs, A, R, T, S],
     epsilon: Double
 ) extends Policy[Obs, A, R, Cat, S] { self =>
+
   private val explore: Cat[Boolean] =
     Cat.boolean(epsilon)
 
@@ -38,6 +39,13 @@ class Greedy[Obs, A, R, T: Ordering, S[_]](
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Monad[Cat].ifM(explore)(allActions(state), greedy(state))
+
+  override def learn(
+      state: State[Obs, A, R, S],
+      action: A,
+      reward: R,
+      nextState: State[Obs, A, R, S]
+  ): Cat[This] = Cat.pure(self)
 }
 
 object Greedy {
