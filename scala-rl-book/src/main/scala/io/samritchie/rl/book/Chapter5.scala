@@ -13,13 +13,14 @@ import com.stripe.rainier.core.Generator
 import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.{Aggregator, AveragedValue, MonoidAggregator}
 import com.twitter.util.Stopwatch
-import io.samritchie.rl.logic.MonteCarlo
+import io.samritchie.rl.logic.{Episode, MonteCarlo}
 import io.samritchie.rl.policy.{Greedy, Random}
-import io.samritchie.rl.util.{CardDeck, Weight, WeightedAverage}
+import io.samritchie.rl.util.{CardDeck, Weight}
 import io.samritchie.rl.world.{Blackjack, InfiniteVariance}
 
 object Chapter5 {
   import Blackjack.{Action, AgentView, Result}
+  import Episode.Moment
 
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
@@ -145,11 +146,7 @@ object Chapter5 {
     // you can only apply the goods on a first visit.
     def playGen(policy: Policy[Obs, A, R, M, M]) =
       g.flatMap { state =>
-        MonteCarlo
-          .firstVisit[Obs, A, R, M](
-            policy,
-            state
-          )
+        MonteCarlo.firstVisit[Obs, A, R, M](Moment(policy, state))
       }
 
     def loop(vfn: ActionValueFn[Obs, A, G]) =

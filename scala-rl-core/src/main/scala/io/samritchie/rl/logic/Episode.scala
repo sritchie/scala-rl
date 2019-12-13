@@ -4,94 +4,89 @@
 package io.samritchie.rl
 package logic
 
-import cats.Monad
+import cats.{Functor, Monad}
 import cats.implicits._
 
 object Episode {
   import cats.syntax.functor._
 
   /**
-    Similar to what's below... except it doesn't learn. That is a bandit thing,
-    and we need to figure out how to make sense of that.
-
-    Oh, yeah, action values can get updated immediately. So learn really does
-    make no sense for a policy by itself.
-
-    The bandits are really agents that keep action value functions.
+    Commonly used item.
     */
-  def playStatic[Obs, A, R, M[_]: Monad](
-      policy: Policy[Obs, A, R, M, M],
-      state: State[Obs, A, R, M]
-  ): M[(state.This, (Obs, A, R))] =
-    policy.choose(state).flatMap { a =>
-      state
-        .act(a)
-        .map { case (r, s2) => (s2, (state.observation, a, r)) }
-    }
-
-  /**
-    * Plays a single turn and returns an M containing the reward and the next
-    * state. If the chosen state's not allowed, returns the supplied penalty and
-    * sends the agent back to the initial state.
-    */
-  def play[Obs, A, R, M[_]: Monad](
-      policy: Policy[Obs, A, R, M, M],
-      state: State[Obs, A, R, M]
-  ): M[(policy.This, R, state.This)] =
-    policy.choose(state).flatMap { a =>
-      state.act(a).map {
-        case (r, s) =>
-          (policy.learn(state, a, r), r, s)
-      }
-    }
-
-  /**
-    * Returns the final policy, a sequence of the rewards received and
-    * the final state.
-    */
-  def playN[Obs, A, R, M[_]: Monad](
-      policy: Policy[Obs, A, R, M, M],
+  case class SAR[Obs, A, R, M[_]](
       state: State[Obs, A, R, M],
-      nTimes: Int
-  ): M[(policy.This, Seq[R], state.This)] =
-    Util.iterateM(nTimes)((policy, Seq.empty[R], state)) {
-      case (p, rs, s) =>
-        play(p, s).map {
-          case (newP, r, newS) =>
-            (newP, rs :+ r, newS)
-        }
-    }
+      a: A,
+      r: R
+  )
 
   /**
-    * Takes an initial set of policies and a state...
+    Wrapper around a combination of state and policy. A moment in time.
+    */
+  case class Moment[Obs, A, R, M[_]](
+      policy: Policy[Obs, A, R, M, M],
+      state: State[Obs, A, R, M]
+  ) {
+    def choice: M[A] = policy.choose(state)
+
+    def act(a: A)(implicit M: Functor[M]): M[(Moment[Obs, A, R, M], SAR[Obs, A, R, M])] =
+      state.act(a).map {
+        case (r, s2) => (Moment(policy.learn(state, a, r), s2), SAR(state, a, r))
+      }
+
+    /**
+    Play a single round of a game. Returns M of:
+
+    - pair of (the new policy that's learned, the new state you end up in)
+    - triple of (state you came from, action you took, reward you received).
+      */
+    def play(implicit M: Monad[M]): M[(Moment[Obs, A, R, M], SAR[Obs, A, R, M])] =
+      policy.choose(state).flatMap(act)
+  }
+
+  /**
+    Takes a policy and a starting state and returns an M containing the final
+    policy, final state and the trajectory that got us there.
+    */
+  def playEpisode[Obs, A, R, M[_]: Monad, T](
+      moment: Moment[Obs, A, R, M],
+      tracker: MonteCarlo.Tracker[Obs, A, R, T, M]
+  ): M[(Moment[Obs, A, R, M], MonteCarlo.Trajectory[Obs, A, R, M])] =
+    Util.iterateUntilM(moment, tracker)(_.play)(_.state.isTerminal)
+
+  /**
+    * Takes a list of policy, initial state pairs and plays a single episode of
+    * a game with each of them.
+    *
     */
   def playMany[Obs, A, R, M[_]: Monad](
-      pairs: List[(Policy[Obs, A, R, M, M], State[Obs, A, R, M])]
+      moments: List[Moment[Obs, A, R, M]]
   )(
-      rewardSum: List[R] => R
-  ): M[(List[(Policy[Obs, A, R, M, M], State[Obs, A, R, M])], R)] =
-    pairs.toList
-      .traverse {
-        case (p, s) => play(p, s)
-      }
-      .map { results =>
-        (results.map { case (a, b, c) => (a, c) }, rewardSum(results.map(_._2)))
-      }
+      rewardSum: List[SAR[Obs, A, R, M]] => R
+  ): M[(List[Moment[Obs, A, R, M]], R)] =
+    moments.traverse(_.play).map { results =>
+      (
+        // this could actually build a nice trajectory for many items at once.
+        results.map(_._1),
+        rewardSum(results.map(_._2))
+      )
+    }
 
   /**
-    * Takes an initial set of policies and a state...
+    * Takes an initial set of policies and astate... we could definitely adapt
+    * this to do some serious learning on the policies, and use the
+    * MonoidAggregator stuff.
     */
   def playManyN[Obs, A, R, M[_]: Monad](
-      pairs: List[(Policy[Obs, A, R, M, M], State[Obs, A, R, M])],
+      moments: List[Moment[Obs, A, R, M]],
       nTimes: Int
   )(
-      rewardSum: List[R] => R
-  ): M[(List[(Policy[Obs, A, R, M, M], State[Obs, A, R, M])], List[R])] =
-    Util.iterateM(nTimes)((pairs, List.empty[R])) {
+      rewardSum: List[SAR[Obs, A, R, M]] => R
+  ): M[(List[Moment[Obs, A, R, M]], List[R])] =
+    Util.iterateM(nTimes)((moments, List.empty[R])) {
       case (ps, rs) =>
         playMany(ps)(rewardSum).map {
-          case (newPS, r) =>
-            (newPS, rs :+ r)
+          case (newMoment, r) =>
+            (newMoment, rs :+ r)
         }
     }
 }

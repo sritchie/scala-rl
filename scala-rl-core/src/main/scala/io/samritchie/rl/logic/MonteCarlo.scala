@@ -11,13 +11,15 @@ import io.samritchie.rl.util.{FrequencyTracker, Weight}
 import scala.annotation.tailrec
 
 object MonteCarlo {
+  import Episode.{Moment, SAR}
+
   case class ShouldUpdateState(get: Boolean) extends AnyVal
   object ShouldUpdateState {
     val yes = ShouldUpdateState(true)
     val no = ShouldUpdateState(false)
   }
 
-  type Snap[Obs, A, R, M[_]] = (State[Obs, A, R, M], A, R)
+  type Snap[Obs, A, R, M[_]] = SAR[Obs, A, R, M]
   type Trajectory[Obs, A, R, M[_]] = Iterator[(Snap[Obs, A, R, M], ShouldUpdateState)]
   type Tracker[Obs, A, R, T, M[_]] = MonoidAggregator[Snap[Obs, A, R, M], T, Trajectory[Obs, A, R, M]]
 
@@ -26,7 +28,7 @@ object MonteCarlo {
     type EveryVisit[Obs, A, R, M[_]] = Tracker[Obs, A, R, Vector[Snap[Obs, A, R, M]], M]
 
     def firstVisit[Obs, A, R, M[_]]: FirstVisit[Obs, A, R, M] = {
-      implicit val m = FrequencyTracker.monoid[Snap[Obs, A, R, M], Obs](_._1.observation)
+      implicit val m = FrequencyTracker.monoid[Snap[Obs, A, R, M], Obs](_.state.observation)
       Aggregator.appendMonoid(
         appnd = _ :+ _,
         pres = _.reverseIterator.map { case (t, seen) => (t, ShouldUpdateState(seen == 0)) }
@@ -46,43 +48,13 @@ object MonteCarlo {
   }
 
   /**
-   Play a single round of a game. Returns M of the new state you end up in,
-   paired with a triple of the state you came from, the action you took and the
-   reward you received.
-    */
-  def play[Obs, A, R, M[_]: Monad](
-      policy: Policy[Obs, A, R, M, M],
-      state: State[Obs, A, R, M]
-  ): M[(state.This, Snap[Obs, A, R, M])] =
-    policy.choose(state).flatMap { a =>
-      state
-        .act(a)
-        .map { case (r, s2) => (s2, (state, a, r)) }
-    }
-
-  /**
-    Takes a static policy and a starting state and returns an M containing the
-    final state and the trajectory that got us there.
-    */
-  def playEpisode[Obs, A, R, M[_]: Monad, T](
-      policy: Policy[Obs, A, R, M, M],
-      state: State[Obs, A, R, M],
-      tracker: Tracker[Obs, A, R, T, M]
-  ): M[(state.This, Trajectory[Obs, A, R, M])] =
-    Util.iterateUntilM(state, tracker)(
-      play(policy, _)
-    )(_.isTerminal)
-
-  /**
     Specialized version that keeps track of frequencies too.
     */
   def firstVisit[Obs, A, R, M[_]: Monad](
-      policy: Policy[Obs, A, R, M, M],
-      state: State[Obs, A, R, M]
-  ): M[(state.This, Trajectory[Obs, A, R, M])] =
-    playEpisode[Obs, A, R, M, FrequencyTracker[Snap[Obs, A, R, M], Obs]](
-      policy,
-      state,
+      moment: Moment[Obs, A, R, M]
+  ): M[(Moment[Obs, A, R, M], Trajectory[Obs, A, R, M])] =
+    Episode.playEpisode[Obs, A, R, M, FrequencyTracker[Snap[Obs, A, R, M], Obs]](
+      moment,
       Tracker.firstVisit
     )
 
@@ -104,7 +76,7 @@ object MonteCarlo {
     // of zero value for the final state, even if we use a new aggregation type.
     trajectory
       .foldLeft((valueFn, agg.monoid.zero)) {
-        case ((vf, g), ((s, a, r), shouldUpdate)) =>
+        case ((vf, g), (SAR(s, a, r), shouldUpdate)) =>
           val g2 = agg.append(g, r)
           if (shouldUpdate.get) {
             (vf.learn(s.observation, a, agg.present(g2)), g2)
@@ -136,7 +108,7 @@ object MonteCarlo {
           case None => vfn
           case Some(g2) =>
             val newFn = if (shouldUpdate.get) {
-              val (s, a, r) = triple
+              val SAR(s, a, r) = triple
               vfn.learn(s.observation, a, g2)
             } else vfn
             loop(t, newFn, g2)
@@ -158,7 +130,7 @@ object MonteCarlo {
     implicit val m: Monoid[G] = agg.monoid
     Aggregator
       .appendMonoid[Snap[Obs, A, R, M], (G, Weight)] {
-        case ((g, w), (s, a, r)) =>
+        case ((g, w), SAR(s, a, r)) =>
           (agg.append(g, r), w * fn(s, a, r))
       }
       .andThenPresent {

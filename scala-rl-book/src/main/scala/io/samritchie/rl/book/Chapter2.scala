@@ -8,9 +8,9 @@ import com.stripe.rainier.compute.{Evaluator, Real}
 import com.stripe.rainier.sampler.RNG
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.logic.Episode
-import io.samritchie.rl.state.Bandit
 import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.bandit.Greedy
+import io.samritchie.rl.world.Bandit
 
 /**
   # Introduction to Chapter 2
@@ -31,6 +31,7 @@ import io.samritchie.rl.policy.bandit.Greedy
   */
 object Chapter2 {
   import Bandit.Arm
+  import Episode.{Moment, SAR}
 
   /**
     * These are needed to actually call get on anything.
@@ -50,11 +51,11 @@ object Chapter2 {
       nRuns: Int,
       timeSteps: Int
   )(
-      reduce: List[R] => R
-  ): (List[(Policy[Obs, A, R, Generator, Generator], State[Obs, A, R, Generator])], List[R]) = {
+      reduce: List[SAR[Obs, A, R, Generator]] => R
+  ): (List[Moment[Obs, A, R, Generator]], List[R]) = {
     val rewardSeqGen =
       (0 until nRuns).toList
-        .map(i => stateGen.map(s => (policy, s)))
+        .map(i => stateGen.map(s => Episode.Moment(policy, s)))
         .sequence
         .flatMap { pairs =>
           Episode.playManyN[Obs, A, R, Generator](
@@ -103,7 +104,7 @@ object Chapter2 {
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,
       timeSteps = 1000
-    )(average(_))._2
+    ) { case items => average(items.map(_.r)) }._2
 
   def main(items: Array[String]): Unit =
     Plot.lineChartSeq(
