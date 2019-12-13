@@ -16,7 +16,7 @@ import com.twitter.util.Stopwatch
 import io.samritchie.rl.logic.MonteCarlo
 import io.samritchie.rl.policy.{Greedy, Random}
 import io.samritchie.rl.util.{CardDeck, Weight, WeightedAverage}
-import io.samritchie.rl.world.Blackjack
+import io.samritchie.rl.world.{Blackjack, InfiniteVariance}
 
 object Chapter5 {
   import Blackjack.{Action, AgentView, Result}
@@ -299,6 +299,32 @@ object Chapter5 {
           .andThenPresent { case wa => (wa.value, Weight.one) }
       )
     ()
+  }
+
+  /**
+    this checks using the random policy to check the stickHigh behavior policy,
+    and compares ordinary and weighted off-policy sampling.
+    */
+  def figureFiveFour(): Unit = {
+    import InfiniteVariance.{Move, View}
+
+    // inf variance setting...
+    val inf = InfiniteVariance.startingState
+
+    // base explores equally.
+    val basePolicy = Random[View, Move, Int, Cat]
+
+    // The target always moves left!
+    val targetPolicy = Policy.constant[View, Move, Int, Cat](Move.Left)
+
+    // time to set up the experiment. See if I can use my weighted importance
+    // sampling stuff to get this all propagating.
+  }
+
+  def importanceSampling(): Unit = {
+    val x = 10
+    // If I can get my custom thing from exercise 5.14 going... which it looks
+    // like I'll be able to.... then it's time to move on!
   }
 
   def main(items: Array[String]): Unit = {

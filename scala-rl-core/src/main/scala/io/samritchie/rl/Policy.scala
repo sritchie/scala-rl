@@ -6,7 +6,7 @@
   */
 package io.samritchie.rl
 
-import cats.Functor
+import cats.{Functor, Id}
 import cats.arrow.FunctionK
 
 import scala.language.higherKinds
@@ -60,4 +60,10 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
       override def learn(state: State[Obs, A, R, S], action: A, reward: R): Policy[Obs, A, R, N, S] =
         self.learn(state, action, reward).mapK(f)
     }
+}
+
+object Policy {
+  def constant[Obs, A, R, S[_]](a: A) = new Policy[Obs, A, R, Id, S] {
+    override def choose(state: State[Obs, A, R, S]): A = a
+  }
 }
