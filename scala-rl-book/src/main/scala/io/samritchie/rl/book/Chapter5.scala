@@ -163,7 +163,7 @@ object Chapter5 {
           // I think from here... I should make sure that this plays correctly, then
           // not worry too much about the actual charts. Once I get the abstraction
           // fully locked down I can go build the charts in Python.
-          MonteCarlo.processTrajectory[Obs, A, R, T](
+          MonteCarlo.processTrajectory[Obs, A, R, T, M](
             trajectory,
             vfn,
             agg
@@ -211,8 +211,6 @@ object Chapter5 {
     the policy gets updated on every play at the end of the trajectory walk;
     */
   def figureFiveTwo(): Unit = {
-    import Util.Instances.averageValueOrd
-
     // This is a data structure that internally uses an AveragedValue... but
     // accepts and returns JUST doubles.
     val base: ActionValueFn[AgentView, Action, Double] =
