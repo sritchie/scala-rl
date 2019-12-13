@@ -1,7 +1,7 @@
 package io.samritchie.rl
 package value
 
-import com.twitter.algebird.Monoid
+import com.twitter.algebird.{Monoid, MonoidAggregator}
 
 case class ActionValueMap[Obs, A, T: Monoid](
     m: Map[Obs, Map[A, T]]
@@ -30,4 +30,7 @@ case class ActionValueMap[Obs, A, T: Monoid](
 object ActionValueMap {
   def empty[Obs, A, T: Monoid]: ActionValueMap[Obs, A, T] =
     ActionValueMap(Map.empty[Obs, Map[A, T]])
+
+  def fromAggregator[Obs, A, T, U](agg: MonoidAggregator[U, T, U]): ActionValueFn[Obs, A, U] =
+    empty(agg.monoid).fold(agg.prepare, agg.present)
 }

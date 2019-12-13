@@ -7,7 +7,7 @@ package logic
 import cats.Monad
 import cats.implicits._
 import com.twitter.algebird.{Aggregator, Monoid, MonoidAggregator}
-import io.samritchie.rl.util.FrequencyTracker
+import io.samritchie.rl.util.{FrequencyTracker, Weight}
 import scala.annotation.tailrec
 
 object MonteCarlo {
@@ -45,6 +45,11 @@ object MonteCarlo {
       )
   }
 
+  /**
+   Play a single round of a game. Returns M of the new state you end up in,
+   paired with a triple of the state you came from, the action you took and the
+   reward you received.
+    */
   def play[Obs, A, R, M[_]: Monad](
       policy: Policy[Obs, A, R, M, M],
       state: State[Obs, A, R, M]
@@ -85,8 +90,12 @@ object MonteCarlo {
     We almost have all of the pieces. Now, to do it right, we need to zip back
     and forth along trajectories, updating the value function each time... maybe
     not updating the policy though.
+
+    valueFn is tracking the type that we accumulate, the returns, as we
+    accumulate them back along the trajectory. Internally it might do some other
+    agg, of course.
     */
-  def processTrajectory[Obs, A, R, G, M[_]](
+  def processTrajectorySimple[Obs, A, R, G, M[_]](
       trajectory: Trajectory[Obs, A, R, M],
       valueFn: ActionValueFn[Obs, A, G],
       agg: MonoidAggregator[R, G, G]
@@ -108,7 +117,7 @@ object MonteCarlo {
     weights, but doesn't give you a nice way to push the weights back. What if
     we make the weight part of G? Try that in the next fn.
     */
-  def processTrajectoryWeighted[Obs, A, R, G, M[_]](
+  def processTrajectory[Obs, A, R, G, M[_]](
       trajectory: Trajectory[Obs, A, R, M],
       valueFn: ActionValueFn[Obs, A, G],
       agg: MonoidAggregator[Snap[Obs, A, R, M], G, Option[G]]
@@ -136,16 +145,6 @@ object MonteCarlo {
     // I think we HAVE to start with zero here, since we always have some sort
     // of zero value for the final state, even if we use a new aggregation type.
     loop(trajectory, valueFn, agg.monoid.zero)
-  }
-
-  case class Weight(w: Double) extends AnyVal {
-    def *(r: Weight): Weight = Weight(w + r.w)
-  }
-
-  object Weight {
-    val one: Weight = Weight(1.0)
-    val zero: Weight = Weight(0.0)
-    implicit val monoid: Monoid[Weight] = Monoid.from(one)(_ * _)
   }
 
   // generates a monoid aggregator that can handle weights! We'll need to pair

@@ -15,7 +15,7 @@ import com.twitter.algebird.{Aggregator, AveragedValue, MonoidAggregator}
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.logic.MonteCarlo
 import io.samritchie.rl.policy.{Greedy, Random}
-import io.samritchie.rl.util.CardDeck
+import io.samritchie.rl.util.{CardDeck, Weight, WeightedAverage}
 import io.samritchie.rl.world.Blackjack
 
 object Chapter5 {
@@ -128,13 +128,13 @@ object Chapter5 {
 
     Then, internal to the value function, is the aggregation.
     */
-  def updateFn[Obs, A, R, T, M[_]: Monad](
+  def updateFn[Obs, A, R, G, M[_]: Monad](
       g: M[State[Obs, A, R, M]],
-      agg: MonoidAggregator[R, T, T],
+      agg: MonoidAggregator[MonteCarlo.Snap[Obs, A, R, M], G, Option[G]],
       // This is clearly going to share some structure with the monoid
       // aggregator.
-      policyFn: ActionValueFn[Obs, A, T] => Policy[Obs, A, R, M, M]
-  ): Loop[M, ActionValueFn[Obs, A, T]] = {
+      policyFn: ActionValueFn[Obs, A, G] => Policy[Obs, A, R, M, M]
+  ): Loop[M, ActionValueFn[Obs, A, G]] = {
 
     // This will start with the limited world and get a single state... then run
     // the first visit tracker. This means that it will play an entire episode,
@@ -152,7 +152,7 @@ object Chapter5 {
           )
       }
 
-    def loop(vfn: ActionValueFn[Obs, A, T]) =
+    def loop(vfn: ActionValueFn[Obs, A, G]) =
       playGen(policyFn(vfn)).map {
         case (_, trajectory) =>
           // Here we process the trajectory backwards and get ourselves a new action
@@ -163,7 +163,7 @@ object Chapter5 {
           // I think from here... I should make sure that this plays correctly, then
           // not worry too much about the actual charts. Once I get the abstraction
           // fully locked down I can go build the charts in Python.
-          MonteCarlo.processTrajectory[Obs, A, R, T, M](
+          MonteCarlo.processTrajectory[Obs, A, R, G, M](
             trajectory,
             vfn,
             agg
@@ -188,8 +188,12 @@ object Chapter5 {
     // anything special along the trajectory.
     val agg = Aggregator.fromMonoid[Double]
 
-    val fn = updateFn[AgentView, Action, Double, Double, Generator](limited, agg, _ => policy)
-    val base: ActionValueFn[AgentView, Action, Double] = value.ActionValueMap.empty
+    val fn = updateFn[AgentView, Action, Double, (Double, Weight), Generator](
+      limited,
+      MonteCarlo.weighted(agg, MonteCarlo.constant),
+      _ => policy
+    )
+    val base: ActionValueFn[AgentView, Action, (Double, Weight)] = value.ActionValueMap.empty
 
     val elapsed = Stopwatch.start()
     Util.iterateM(10000)(base)(fn).get
@@ -212,18 +216,20 @@ object Chapter5 {
     */
   def figureFiveTwo(): Unit = {
     // This is a data structure that internally uses an AveragedValue... but
-    // accepts and returns JUST doubles.
-    val base: ActionValueFn[AgentView, Action, Double] =
+    // accepts and returns doubles and a weight that they ignore.
+    val base: ActionValueFn[AgentView, Action, (Double, Weight)] =
       value.ActionValueMap
         .empty[AgentView, Action, AveragedValue]
-        .fold(AveragedValue(_), _.value)
+        .fold({ case (g, _) => AveragedValue(g) }, { av =>
+          (av.value, Weight.one)
+        })
 
-    val fn = updateFn[AgentView, Action, Double, Double, Generator](
+    val fn = updateFn[AgentView, Action, Double, (Double, Weight), Generator](
       limitedM(uniformStarts),
       // you could also use a gamma = 1 DecayState.
-      Aggregator.fromMonoid[Double], { vfn =>
+      MonteCarlo.weighted(Aggregator.fromMonoid[Double], MonteCarlo.constant), { vfn =>
         val evaluator =
-          Evaluator.ActionValue.fn[AgentView, Action, Double, Double, Generator](vfn)
+          Evaluator.ActionValue.fn[AgentView, Action, Double, (Double, Weight), Generator](vfn)
         new Greedy(evaluator, 0.0).mapK(Cat.catToGenerator)
       }
     )
@@ -284,9 +290,14 @@ object Chapter5 {
 
     // - we DO play a single time using the behavior policy. The trick is
     // propagating the info back.
-    //
-    //
-
+    val weightedValueFn: ActionValueFn[AgentView, Action, (Double, Weight)] =
+      value.ActionValueMap.fromAggregator(
+        Aggregator
+          .appendMonoid[(Double, Weight), util.WeightedAverage] {
+            case (wa, (g, newWeight)) => wa.plus(g, newWeight)
+          }
+          .andThenPresent { case wa => (wa.value, Weight.one) }
+      )
     ()
   }
 
