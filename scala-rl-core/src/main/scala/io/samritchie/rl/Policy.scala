@@ -63,6 +63,40 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
 }
 
 object Policy {
+
+  /**
+    Full exploration. mapK(Cat.setToCat) to get the usual Greedy.
+    */
+  def random[Obs, A, R, T: Ordering, S[_]] = new Policy[Obs, A, R, Set, S] { self =>
+    override def choose(state: State[Obs, A, R, S]): Set[A] = state.actions
+  }
+
+  /**
+    Full greed. mapK(Cat.setToCat) to get the usual Greedy.
+    */
+  def greedy[Obs, A, R, T: Ordering, S[_]](
+      evaluator: Evaluator.ActionValue[Obs, A, R, T, S]
+  ) = new Policy[Obs, A, R, Set, S] { self =>
+    override def choose(state: State[Obs, A, R, S]): Set[A] =
+      evaluator.greedyOptions(state)
+  }
+
+  /**
+    In between. This is equal to
+
+    {{{
+    epsilonGreedy(evaluator, 1.0) == greedy(evaluator).mapK(Cat.setToCat)
+    epsilonGreedy(evaluator, 0.0) == random.mapK(Cat.setToCat)
+    }}}
+    */
+  def epsilonGreedy[Obs, A, R, T: Ordering, S[_]](
+      evaluator: Evaluator.ActionValue[Obs, A, R, T, S],
+      epsilon: Double
+  ): policy.Greedy[Obs, A, R, T, S] = new policy.Greedy(evaluator, epsilon)
+
+  /**
+    Always return the same.
+    */
   def constant[Obs, A, R, S[_]](a: A) = new Policy[Obs, A, R, Id, S] {
     override def choose(state: State[Obs, A, R, S]): A = a
   }

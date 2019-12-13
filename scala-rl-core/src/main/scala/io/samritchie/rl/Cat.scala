@@ -131,6 +131,11 @@ trait CatInstances {
         ma.pmfSeq.iterator
     }
 
+  val setToCat: FunctionK[Set, Cat] =
+    new FunctionK[Set, Cat] {
+      def apply[A](sa: Set[A]) = Cat.fromSet(sa)
+    }
+
   val catToCategorical: FunctionK[Cat, Categorical] =
     new FunctionK[Cat, Categorical] {
       def apply[A](ca: Cat[A]) = ca.toRainier
