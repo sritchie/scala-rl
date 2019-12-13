@@ -12,6 +12,7 @@ sealed trait DecayState[A] extends Product with Serializable {
   def toValue: DecayState.DecayedValue[A]
   def get: A
 }
+
 object DecayState {
   import Module.DModule
 

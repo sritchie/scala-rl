@@ -116,6 +116,11 @@ object Chapter5 {
   // thing. This is where my derivation is going to get involved.
   //
   // The good stuff!
+  //
+
+  /**
+
+    */
   def updateFn[Obs, A, R, T, M[_]: Monad](
       g: M[State[Obs, A, R, M]],
       agg: MonoidAggregator[R, T, T],
@@ -174,11 +179,15 @@ object Chapter5 {
     println("Let's play blackjack!")
 
     val policy = stickHigh[Generator](hitBelow = 20).mapK(Util.idToMonad[Generator])
+
+    // I think this is actually the aggregator that walks back along the
+    // trajectory... which means we do NOT want to use this here. Or maybe we
+    // do, since you're just adding.
     val agg = Aggregator.fromMonoid[Double]
+
     val fn = updateFn[AgentView, Action, Double, Double, Generator](limited, agg, _ => policy)
     val base: ActionValueFn[AgentView, Action, Double] = value.ActionValueMap(
-      Map.empty,
-      0.0
+      Map.empty
     )
     val elapsed = Stopwatch.start()
     Util.iterateM(10000)(base)(fn).get
@@ -203,8 +212,7 @@ object Chapter5 {
     import Util.Instances.averageValueOrd
 
     val base: ActionValueFn[AgentView, Action, AveragedValue] = value.ActionValueMap(
-      Map.empty,
-      AveragedValue(0.0)
+      Map.empty
     )
     val agg = Aggregator.prepareMonoid[Double, AveragedValue](AveragedValue(_))
     val fn = updateFn[AgentView, Action, Double, AveragedValue, Generator](
@@ -269,6 +277,12 @@ object Chapter5 {
 
     // I think the trick is that we need to have two CATEGORICAL policies that
     // we can use to interact with the generator world.
+
+    // - we DO play a single time using the behavior policy. The trick is
+    // propagating the info back.
+    //
+    //
+
     ()
   }
 

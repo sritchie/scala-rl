@@ -9,6 +9,9 @@ case class StateValueMap[Obs, T](
 
   override def stateValue(obs: Obs): T = m.getOrElse(obs, default)
 
+  /**
+    This is just a straight-up update, no merge at all.
+    */
   override def update(observation: Obs, value: T): StateValueFn[Obs, T] =
     copy(m = m.updated(observation, value))
 }

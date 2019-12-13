@@ -83,6 +83,8 @@ object MonteCarlo {
     We almost have all of the pieces. Now, to do it right, we need to zip back
     and forth along trajectories, updating the value function each time... maybe
     not updating the policy though.
+
+
     */
   def processTrajectory[Obs, A, R, T](
       trajectory: Trajectory[Obs, A, R],

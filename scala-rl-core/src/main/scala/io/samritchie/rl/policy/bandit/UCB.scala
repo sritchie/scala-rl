@@ -73,8 +73,9 @@ object UCB {
       * Returns a fresh policy instance using this config.
       */
     def policy[Obs, A, S[_]]: UCB[Obs, A, R, T, S] = {
-      implicit val sg: Semigroup[T] = Semigroup.from(plus)
-      val avm = ActionValueMap.empty[Obs, A, Choice[T]](Choice.zero(initial, param)(present))
+      implicit val tMonoid: Monoid[T] = Monoid.from(initial)(plus)
+      implicit val monoid: Monoid[Choice[T]] = Choice.monoid(param, present)
+      val avm = ActionValueMap.empty[Obs, A, Choice[T]]
       UCB(this, avm, Time.Zero)
     }
 

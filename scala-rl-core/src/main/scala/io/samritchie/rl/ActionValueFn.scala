@@ -23,4 +23,12 @@ trait ActionValueFn[Obs, A, T] { self =>
   def seen(obs: Obs): Iterable[A]
   def actionValue(obs: Obs, a: A): T
   def learn(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T]
+  def fold[U](prepare: U => T, present: T => U): ActionValueFn[Obs, A, U] =
+    new ActionValueFn[Obs, A, U] {
+      override def seenStates: Iterable[Obs] = self.seenStates
+      override def seen(obs: Obs): Iterable[A] = self.seen(obs)
+      override def actionValue(obs: Obs, a: A): U = present(self.actionValue(obs, a))
+      override def learn(obs: Obs, action: A, value: U): ActionValueFn[Obs, A, U] =
+        self.learn(obs, action, prepare(value)).fold(prepare, present)
+    }
 }
