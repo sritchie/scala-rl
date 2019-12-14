@@ -190,7 +190,8 @@ object Chapter5 {
       MonteCarlo.weighted(agg, MonteCarlo.constant),
       _ => policy
     )
-    val base: ActionValueFn[AgentView, Action, (Double, Weight)] = value.ActionValueMap.empty
+    val base: ActionValueFn[AgentView, Action, (Double, Weight)] =
+      ActionValueFn.mergeable
 
     val elapsed = Stopwatch.start()
     Util.iterateM(10000)(base)(fn).get
@@ -215,8 +216,8 @@ object Chapter5 {
     // This is a data structure that internally uses an AveragedValue... but
     // accepts and returns doubles and a weight that they ignore.
     val base: ActionValueFn[AgentView, Action, (Double, Weight)] =
-      value.ActionValueMap
-        .empty[AgentView, Action, AveragedValue]
+      ActionValueFn
+        .mergeable[AgentView, Action, AveragedValue]
         .fold({ case (g, _) => AveragedValue(g) }, { av =>
           (av.value, Weight.one)
         })
@@ -288,7 +289,7 @@ object Chapter5 {
     // - we DO play a single time using the behavior policy. The trick is
     // propagating the info back.
     val weightedValueFn: ActionValueFn[AgentView, Action, (Double, Weight)] =
-      value.ActionValueMap.fromAggregator(
+      ActionValueFn.fromAggregator(
         Aggregator
           .appendMonoid[(Double, Weight), util.WeightedAverage] {
             case (wa, (g, newWeight)) => wa.plus(g, newWeight)

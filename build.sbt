@@ -275,4 +275,4 @@ lazy val docs = project
   .settings(noPublishSettings)
   .settings(docSettings)
   .settings((scalacOptions in Tut) ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
-  .dependsOn(rlCore, rlPlot, rlBook)
+  .dependsOn(rlCore, rlPlot, rlBook, rlWorld)

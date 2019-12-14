@@ -82,10 +82,10 @@ trait Agent[Obs, A, @specialized(Int, Long, Float, Double) R, T, M[_]] { self =>
   def policy: Policy[Obs, A, R, M, M]
   def valueFunction: StateValueFn[Obs, T]
 
-  def play(state: State[Obs, A, R, M]): M[(state.This, (Obs, A, R))] =
+  def play(state: State[Obs, A, R, M]): M[(state.This, SARS[Obs, A, R, M])] =
     monad.flatMap(policy.choose(state)) { a =>
       monad.map(state.act(a)) {
-        case (r, s2) => (s2, (state.observation, a, r))
+        case (r, s2) => (s2, SARS(state, a, r, s2))
       }
     }
 }

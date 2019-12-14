@@ -53,6 +53,29 @@ object Chapter4 {
       valueIteration = false
     )
 
+  /**
+      The big differences from the book version are:
+
+      - Currently our Poisson distribution normalizes over the allowed values,
+        rather than just truncating the chance of a value greater than the max
+        to zero.
+      - our Greedy policy randomly chooses from the entire greedy set, vs just
+        choosing the "first" thing, like Numpy does.
+
+      The Python version also keeps an actual greedy policy, which means that
+      the policy starts by returning 0 no matter what, by design, instead of by
+      acting as a random policy until it knows any better.
+
+      Without that the generated values match.
+
+      TODO ALSO... currently, the sweepUntil function only supports
+      valueIteration or updating on every single sweep. The book actually wants
+      to do a full round of policy evaluation before doing any policy
+      improvement.
+
+      We need to support that.
+
+    */
   def fourTwo(
       inPlace: Boolean
   ): (StateValueFn[CarRental.InvPair, DecayState[Double]], CarRental.Config, Long) = {
@@ -91,29 +114,6 @@ object Chapter4 {
       DecayState.DecayedValue(0.0)
     )
 
-    /**
-      The big differences from the book version are:
-
-      - Currently our Poisson distribution normalizes over the allowed values,
-        rather than just truncating the chance of a value greater than the max
-        to zero.
-      - our Greedy policy randomly chooses from the entire greedy set, vs just
-        choosing the "first" thing, like Numpy does.
-
-      The Python version also keeps an actual greedy policy, which means that
-      the policy starts by returning 0 no matter what, by design, instead of by
-      acting as a random policy until it knows any better.
-
-      Without that the generated values match.
-
-      TODO ALSO... currently, the sweepUntil function only supports
-      valueIteration or updating on every single sweep. The book actually wants
-      to do a full round of policy evaluation before doing any policy
-      improvement.
-
-      We need to support that.
-
-      */
     val (roundOne, _) =
       Sweep.sweepUntil[CarRental.InvPair, CarRental.Move, Double, DecayState[Double], Cat, Cat](
         empty,

@@ -14,19 +14,17 @@ Each of these needs to have its own visualization.
 
 Can I go totally overboard and integrate this with a website where you can interact? Where you can actually have some way of playing the games, or setting the parameters?
 
-
 ## Probabilistic Programming
 
 Does this help me at all? https://github.com/stripe/rainier/blob/develop/docs/tour.md
 
-## Next Steps
+## TODO
 
-The next phase is about policy evaluation and improvement, and the back and forth between the two.
+Things I felt at one point were important..
 
-I sort of have this working now. I've got
-
-- policy evaluation, which now has to BEGIN with a policy and a base, default bullshit.
-
-I need:
-
-- policy IMPROVEMENT, where I maximize with respect to the value. (this latter can generate a softmax, of course.)
+  - make DecayState work with a RING, not with anything so generic! And
+    specialize it. (investigate what this means.)
+  - we want the aggregator that currently deals with Value instances to take a
+    Double only in the case with gamma = 1.0, a Left(instance) in the case where
+    gamma = 0.0, and some generic thing...
+  - rewrite ActionValueMap in terms of a default and a base.

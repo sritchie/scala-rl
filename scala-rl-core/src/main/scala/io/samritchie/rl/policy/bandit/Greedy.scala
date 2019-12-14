@@ -7,8 +7,7 @@ package policy
 package bandit
 
 import cats.{Functor, Monad}
-import com.twitter.algebird.{AveragedValue, Monoid, Semigroup}
-import io.samritchie.rl.value.ActionValueMap
+import com.twitter.algebird.{AveragedValue, Semigroup}
 import Util.Instances._
 
 /**
@@ -63,7 +62,7 @@ object Greedy {
       initial: T
   ) {
     def policy[A, Obs, S[_]]: Greedy[Obs, A, R, T, S] =
-      Greedy(this, ActionValueMap.empty(Monoid.from(initial)(Semigroup.plus(_, _))))
+      Greedy(this, ActionValueFn.mergeable(initial))
   }
 
   /**

@@ -8,7 +8,6 @@ package policy
 package bandit
 
 import com.twitter.algebird.{Aggregator, Monoid, Semigroup}
-import io.samritchie.rl.value.ActionValueMap
 
 case class UCB[Obs, A, R, T, S[_]](
     config: UCB.Config[R, T],
@@ -70,7 +69,7 @@ object UCB {
     def policy[Obs, A, S[_]]: UCB[Obs, A, R, T, S] = {
       implicit val tMonoid: Monoid[T] = Monoid.from(initial)(plus)
       implicit val monoid: Monoid[Choice[T]] = Choice.monoid(param, present)
-      val avm = ActionValueMap.empty[Obs, A, Choice[T]]
+      val avm = ActionValueFn.mergeable[Obs, A, Choice[T]]
       UCB(this, avm, Time.Zero)
     }
 

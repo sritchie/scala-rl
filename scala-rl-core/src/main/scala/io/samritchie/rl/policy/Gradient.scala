@@ -6,7 +6,6 @@ package policy
 package bandit
 
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, Semigroup}
-import io.samritchie.rl.value.ActionValueMap
 import io.samritchie.rl.util.ToDouble
 
 /**
@@ -119,14 +118,13 @@ object Gradient {
       prepare: R => T,
       plus: (T, T) => T
   ) {
+    implicit val m: Monoid[T] = Monoid.from(initial)(plus)
 
     /**
       * Generates an actual policy from the supplied config.
       */
-    def policy[Obs, A, S[_]]: Gradient[Obs, A, R, T, S] = {
-      implicit val m: Monoid[T] = Monoid.from(initial)(plus)
-      Gradient(this, ActionValueMap.empty[Obs, A, Item[T]])
-    }
+    def policy[Obs, A, S[_]]: Gradient[Obs, A, R, T, S] =
+      Gradient(this, ActionValueFn.mergeable[Obs, A, Item[T]])
   }
 
   /**

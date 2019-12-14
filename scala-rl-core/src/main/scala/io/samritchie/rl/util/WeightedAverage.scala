@@ -117,8 +117,7 @@ object WeightedAverageGroup extends Group[WeightedAverage] with CommutativeGroup
     }
 
   /**
-    * @inheritdoc
-    * @see [[WeightedAverage.+]] for the implementation
+    * @see [[WeightedAverage!.+(r:*]] for the implementation.
     */
   override def plus(l: WeightedAverage, r: WeightedAverage): WeightedAverage = {
     val n = l.weightSum
