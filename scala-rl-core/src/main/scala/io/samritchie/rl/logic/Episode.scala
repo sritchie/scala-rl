@@ -48,6 +48,19 @@ object Episode {
     Util.iterateUntilM(moment, tracker)(_.play)(_.state.isTerminal)
 
   /**
+    Specialized version of playEpisode that only updates every first time a
+    state is seen.
+    */
+  def firstVisit[Obs, A, R, M[_]: Monad](
+      moment: Moment[Obs, A, R, M]
+  ): M[(Moment[Obs, A, R, M], MonteCarlo.Trajectory[Obs, A, R, M])] =
+    Episode.playEpisode(moment, MonteCarlo.Tracker.firstVisit)
+
+  // Below this we have the functions that have been useful for tracking bandit
+  // problems. I wonder if there is some nice primitive we can develop for
+  // clicking many agents forward at once. Is that an interesting thing to do?
+
+  /**
     * Takes a list of policy, initial state pairs and plays a single episode of
     * a game with each of them.
     *

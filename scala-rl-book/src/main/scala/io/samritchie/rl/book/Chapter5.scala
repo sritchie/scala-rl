@@ -25,10 +25,12 @@ object Chapter5 {
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
+  /**
+    Simple blackjack policy for the demos below.
+    */
   def stickHigh[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Id, S] =
-    Policy.choose { state =>
-      val score = state.observation.playerSum
-      if (score < hitBelow) Action.Hit else Action.Stay
+    Blackjack.policy { s =>
+      if (s.playerSum < hitBelow) Action.Hit else Action.Stay
     }
 
   // I need it in this form for off-policy sampling, etc... but to do the
@@ -129,7 +131,7 @@ object Chapter5 {
     */
   def updateFn[Obs, A, R, G, M[_]: Monad](
       g: M[State[Obs, A, R, M]],
-      agg: MonoidAggregator[MonteCarlo.Snap[Obs, A, R, M], G, Option[G]],
+      agg: MonoidAggregator[SARS[Obs, A, R, M], G, Option[G]],
       // This is clearly going to share some structure with the monoid
       // aggregator.
       policyFn: ActionValueFn[Obs, A, G] => Policy[Obs, A, R, M, M]
@@ -144,7 +146,7 @@ object Chapter5 {
     // you can only apply the goods on a first visit.
     def playGen(policy: Policy[Obs, A, R, M, M]) =
       g.flatMap { state =>
-        MonteCarlo.firstVisit[Obs, A, R, M](Moment(policy, state))
+        Episode.firstVisit[Obs, A, R, M](Moment(policy, state))
       }
 
     def loop(vfn: ActionValueFn[Obs, A, G]) =

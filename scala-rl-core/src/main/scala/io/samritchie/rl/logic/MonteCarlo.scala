@@ -19,16 +19,34 @@ object MonteCarlo {
     val no = ShouldUpdateState(false)
   }
 
-  type Snap[Obs, A, R, M[_]] = SARS[Obs, A, R, M]
-  type Trajectory[Obs, A, R, M[_]] = Iterator[(Snap[Obs, A, R, M], ShouldUpdateState)]
-  type Tracker[Obs, A, R, T, M[_]] = MonoidAggregator[Snap[Obs, A, R, M], T, Trajectory[Obs, A, R, M]]
+  // This is an iterator of SARS observations, starting at the very beginning,
+  // paired with a note about whether or not that observation should trigger a
+  // state update. This is primarily interesting for distinguishing between
+  // first and every visit updates, or something in between.
+  type Trajectory[Obs, A, R, M[_]] = Iterator[(SARS[Obs, A, R, M], ShouldUpdateState)]
+
+  // The T type here is type that's used to aggregate the trajectory.
+  type Tracker[Obs, A, R, T, M[_]] = MonoidAggregator[SARS[Obs, A, R, M], T, Trajectory[Obs, A, R, M]]
 
   object Tracker {
-    type FirstVisit[Obs, A, R, M[_]] = Tracker[Obs, A, R, FrequencyTracker[Snap[Obs, A, R, M], Obs], M]
-    type EveryVisit[Obs, A, R, M[_]] = Tracker[Obs, A, R, Vector[Snap[Obs, A, R, M]], M]
+    // Use a frequency tracker to aggregate; this allows us to count backwards
+    // from the end and figure out when the first time we saw a particular state
+    // was.
+    type FirstVisit[Obs, A, R, M[_]] = Tracker[Obs, A, R, FrequencyTracker[SARS[Obs, A, R, M], Obs], M]
 
+    // If we don't care we can accumulate the trajectory the state using a vector.
+    //
+    // This should be equivalent to using a frequency tracker but ignoring
+    // whether or not we've seen the state.
+    type EveryVisit[Obs, A, R, M[_]] = Tracker[Obs, A, R, Vector[SARS[Obs, A, R, M]], M]
+
+    /**
+      Returns a Tracker instance that will generate a trajectory where
+      ShouldUpdateState is only true the first time in the trajectory a state is
+      encountered.
+      */
     def firstVisit[Obs, A, R, M[_]]: FirstVisit[Obs, A, R, M] = {
-      implicit val m = FrequencyTracker.monoid[Snap[Obs, A, R, M], Obs](_.state.observation)
+      implicit val m = FrequencyTracker.monoid[SARS[Obs, A, R, M], Obs](_.state.observation)
       Aggregator.appendMonoid(
         appnd = _ :+ _,
         pres = _.reverseIterator.map { case (t, seen) => (t, ShouldUpdateState(seen == 0)) }
@@ -36,9 +54,8 @@ object MonteCarlo {
     }
 
     /**
-      Aggregator that returns an iterator of a trajectory, with each state
-      paired with a boolean signalling whether or not it should trigger a state
-      update.
+      Returns a Tracker instance where ShouldUpdateState signals YES for every
+      single state.
       */
     def everyVisit[Obs, A, R, M[_]]: EveryVisit[Obs, A, R, M] =
       Aggregator.appendMonoid(
@@ -46,17 +63,6 @@ object MonteCarlo {
         pres = _.reverseIterator.map((_, ShouldUpdateState.yes))
       )
   }
-
-  /**
-    Specialized version that keeps track of frequencies too.
-    */
-  def firstVisit[Obs, A, R, M[_]: Monad](
-      moment: Moment[Obs, A, R, M]
-  ): M[(Moment[Obs, A, R, M], Trajectory[Obs, A, R, M])] =
-    Episode.playEpisode(
-      moment,
-      Tracker.firstVisit
-    )
 
   /**
     We almost have all of the pieces. Now, to do it right, we need to zip back
@@ -92,7 +98,7 @@ object MonteCarlo {
   def processTrajectory[Obs, A, R, G, M[_]](
       trajectory: Trajectory[Obs, A, R, M],
       valueFn: ActionValueFn[Obs, A, G],
-      agg: MonoidAggregator[Snap[Obs, A, R, M], G, Option[G]]
+      agg: MonoidAggregator[SARS[Obs, A, R, M], G, Option[G]]
   ): ActionValueFn[Obs, A, G] = {
 
     @tailrec
@@ -126,10 +132,10 @@ object MonteCarlo {
   def weighted[Obs, A, R, G, M[_]](
       agg: MonoidAggregator[R, G, G],
       fn: SARS[Obs, A, R, M] => Weight
-  ): MonoidAggregator[Snap[Obs, A, R, M], (G, Weight), Option[(G, Weight)]] = {
+  ): MonoidAggregator[SARS[Obs, A, R, M], (G, Weight), Option[(G, Weight)]] = {
     implicit val m: Monoid[G] = agg.monoid
     Aggregator
-      .appendMonoid[Snap[Obs, A, R, M], (G, Weight)] {
+      .appendMonoid[SARS[Obs, A, R, M], (G, Weight)] {
         case ((g, w), sars) =>
           (agg.append(g, sars.reward), w * fn(sars))
       }

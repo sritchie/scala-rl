@@ -123,6 +123,12 @@ object Blackjack {
       dealerSum: Int
   )
 
+  /**
+    Generate a simple fixed policy for an agent.
+    */
+  def policy[S[_]](f: AgentView => Action): Policy[AgentView, Action, Double, Id, S] =
+    Policy.choose[AgentView, Action, Double, Id, S](s => f(s.observation))
+
   // TODO get the game below to use this as the "opponent" instead of manually
   // doing it.
   def dealerPolicy[S[_]](hitBelow: Int): Policy[Game, Action, Double, Id, S] =
