@@ -5,7 +5,7 @@
 package io.samritchie.rl
 package book
 
-import cats.{Id, Monad}
+import cats.{Functor, Id, Monad}
 import cats.implicits._
 import com.stripe.rainier.cats._
 import com.stripe.rainier.compute.{Evaluator, Real}
@@ -13,23 +13,24 @@ import com.stripe.rainier.core.Generator
 import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.{Aggregator, AveragedValue, MonoidAggregator}
 import com.twitter.util.Stopwatch
-import io.samritchie.rl.logic.MonteCarlo
-import io.samritchie.rl.policy.{Greedy, Random}
-import io.samritchie.rl.util.{CardDeck, Weight, WeightedAverage}
+import io.samritchie.rl.logic.{Episode, MonteCarlo}
+import io.samritchie.rl.policy.Greedy
+import io.samritchie.rl.util.{CardDeck, Weight}
 import io.samritchie.rl.world.{Blackjack, InfiniteVariance}
 
 object Chapter5 {
   import Blackjack.{Action, AgentView, Result}
+  import Episode.Moment
 
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
+  /**
+    Simple blackjack policy for the demos below.
+    */
   def stickHigh[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Id, S] =
-    new Policy[AgentView, Action, Double, Id, S] {
-      override def choose(state: State[AgentView, Action, Double, S]): Action = {
-        val score = state.observation.playerSum
-        if (score < 20) Action.Hit else Action.Stay
-      }
+    Blackjack.policy { s =>
+      if (s.playerSum < hitBelow) Action.Hit else Action.Stay
     }
 
   // I need it in this form for off-policy sampling, etc... but to do the
@@ -38,12 +39,12 @@ object Chapter5 {
   def stickHighCat[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Cat, S] =
     stickHigh(hitBelow).mapK(Util.idToMonad[Cat])
 
-  def random[M[_]]: Policy[AgentView, Action, Double, Cat, M] = Random()
+  def random[M[_]]: Policy[AgentView, Action, Double, Cat, M] = Policy.random
 
   /**
     Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
     */
-  def limitedM[M[_]: Monad](state: M[Blackjack[M]]): M[State[AgentView, Action, Double, M]] =
+  def limitedM[M[_]: Functor](state: M[Blackjack[M]]): M[State[AgentView, Action, Double, M]] =
     state.map(_.mapObservation(_.agentView).mapReward {
       case Result.Draw | Result.Pending => 0
       case Result.Win                   => 1
@@ -130,7 +131,7 @@ object Chapter5 {
     */
   def updateFn[Obs, A, R, G, M[_]: Monad](
       g: M[State[Obs, A, R, M]],
-      agg: MonoidAggregator[MonteCarlo.Snap[Obs, A, R, M], G, Option[G]],
+      agg: MonoidAggregator[SARS[Obs, A, R, M], G, Option[G]],
       // This is clearly going to share some structure with the monoid
       // aggregator.
       policyFn: ActionValueFn[Obs, A, G] => Policy[Obs, A, R, M, M]
@@ -145,11 +146,7 @@ object Chapter5 {
     // you can only apply the goods on a first visit.
     def playGen(policy: Policy[Obs, A, R, M, M]) =
       g.flatMap { state =>
-        MonteCarlo
-          .firstVisit[Obs, A, R, M](
-            policy,
-            state
-          )
+        Episode.firstVisit[Obs, A, R, M](Moment(policy, state))
       }
 
     def loop(vfn: ActionValueFn[Obs, A, G]) =
@@ -312,7 +309,7 @@ object Chapter5 {
     val inf = InfiniteVariance.startingState
 
     // base explores equally.
-    val basePolicy = Random[View, Move, Int, Cat]
+    val basePolicy = Policy.random[View, Move, Int, Cat]
 
     // The target always moves left!
     val targetPolicy = Policy.constant[View, Move, Int, Cat](Move.Left)

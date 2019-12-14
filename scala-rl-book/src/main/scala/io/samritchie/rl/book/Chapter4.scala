@@ -8,7 +8,6 @@ package book
 import cats.Id
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Plot
-import io.samritchie.rl.policy.Random
 import io.samritchie.rl.util.ToDouble
 import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.{CarRental, GridWorld}
@@ -46,7 +45,7 @@ object Chapter4 {
   def fourOne(inPlace: Boolean): (StateValueFn[Position, DecayState[Double]], Long) =
     Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Id](
       emptyFn,
-      _ => Random.id[Position, Move, Double],
+      _ => Policy.random[Position, Move, Double, Id],
       DecayState.bellmanFn(gamma),
       gridConf.stateSweep,
       shouldStop(_, _, _),

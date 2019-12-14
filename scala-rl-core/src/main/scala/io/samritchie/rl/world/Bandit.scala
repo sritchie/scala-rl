@@ -2,9 +2,10 @@
   * A bandit is a particular kind of state.
   */
 package io.samritchie.rl
-package state
+package world
 
 import com.stripe.rainier.core.Generator
+import io.samritchie.rl.state.MapState
 
 object Bandit {
   object Arm {

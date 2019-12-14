@@ -50,7 +50,7 @@ class Chapter4Spec extends FunSuite {
 
     val (actual, _) = Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Cat](
       emptyFn,
-      _ => policy.Random.cat[Position, Move, Double],
+      _ => Policy.random[Position, Move, Double, Cat],
       DecayState.bellmanFn(gamma),
       Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
       Chapter4.shouldStop(_, _, _),

@@ -27,6 +27,7 @@ class Greedy[Obs, A, R, T: Ordering, S[_]](
     evaluator: Evaluator.ActionValue[Obs, A, R, T, S],
     epsilon: Double
 ) extends Policy[Obs, A, R, Cat, S] { self =>
+
   private val explore: Cat[Boolean] =
     Cat.boolean(epsilon)
 

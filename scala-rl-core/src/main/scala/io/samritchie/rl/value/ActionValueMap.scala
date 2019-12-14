@@ -3,6 +3,10 @@ package value
 
 import com.twitter.algebird.{Monoid, MonoidAggregator}
 
+/**
+  ActionValueMap already knows how to merge. Seems suspect! This should probably
+  be a base augmented.
+  */
 case class ActionValueMap[Obs, A, T: Monoid](
     m: Map[Obs, Map[A, T]]
 ) extends ActionValueFn[Obs, A, T] { self =>

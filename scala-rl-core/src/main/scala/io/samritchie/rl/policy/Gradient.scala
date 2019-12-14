@@ -41,7 +41,9 @@ case class Gradient[Obs, A: Equiv, R: ToDouble, T: ToDouble, S[_]](
     Cat.softmax(state.actions)
   }
 
-  override def learn(state: State[Obs, A, R, S], action: A, reward: R): Gradient[Obs, A, R, T, S] = {
+  override def learn(sars: SARS[Obs, A, R, S]): This = {
+    val SARS(state, action, reward, nextState) = sars
+
     val pmf = choose(state).pmf
     val obs = state.observation
 
@@ -123,7 +125,7 @@ object Gradient {
       */
     def policy[Obs, A, S[_]]: Gradient[Obs, A, R, T, S] = {
       implicit val m: Monoid[T] = Monoid.from(initial)(plus)
-      Gradient(this, ActionValueMap[Obs, A, Item[T]](Map.empty))
+      Gradient(this, ActionValueMap.empty[Obs, A, Item[T]])
     }
   }
 
