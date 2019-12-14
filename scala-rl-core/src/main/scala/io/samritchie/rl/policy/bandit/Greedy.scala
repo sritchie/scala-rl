@@ -42,14 +42,12 @@ case class Greedy[Obs, A, R, T: Ordering, S[_]](
         greedy(state)
       )
 
-  override def learn(sars: SARS[Obs, A, R, S]): Cat[This] =
-    Cat.pure(
-      copy(
-        valueFn = valueFn.learn(
-          sars.state.observation,
-          sars.action,
-          config.prepare(sars.reward)
-        )
+  override def learn(sars: SARS[Obs, A, R, S]): This =
+    copy(
+      valueFn = valueFn.learn(
+        sars.state.observation,
+        sars.action,
+        config.prepare(sars.reward)
       )
     )
 }

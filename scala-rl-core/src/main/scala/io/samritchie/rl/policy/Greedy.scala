@@ -39,8 +39,6 @@ class Greedy[Obs, A, R, T: Ordering, S[_]](
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Monad[Cat].ifM(explore)(allActions(state), greedy(state))
-
-  override def learn(sars: SARS[Obs, A, R, S]): Cat[This] = Cat.pure(self)
 }
 
 object Greedy {

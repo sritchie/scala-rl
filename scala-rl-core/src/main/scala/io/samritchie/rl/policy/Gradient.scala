@@ -41,7 +41,7 @@ case class Gradient[Obs, A: Equiv, R: ToDouble, T: ToDouble, S[_]](
     Cat.softmax(state.actions)
   }
 
-  override def learn(sars: SARS[Obs, A, R, S]): Cat[This] = {
+  override def learn(sars: SARS[Obs, A, R, S]): This = {
     val SARS(state, action, reward, nextState) = sars
 
     val pmf = choose(state).pmf
@@ -70,7 +70,7 @@ case class Gradient[Obs, A: Equiv, R: ToDouble, T: ToDouble, S[_]](
         )
         vfn.learn(obs, a, newItem)
     }
-    Cat.pure(copy(valueFn = updated))
+    copy(valueFn = updated)
   }
 }
 

@@ -4,7 +4,7 @@
 package io.samritchie.rl
 package logic
 
-import cats.Monad
+import cats.{Functor, Monad}
 import cats.implicits._
 
 object Episode {
@@ -20,13 +20,11 @@ object Episode {
   ) {
     def choice: M[A] = policy.choose(state)
 
-    def act(a: A)(implicit M: Monad[M]): M[(Moment[Obs, A, R, M], SARS[Obs, A, R, M])] =
-      state.act(a).flatMap {
+    def act(a: A)(implicit M: Functor[M]): M[(Moment[Obs, A, R, M], SARS[Obs, A, R, M])] =
+      state.act(a).map {
         case (r, s2) =>
           val sars = SARS(state, a, r, s2)
-          policy.learn(sars).map { p =>
-            (Moment(p, s2), sars)
-          }
+          (Moment(policy.learn(sars), s2), sars)
       }
 
     /**
