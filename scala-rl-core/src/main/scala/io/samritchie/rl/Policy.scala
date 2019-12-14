@@ -1,43 +1,12 @@
 /**
-  * Try using this to get rid of the bullshit f-bounded polymorphism:
-  * https://tpolecat.github.io/2015/04/29/f-bounds.html
-  *
-  * And odersky's response for an even simpler way:
-  * https://gist.github.com/odersky/56323c309a186cffe9af
+  Policy implementation, get some!
   */
 package io.samritchie.rl
 
-import com.stripe.rainier.cats._
-import com.stripe.rainier.core.Generator
+import cats.{Functor, Id}
+import cats.arrow.FunctionK
 
 import scala.language.higherKinds
-
-/**
-  * Trait for things that can choose some Monadic result.
-  */
-trait Decider[A, R, M[_]] {
-  def choose(state: State[A, R]): M[A]
-}
-
-trait StochasticDecider[A, R] extends Decider[A, R, Generator]
-
-trait Learner[A, R, This <: Learner[A, R, This]] {
-
-  /**
-    * OR does this information go later? A particular policy should
-    * get to witness the results of a decision... but instead of a
-    * reward it might be a particular long term return.
-    *
-    * And each of the policies needs to have some array or something
-    * that it is using to track all of these state values.
-    *
-    * SO THIS might not be great. But at this state, if you take this
-    * action, you get this reward. That's the note.
-    *
-    * This of course might need to be a monadic response.
-    */
-  def learn(state: State[A, R], action: A, reward: R): This
-}
 
 /**
   * This is how agents actually choose what comes next. This is a
@@ -46,36 +15,87 @@ trait Learner[A, R, This <: Learner[A, R, This]] {
   * hardcoded.
   *
   * A - Action
+  * Obs - the observation offered by this state.
   * R - reward
-  * This - policy
+  * M - the monadic type offered by the policy.
+  * S - the monad for the state.
   */
-trait Policy[A, R, This <: Policy[A, R, This]] extends Learner[A, R, This] with Decider[A, R, Generator]
+trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { self =>
+  type This = Policy[Obs, A, R, M, S]
+
+  def choose(state: State[Obs, A, R, S]): M[A]
+  def learn(sars: SARS[Obs, A, R, S]): This = self
+
+  def contramapObservation[P](f: P => Obs)(implicit S: Functor[S]): Policy[P, A, R, M, S] =
+    new Policy[P, A, R, M, S] {
+      override def choose(state: State[P, A, R, S]) = self.choose(state.mapObservation(f))
+      override def learn(sars: SARS[P, A, R, S]) =
+        self.learn(sars.mapObservation(f)).contramapObservation(f)
+    }
+
+  def contramapReward[T](f: T => R)(implicit S: Functor[S]): Policy[Obs, A, T, M, S] =
+    new Policy[Obs, A, T, M, S] {
+      override def choose(state: State[Obs, A, T, S]) = self.choose(state.mapReward(f))
+      override def learn(sars: SARS[Obs, A, T, S]) =
+        self.learn(sars.mapReward(f)).contramapReward(f)
+    }
+
+  /**
+    * Just an idea to see if I can make stochastic deciders out of
+    * deterministic deciders. We'll see how this develops.
+    */
+  def mapK[N[_]](f: FunctionK[M, N]): Policy[Obs, A, R, N, S] =
+    new Policy[Obs, A, R, N, S] { r =>
+      override def choose(state: State[Obs, A, R, S]): N[A] = f(self.choose(state))
+      override def learn(
+          sars: SARS[Obs, A, R, S]
+      ): Policy[Obs, A, R, N, S] =
+        self.learn(sars).mapK(f)
+    }
+}
 
 object Policy {
 
   /**
-    * Plays a single turn and returns a generator that returns the
-    * reward and the next state. If the chosen state's not allowed,
-    * returns the supplied penalty and sends the agent back to the
-    * initial state.
+    If all you care about is a choose fn.
     */
-  def play[A, R, P <: Policy[A, R, P]](
-      policy: P,
-      state: State[A, R],
-      penalty: R
-  ): Generator[(P, State[A, R])] =
-    for {
-      a <- policy.choose(state)
-      rs <- state.act(a).getOrElse(Generator.constant((penalty, state)))
-    } yield (policy.learn(state, a, rs._1), rs._2)
-
-  def playN[A, R, P <: Policy[A, R, P]](
-      policy: P,
-      state: State[A, R],
-      penalty: R,
-      nTimes: Int
-  ): Generator[(P, State[A, R])] =
-    Util.iterateM(nTimes)((policy, state)) {
-      case (p, s) => play(p, s, penalty)
+  def choose[Obs, A, R, M[_], S[_]](
+      chooseFn: State[Obs, A, R, S] => M[A]
+  ): Policy[Obs, A, R, M, S] =
+    new Policy[Obs, A, R, M, S] { self =>
+      override def choose(state: State[Obs, A, R, S]): M[A] = chooseFn(state)
     }
+
+  /**
+    Full exploration. mapK(Cat.setToCat) to get the usual Greedy.
+    */
+  def random[Obs, A, R, S[_]]: Policy[Obs, A, R, Cat, S] =
+    Policy.choose(s => Cat.fromSet(s.actions))
+
+  /**
+    Full greed. mapK(Cat.setToCat) to get the usual Greedy.
+    */
+  def greedy[Obs, A, R, T: Ordering, S[_]](
+      evaluator: Evaluator.ActionValue[Obs, A, R, T, S]
+  ): Policy[Obs, A, R, Cat, S] =
+    choose(s => Cat.fromSet(evaluator.greedyOptions(s)))
+
+  /**
+    In between. This is equal to
+
+    {{{
+    epsilonGreedy(evaluator, 1.0) == greedy(evaluator).mapK(Cat.setToCat)
+    epsilonGreedy(evaluator, 0.0) == random.mapK(Cat.setToCat)
+    }}}
+    */
+  def epsilonGreedy[Obs, A, R, T: Ordering, S[_]](
+      evaluator: Evaluator.ActionValue[Obs, A, R, T, S],
+      epsilon: Double
+  ): policy.Greedy[Obs, A, R, T, S] = new policy.Greedy(evaluator, epsilon)
+
+  /**
+    Always return the same.
+    */
+  def constant[Obs, A, R, S[_]](a: A): Policy[Obs, A, R, Id, S] =
+    choose[Obs, A, R, Id, S](_ => a)
 }

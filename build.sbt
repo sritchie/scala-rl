@@ -1,24 +1,45 @@
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import microsites.{CdnDirectives, MicrositeEditButton}
 import sbtorgpolicies.utils.getEnvVar
+import wartremover.Wart
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 /* dependency versions */
 lazy val V = new {
-  val algebird = "0.13.5"
-  val cats = "1.1.0"
-  val evilplot = "0.6.3"
+  val algebird = "0.13.6"
+  val cats = "2.0.0"
+  val evilplot = "0.7.0"
   val kindProjector = "0.10.3"
-  val rainier = "0.2.3-rc1-SNAPSHOT"
-  val scala = "2.12.8"
-  val scalacheck = "1.14.0"
+  val rainier = "0.2.3-rc5-SNAPSHOT"
+  val scala = "2.12.10"
+  val scalacheck = "1.14.3"
   val scalatest = "3.0.8"
-  val util = "19.8.1"
+  val util = "19.12.0"
 }
 
 lazy val docsSourcesAndProjects: Seq[ProjectReference] =
-  Seq(
-    rlCore
-  )
+  Seq(rlCore, rlPlot, rlBook)
+
+val compilerOptions = Seq(
+  "-unchecked",
+  "-deprecation",
+  "-Xlint",
+  "-language:implicitConversions",
+  "-language:higherKinds",
+  "-language:existentials"
+)
+
+// The console can't handle these.
+val consoleExclusions = Seq(
+  "-Ywarn-unused:imports", "-Xfatal-warnings", "-Xlint"
+)
+
+val ignoredWarts: Set[Wart] =
+  Set(Wart.DefaultArguments, Wart.TraversableOps, Wart.Any, Wart.NonUnitStatements)
+
+def unsafeWartsExcept(ws: Set[wartremover.Wart]): Seq[wartremover.Wart] =
+  Warts.unsafe.filterNot(w => ws.exists(_.clazz == w.clazz))
 
 val sharedSettings = Seq(
   organization := "io.samritchie",
@@ -28,6 +49,8 @@ val sharedSettings = Seq(
   cancelable in Global := true,
   parallelExecution in Test := true,
   scalafmtOnCompile in ThisBuild := true,
+  wartremoverErrors in (ThisBuild, compile) ++= unsafeWartsExcept(ignoredWarts),
+  unmanagedBase in Global := baseDirectory.value / "lib",
   resolvers ++= Seq(
     Resolver.bintrayRepo("cibotech", "public")
   ),
@@ -38,6 +61,10 @@ val sharedSettings = Seq(
     "-language:implicitConversions",
     "-language:higherKinds",
     "-language:existentials"),
+
+
+  scalacOptions in (Compile, console) --= consoleExclusions,
+  scalacOptions in (Test, console) --= consoleExclusions,
 
   // Publishing options:
   releaseCrossBuild := true,
@@ -103,7 +130,7 @@ lazy val rl = Project(
   base = file("."))
   .settings(sharedSettings)
   .settings(noPublishSettings)
-  .aggregate(rlCore)
+  .aggregate(rlCore, rlBook, rlPlot)
 
 def module(name: String) = {
   val id = "scala-rl-%s".format(name)
@@ -114,14 +141,13 @@ def module(name: String) = {
 }
 
 lazy val rlCore = module("core").settings(
-  mainClass in (Compile, run) := Some("io.samritchie.rl.Game"),
   libraryDependencies ++= Seq(
-    // Charts.
-    "com.cibo" %% "evilplot" % V.evilplot,
-    "com.cibo" %% "evilplot-repl" % V.evilplot,
-    // For the probability monad.
-    "com.stripe" %% "rainier-cats" % V.rainier,
-    "com.stripe" %% "rainier-core" % V.rainier,
+    // For the probability monad. TODO enable and kill
+    // scala-rl-core/lib jars once Avi does a release.
+
+    // "com.stripe" %% "rainier-cats" % V.rainier,
+    // "com.stripe" %% "rainier-core" % V.rainier,
+
     // For the monoids and implementations.
     "com.twitter" %% "algebird-core" % V.algebird,
     "com.twitter" %% "util-core" % V.util,
@@ -129,10 +155,43 @@ lazy val rlCore = module("core").settings(
     "org.typelevel" %% "cats-core" % V.cats,
     "org.typelevel" %% "cats-free" % V.cats,
     // Testing.
+    "com.twitter" %% "algebird-test" % V.algebird % Test,
     "org.scalatest" %% "scalatest" % V.scalatest % Test,
     "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
   ) ++ Seq(compilerPlugin("org.typelevel" %% "kind-projector" % V.kindProjector)),
 )
+
+lazy val rlWorld = module("world").settings(
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % V.scalatest % Test,
+    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
+  )
+).dependsOn(rlCore)
+
+lazy val rlPlot = module("plot").settings(
+  libraryDependencies ++= Seq(
+    // Charts.
+    "com.cibo" %% "evilplot" % V.evilplot,
+    "com.cibo" %% "evilplot-repl" % V.evilplot,
+  )
+).dependsOn(rlCore)
+
+lazy val rlBook = module("book").settings(
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % V.scalatest % Test,
+    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
+  ),
+  initialCommands :=
+    """
+import io.samritchie.rl._
+import com.stripe.rainier.sampler.RNG
+import com.stripe.rainier.compute.{Evaluator, Real}
+
+implicit val rng: RNG = RNG.default
+implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
+""".stripMargin('|'),
+  mainClass in (Compile, run) := Some("io.samritchie.rl.book.Chapter2"),
+).dependsOn(rlCore, rlPlot, rlWorld)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
 
@@ -141,7 +200,7 @@ lazy val docSettings = Seq(
   micrositeDescription := "Reinforcement Learning in Scala.",
   micrositeAuthor := "Sam Ritchie",
   micrositeUrl := "http://www.scalarl.com",
-  micrositeDocumentationUrl := "/api",
+  micrositeDocumentationUrl := "/api/io/samritchie/rl/index.html",
 
   micrositeHomepage := "http://www.scalarl.com/",
   micrositeOrganizationHomepage := "https://www.samritchie.io",
@@ -216,4 +275,4 @@ lazy val docs = project
   .settings(noPublishSettings)
   .settings(docSettings)
   .settings((scalacOptions in Tut) ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
-  .dependsOn(rlCore)
+  .dependsOn(rlCore, rlPlot, rlBook)

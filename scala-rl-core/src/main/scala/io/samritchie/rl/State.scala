@@ -20,16 +20,25 @@
   */
 package io.samritchie.rl
 
-import com.stripe.rainier.core.Generator
+import cats.Functor
+import cats.arrow.FunctionK
+
+object State {
+  type ActionView[Obs, A, R, M[_]] = M[(R, State[Obs, A, R, M])]
+  type Dynamics[Obs, A, R, M[_]] = Map[A, ActionView[Obs, A, R, M]]
+}
 
 /**
   * A world should probably have a generator of states and
   * actions... and then you can use that to get to the next
-  * bullshit. The state here is going to be useful in the Markov
+  * thing. The state here is going to be useful in the Markov
   * model; for the bandit we only have a single state, not that
   * useful.
   */
-trait State[A, Reward] {
+trait State[Obs, A, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
+  type This = State[Obs, A, R, M]
+
+  def observation: Obs
 
   /**
     * For every action you could take, returns a generator of the next
@@ -37,33 +46,48 @@ trait State[A, Reward] {
     * want the full distribution we're going to have to build out a
     * better interface. Good enough for now.
     */
-  def dynamics: Map[A, Generator[(Reward, State[A, Reward])]]
+  def dynamics: Map[A, M[(R, This)]]
+  def invalidMove: M[(R, This)]
 
-  /**
-    * Return None if it's an invalid action, otherwise gives us the
-    * next state. (Make this better later.)
-    */
-  def act(action: A): Option[Generator[(Reward, State[A, Reward])]] = dynamics.get(action)
-
-  /**
-    * Returns a list of possible actions to take from this state.
-    */
   def actions: Set[A] = dynamics.keySet
-}
-
-/**
-  * Then we have a bandit... a single state thing.
-  */
-object State {
+  def act(action: A): M[(R, This)] = dynamics.getOrElse(action, invalidMove)
 
   /**
-    * MDP with state derived from a map.
+    * Returns a list of possible actions to take from this state. To specify the
+    * terminal state, return an empty set.
     */
-  case class MapState[A, R](dynamics: Map[A, Generator[(R, State[A, R])]]) extends State[A, R]
+  def isTerminal: Boolean = actions.isEmpty
 
-  /**
-    * This creates a State object directly from a dynamics map.
-    */
-  def fromMap[A, R](dynamics: Map[A, Generator[(R, State[A, R])]]): MapState[A, R] =
-    MapState[A, R](dynamics)
+  def mapObservation[P](f: Obs => P)(implicit M: Functor[M]): State[P, A, R, M] =
+    new State[P, A, R, M] {
+      private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
+        M.map(pair) { case (r, s) => (r, s.mapObservation(f)) }
+      override def observation = f(self.observation)
+      override def dynamics = self.dynamics.mapValues(innerMap(_))
+      override def invalidMove = innerMap(self.invalidMove)
+      override def act(action: A) = innerMap(self.act(action))
+      override def actions: Set[A] = self.actions
+    }
+
+  def mapReward[T](f: R => T)(implicit M: Functor[M]): State[Obs, A, T, M] =
+    new State[Obs, A, T, M] {
+      private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
+        M.map(pair) { case (r, s) => (f(r), s.mapReward(f)) }
+
+      override def observation = self.observation
+      override def dynamics = self.dynamics.mapValues(innerMap(_))
+      override def invalidMove = innerMap(self.invalidMove)
+      override def act(action: A) = innerMap(self.act(action))
+      override def actions: Set[A] = self.actions
+    }
+
+  def mapK[N[_]](f: FunctionK[M, N])(implicit N: Functor[N]): State[Obs, A, R, N] = new State[Obs, A, R, N] {
+    private def innerMap(pair: M[(R, State[Obs, A, R, M])]) =
+      N.map(f(pair)) { case (r, s) => (r, s.mapK(f)) }
+    override def observation = self.observation
+    override def dynamics = self.dynamics.mapValues(innerMap(_))
+    override def invalidMove = innerMap(self.invalidMove)
+    override def act(action: A) = innerMap(self.act(action))
+    override def actions: Set[A] = self.actions
+  }
 }
