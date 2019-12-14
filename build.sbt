@@ -15,7 +15,7 @@ lazy val V = new {
   val scala = "2.12.10"
   val scalacheck = "1.14.3"
   val scalatest = "3.0.8"
-  val util = "19.11.0"
+  val util = "19.12.0"
 }
 
 lazy val docsSourcesAndProjects: Seq[ProjectReference] =
