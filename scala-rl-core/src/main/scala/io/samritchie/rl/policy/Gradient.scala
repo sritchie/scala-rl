@@ -125,7 +125,7 @@ object Gradient {
       */
     def policy[Obs, A, S[_]]: Gradient[Obs, A, R, T, S] = {
       implicit val m: Monoid[T] = Monoid.from(initial)(plus)
-      Gradient(this, ActionValueMap[Obs, A, Item[T]](Map.empty))
+      Gradient(this, ActionValueMap.empty[Obs, A, Item[T]])
     }
   }
 

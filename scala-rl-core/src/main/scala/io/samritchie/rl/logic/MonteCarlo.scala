@@ -64,36 +64,26 @@ object MonteCarlo {
       )
   }
 
-  /**
-    We almost have all of the pieces. Now, to do it right, we need to zip back
-    and forth along trajectories, updating the value function each time... maybe
-    not updating the policy though.
-
-    valueFn is tracking the type that we accumulate, the returns, as we
-    accumulate them back along the trajectory. Internally it might do some other
-    agg, of course.
-    */
-  def processTrajectorySimple[Obs, A, R, G, M[_]](
-      trajectory: Trajectory[Obs, A, R, M],
-      valueFn: ActionValueFn[Obs, A, G],
-      agg: MonoidAggregator[R, G, G]
-  ): ActionValueFn[Obs, A, G] =
-    // I think we HAVE to start with zero here, since we always have some sort
-    // of zero value for the final state, even if we use a new aggregation type.
-    trajectory
-      .foldLeft((valueFn, agg.monoid.zero)) {
-        case ((vf, g), (SARS(s, a, r, s2), shouldUpdate)) =>
-          val g2 = agg.append(g, r)
-          if (shouldUpdate.get) {
-            (vf.learn(s.observation, a, agg.present(g2)), g2)
-          } else (vf, g2)
-      }
-      ._1
+  // TODO the next phase is to try and get n step SARSA working, maybe with an
+  // expected bump at the end. And this has to work AS we're building the
+  // trajectory.
+  def sarsa[Obs, A, R, M[_]: Monad, T](
+      moment: Moment[Obs, A, R, M],
+      tracker: MonteCarlo.Tracker[Obs, A, R, T, M]
+  ): M[(Moment[Obs, A, R, M], MonteCarlo.Trajectory[Obs, A, R, M])] =
+    Util.iterateUntilM(moment, tracker) {
+      _.play
+    } { _.state.isTerminal }
 
   /**
     So if you have G, your return... okay, this is a version that tracks the
     weights, but doesn't give you a nice way to push the weights back. What if
     we make the weight part of G? Try that in the next fn.
+
+    This is a full monte carlo trajectory tracker that's able to do off-policy
+    control. The behavior policy does NOT change at all, but that's okay, I
+    guess. We're going to have to solve that now. Presumably if you're updating
+    a value function at any point you could get a new agent.
     */
   def processTrajectory[Obs, A, R, G, M[_]](
       trajectory: Trajectory[Obs, A, R, M],
@@ -124,6 +114,28 @@ object MonteCarlo {
     // of zero value for the final state, even if we use a new aggregation type.
     loop(trajectory, valueFn, agg.monoid.zero)
   }
+
+  /**
+    This is a simpler version that doesn't do any weighting. This should be
+    equivalent to the more difficult one above, with a constant weight of 1 for
+    everything.
+    */
+  def processTrajectorySimple[Obs, A, R, G, M[_]](
+      trajectory: Trajectory[Obs, A, R, M],
+      valueFn: ActionValueFn[Obs, A, G],
+      agg: MonoidAggregator[R, G, G]
+  ): ActionValueFn[Obs, A, G] =
+    // I think we HAVE to start with zero here, since we always have some sort
+    // of zero value for the final state, even if we use a new aggregation type.
+    trajectory
+      .foldLeft((valueFn, agg.monoid.zero)) {
+        case ((vf, g), (SARS(s, a, r, s2), shouldUpdate)) =>
+          val g2 = agg.append(g, r)
+          if (shouldUpdate.get) {
+            (vf.learn(s.observation, a, agg.present(g2)), g2)
+          } else (vf, g2)
+      }
+      ._1
 
   // generates a monoid aggregator that can handle weights! We'll need to pair
   // this with a value function that knows how to handle weights on the way in,
