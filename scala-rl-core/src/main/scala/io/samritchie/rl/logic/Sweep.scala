@@ -2,9 +2,11 @@ package io.samritchie.rl
 package logic
 
 import cats.{Id, Monad}
-import io.samritchie.rl.util.ExpectedValue
+import io.samritchie.rl.util.{ExpectedValue, ToDouble}
 
 object Sweep {
+  import Module.DModule
+
   sealed trait Update extends Product with Serializable
   object Update {
     final case object Single
@@ -58,4 +60,46 @@ object Sweep {
           (updated, nIterations + 1)
         )
     }
+
+  // TODO - this probably needs to take evaluators directly.
+  def isPolicyStable[Obs, A, R, T: DModule: Ordering, M[_], S[_]: ExpectedValue](
+      l: StateValueFn[Obs, T],
+      r: StateValueFn[Obs, T],
+      prepare: R => T,
+      merge: (T, T) => T,
+      states: Traversable[State[Obs, A, R, S]]
+  ): Boolean = {
+    val lEvaluator = Evaluator.oneAhead[Obs, A, R, T, M, S](l, prepare, merge)
+    val rEvaluator = Evaluator.oneAhead[Obs, A, R, T, M, S](r, prepare, merge)
+    states.forall { s =>
+      lEvaluator.greedyOptions(s) == rEvaluator.greedyOptions(s)
+    }
+  }
+
+  /**
+    Helper to tell if we can stop iterating. The combine function is used to
+    aggregate the differences between the value functions for each
+    observation... the final aggregated value must be less than epsilon to
+    return true, false otherwise.
+    */
+  def diffBelow[Obs, T: ToDouble](
+      l: StateValueFn[Obs, T],
+      r: StateValueFn[Obs, T],
+      epsilon: Double
+  )(
+      combine: (Double, Double) => Double
+  ): Boolean = Ordering[Double].lt(
+    diffValue(l, r, combine),
+    epsilon
+  )
+
+  /**
+    TODO consider putting this on the actual trait.
+    */
+  def diffValue[Obs, T](
+      l: StateValueFn[Obs, T],
+      r: StateValueFn[Obs, T],
+      combine: (Double, Double) => Double
+  )(implicit T: ToDouble[T]): Double =
+    Util.diff[Obs]((l.seen ++ r.seen), o => T(l.stateValue(o)), o => T(r.stateValue(o)), combine),
 }

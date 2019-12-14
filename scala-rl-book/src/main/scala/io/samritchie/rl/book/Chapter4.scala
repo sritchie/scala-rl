@@ -39,7 +39,7 @@ object Chapter4 {
       )
     }
     Chapter3.notConverging(iterations, allowedIterations) ||
-    StateValueFn.diffBelow(l, r, epsilon)(_.max(_))
+    Sweep.diffBelow(l, r, epsilon)(_.max(_))
   }
 
   def fourOne(inPlace: Boolean): (StateValueFn[Position, DecayState[Double]], Long) =
@@ -125,7 +125,7 @@ object Chapter4 {
         valueIteration = false
       )
     println(
-      s"""Stable? ${StateValueFn
+      s"""Stable? ${Sweep
         .isPolicyStable[CarRental.InvPair, CarRental.Move, Double, DecayState[Double], Cat, Cat](
           empty,
           roundOne,

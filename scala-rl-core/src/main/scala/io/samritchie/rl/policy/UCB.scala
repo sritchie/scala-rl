@@ -33,7 +33,7 @@ case class UCB[Obs, A, R, T, S[_]](
     */
   override def learn(sars: SARS[Obs, A, R, S]): This =
     copy(
-      valueFn = valueFn.learn(
+      valueFn = valueFn.update(
         sars.state.observation,
         sars.action,
         config.choice(sars.reward)

@@ -43,7 +43,7 @@ case class Greedy[Obs, A, R, T: Ordering, S[_]](
 
   override def learn(sars: SARS[Obs, A, R, S]): This =
     copy(
-      valueFn = valueFn.learn(
+      valueFn = valueFn.update(
         sars.state.observation,
         sars.action,
         config.prepare(sars.reward)

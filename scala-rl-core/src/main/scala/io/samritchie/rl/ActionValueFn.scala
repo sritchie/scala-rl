@@ -36,7 +36,7 @@ trait ActionValueFn[Obs, A, T] { self =>
     might merge it in to an existing set of values, some might completely
     replace the stored state.
     */
-  def learn(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T]
+  def update(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T]
 
   /**
     Transforms this [[ActionValueFn]] into a new instance that applies the
@@ -148,7 +148,7 @@ object ActionValueFn {
       @inheritdoc
       This implementation replaces any existing value with no merge or logic.
       */
-    override def learn(obs: Obs, action: A, value: T): Base[Obs, A, T] = {
+    override def update(obs: Obs, action: A, value: T): Base[Obs, A, T] = {
       val newM =
         m.getOrElse(obs, Map.empty[A, T])
           .updated(action, value)
@@ -171,8 +171,8 @@ object ActionValueFn {
     override def seenStates: Iterable[Obs] = base.seenStates
     override def seen(obs: Obs): Iterable[A] = base.seen(obs)
     override def actionValue(obs: Obs, a: A): U = present(base.actionValue(obs, a))
-    override def learn(obs: Obs, action: A, value: U): ActionValueFn[Obs, A, U] =
-      new Folded(base.learn(obs, action, prepare(value)), prepare, present)
+    override def update(obs: Obs, action: A, value: U): ActionValueFn[Obs, A, U] =
+      new Folded(base.update(obs, action, prepare(value)), prepare, present)
   }
 
   /**
@@ -194,9 +194,9 @@ object ActionValueFn {
       This implementation replaces uses a Semigroup[T] to merge the supplied
       value in to whatever value is stored in the underlying m.
       */
-    override def learn(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T] = {
+    override def update(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T] = {
       val merged = T.plus(actionValue(obs, action), value)
-      new Mergeable(base.learn(obs, action, merged))
+      new Mergeable(base.update(obs, action, merged))
     }
   }
 }

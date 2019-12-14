@@ -112,7 +112,7 @@ object MonteCarlo {
           case Some(g2) =>
             val newFn = if (shouldUpdate.get) {
               val SARS(s, a, r, s2) = sars
-              vfn.learn(s.observation, a, g2)
+              vfn.update(s.observation, a, g2)
             } else vfn
             loop(t, newFn, g2)
         }
@@ -139,7 +139,7 @@ object MonteCarlo {
         case ((vf, g), (SARS(s, a, r, s2), shouldUpdate)) =>
           val g2 = agg.append(g, r)
           if (shouldUpdate.get) {
-            (vf.learn(s.observation, a, agg.present(g2)), g2)
+            (vf.update(s.observation, a, agg.present(g2)), g2)
           } else (vf, g2)
       }
       ._1

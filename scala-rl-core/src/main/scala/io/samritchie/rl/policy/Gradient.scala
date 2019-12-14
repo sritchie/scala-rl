@@ -67,7 +67,7 @@ case class Gradient[Obs, A: Equiv, R: ToDouble, T: ToDouble, S[_]](
           actionProb * delta * config.stepSize,
           config.prepare(reward)
         )
-        vfn.learn(obs, a, newItem)
+        vfn.update(obs, a, newItem)
     }
     copy(valueFn = updated)
   }

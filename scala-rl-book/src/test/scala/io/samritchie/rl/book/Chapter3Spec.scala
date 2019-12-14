@@ -49,7 +49,7 @@ class Chapter3Spec extends FunSuite {
       zeroValue
     )
 
-    assert(StateValueFn.diffBelow(actual, expected, epsilon)(_.max(_)))
+    assert(Sweep.diffBelow(actual, expected, epsilon)(_.max(_)))
   }
 
   val expectedThreeFive = StateValueMap[Position, DecayState[Double]](
@@ -85,7 +85,7 @@ class Chapter3Spec extends FunSuite {
 
   test("Figure 3.5's value function matches the gold set.") {
     val (actual, _) = Chapter3.threeFive
-    assert(StateValueFn.diffBelow(actual, expectedThreeFive, epsilon)(_.max(_)))
+    assert(Sweep.diffBelow(actual, expectedThreeFive, epsilon)(_.max(_)))
   }
 
   test("Figure 3.5's calculation matches the full categorical version") {
@@ -112,6 +112,6 @@ class Chapter3Spec extends FunSuite {
       inPlace = true,
       valueIteration = true
     )
-    assert(StateValueFn.diffBelow(actual, expectedThreeFive, epsilon)(_.max(_)))
+    assert(Sweep.diffBelow(actual, expectedThreeFive, epsilon)(_.max(_)))
   }
 }

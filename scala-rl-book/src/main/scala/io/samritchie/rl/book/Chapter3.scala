@@ -41,7 +41,7 @@ object Chapter3 {
   def valueFunctionConverged[Obs, T: ToDouble](
       l: StateValueFn[Obs, T],
       r: StateValueFn[Obs, T]
-  ): Boolean = StateValueFn.diffBelow(l, r, epsilon)(_ + _)
+  ): Boolean = Sweep.diffBelow(l, r, epsilon)(_ + _)
 
   def shouldStop[Obs, T: ToDouble](
       l: StateValueFn[Obs, T],
