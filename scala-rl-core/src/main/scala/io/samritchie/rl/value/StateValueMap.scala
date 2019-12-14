@@ -19,6 +19,7 @@ case class StateValueMap[Obs, T](
 }
 
 object StateValueMap {
+
   /**
     Returns an empty state value fn.
     */

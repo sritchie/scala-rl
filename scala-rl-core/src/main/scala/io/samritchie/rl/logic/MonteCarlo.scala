@@ -67,12 +67,19 @@ object MonteCarlo {
   // TODO the next phase is to try and get n step SARSA working, maybe with an
   // expected bump at the end. And this has to work AS we're building the
   // trajectory.
+  //
+  // The trick here is that I need to freaking get access to the trajectory
+  // itself and start to build up that business.
+  //
+  // Leave this for a while... but I think a key thing is going to be getting
+  // access to the trajectory as I'm walking around this shit.
   def sarsa[Obs, A, R, M[_]: Monad, T](
       moment: Moment[Obs, A, R, M],
       tracker: MonteCarlo.Tracker[Obs, A, R, T, M]
   ): M[(Moment[Obs, A, R, M], MonteCarlo.Trajectory[Obs, A, R, M])] =
     Util.iterateUntilM(moment, tracker) {
-      _.play
+      case m @ Moment(policy, state) =>
+        m.play
     } { _.state.isTerminal }
 
   /**
