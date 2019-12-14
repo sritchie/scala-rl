@@ -161,6 +161,13 @@ lazy val rlCore = module("core").settings(
   ) ++ Seq(compilerPlugin("org.typelevel" %% "kind-projector" % V.kindProjector)),
 )
 
+lazy val rlWorld = module("world").settings(
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % V.scalatest % Test,
+    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
+  )
+).dependsOn(rlCore)
+
 lazy val rlPlot = module("plot").settings(
   libraryDependencies ++= Seq(
     // Charts.
@@ -184,7 +191,7 @@ implicit val rng: RNG = RNG.default
 implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 """.stripMargin('|'),
   mainClass in (Compile, run) := Some("io.samritchie.rl.book.Chapter2"),
-).dependsOn(rlCore, rlPlot)
+).dependsOn(rlCore, rlPlot, rlWorld)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
 
