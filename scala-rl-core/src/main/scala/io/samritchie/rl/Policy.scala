@@ -1,12 +1,9 @@
 /**
-  Policies are key.
-
-  TODO maybe we should make an Agent that is actually a policy AND a value
-  function.
+  Policy implementation, get some!
   */
 package io.samritchie.rl
 
-import cats.Functor
+import cats.{Functor, Id}
 import cats.arrow.FunctionK
 
 import scala.language.higherKinds
@@ -27,27 +24,20 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
   type This = Policy[Obs, A, R, M, S]
 
   def choose(state: State[Obs, A, R, S]): M[A]
-
-  /**
-    TODO Note - I can imagine that we wouldn't want to present a reward,
-    necessarily, but some aggregated thing.
-
-    By default this just returns itself, no learning happening.
-    */
-  def learn(state: State[Obs, A, R, S], action: A, reward: R): This = self
+  def learn(sars: SARS[Obs, A, R, S]): This = self
 
   def contramapObservation[P](f: P => Obs)(implicit S: Functor[S]): Policy[P, A, R, M, S] =
     new Policy[P, A, R, M, S] {
       override def choose(state: State[P, A, R, S]) = self.choose(state.mapObservation(f))
-      override def learn(state: State[P, A, R, S], action: A, reward: R) =
-        self.learn(state.mapObservation(f), action, reward).contramapObservation(f)
+      override def learn(sars: SARS[P, A, R, S]) =
+        self.learn(sars.mapObservation(f)).contramapObservation(f)
     }
 
   def contramapReward[T](f: T => R)(implicit S: Functor[S]): Policy[Obs, A, T, M, S] =
     new Policy[Obs, A, T, M, S] {
       override def choose(state: State[Obs, A, T, S]) = self.choose(state.mapReward(f))
-      override def learn(state: State[Obs, A, T, S], action: A, reward: T) =
-        self.learn(state.mapReward(f), action, f(reward)).contramapReward(f)
+      override def learn(sars: SARS[Obs, A, T, S]) =
+        self.learn(sars.mapReward(f)).contramapReward(f)
     }
 
   /**
@@ -55,9 +45,57 @@ trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { sel
     * deterministic deciders. We'll see how this develops.
     */
   def mapK[N[_]](f: FunctionK[M, N]): Policy[Obs, A, R, N, S] =
-    new Policy[Obs, A, R, N, S] {
+    new Policy[Obs, A, R, N, S] { r =>
       override def choose(state: State[Obs, A, R, S]): N[A] = f(self.choose(state))
-      override def learn(state: State[Obs, A, R, S], action: A, reward: R): Policy[Obs, A, R, N, S] =
-        self.learn(state, action, reward).mapK(f)
+      override def learn(
+          sars: SARS[Obs, A, R, S]
+      ): Policy[Obs, A, R, N, S] =
+        self.learn(sars).mapK(f)
     }
+}
+
+object Policy {
+
+  /**
+    If all you care about is a choose fn.
+    */
+  def choose[Obs, A, R, M[_], S[_]](
+      chooseFn: State[Obs, A, R, S] => M[A]
+  ): Policy[Obs, A, R, M, S] =
+    new Policy[Obs, A, R, M, S] { self =>
+      override def choose(state: State[Obs, A, R, S]): M[A] = chooseFn(state)
+    }
+
+  /**
+    Full exploration. mapK(Cat.setToCat) to get the usual Greedy.
+    */
+  def random[Obs, A, R, S[_]]: Policy[Obs, A, R, Cat, S] =
+    Policy.choose(s => Cat.fromSet(s.actions))
+
+  /**
+    Full greed. mapK(Cat.setToCat) to get the usual Greedy.
+    */
+  def greedy[Obs, A, R, T: Ordering, S[_]](
+      evaluator: Evaluator.ActionValue[Obs, A, R, T, S]
+  ): Policy[Obs, A, R, Cat, S] =
+    choose(s => Cat.fromSet(evaluator.greedyOptions(s)))
+
+  /**
+    In between. This is equal to
+
+    {{{
+    epsilonGreedy(evaluator, 1.0) == greedy(evaluator).mapK(Cat.setToCat)
+    epsilonGreedy(evaluator, 0.0) == random.mapK(Cat.setToCat)
+    }}}
+    */
+  def epsilonGreedy[Obs, A, R, T: Ordering, S[_]](
+      evaluator: Evaluator.ActionValue[Obs, A, R, T, S],
+      epsilon: Double
+  ): policy.Greedy[Obs, A, R, T, S] = new policy.Greedy(evaluator, epsilon)
+
+  /**
+    Always return the same.
+    */
+  def constant[Obs, A, R, S[_]](a: A): Policy[Obs, A, R, Id, S] =
+    choose[Obs, A, R, Id, S](_ => a)
 }

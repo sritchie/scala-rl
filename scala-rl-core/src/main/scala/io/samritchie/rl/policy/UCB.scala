@@ -2,8 +2,6 @@
   * Policy that accumulates using the UCB algorithm.
   *
   * TODO should I make an Empty Choice option with a sealed trait?
-
-  TODO back this off to Semigroup!
   */
 package io.samritchie.rl
 package policy
@@ -17,6 +15,7 @@ case class UCB[Obs, A, R, T, S[_]](
     valueFn: ActionValueFn[Obs, A, UCB.Choice[T]],
     time: Time
 ) extends Policy[Obs, A, R, Cat, S] {
+
   private val evaluator: Evaluator.ActionValue[Obs, A, R, UCB.Choice[T], S] =
     Evaluator.ActionValue.fn(valueFn)
 
@@ -33,16 +32,12 @@ case class UCB[Obs, A, R, T, S[_]](
     new thing. Does this mean that we shouldn't learn at all? Should that get
     delegated to an agent?
     */
-  override def learn(
-      state: State[Obs, A, R, S],
-      action: A,
-      reward: R
-  ): UCB[Obs, A, R, T, S] =
+  override def learn(sars: SARS[Obs, A, R, S]): This =
     copy(
       valueFn = valueFn.learn(
-        state.observation,
-        action,
-        config.choice(reward)
+        sars.state.observation,
+        sars.action,
+        config.choice(sars.reward)
       ),
       time = time.tick
     )
@@ -73,8 +68,9 @@ object UCB {
       * Returns a fresh policy instance using this config.
       */
     def policy[Obs, A, S[_]]: UCB[Obs, A, R, T, S] = {
-      implicit val sg: Semigroup[T] = Semigroup.from(plus)
-      val avm = ActionValueMap.empty[Obs, A, Choice[T]](Choice.zero(initial, param)(present))
+      implicit val tMonoid: Monoid[T] = Monoid.from(initial)(plus)
+      implicit val monoid: Monoid[Choice[T]] = Choice.monoid(param, present)
+      val avm = ActionValueMap.empty[Obs, A, Choice[T]]
       UCB(this, avm, Time.Zero)
     }
 

@@ -13,9 +13,9 @@ lazy val V = new {
   val kindProjector = "0.10.3"
   val rainier = "0.2.3-rc5-SNAPSHOT"
   val scala = "2.12.10"
-  val scalacheck = "1.14.2"
-  val scalatest = "3.1.0"
-  val util = "19.11.0"
+  val scalacheck = "1.14.3"
+  val scalatest = "3.0.8"
+  val util = "19.12.0"
 }
 
 lazy val docsSourcesAndProjects: Seq[ProjectReference] =
@@ -161,6 +161,13 @@ lazy val rlCore = module("core").settings(
   ) ++ Seq(compilerPlugin("org.typelevel" %% "kind-projector" % V.kindProjector)),
 )
 
+lazy val rlWorld = module("world").settings(
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % V.scalatest % Test,
+    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
+  )
+).dependsOn(rlCore)
+
 lazy val rlPlot = module("plot").settings(
   libraryDependencies ++= Seq(
     // Charts.
@@ -184,7 +191,7 @@ implicit val rng: RNG = RNG.default
 implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 """.stripMargin('|'),
   mainClass in (Compile, run) := Some("io.samritchie.rl.book.Chapter2"),
-).dependsOn(rlCore, rlPlot)
+).dependsOn(rlCore, rlPlot, rlWorld)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
 

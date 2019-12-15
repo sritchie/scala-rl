@@ -23,12 +23,13 @@ import io.samritchie.rl.util.ExpectedValue
 /**
 Base logic for greedy policies.
   */
-class Greedy[Obs, A, R, T: Ordering, S[_]: ExpectedValue](
-    config: Greedy.Config[R, T],
-    evaluator: Evaluator.ActionValue[Obs, A, R, T, S]
+class Greedy[Obs, A, R, T: Ordering, S[_]](
+    evaluator: Evaluator.ActionValue[Obs, A, R, T, S],
+    epsilon: Double
 ) extends Policy[Obs, A, R, Cat, S] { self =>
+
   private val explore: Cat[Boolean] =
-    Cat.boolean(config.epsilon)
+    Cat.boolean(epsilon)
 
   private def allActions(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(state.actions)
@@ -49,11 +50,13 @@ object Greedy {
       merge: (T, T) => T,
       default: T
   ) {
-    def id[Obs, A](valueFn: StateValueFn[Obs, T]): Policy[Obs, A, R, Cat, Id] = policy(valueFn)
+    def id[Obs, A](valueFn: StateValueFn[Obs, T]): Policy[Obs, A, R, Cat, Id] =
+      policy(valueFn)
+
     def stochastic[Obs, A](valueFn: StateValueFn[Obs, T]): Policy[Obs, A, R, Cat, Cat] =
       policy(valueFn)
 
     def policy[Obs, A, S[_]: ExpectedValue](valueFn: StateValueFn[Obs, T]): Policy[Obs, A, R, Cat, S] =
-      new Greedy[Obs, A, R, T, S](this, Evaluator.oneAhead(valueFn, prepare, merge))
+      new Greedy[Obs, A, R, T, S](Evaluator.oneAhead(valueFn, prepare, merge), epsilon)
   }
 }

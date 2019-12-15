@@ -1,24 +1,25 @@
 /**
-  * Policy that accumulates via epsilon greedy.
+  * Policy that accumulates via epsilon greedy. This is only still here because
+  * it knows how to learn.
   */
 package io.samritchie.rl
 package policy
 package bandit
 
-import cats.Monad
-import com.twitter.algebird.{AveragedValue, Semigroup}
+import cats.{Functor, Monad}
+import com.twitter.algebird.{AveragedValue, Monoid, Semigroup}
 import io.samritchie.rl.value.ActionValueMap
 import Util.Instances._
 
 /**
-  * This is a version that accumulates the reward using a monoid.
-  *
   * @param epsilon number between 0 and 1.
   */
 case class Greedy[Obs, A, R, T: Ordering, S[_]](
     config: Greedy.Config[R, T],
     valueFn: ActionValueFn[Obs, A, T]
 ) extends Policy[Obs, A, R, Cat, S] {
+  implicit val functor: Functor[Cat] = Functor[Cat]
+
   private val explore: Cat[Boolean] =
     Cat.boolean(config.epsilon)
 
@@ -40,16 +41,13 @@ case class Greedy[Obs, A, R, T: Ordering, S[_]](
         allActions(state),
         greedy(state)
       )
-  override def learn(
-      state: State[Obs, A, R, S],
-      action: A,
-      reward: R
-  ): Greedy[Obs, A, R, T, S] =
+
+  override def learn(sars: SARS[Obs, A, R, S]): This =
     copy(
       valueFn = valueFn.learn(
-        state.observation,
-        action,
-        config.prepare(reward)
+        sars.state.observation,
+        sars.action,
+        config.prepare(sars.reward)
       )
     )
 }
@@ -65,7 +63,7 @@ object Greedy {
       initial: T
   ) {
     def policy[A, Obs, S[_]]: Greedy[Obs, A, R, T, S] =
-      Greedy(this, ActionValueMap.empty(initial))
+      Greedy(this, ActionValueMap.empty(Monoid.from(initial)(Semigroup.plus(_, _))))
   }
 
   /**

@@ -9,6 +9,19 @@ import com.twitter.algebird.Group
   * constant weighting factor.
 
   TODO consider changing Numeric to ToDouble?
+
+  TODO there is some interesting thing going on here, where you're summing up
+  constantly weighted factors... and then in the importance weighting you're
+  doing the same thing, you just send in a different weight every time.
+
+  The time is a way of skipping big swathes and injecting zeros in, but it's
+  really the same.
+
+  You can maybe also think about this like you're just keeping track of some
+  weighted numerator, but, same thing, injecting more sum of the weights into
+  the denominator, but nothing, zeros, into the top.
+
+  That would be a nice thing to unify together.
   */
 case class ConstantStep(value: Double, time: Time) extends Ordered[ConstantStep] {
   import ConstantStep.{Alpha, Epsilon}
