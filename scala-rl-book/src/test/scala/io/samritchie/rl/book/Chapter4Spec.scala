@@ -2,7 +2,7 @@ package io.samritchie.rl
 package book
 
 import io.samritchie.rl.logic.Sweep
-import io.samritchie.rl.value.{DecayState, StateValueMap}
+import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.util.Grid
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -15,7 +15,7 @@ class Chapter4Spec extends AnyFunSuite {
   val gamma = 1.0
   val epsilon = 1e-3
   val zeroValue = DecayState.DecayedValue(0.0)
-  val expectedFourOne = StateValueMap[Position, DecayState[Double]](
+  val expectedFourOne = StateValueFn.Base[Position, DecayState[Double]](
     Map(
       Position.of(0, 0) -> 0.0,
       Position.of(0, 1) -> -13.9989,
@@ -46,7 +46,7 @@ class Chapter4Spec extends AnyFunSuite {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = value.StateValueMap[Position, DecayState[Double]](Map.empty, zeroValue)
+    val emptyFn = StateValueFn.empty[Position, DecayState[Double]](zeroValue)
 
     val (actual, _) = Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Cat](
       emptyFn,

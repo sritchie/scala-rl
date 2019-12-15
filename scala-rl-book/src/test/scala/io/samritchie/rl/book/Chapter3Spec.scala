@@ -2,7 +2,7 @@ package io.samritchie.rl
 package book
 
 import io.samritchie.rl.logic.Sweep
-import io.samritchie.rl.value.{DecayState, StateValueMap}
+import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.util.Grid
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -18,7 +18,7 @@ class Chapter3Spec extends AnyFunSuite {
 
   test("Figure 3.2's value function matches the gold set") {
     val (actual, _) = Chapter3.threeTwo
-    val expected = StateValueMap[Position, DecayState[Double]](
+    val expected = StateValueFn.Base[Position, DecayState[Double]](
       Map(
         Position.of(0, 0) -> 3.3090,
         Position.of(0, 1) -> 8.7893,
@@ -52,7 +52,7 @@ class Chapter3Spec extends AnyFunSuite {
     assert(Sweep.diffBelow(actual, expected, epsilon)(_.max(_)))
   }
 
-  val expectedThreeFive = StateValueMap[Position, DecayState[Double]](
+  val expectedThreeFive = StateValueFn.Base[Position, DecayState[Double]](
     Map(
       Position.of(0, 0) -> 21.9774,
       Position.of(0, 1) -> 24.4194,
@@ -92,7 +92,7 @@ class Chapter3Spec extends AnyFunSuite {
     val idToCat = Util.idToMonad[Cat]
 
     // Empty value function to start.
-    val emptyFn = StateValueFn[Position, DecayState[Double]](zeroValue)
+    val emptyFn = StateValueFn.empty[Position, DecayState[Double]](zeroValue)
 
     // Build a Stochastic version of the greedy policy.
     implicit val dm = DecayState.decayStateModule(gamma)

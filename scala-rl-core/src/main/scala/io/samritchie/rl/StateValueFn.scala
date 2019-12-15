@@ -1,6 +1,6 @@
 package io.samritchie.rl
 
-import com.twitter.algebird.{Monoid, Semigroup}
+import com.twitter.algebird.{Aggregator, Monoid, MonoidAggregator, Semigroup}
 import io.samritchie.rl.evaluate.StateValue
 import io.samritchie.rl.value.DecayState
 
@@ -69,20 +69,79 @@ trait StateValueFn[Obs, T] { self =>
   */
 object StateValueFn {
 
-  def apply[Obs, T](default: T): StateValueFn[Obs, T] =
-    value.StateValueMap(Map.empty[Obs, T], default)
-
   /**
     Returns a new value function that absorbs rewards with decay.
+
+    TODO why are these not using monoids??
     */
   def decaying[Obs, T](default: T): StateValueFn[Obs, DecayState[T]] =
-    apply(DecayState.DecayedValue(default))
+    empty(DecayState.DecayedValue(default))
 
   /**
     Returns a new value function that absorbs rewards with decay.
+
+    TODO why are these not using monoids??
     */
   def decaying[Obs, T: Monoid]: StateValueFn[Obs, DecayState[T]] =
     decaying(Monoid.zero)
+
+  /**
+    Returns an empty [[StateValueFn]] backed by an immutable map.
+    */
+  def empty[Obs, T]: StateValueFn[Obs, Option[T]] =
+    empty[Obs, Option[T]](None)
+
+  /**
+    Returns an empty [[StateValueFn]] backed by an immutable map. The supplied
+    default value will be returned by [[StateValueFn.stateValue]] for any obs
+    that's not been seen by the [[StateValueFn]].
+    */
+  def empty[Obs, T](default: T): StateValueFn[Obs, T] =
+    new Base(Map.empty[Obs, T], default)
+
+  /**
+    Returns an empty [[StateValueFn]] backed by an immutable map that uses the
+    zero of the supplied Monoid as a default value, and merges new learned
+    values into the value in the underlying map using the Monoid's `plus`
+    function.
+    */
+  def mergeable[Obs, T](implicit T: Monoid[T]): StateValueFn[Obs, T] =
+    mergeable(T.zero)
+
+  /**
+    Returns an empty [[StateValueFn]] backed by an immutable map that uses the
+    supplied `default` as a default value, and merges new learned values into
+    the value in the underlying map using the Semigroup's `plus` function.
+    */
+  def mergeable[Obs, T](default: T)(implicit T: Semigroup[T]): StateValueFn[Obs, T] =
+    empty(default).mergeable
+
+  /**
+    Returns a [[StateValueFn]] that:
+
+    - uses the supplied default as an initial value
+    - merges values in using the aggregator's semigroup
+    - prepares and presents using the aggregator's analogous functions
+    */
+  def fromAggregator[Obs, T, U](
+      default: T,
+      agg: Aggregator[U, T, U]
+  ): StateValueFn[Obs, U] =
+    empty(default)
+      .mergeable(agg.semigroup)
+      .fold(agg.prepare, agg.present)
+
+  /**
+    Returns a [[StateValueFn]] that:
+
+    - uses the MonoidAggregator's monoid.zero as an initial value
+    - merges values in using the aggregator's monoid
+    - prepares and presents using the aggregator's analogous functions
+    */
+  def fromAggregator[Obs, T, U](
+      agg: MonoidAggregator[U, T, U]
+  ): StateValueFn[Obs, U] =
+    mergeable(agg.monoid).fold(agg.prepare, agg.present)
 
   /**
   Basic implementation of an [[StateValueFn]] that stores any value supplied to
@@ -92,7 +151,7 @@ object StateValueFn {
     @param default value returned by [[Base]] when queried for some observation
     it hasn't yet seen.
     */
-  class Base[Obs, T](m: Map[Obs, T], default: T) extends StateValueFn[Obs, T] { self =>
+  case class Base[Obs, T](m: Map[Obs, T], default: T) extends StateValueFn[Obs, T] { self =>
     override def seen: Iterable[Obs] = m.keySet
     override def stateValue(obs: Obs): T = m.getOrElse(obs, default)
 
@@ -101,7 +160,7 @@ object StateValueFn {
       This implementation replaces any existing value with no merge or logic.
       */
     override def update(obs: Obs, value: T): Base[Obs, T] =
-      new Base(m.updated(obs, value), default)
+      Base(m.updated(obs, value), default)
   }
 
   /**
@@ -111,7 +170,7 @@ object StateValueFn {
     being passed to the base [[StateValueFn]]. Any value retrieved by
     [[stateValue]] will be passed to `present` before being returned.
     */
-  class Folded[Obs, T, U](
+  case class Folded[Obs, T, U](
       base: StateValueFn[Obs, T],
       prepare: U => T,
       present: T => U
@@ -119,7 +178,7 @@ object StateValueFn {
     override def seen: Iterable[Obs] = base.seen
     override def stateValue(obs: Obs): U = present(base.stateValue(obs))
     override def update(obs: Obs, value: U): StateValueFn[Obs, U] =
-      new Folded(base.update(obs, prepare(value)), prepare, present)
+      Folded(base.update(obs, prepare(value)), prepare, present)
   }
 
   /**
@@ -127,7 +186,7 @@ object StateValueFn {
     the value stored by the base [[StateValueFn]] using the supplied
     Semigroup's `plus` function.
     */
-  class Mergeable[Obs, T](
+  case class Mergeable[Obs, T](
       base: StateValueFn[Obs, T]
   )(implicit T: Semigroup[T])
       extends StateValueFn[Obs, T] {
@@ -142,7 +201,7 @@ object StateValueFn {
       */
     override def update(obs: Obs, value: T): StateValueFn[Obs, T] = {
       val merged = T.plus(stateValue(obs), value)
-      new Mergeable(base.update(obs, merged))
+      Mergeable(base.update(obs, merged))
     }
   }
 }
