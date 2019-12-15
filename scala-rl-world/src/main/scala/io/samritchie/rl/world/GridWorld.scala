@@ -7,7 +7,7 @@ package io.samritchie.rl
 package world
 
 import cats.Id
-import io.samritchie.rl.util.Grid
+import io.samritchie.rl.world.util.Grid
 import scala.util.{Success, Try}
 
 object GridWorld {

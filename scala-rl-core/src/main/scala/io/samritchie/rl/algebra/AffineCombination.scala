@@ -1,5 +1,5 @@
 package io.samritchie.rl
-package util
+package algebra
 
 import cats.Id
 import com.twitter.algebird.Ring
@@ -27,9 +27,9 @@ object AffineCombination {
       def get[A](a: A)(f: A => R) = f(a)
     }
 
-  implicit def fromWeighted[M[_], R](implicit W: Weighted[M, R]): AffineCombination[M, R] =
+  implicit def fromDecomposition[M[_], R](implicit D: Decompose[M, R]): AffineCombination[M, R] =
     new AffineCombination[M, R] {
-      implicit def ring = W.ring
-      def get[A](ma: M[A])(f: A => R) = take(W.weights(ma))(f)
+      implicit def ring = D.ring
+      def get[A](ma: M[A])(f: A => R) = take(D.decompose(ma))(f)
     }
 }

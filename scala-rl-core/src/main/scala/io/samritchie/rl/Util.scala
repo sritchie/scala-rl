@@ -1,6 +1,3 @@
-/**
-  * Extra stuff I'm discovering.
-  */
 package io.samritchie.rl
 
 import cats.{Comonad, Id, Monad}
@@ -8,7 +5,7 @@ import cats.arrow.FunctionK
 import cats.data.StateT
 import com.twitter.algebird.{AveragedValue, Fold, MonoidAggregator, Ring, Semigroup, VectorSpace}
 import com.stripe.rainier.compute.Real
-import io.samritchie.rl.util.ToDouble
+import io.samritchie.rl.algebra.{Module, ToDouble}
 
 import scala.language.higherKinds
 

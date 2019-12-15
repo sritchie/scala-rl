@@ -8,6 +8,7 @@ package policy
 package bandit
 
 import com.twitter.algebird.{Aggregator, Monoid, Semigroup}
+import io.samritchie.rl.evaluate.ActionValue
 
 case class UCB[Obs, A, R, T, S[_]](
     config: UCB.Config[R, T],
@@ -15,8 +16,8 @@ case class UCB[Obs, A, R, T, S[_]](
     time: Time
 ) extends Policy[Obs, A, R, Cat, S] {
 
-  private val evaluator: Evaluator.ActionValue[Obs, A, R, UCB.Choice[T], S] =
-    Evaluator.ActionValue.fn(valueFn)
+  private val evaluator: ActionValue[Obs, A, R, UCB.Choice[T], S] =
+    valueFn.toEvaluator
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Cat.fromSet(

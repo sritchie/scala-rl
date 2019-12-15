@@ -6,7 +6,7 @@ package policy
 package bandit
 
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, Semigroup}
-import io.samritchie.rl.util.ToDouble
+import io.samritchie.rl.algebra.ToDouble
 
 /**
   * This thing needs to track its average reward internally... then,

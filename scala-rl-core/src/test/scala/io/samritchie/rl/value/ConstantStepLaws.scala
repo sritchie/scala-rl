@@ -1,7 +1,5 @@
 package io.samritchie.rl
-package util
-
-package io.samritchie.connectfour
+package value
 
 import com.twitter.algebird._
 import org.scalacheck.{Arbitrary, Gen}

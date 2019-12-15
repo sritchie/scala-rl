@@ -5,7 +5,7 @@ import cats.arrow.FunctionK
 import com.stripe.rainier.compute.Real
 import com.stripe.rainier.core.{Categorical, Generator, ToGenerator}
 import com.twitter.algebird.DoubleRing
-import io.samritchie.rl.util.ToDouble
+import io.samritchie.rl.algebra.{Decompose, ToDouble}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
@@ -124,10 +124,10 @@ trait CatInstances {
     new ToGenerator[Cat[T], T] {
       def apply(c: Cat[T]) = c.toRainier.generator
     }
-  implicit val weighted: Weighted[Cat, Double] =
-    new Weighted[Cat, Double] {
+  implicit val decompose: Decompose[Cat, Double] =
+    new Decompose[Cat, Double] {
       override val ring = DoubleRing
-      override def weights[A](ma: Cat[A]): Iterator[(A, Double)] =
+      override def decompose[A](ma: Cat[A]): Iterator[(A, Double)] =
         ma.pmfSeq.iterator
     }
 

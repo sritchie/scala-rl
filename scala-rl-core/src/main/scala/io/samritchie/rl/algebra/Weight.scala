@@ -1,11 +1,11 @@
-/**
-  Weight!
-  */
 package io.samritchie.rl
-package util
+package algebra
 
 import com.twitter.algebird.Monoid
 
+/**
+  Weight!
+  */
 case class Weight(w: Double) extends AnyVal {
   def +(r: Weight): Weight = Weight(w + r.w)
   def *(r: Weight): Weight = Weight(w * r.w)

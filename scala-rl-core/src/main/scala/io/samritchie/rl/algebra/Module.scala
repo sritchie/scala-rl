@@ -1,4 +1,5 @@
 package io.samritchie.rl
+package algebra
 
 import com.twitter.algebird.{Group, Ring, VectorSpace}
 

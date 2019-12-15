@@ -1,6 +1,7 @@
 package io.samritchie.rl
-package util
+package value
 
+import io.samritchie.rl.algebra.Module
 import com.twitter.algebird.Group
 
 /**

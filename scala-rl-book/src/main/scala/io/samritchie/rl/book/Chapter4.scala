@@ -6,14 +6,15 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import io.samritchie.rl.algebra.ToDouble
+import io.samritchie.rl.evaluate.ActionValue
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Plot
-import io.samritchie.rl.util.ToDouble
 import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.{CarRental, GridWorld}
 
 object Chapter4 {
-  import io.samritchie.rl.util.Grid.{Bounds, Move, Position}
+  import io.samritchie.rl.world.util.Grid.{Bounds, Move, Position}
 
   val gridConf = GridWorld
     .Config(Bounds(4, 4), default = -1.0, penalty = -1.0)
@@ -178,7 +179,7 @@ object Chapter4 {
     val (vf, config, _) = fourTwo(true)
     implicit val dm = DecayState.decayStateModule(gamma)
 
-    val estimator: Evaluator.ActionValue[CarRental.InvPair, CarRental.Move, Double, DecayState[Double], Cat] =
+    val estimator: ActionValue[CarRental.InvPair, CarRental.Move, Double, DecayState[Double], Cat] =
       Evaluator.oneAhead(
         vf,
         DecayState.Reward(_),

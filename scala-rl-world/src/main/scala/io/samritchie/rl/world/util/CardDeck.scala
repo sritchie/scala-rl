@@ -2,6 +2,7 @@
   Card deck, for card games.
   */
 package io.samritchie.rl
+package world
 package util
 
 import com.stripe.rainier.core.Generator

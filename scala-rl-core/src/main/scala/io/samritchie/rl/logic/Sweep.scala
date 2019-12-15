@@ -2,7 +2,8 @@ package io.samritchie.rl
 package logic
 
 import cats.{Id, Monad}
-import io.samritchie.rl.util.{ExpectedValue, ToDouble}
+import io.samritchie.rl.algebra.{Expectation, Module, ToDouble}
+import io.samritchie.rl.evaluate.StateValue
 
 object Sweep {
   import Module.DModule
@@ -24,10 +25,10 @@ object Sweep {
     This function does NOT currently return the final policy, since you can just
     make it yourself, given the return value and the function.
     */
-  def sweep[Obs, A, R, T, M[_]: ExpectedValue, S[_]: ExpectedValue](
+  def sweep[Obs, A, R, T, M[_]: Expectation, S[_]: Expectation](
       valueFn: StateValueFn[Obs, T],
       policyFn: StateValueFn[Obs, T] => Policy[Obs, A, R, M, S],
-      evaluatorFn: (StateValueFn[Obs, T], Policy[Obs, A, R, M, S]) => Evaluator.StateValue[Obs, A, R, T, S],
+      evaluatorFn: (StateValueFn[Obs, T], Policy[Obs, A, R, M, S]) => StateValue[Obs, A, R, T, S],
       states: Traversable[State[Obs, A, R, S]],
       inPlace: Boolean,
       valueIteration: Boolean
@@ -42,10 +43,10 @@ object Sweep {
       }
       ._1
 
-  def sweepUntil[Obs, A, R, T, M[_]: ExpectedValue, S[_]: ExpectedValue](
+  def sweepUntil[Obs, A, R, T, M[_]: Expectation, S[_]: Expectation](
       valueFn: StateValueFn[Obs, T],
       policyFn: StateValueFn[Obs, T] => Policy[Obs, A, R, M, S],
-      evaluatorFn: (StateValueFn[Obs, T], Policy[Obs, A, R, M, S]) => Evaluator.StateValue[Obs, A, R, T, S],
+      evaluatorFn: (StateValueFn[Obs, T], Policy[Obs, A, R, M, S]) => StateValue[Obs, A, R, T, S],
       states: Traversable[State[Obs, A, R, S]],
       stopFn: (StateValueFn[Obs, T], StateValueFn[Obs, T], Long) => Boolean,
       inPlace: Boolean,
@@ -62,7 +63,7 @@ object Sweep {
     }
 
   // TODO - this probably needs to take evaluators directly.
-  def isPolicyStable[Obs, A, R, T: DModule: Ordering, M[_], S[_]: ExpectedValue](
+  def isPolicyStable[Obs, A, R, T: DModule: Ordering, M[_], S[_]: Expectation](
       l: StateValueFn[Obs, T],
       r: StateValueFn[Obs, T],
       prepare: R => T,

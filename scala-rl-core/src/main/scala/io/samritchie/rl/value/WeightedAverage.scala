@@ -1,8 +1,9 @@
 package io.samritchie.rl
-package util
+package value
 
-import algebra.CommutativeGroup
+import _root_.algebra.CommutativeGroup
 import com.twitter.algebird.Group
+import io.samritchie.rl.algebra.Weight
 
 /**
   This is of course extremely similar to the averaged value implementation in

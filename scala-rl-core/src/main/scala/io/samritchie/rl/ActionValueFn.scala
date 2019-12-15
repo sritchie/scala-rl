@@ -1,6 +1,7 @@
 package io.samritchie.rl
 
 import com.twitter.algebird.{Aggregator, Monoid, MonoidAggregator, Semigroup}
+import io.samritchie.rl.evaluate.ActionValue
 
 /**
   Along with [[StateValueFn]], this is the main trait in tabular reinforcement
@@ -57,6 +58,12 @@ trait ActionValueFn[Obs, A, T] { self =>
     */
   def mergeable(implicit T: Semigroup[T]): ActionValueFn[Obs, A, T] =
     new ActionValueFn.Mergeable(self)
+
+  /**
+    TODO fill in.
+    */
+  def toEvaluator[R, S[_]]: ActionValue[Obs, A, R, T, S] =
+    ActionValue.fn(self)
 }
 
 /**

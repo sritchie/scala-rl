@@ -18,13 +18,14 @@ package io.samritchie.rl
 package policy
 
 import cats.{Id, Monad}
-import io.samritchie.rl.util.ExpectedValue
+import io.samritchie.rl.algebra.{Expectation, Module}
+import io.samritchie.rl.evaluate.ActionValue
 
 /**
 Base logic for greedy policies.
   */
 class Greedy[Obs, A, R, T: Ordering, S[_]](
-    evaluator: Evaluator.ActionValue[Obs, A, R, T, S],
+    evaluator: ActionValue[Obs, A, R, T, S],
     epsilon: Double
 ) extends Policy[Obs, A, R, Cat, S] { self =>
 
@@ -56,7 +57,7 @@ object Greedy {
     def stochastic[Obs, A](valueFn: StateValueFn[Obs, T]): Policy[Obs, A, R, Cat, Cat] =
       policy(valueFn)
 
-    def policy[Obs, A, S[_]: ExpectedValue](valueFn: StateValueFn[Obs, T]): Policy[Obs, A, R, Cat, S] =
+    def policy[Obs, A, S[_]: Expectation](valueFn: StateValueFn[Obs, T]): Policy[Obs, A, R, Cat, S] =
       new Greedy[Obs, A, R, T, S](Evaluator.oneAhead(valueFn, prepare, merge), epsilon)
   }
 }

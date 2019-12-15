@@ -6,7 +6,7 @@ package world
 
 import cats.{Id, Monad}
 import cats.implicits._
-import io.samritchie.rl.util.CardDeck
+import io.samritchie.rl.world.util.CardDeck
 
 object Blackjack {
   import CardDeck.{Card, Rank}

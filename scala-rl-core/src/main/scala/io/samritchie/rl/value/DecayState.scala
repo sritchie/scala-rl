@@ -2,7 +2,8 @@ package io.samritchie.rl
 package value
 
 import com.twitter.algebird.{Group, Ring, VectorSpace}
-import io.samritchie.rl.util.{ExpectedValue, ToDouble}
+import io.samritchie.rl.algebra.{Expectation, Module, ToDouble}
+import io.samritchie.rl.evaluate.StateValue
 
 /**
   This represents a value that's weighted as you move away from it. This is
@@ -23,12 +24,15 @@ object DecayState {
     override val toValue: DecayedValue[A] = this
   }
 
-  def bellmanFn[Obs, A, R: DModule, T, M[_]: ExpectedValue, S[_]: ExpectedValue](
+  /**
+    Filling in.
+    */
+  def bellmanFn[Obs, A, R: DModule, T, M[_]: Expectation, S[_]: Expectation](
       gamma: Double
   ): (
       StateValueFn[Obs, DecayState[R]],
       Policy[Obs, A, R, M, S]
-  ) => Evaluator.StateValue[Obs, A, R, DecayState[R], S] = {
+  ) => StateValue[Obs, A, R, DecayState[R], S] = {
     val group = decayStateGroup[R](gamma)
     implicit val module = decayStateModule[R](gamma)
     (f, p) => Evaluator.bellman[Obs, A, R, DecayState[R], M, S](f, p, Reward(_), group.plus(_, _))

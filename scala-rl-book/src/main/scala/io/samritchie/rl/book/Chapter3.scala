@@ -8,15 +8,16 @@ package io.samritchie.rl
 package book
 
 import cats.Id
+import io.samritchie.rl.algebra.ToDouble
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Tabulator
 import io.samritchie.rl.policy.Greedy
-import io.samritchie.rl.util.{Grid, ToDouble}
 import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.GridWorld
+import io.samritchie.rl.world.util.Grid
 
 object Chapter3 {
-  import io.samritchie.rl.util.Grid.{Bounds, Move, Position}
+  import io.samritchie.rl.world.util.Grid.{Bounds, Move, Position}
 
   // Configuration for the gridworld used in the examples.
   val gridConf = GridWorld

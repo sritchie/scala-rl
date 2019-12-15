@@ -2,8 +2,8 @@ package io.samritchie.rl
 package book
 
 import io.samritchie.rl.logic.Sweep
-import io.samritchie.rl.util.Grid
 import io.samritchie.rl.value.{DecayState, StateValueMap}
+import io.samritchie.rl.world.util.Grid
 import org.scalatest.FunSuite
 
 /**

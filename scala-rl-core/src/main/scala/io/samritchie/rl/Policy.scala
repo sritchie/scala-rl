@@ -5,6 +5,7 @@ package io.samritchie.rl
 
 import cats.{Functor, Id}
 import cats.arrow.FunctionK
+import io.samritchie.rl.evaluate.ActionValue
 
 import scala.language.higherKinds
 
@@ -76,7 +77,7 @@ object Policy {
     Full greed. mapK(Cat.setToCat) to get the usual Greedy.
     */
   def greedy[Obs, A, R, T: Ordering, S[_]](
-      evaluator: Evaluator.ActionValue[Obs, A, R, T, S]
+      evaluator: ActionValue[Obs, A, R, T, S]
   ): Policy[Obs, A, R, Cat, S] =
     choose(s => Cat.fromSet(evaluator.greedyOptions(s)))
 
@@ -89,7 +90,7 @@ object Policy {
     }}}
     */
   def epsilonGreedy[Obs, A, R, T: Ordering, S[_]](
-      evaluator: Evaluator.ActionValue[Obs, A, R, T, S],
+      evaluator: ActionValue[Obs, A, R, T, S],
       epsilon: Double
   ): policy.Greedy[Obs, A, R, T, S] = new policy.Greedy(evaluator, epsilon)
 

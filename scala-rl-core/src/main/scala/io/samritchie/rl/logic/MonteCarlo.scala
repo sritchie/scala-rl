@@ -7,7 +7,8 @@ package logic
 import cats.Monad
 import cats.implicits._
 import com.twitter.algebird.{Aggregator, Monoid, MonoidAggregator}
-import io.samritchie.rl.util.{FrequencyTracker, Weight}
+import io.samritchie.rl.algebra.Weight
+import io.samritchie.rl.util.FrequencyTracker
 import scala.annotation.tailrec
 
 object MonteCarlo {

@@ -3,6 +3,7 @@
   * with custom moves between them...
   */
 package io.samritchie.rl
+package world
 package util
 
 import scala.util.{Failure, Success, Try}

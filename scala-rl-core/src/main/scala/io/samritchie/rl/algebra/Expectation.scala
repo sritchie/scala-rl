@@ -1,5 +1,5 @@
 package io.samritchie.rl
-package util
+package algebra
 
 import cats.Id
 
@@ -10,24 +10,24 @@ import cats.Id
 
   NOTE the implementation is responsible for normalizing.
   */
-trait ExpectedValue[M[_]] {
+trait Expectation[M[_]] {
   def get[A, B](a: M[A])(f: A => B)(implicit M: Module[Double, B]): B
 }
 
-object ExpectedValue extends ExpectedValueImplicits {
-  @inline final def apply[M[_]](implicit M: ExpectedValue[M]): ExpectedValue[M] = M
+object Expectation extends ExpectationImplicits {
+  @inline final def apply[M[_]](implicit M: Expectation[M]): Expectation[M] = M
 
-  implicit val id: ExpectedValue[Id] = new ExpectedValue[Id] {
+  implicit val id: Expectation[Id] = new Expectation[Id] {
     def get[A, B](a: A)(f: A => B)(implicit M: Module[Double, B]): B = f(a)
   }
 }
 
-trait ExpectedValueImplicits {
-  implicit def fromWeighted[M[_]](implicit W: Weighted[M, Double]): ExpectedValue[M] =
-    new ExpectedValue[M] {
+trait ExpectationImplicits {
+  implicit def fromDecomposition[M[_]](implicit D: Decompose[M, Double]): Expectation[M] =
+    new Expectation[M] {
       def get[A, B](a: M[A])(f: A => B)(implicit M: Module[Double, B]): B =
         M.group.sum(
-          W.weights(a).map { case (a, weight) => M.scale(weight, f(a)) }
+          D.decompose(a).map { case (a, coef) => M.scale(coef, f(a)) }
         )
     }
 }

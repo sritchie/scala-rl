@@ -13,10 +13,12 @@ import com.stripe.rainier.core.Generator
 import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.{Aggregator, AveragedValue, MonoidAggregator}
 import com.twitter.util.Stopwatch
+import io.samritchie.rl.algebra.Weight
+import io.samritchie.rl.evaluate.ActionValue
 import io.samritchie.rl.logic.{Episode, MonteCarlo}
 import io.samritchie.rl.policy.Greedy
-import io.samritchie.rl.util.{CardDeck, Weight}
 import io.samritchie.rl.world.{Blackjack, InfiniteVariance}
+import io.samritchie.rl.world.util.CardDeck
 
 object Chapter5 {
   import Blackjack.{Action, AgentView, Result}
@@ -226,9 +228,7 @@ object Chapter5 {
       limitedM(uniformStarts),
       // you could also use a gamma = 1 DecayState.
       MonteCarlo.weighted(Aggregator.fromMonoid[Double], MonteCarlo.constant), { vfn =>
-        val evaluator =
-          Evaluator.ActionValue.fn[AgentView, Action, Double, (Double, Weight), Generator](vfn)
-        new Greedy(evaluator, 0.0).mapK(Cat.catToGenerator)
+        new Greedy(vfn.toEvaluator[Double, Generator], 0.0).mapK(Cat.catToGenerator)
       }
     )
 
@@ -291,7 +291,7 @@ object Chapter5 {
     val weightedValueFn: ActionValueFn[AgentView, Action, (Double, Weight)] =
       ActionValueFn.fromAggregator(
         Aggregator
-          .appendMonoid[(Double, Weight), util.WeightedAverage] {
+          .appendMonoid[(Double, Weight), value.WeightedAverage] {
             case (wa, (g, newWeight)) => wa.plus(g, newWeight)
           }
           .andThenPresent { case wa => (wa.value, Weight.one) }

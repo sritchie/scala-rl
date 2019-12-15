@@ -1,5 +1,5 @@
 package io.samritchie.rl
-package util
+package algebra
 
 import scala.{specialized => sp}
 
