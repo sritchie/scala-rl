@@ -6,6 +6,7 @@ package world
 package util
 
 import com.stripe.rainier.core.Generator
+import io.samritchie.rl.rainier.Categorical
 
 object CardDeck {
   sealed trait Rank extends Any with Product with Serializable
@@ -50,6 +51,6 @@ object CardDeck {
     Generates cards from an infinite stream, with replacement.
     */
   val basic: Generator[Card] = Generator.vector(Card.all)
-  val allCat: Cat[Card] = Cat.seq(Card.all)
-  val heartsCat: Cat[Card] = Cat.seq(Card.all.filter(_.suit == Suit.Hearts))
+  val allCat: Cat[Card] = Categorical.seq(Card.all)
+  val heartsCat: Cat[Card] = Categorical.seq(Card.all.filter(_.suit == Suit.Hearts))
 }

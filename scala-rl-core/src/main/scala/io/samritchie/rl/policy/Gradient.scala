@@ -7,6 +7,7 @@ package bandit
 
 import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, Semigroup}
 import io.samritchie.rl.algebra.ToDouble
+import io.samritchie.rl.rainier.Categorical
 
 /**
   * This thing needs to track its average reward internally... then,
@@ -37,7 +38,7 @@ case class Gradient[Obs, A: Equiv, R: ToDouble, T: ToDouble, S[_]](
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] = {
     implicit val at = aToDouble(state.observation)
-    Cat.softmax(state.actions)
+    Categorical.softmax(state.actions)
   }
 
   override def learn(sars: SARS[Obs, A, R, S]): This = {

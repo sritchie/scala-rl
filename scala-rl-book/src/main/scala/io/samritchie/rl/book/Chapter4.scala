@@ -10,6 +10,7 @@ import io.samritchie.rl.algebra.ToDouble
 import io.samritchie.rl.evaluate.ActionValue
 import io.samritchie.rl.logic.Sweep
 import io.samritchie.rl.plot.Plot
+import io.samritchie.rl.rainier.Categorical
 import io.samritchie.rl.value.DecayState
 import io.samritchie.rl.world.{CarRental, GridWorld}
 
@@ -81,7 +82,7 @@ object Chapter4 {
       inPlace: Boolean
   ): (StateValueFn[CarRental.InvPair, DecayState[Double]], CarRental.Config, Long) = {
     import CarRental.{ConstantConfig, PoissonConfig}
-    import Cat.Poisson.Lambda
+    import Categorical.Poisson.Lambda
 
     val locationA = CarRental.Location(
       PoissonConfig(11, Lambda(3)),

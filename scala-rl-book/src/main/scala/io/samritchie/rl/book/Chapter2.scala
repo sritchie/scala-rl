@@ -10,6 +10,7 @@ import com.twitter.util.Stopwatch
 import io.samritchie.rl.logic.Episode
 import io.samritchie.rl.plot.Plot
 import io.samritchie.rl.policy.bandit.Greedy
+import io.samritchie.rl.rainier.Categorical
 import io.samritchie.rl.world.Bandit
 
 /**
@@ -100,7 +101,7 @@ object Chapter2 {
 
   def play(policy: Policy[Unit, Arm, Double, Cat, Generator]): List[Double] =
     playBandit(
-      policy.mapK(Cat.catToGenerator),
+      policy.mapK(Categorical.catToGenerator),
       nArmedTestbed(10, 0.0, 1.0),
       nRuns = 200,
       timeSteps = 1000

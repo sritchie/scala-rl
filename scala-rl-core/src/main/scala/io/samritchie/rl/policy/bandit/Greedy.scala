@@ -8,6 +8,7 @@ package bandit
 
 import cats.{Functor, Monad}
 import com.twitter.algebird.{AveragedValue, Semigroup}
+import io.samritchie.rl.rainier.Categorical
 import Util.Instances._
 
 /**
@@ -20,14 +21,14 @@ case class Greedy[Obs, A, R, T: Ordering, S[_]](
   implicit val functor: Functor[Cat] = Functor[Cat]
 
   private val explore: Cat[Boolean] =
-    Cat.boolean(config.epsilon)
+    Categorical.boolean(config.epsilon)
 
   private def allActions(state: State[Obs, A, R, S]): Cat[A] =
-    Cat.fromSet(state.actions)
+    Categorical.fromSet(state.actions)
 
   private def greedy(state: State[Obs, A, R, S]): Cat[A] = {
     val obs = state.observation
-    Cat.fromSet(
+    Categorical.fromSet(
       Util.allMaxBy(state.actions)(
         valueFn.actionValue(obs, _)
       )

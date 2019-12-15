@@ -9,6 +9,7 @@ package bandit
 
 import com.twitter.algebird.{Aggregator, Monoid, Semigroup}
 import io.samritchie.rl.evaluate.ActionValue
+import io.samritchie.rl.rainier.Categorical
 
 case class UCB[Obs, A, R, T, S[_]](
     config: UCB.Config[R, T],
@@ -20,7 +21,7 @@ case class UCB[Obs, A, R, T, S[_]](
     valueFn.toEvaluator
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
-    Cat.fromSet(
+    Categorical.fromSet(
       Util
         .allMaxBy(state.actions)(
           evaluator.evaluate(state, _).totalValue(time)

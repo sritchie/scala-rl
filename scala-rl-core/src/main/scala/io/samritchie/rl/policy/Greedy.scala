@@ -20,6 +20,7 @@ package policy
 import cats.{Id, Monad}
 import io.samritchie.rl.algebra.{Expectation, Module}
 import io.samritchie.rl.evaluate.ActionValue
+import io.samritchie.rl.rainier.Categorical
 
 /**
 Base logic for greedy policies.
@@ -30,13 +31,13 @@ class Greedy[Obs, A, R, T: Ordering, S[_]](
 ) extends Policy[Obs, A, R, Cat, S] { self =>
 
   private val explore: Cat[Boolean] =
-    Cat.boolean(epsilon)
+    Categorical.boolean(epsilon)
 
   private def allActions(state: State[Obs, A, R, S]): Cat[A] =
-    Cat.fromSet(state.actions)
+    Categorical.fromSet(state.actions)
 
   private def greedy(state: State[Obs, A, R, S]): Cat[A] =
-    Cat.fromSet(evaluator.greedyOptions(state))
+    Categorical.fromSet(evaluator.greedyOptions(state))
 
   override def choose(state: State[Obs, A, R, S]): Cat[A] =
     Monad[Cat].ifM(explore)(allActions(state), greedy(state))

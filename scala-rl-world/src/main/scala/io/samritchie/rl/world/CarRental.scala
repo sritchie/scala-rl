@@ -5,8 +5,10 @@
 package io.samritchie.rl
 package world
 
+import io.samritchie.rl.rainier.Categorical
+
 object CarRental {
-  import Cat.Poisson
+  import Categorical.Poisson
   import Poisson.Lambda
 
   case class Inventory(n: Int, maxN: Int) {
@@ -74,8 +76,8 @@ object CarRental {
   def toDistribution(config: DistConf): Cat[Int] =
     config match {
       case PoissonConfig(upperBound, mean) =>
-        Cat.poisson(upperBound, mean)
-      case ConstantConfig(mean) => Cat.pure(mean)
+        Categorical.poisson(upperBound, mean)
+      case ConstantConfig(mean) => Categorical.pure(mean)
     }
 }
 
@@ -118,7 +120,7 @@ case class CarRental(
           (reward, copy(a = newA, b = newB))
       }
     }
-  override val invalidMove = Cat.pure((0.0, this))
+  override val invalidMove = Categorical.pure((0.0, this))
 
   private def processAll(
       move: Move,

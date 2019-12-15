@@ -4,6 +4,8 @@
 package io.samritchie.rl
 package world
 
+import io.samritchie.rl.rainier.Categorical
+
 object GamblersProblem {
   case class Amount(p: Int) extends AnyVal {
     def >=(r: Amount): Boolean = p >= r.p
@@ -15,7 +17,7 @@ object GamblersProblem {
       winningReward: Double
   ) {
     val headsDistribution: Cat[Boolean] =
-      Cat.boolean(headProb)
+      Categorical.boolean(headProb)
 
     def build(startingAmount: Amount): GamblersProblem =
       GamblersProblem(this, startingAmount)
@@ -38,7 +40,7 @@ case class GamblersProblem(
   override val observation = amount
 
   // Maybe we want a real penalty here.
-  override val invalidMove = Cat.pure((0.0, this))
+  override val invalidMove = Categorical.pure((0.0, this))
 
   override lazy val dynamics: Map[Amount, Cat[(Double, GamblersProblem)]] =
     if (amount >= config.winningAmount || amount.p <= 0)

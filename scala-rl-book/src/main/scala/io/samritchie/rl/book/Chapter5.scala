@@ -14,9 +14,9 @@ import com.stripe.rainier.sampler.RNG
 import com.twitter.algebird.{Aggregator, AveragedValue, MonoidAggregator}
 import com.twitter.util.Stopwatch
 import io.samritchie.rl.algebra.Weight
-import io.samritchie.rl.evaluate.ActionValue
 import io.samritchie.rl.logic.{Episode, MonteCarlo}
 import io.samritchie.rl.policy.Greedy
+import io.samritchie.rl.rainier.Categorical
 import io.samritchie.rl.world.{Blackjack, InfiniteVariance}
 import io.samritchie.rl.world.util.CardDeck
 
@@ -228,7 +228,7 @@ object Chapter5 {
       limitedM(uniformStarts),
       // you could also use a gamma = 1 DecayState.
       MonteCarlo.weighted(Aggregator.fromMonoid[Double], MonteCarlo.constant), { vfn =>
-        new Greedy(vfn.toEvaluator[Double, Generator], 0.0).mapK(Cat.catToGenerator)
+        new Greedy(vfn.toEvaluator[Double, Generator], 0.0).mapK(Categorical.catToGenerator)
       }
     )
 
@@ -278,7 +278,7 @@ object Chapter5 {
 
     // the behavior policy is the random policy. We're going to randomly explore
     // and see what we get.
-    val behavior = random[Generator].mapK(Cat.catToGenerator)
+    val behavior = random[Generator].mapK(Categorical.catToGenerator)
 
     // then we're going to apply those results to the target policy.
     val target = stickHigh[Generator](hitBelow = 20).mapK(Util.idToMonad[Generator])

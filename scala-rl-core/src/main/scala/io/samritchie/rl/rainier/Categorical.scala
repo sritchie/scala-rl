@@ -1,11 +1,11 @@
 package io.samritchie.rl
+package rainier
 
 import cats.{Applicative, Monad, Monoid}
 import cats.arrow.FunctionK
 import com.stripe.rainier.compute.Real
-import com.stripe.rainier.core.{Categorical, Generator, ToGenerator}
-import com.twitter.algebird.DoubleRing
-import io.samritchie.rl.algebra.{Decompose, ToDouble}
+import com.stripe.rainier.core.{Categorical => RCat, Generator, ToGenerator}
+import io.samritchie.rl.algebra.ToDouble
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
@@ -16,11 +16,11 @@ import scala.collection.immutable.Queue
   * @param pmfSeq A map with keys corresponding to the possible outcomes and
   * values corresponding to the probabilities of those outcomes.
   */
-final case class Cat[+T](pmfSeq: List[(T, Double)]) {
+final case class Categorical[+T](pmfSeq: List[(T, Double)]) {
   def pmf[U >: T]: Map[U, Double] = pmfSeq.toMap
 
-  def map[U](fn: T => U): Cat[U] =
-    Cat(
+  def map[U](fn: T => U): Categorical[U] =
+    Categorical(
       pmfSeq
         .foldLeft(Map.empty[U, Double]) {
           case (acc, (t, p)) =>
@@ -29,8 +29,8 @@ final case class Cat[+T](pmfSeq: List[(T, Double)]) {
         .toList
     )
 
-  def flatMap[U](fn: T => Cat[U]): Cat[U] =
-    Cat(
+  def flatMap[U](fn: T => Categorical[U]): Categorical[U] =
+    Categorical(
       (for {
         (t, p) <- pmfSeq
         (u, p2) <- fn(t).pmfSeq
@@ -42,20 +42,20 @@ final case class Cat[+T](pmfSeq: List[(T, Double)]) {
         .toList
     )
 
-  def zip[U](other: Cat[U]): Cat[(T, U)] =
-    Cat(
+  def zip[U](other: Categorical[U]): Categorical[(T, U)] =
+    Categorical(
       for {
         (t, p) <- pmfSeq
         (u, p2) <- other.pmfSeq
       } yield ((t, u), p * p2)
     )
 
-  def toRainier[U >: T]: Categorical[U] =
-    Categorical.normalize(pmf[U].mapValues(Real(_)))
+  def toRainier[U >: T]: RCat[U] =
+    RCat.normalize(pmf[U].mapValues(Real(_)))
 }
 
-object Cat extends CatInstances {
-  def apply[T](pmf: Map[T, Double]): Cat[T] = Cat(pmf.toList)
+object Categorical extends CategoricalInstances {
+  def apply[T](pmf: Map[T, Double]): Categorical[T] = Categorical(pmf.toList)
 
   object Poisson {
     case class Lambda(value: Double) extends AnyVal
@@ -81,33 +81,33 @@ object Cat extends CatInstances {
       math.exp(logProbability(k, lambda))
   }
 
-  def poisson(upperBound: Int, mean: Poisson.Lambda): Cat[Int] =
+  def poisson(upperBound: Int, mean: Poisson.Lambda): Categorical[Int] =
     normalize(Util.makeMapUnsafe((0 until upperBound))(Poisson.probability(_, mean.value)))
 
-  def boolean(p: Double): Cat[Boolean] =
-    Cat(Map(true -> p, false -> (1.0 - p)))
+  def boolean(p: Double): Categorical[Boolean] =
+    Categorical(Map(true -> p, false -> (1.0 - p)))
 
-  def pure[A](a: A): Cat[A] = Cat(List((a, 1.0)))
+  def pure[A](a: A): Categorical[A] = Categorical(List((a, 1.0)))
 
-  def normalize[T](pmf: Map[T, Double]): Cat[T] = {
+  def normalize[T](pmf: Map[T, Double]): Categorical[T] = {
     val total = (pmf.values.toList).sum
-    Cat(pmf.map { case (t, p) => (t, p / total) })
+    Categorical(pmf.map { case (t, p) => (t, p / total) })
   }
 
-  def seq[T](ts: Seq[T]): Cat[T] =
+  def seq[T](ts: Seq[T]): Categorical[T] =
     normalize(ts.groupBy(identity).mapValues(_.size))
 
-  def fromSet[T](ts: Set[T]): Cat[T] = {
+  def fromSet[T](ts: Set[T]): Categorical[T] = {
     val p = 1.0 / ts.size
-    Cat(
+    Categorical(
       ts.foldLeft(Map.empty[T, Double])((m, t) => m.updated(t, p))
     )
   }
 
-  def softmax[A, B](m: Map[A, Double]): Cat[A] =
+  def softmax[A, B](m: Map[A, Double]): Categorical[A] =
     normalize(m.mapValues(math.exp(_)))
 
-  def softmax[A: ToDouble](as: Set[A]): Cat[A] = {
+  def softmax[A: ToDouble](as: Set[A]): Categorical[A] = {
     val (pmf, sum) = as.foldLeft((Map.empty[A, Double], 0.0)) {
       case ((m, r), a) =>
         val aExp = math.exp(ToDouble[A].apply(a))
@@ -117,51 +117,45 @@ object Cat extends CatInstances {
   }
 }
 
-trait CatInstances {
-  implicit val catMonad: Monad[Cat] = CatMonad
-  implicit def catMonoid[A: Monoid]: Monoid[Cat[A]] = Applicative.monoid[Cat, A]
-  implicit def gen[T]: ToGenerator[Cat[T], T] =
-    new ToGenerator[Cat[T], T] {
-      def apply(c: Cat[T]) = c.toRainier.generator
-    }
-  implicit val decompose: Decompose[Cat, Double] =
-    new Decompose[Cat, Double] {
-      override val ring = DoubleRing
-      override def decompose[A](ma: Cat[A]): Iterator[(A, Double)] =
-        ma.pmfSeq.iterator
+trait CategoricalInstances {
+  implicit val catMonad: Monad[Categorical] = CategoricalMonad
+  implicit def catMonoid[A: Monoid]: Monoid[Categorical[A]] = Applicative.monoid[Categorical, A]
+  implicit def gen[T]: ToGenerator[Categorical[T], T] =
+    new ToGenerator[Categorical[T], T] {
+      def apply(c: Categorical[T]) = c.toRainier.generator
     }
 
-  val setToCat: FunctionK[Set, Cat] =
-    new FunctionK[Set, Cat] {
-      def apply[A](sa: Set[A]) = Cat.fromSet(sa)
+  val setToCategorical: FunctionK[Set, Categorical] =
+    new FunctionK[Set, Categorical] {
+      def apply[A](sa: Set[A]) = Categorical.fromSet(sa)
     }
 
-  val catToCategorical: FunctionK[Cat, Categorical] =
-    new FunctionK[Cat, Categorical] {
-      def apply[A](ca: Cat[A]) = ca.toRainier
+  val toRainierCategorical: FunctionK[Categorical, RCat] =
+    new FunctionK[Categorical, RCat] {
+      def apply[A](ca: Categorical[A]) = ca.toRainier
     }
 
-  val catToGenerator: FunctionK[Cat, Generator] =
-    new FunctionK[Cat, Generator] {
-      def apply[A](ca: Cat[A]): Generator[A] = ca.toRainier.generator
+  val catToGenerator: FunctionK[Categorical, Generator] =
+    new FunctionK[Categorical, Generator] {
+      def apply[A](ca: Categorical[A]): Generator[A] = ca.toRainier.generator
     }
 }
 
-private[rl] object CatMonad extends Monad[Cat] {
-  def pure[A](x: A): Cat[A] = Cat.pure(x)
+private[rl] object CategoricalMonad extends Monad[Categorical] {
+  def pure[A](x: A): Categorical[A] = Categorical.pure(x)
 
-  override def map[A, B](fa: Cat[A])(f: A => B): Cat[B] =
+  override def map[A, B](fa: Categorical[A])(f: A => B): Categorical[B] =
     fa.map(f)
 
   override def product[A, B](
-      fa: Cat[A],
-      fb: Cat[B]
-  ): Cat[(A, B)] = fa.zip(fb)
+      fa: Categorical[A],
+      fb: Categorical[B]
+  ): Categorical[(A, B)] = fa.zip(fb)
 
-  override def flatMap[A, B](fa: Cat[A])(f: A => Cat[B]): Cat[B] =
+  override def flatMap[A, B](fa: Categorical[A])(f: A => Categorical[B]): Categorical[B] =
     fa.flatMap(f)
 
-  def tailRecM[A, B](a: A)(f: A => Cat[Either[A, B]]): Cat[B] = {
+  def tailRecM[A, B](a: A)(f: A => Categorical[Either[A, B]]): Categorical[B] = {
     @tailrec
     def run(acc: Map[B, Double], queue: Queue[(Either[A, B], Double)]): Map[B, Double] =
       queue.headOption match {
@@ -172,6 +166,6 @@ private[rl] object CatMonad extends Monad[Cat] {
           run(Util.mergeV(acc, b, v), queue.drop(1))
       }
     val pmf = run(Map.empty, f(a).pmfSeq.to[Queue])
-    Cat[B](pmf)
+    Categorical[B](pmf)
   }
 }

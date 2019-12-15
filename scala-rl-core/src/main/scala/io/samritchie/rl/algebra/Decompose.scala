@@ -3,8 +3,9 @@ package algebra
 
 import cats.Id
 import com.stripe.rainier.compute.Real
-import com.stripe.rainier.core.Categorical
-import com.twitter.algebird.Ring
+import com.stripe.rainier.core.{Categorical => RCat}
+import com.twitter.algebird.{DoubleRing, Ring}
+import io.samritchie.rl.rainier.Categorical
 
 trait Decompose[M[_], R] extends Serializable {
   def ring: Ring[R]
@@ -20,17 +21,24 @@ object Decompose {
       override def decompose[A](a: A): Iterator[(A, R)] = Iterator((a, R.one))
     }
 
-  implicit def categoricalDouble(implicit n: Numeric[Real]): Decompose[Categorical, Double] =
-    new Decompose[Categorical, Double] {
-      override val ring = Ring.doubleRing
-      override def decompose[A](ma: Categorical[A]): Iterator[(A, Double)] =
+  implicit def rcatDouble(implicit n: Numeric[Real]): Decompose[RCat, Double] =
+    new Decompose[RCat, Double] {
+      override val ring = DoubleRing
+      override def decompose[A](ma: RCat[A]): Iterator[(A, Double)] =
         ma.pmf.iterator.map { case (a, r) => (a, n.toDouble(r)) }
     }
 
-  implicit val categoricalReal: Decompose[Categorical, Real] =
-    new Decompose[Categorical, Real] {
+  implicit val rcatReal: Decompose[RCat, Real] =
+    new Decompose[RCat, Real] {
       override val ring = Util.Instances.RealRing
-      override def decompose[A](ma: Categorical[A]): Iterator[(A, Real)] =
+      override def decompose[A](ma: RCat[A]): Iterator[(A, Real)] =
         ma.pmf.iterator
+    }
+
+  implicit val categoricalDouble: Decompose[Categorical, Double] =
+    new Decompose[Categorical, Double] {
+      override val ring = DoubleRing
+      override def decompose[A](ma: Categorical[A]): Iterator[(A, Double)] =
+        ma.pmfSeq.iterator
     }
 }

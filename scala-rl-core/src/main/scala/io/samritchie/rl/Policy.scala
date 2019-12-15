@@ -6,6 +6,7 @@ package io.samritchie.rl
 import cats.{Functor, Id}
 import cats.arrow.FunctionK
 import io.samritchie.rl.evaluate.ActionValue
+import io.samritchie.rl.rainier.Categorical
 
 import scala.language.higherKinds
 
@@ -68,18 +69,18 @@ object Policy {
     }
 
   /**
-    Full exploration. mapK(Cat.setToCat) to get the usual Greedy.
+    Full exploration. mapK(Categorical.setToCat) to get the usual Greedy.
     */
   def random[Obs, A, R, S[_]]: Policy[Obs, A, R, Cat, S] =
-    Policy.choose(s => Cat.fromSet(s.actions))
+    Policy.choose(s => Categorical.fromSet(s.actions))
 
   /**
-    Full greed. mapK(Cat.setToCat) to get the usual Greedy.
+    Full greed. mapK(Categorical.setToCat) to get the usual Greedy.
     */
   def greedy[Obs, A, R, T: Ordering, S[_]](
       evaluator: ActionValue[Obs, A, R, T, S]
   ): Policy[Obs, A, R, Cat, S] =
-    choose(s => Cat.fromSet(evaluator.greedyOptions(s)))
+    choose(s => Categorical.fromSet(evaluator.greedyOptions(s)))
 
   /**
     In between. This is equal to

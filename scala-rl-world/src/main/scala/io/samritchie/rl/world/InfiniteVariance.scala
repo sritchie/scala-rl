@@ -6,8 +6,10 @@
 package io.samritchie.rl
 package world
 
+import io.samritchie.rl.rainier.Categorical
+
 sealed trait InfiniteVariance extends State[InfiniteVariance.View, InfiniteVariance.Move, Int, Cat] {
-  override val invalidMove = Cat.pure((0, this))
+  override val invalidMove = Categorical.pure((0, this))
 }
 
 object InfiniteVariance {
@@ -30,13 +32,13 @@ object InfiniteVariance {
   object AliveState extends InfiniteVariance {
     override val observation = View.Alive
     override val dynamics: Map[Move, Cat[(Int, InfiniteVariance)]] = Map(
-      Move.Left -> Cat(
+      Move.Left -> Categorical(
         Map(
           (0, AliveState) -> 0.1,
           (1, DeadState) -> 0.9
         )
       ),
-      Move.Right -> Cat.pure((0, DeadState))
+      Move.Right -> Categorical.pure((0, DeadState))
     )
   }
 
