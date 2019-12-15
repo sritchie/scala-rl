@@ -14,7 +14,8 @@ lazy val V = new {
   val rainier = "0.2.3-rc5-SNAPSHOT"
   val scala = "2.12.10"
   val scalacheck = "1.14.3"
-  val scalatest = "3.0.8"
+  val scalatest = "3.1.0"
+  val scalaTestPlus = "3.1.0.0"
   val util = "19.12.0"
 }
 
@@ -130,7 +131,7 @@ lazy val rl = Project(
   base = file("."))
   .settings(sharedSettings)
   .settings(noPublishSettings)
-  .aggregate(rlCore, rlBook, rlPlot)
+  .aggregate(rlCore, rlBook, rlPlot, rlWorld)
 
 def module(name: String) = {
   val id = "scala-rl-%s".format(name)
@@ -157,7 +158,8 @@ lazy val rlCore = module("core").settings(
     // Testing.
     "com.twitter" %% "algebird-test" % V.algebird % Test,
     "org.scalatest" %% "scalatest" % V.scalatest % Test,
-    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
+    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test,
+    "org.scalatestplus" %% "scalacheck-1-14" % V.scalaTestPlus % Test
   ) ++ Seq(compilerPlugin("org.typelevel" %% "kind-projector" % V.kindProjector)),
 )
 

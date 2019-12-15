@@ -3,11 +3,11 @@ package value
 
 import com.twitter.algebird._
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.PropSpec
+import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.Checkers
 import org.scalacheck.Prop.forAll
 
-class ConstantStepLaws extends PropSpec with Checkers with ConstantStepArb {
+class ConstantStepLaws extends AnyPropSpec with Checkers with ConstantStepArb {
   import BaseProperties._
   import ConstantStep.{zero, Alpha}
   import ConstantStepLaws.{alpha, fill, EPS}
@@ -101,7 +101,7 @@ object ConstantStepLaws {
       }
 }
 
-class ConstantStepTest extends org.scalatest.FunSuite {
+class ConstantStepTest extends org.scalatest.funsuite.AnyFunSuite {
   import BaseProperties.approxEq
   import ConstantStep.zero
   import ConstantStepLaws.{alpha, stepGroup, EPS}

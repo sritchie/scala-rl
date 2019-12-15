@@ -24,7 +24,7 @@ object ConnectFourSpec extends Properties("ConnectFour") with ConnectFourArb {
 /**
   * And this is a placeholder for basic tests.
   */
-class ConnectFourTest extends org.scalatest.FunSuite {
+class ConnectFourTest extends org.scalatest.funsuite.AnyFunSuite {
   test("example.test") {
     val digits = List(1, 2, 3)
     assert(digits.sum === 6)
