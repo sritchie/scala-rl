@@ -2,7 +2,6 @@ package io.samritchie.rl
 
 import com.twitter.algebird.{Aggregator, Monoid, MonoidAggregator, Semigroup}
 import io.samritchie.rl.evaluate.StateValue
-import io.samritchie.rl.value.DecayState
 
 /**
   Along with [[ActionValueFn]], this is the main trait in tabular reinforcement
@@ -68,22 +67,6 @@ trait StateValueFn[Obs, T] { self =>
   Constructors and classes associated with [[StateValueFn]].
   */
 object StateValueFn {
-
-  /**
-    Returns a new value function that absorbs rewards with decay.
-
-    TODO why are these not using monoids??
-    */
-  def decaying[Obs, T](default: T): StateValueFn[Obs, DecayState[T]] =
-    empty(DecayState.DecayedValue(default))
-
-  /**
-    Returns a new value function that absorbs rewards with decay.
-
-    TODO why are these not using monoids??
-    */
-  def decaying[Obs, T: Monoid]: StateValueFn[Obs, DecayState[T]] =
-    decaying(Monoid.zero)
 
   /**
     Returns an empty [[StateValueFn]] backed by an immutable map.

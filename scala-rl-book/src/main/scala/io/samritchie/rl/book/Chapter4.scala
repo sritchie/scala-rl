@@ -25,7 +25,9 @@ object Chapter4 {
   val allowedIterations: Long = 10000
   val gamma: Double = 1.0
   val epsilon: Double = 1e-4
-  val emptyFn = StateValueFn.decaying[Position, Double](0.0)
+  val emptyFn = StateValueFn.empty[Position, DecayState[Double]](
+    DecayState.DecayedValue(0.0)
+  )
 
   def shouldStop[Obs, T: ToDouble](
       l: StateValueFn[Obs, T],
@@ -105,7 +107,9 @@ object Chapter4 {
     val sweep = config.stateSweep
     val gamma = 0.9
 
-    val empty = StateValueFn.decaying[CarRental.InvPair, Double](0.0)
+    val empty = StateValueFn.empty[CarRental.InvPair, DecayState[Double]](
+      DecayState.DecayedValue(0.0)
+    )
     implicit val dm = DecayState.decayStateModule(gamma)
 
     // Build a Stochastic version of the greedy policy.
