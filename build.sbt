@@ -185,14 +185,14 @@ lazy val rlBook = module("book").settings(
   ),
   initialCommands :=
     """
-import io.samritchie.rl._
+import com.scalarl._
 import com.stripe.rainier.sampler.RNG
 import com.stripe.rainier.compute.{Evaluator, Real}
 
 implicit val rng: RNG = RNG.default
 implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 """.stripMargin('|'),
-  mainClass in (Compile, run) := Some("io.samritchie.rl.book.Chapter2"),
+  mainClass in (Compile, run) := Some("scalarl.book.Chapter2"),
 ).dependsOn(rlCore, rlPlot, rlWorld)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
@@ -262,7 +262,8 @@ lazy val docSettings = Seq(
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
     "-doc-source-url", "https://github.com/sritchie/scala-rl/tree/develop€{FILE_PATH}.scala",
     "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-    "-diagrams"
+    "-diagrams",
+    "-doc-root-content", "scaladoc-root.txt"
   ),
   git.remoteRepo := "git@github.com:sritchie/scala-rl.git",
   includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md"

@@ -20,7 +20,7 @@ We don't have strong conventions around our tests, but here are a few guidelines
 If you're adding [scalacheck](https://scalacheck.org/) properties... hold tight, more coming soon. Here's an example of an example:
 
 ```scala
-package io.samritchie.rl
+package com.scalarl
 
 import org.scalacheck.Prop
 
@@ -49,7 +49,7 @@ layout: docs
 title:  "<Your Page Title>"
 section: "data"
 source: "scala-rl-core/src/main/scala/io/samritchie/rl/<YourDataType>.scala"
-scaladoc: "#io.samritchie.rl.<YourDataType>"
+scaladoc: "#scalarl.<YourDataType>"
 ---
 
 # Your Data Type
