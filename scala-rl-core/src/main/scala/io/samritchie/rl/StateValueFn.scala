@@ -97,7 +97,7 @@ object StateValueFn {
     that's not been seen by the [[StateValueFn]].
     */
   def empty[Obs, T](default: T): StateValueFn[Obs, T] =
-    new Base(Map.empty[Obs, T], default)
+    Base(Map.empty, default)
 
   /**
     Returns an empty [[StateValueFn]] backed by an immutable map that uses the
