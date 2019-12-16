@@ -213,6 +213,8 @@ lazy val docSettings = Seq(
   micrositeGithubOwner := "sritchie",
   micrositeGithubRepo := "scala-rl",
 
+  micrositeCompilingDocsTool := WithTut,
+
   micrositeAnalyticsToken := "UA-146772284-1",
 
   micrositeExtraMdFiles := Map(
