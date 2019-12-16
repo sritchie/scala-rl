@@ -1,0 +1,151 @@
+<html><head><title>ScalaRL: Finite Markov Decision Processes</title><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Sam Ritchie" /><meta name="description" content="Reinforcement Learning in Scala." /><meta name="og:image" content="/img/poster.png" /><meta name="image" property="og:image" content="/img/poster.png" /><meta name="og:title" content="ScalaRL: Finite Markov Decision Processes" /><meta name="title" property="og:title" content="ScalaRL: Finite Markov Decision Processes" /><meta name="og:site_name" content="ScalaRL" /><meta name="og:url" content="http://www.scalarl.com/" /><meta name="og:type" content="website" /><meta name="og:description" content="Reinforcement Learning in Scala." /><link rel="icon" type="image/png" href="/img/favicon.png" /><meta name="twitter:title" content="ScalaRL: Finite Markov Decision Processes" /><meta name="twitter:image" content="http://www.scalarl.com/img/poster.png" /><meta name="twitter:description" content="Reinforcement Learning in Scala." /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="@scalaRLProject" /><meta name="twitter:creator" content="@sritchie" /><link rel="icon" type="image/png" sizes="16x16" href="/img/favicon16x16.png" /><link rel="icon" type="image/png" sizes="24x24" href="/img/favicon24x24.png" /><link rel="icon" type="image/png" sizes="32x32" href="/img/favicon32x32.png" /><link rel="icon" type="image/png" sizes="48x48" href="/img/favicon48x48.png" /><link rel="icon" type="image/png" sizes="57x57" href="/img/favicon57x57.png" /><link rel="icon" type="image/png" sizes="60x60" href="/img/favicon60x60.png" /><link rel="icon" type="image/png" sizes="64x64" href="/img/favicon64x64.png" /><link rel="icon" type="image/png" sizes="70x70" href="/img/favicon70x70.png" /><link rel="icon" type="image/png" sizes="72x72" href="/img/favicon72x72.png" /><link rel="icon" type="image/png" sizes="76x76" href="/img/favicon76x76.png" /><link rel="icon" type="image/png" sizes="96x96" href="/img/favicon96x96.png" /><link rel="icon" type="image/png" sizes="114x114" href="/img/favicon114x114.png" /><link rel="icon" type="image/png" sizes="120x120" href="/img/favicon120x120.png" /><link rel="icon" type="image/png" sizes="128x128" href="/img/favicon128x128.png" /><link rel="icon" type="image/png" sizes="144x144" href="/img/favicon144x144.png" /><link rel="icon" type="image/png" sizes="150x150" href="/img/favicon150x150.png" /><link rel="icon" type="image/png" sizes="152x152" href="/img/favicon152x152.png" /><link rel="icon" type="image/png" sizes="196x196" href="/img/favicon196x196.png" /><link rel="icon" type="image/png" sizes="310x310" href="/img/favicon310x310.png" /><link rel="icon" type="image/png" sizes="310x150" href="/img/favicon310x150.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/style.css" /><link rel="stylesheet" href="/css/palette.css" /><link rel="stylesheet" href="/css/codemirror.css" /><script async="async">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-146772284-1' , 'auto');
+ga('send', 'pageview');
+      </script></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"><span>ScalaRL</span></div></a></li>      <li><a href="/course.html" class="">Functional RL in Scala</a></li> <li><a href="/course/tabular.html" class="">Tabular Methods</a> <ul class="sub_section"> <li><a href="/course/tabular/bandits.html" class="">Multi-armed Bandits</a></li> <li><a href="/course/tabular/finite_mdps.html" class=" active ">Finite Markov Decision Processes</a></li> <li><a href="/course/tabular/dynamic_programming.html" class="">Dynamic Programming</a></li> <li><a href="/course/tabular/monte_carlo.html" class="">Monte Carlo Methods</a></li> <li><a href="/course/tabular/td_learning.html" class="">Temporal Difference Learning</a></li> <li><a href="/course/tabular/n_step_bootstrapping.html" class="">n-step Bootstrapping</a></li> <li><a href="/course/tabular/tabular_methods.html" class="">Planning and Learning with Tabular Methods</a></li></ul></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li id="gh-eyes-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="sritchie" data-github-repo="scala-rl"><div class="content-wrapper"><section><h1 id="finite-markov-decision-processes">Finite Markov Decision Processes</h1>
+
+<h1 id="warning">WARNING!</h1>
+
+<p>Note - this is VERY EARLY DAYS! All of the files in the course with this warning are the raw, totally unprocessed notes that I generated during my first reading of “Reinforcement Learning: An Introduction”.</p>
+
+<p>I’ll be converting these into proper course sections with wonderful embedded code that you can try out. I’m not there yet, but I wanted to develop all of this in the open.</p>
+
+<p>Maybe you’ll find these notes interesting, but don’t expect anything special… yet!</p>
+
+<h1 id="notes">Notes</h1>
+
+<p>There is not too  much to go on here for programming exercises, which is nice. This is the shell for everything else. There’s really just the gridworld. The Python example does this by hardcoding everything in.</p>
+
+<p>Can I make the gridworld really nice? Is there some interface that a game can satisfy…</p>
+
+<p>I mean, embedding it in a webpage is the best thing I can do. You set up your gridworld and hit “train” and boom, it gives you something solid. Is this worth doing? Only if it’s easy!</p>
+
+<p>Obviously good to go over the summary again on p. 69 before publishing anything here.</p>
+
+<h3 id="historical-notes">Historical Notes</h3>
+
+<p>This is covered on page 69, but maybe do some looking so we can give background on where these ideas came from.</p>
+
+<h3 id="summary">Summary</h3>
+
+<ul>
+  <li>we get the model for what we’re going to talk about next, and a ton of the vocab. We’re NOT talking about how to set up problems to be solved by this framework… but now we know about rewards, discounting, action-value functions, state-value functions etc, and we have some hints about how we might implement this.</li>
+  <li>The idea of how large the state space is obviously matters. For goofy examples like gridworld… it’s super easy to see what to do. For something more complicated, which is anything in the real world, anything really interesting, you’ve got to get more turbo and use the approximation methods in the second half of the book.</li>
+  <li>But we get an intro to what training vs prediction are in this world. It is all about decisions that step the state of the world forward. And then you’ve got a hovering process, watching all of this and integrating information learned back into the relevant states. How far back do you get to remember? We’ll talk about that later.</li>
+</ul>
+
+<p>Okay, this chapter introduces a bunch of different concepts, building up to this problem of… how do we model a system where different states present different opportunities?</p>
+
+<ul>
+  <li>the finite markov decision process!</li>
+</ul>
+
+<blockquote>
+  <p>These state-dependent quantities are essential to accurately assigning credit for long-term consequences to individual action selections. (p. 47)</p>
+</blockquote>
+
+<p>One q… they address this in chapter 17, but how do we go beyond the mathematical formalism? Are there things that you can only solve if you go beyond?</p>
+
+<p>What is the “social psychology” field going to look like for AI and machine learning? How do things change when you can inspect inside the black box?</p>
+
+<p>Next… the agent-environment interface.</p>
+
+<p>This is a mathematical model, remember. You have some inner thing, the agent, that is interacting with a totally unknown world. I guess you could build a model of the world, but it’s assumed that the world is not inspectable except via the state representation you’ve built.</p>
+
+<p>Something like this.</p>
+
+<p><img src="/img/agent_env.png" alt="Agent Environment Interaction" /></p>
+
+<ul>
+  <li>then we introduce the function $p(s’, r | s, a)$, which defines the <em>dynamics</em> of the system. That term is interesting, since it shows up in all sorts of places. Dynamics means, the equation governing what the system will do next. In physics often the variable is time… here time is replaced by the idea of taking an action. That is what ticks the clock forward. This is really a function though.</li>
+</ul>
+
+<p>The art is defining the boundary.</p>
+
+<blockquote>
+  <p>In practice, the agent-environment boundary is determined once one has selected particular states, actions and rewards, and thus has identified a specific decision making task of interest. (p. 50)</p>
+</blockquote>
+
+<p>HUGE abstraction. Now lots of examples of stuff that fits into it.</p>
+
+<p>Exceptions? when the state is incomplete and unknowable; random errors; or maybe… you wouldn’t want to use it when there is in fact a baked in physics model? Maybe not? That can come in later, as part of the thing calculating the value.</p>
+
+<p>The reward hypothesis:</p>
+
+<blockquote>
+  <p>That all of what we mean by goals and purposes can be well thought of as the maximization of the expected value of the cumulative sum of a received scalar signal. (p. 53)</p>
+</blockquote>
+
+<p>This is a little clunky. What it’s saying is that the goal is to maximize the total number of cocaine drips you’re going to receive in the future.</p>
+
+<ul>
+  <li>“expected value of the cumulative sum” - you’re guessing. You also want the total number over time to be big, not just tomorrow.</li>
+</ul>
+
+<p>So you have to craft an environment that produces rewards that send you toward a particular goal.</p>
+
+<p>Of course this the alignment problem, right here. What if you fuck it up?
+This is called <em>specification gaming</em>: https://docs.google.com/spreadsheets/u/1/d/e/2PACX-1vRPiprOaC3HsCf5Tuum8bRfzYUiKLRqJmbOoC-32JorNdfyTiRRsR7Ea5eWtvsWzuxo8bjOxCG84dAg/pubhtml</p>
+
+<p>That list is a bunch of amazing examples of the potential fuckups available.</p>
+
+<blockquote>
+  <p>The reward signal is your way of communicating to the robot what you want it to achieve, not how you want it achieved. (p. 54)</p>
+</blockquote>
+
+<p>Then we talk about expected return, and how to discount items in the future. The whole trick is going to be how to pass back information about how the decision affected future states.</p>
+
+<ul>
+  <li>episodic and continuing tasks are the same…</li>
+</ul>
+
+<p>Then, the meat. All of reinforcement learning, most of it, anyway, is about estimating value functions.</p>
+
+<p>State-value and action-value functions are the two big ones. You have some choices. What are you going to do next?</p>
+
+<ul>
+  <li><em>Policy</em>: a mapping from states to probabilities of selecting each possible action. The policy knows what it is possible to do next.</li>
+</ul>
+
+<p>The policy uses the value function to decide what is best… but the value function has to assume some policy behavior to know what the policy is. Well, you don’t HAVE to… you can have an action-value function that does not assume. But state-value functions, if you just want to know “how good or bad is my current situation?” You need to know how you’re going to act.</p>
+
+<p>If you perform a ton of trials, and visit each state a ton of times and keep track of what happened over many visits… Those are called “monto carlo methods”.</p>
+
+<h3 id="bellman-equation">Bellman Equation</h3>
+
+<p>This comes up enough in reading that it needs its own section.</p>
+
+<p>This is a recursive equation that gives the value of the current state as a sum of next states.</p>
+
+<blockquote>
+  <p>It states that the value of the start state must equal the (discounted) value of the expected next state, plus the reward expected along the way. (p. 59)</p>
+</blockquote>
+
+<p>This is a different kind of dynamics.</p>
+
+<p>The value function is the unique solution to its Bellman equation.</p>
+
+<p>Then we get some examples… gridworld, golf.</p>
+
+<h3 id="optimal">Optimal</h3>
+
+<p>Can we get to a perfect one? You get this funky back and forth thing going between prediction and control. Often, a crappy policy can still generate the optimal value function, etc. 67-68 talk about this too.</p>
+
+<p>I guess this section also talks about how it’s easy to compute an optimal policy once you have an optimal value function, and you can ping back and forth and see what’s going on.</p>
+
+<h2 id="programming-exercises">Programming Exercises</h2>
+
+<ul>
+  <li>Demonstrate the interfaces required to implement this stuff, lock them all down and discuss the concepts using the interfaces as the hook.</li>
+  <li>Gridworld?</li>
+  <li>Golf example? maybe not…</li>
+  <li>Note that when we code this puppy up, if we can come up with some way of indexing the state that is not just a unique ID, or where it came from, then we can start to piggyback with the afterstate example. If we can get to multiple tic-tac-toe pairs from the same spot…</li>
+</ul>
+</section><div class="edit-button"><a href="https://github.com/sritchie/scala-rl/edit/develop/docs/src/main/tut/course/tabular/finite_mdps.md" class="btn-sm btn-info">Help us improve this page</a></div></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({languages:['scala','java','bash']});
+hljs.initHighlighting();
+              </script><script src="/js/mathjax.js"></script><script>((window.gitter = {}).chat = {}).options = {
+room: 'ScalaRL/community'};</script><script src="https://sidecar.gitter.im/dist/sidecar.v1.js"></script><script src="/js/main.js"></script></body></html>

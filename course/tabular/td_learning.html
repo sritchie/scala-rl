@@ -1,0 +1,174 @@
+<html><head><title>ScalaRL: Temporal Difference Learning</title><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Sam Ritchie" /><meta name="description" content="Reinforcement Learning in Scala." /><meta name="og:image" content="/img/poster.png" /><meta name="image" property="og:image" content="/img/poster.png" /><meta name="og:title" content="ScalaRL: Temporal Difference Learning" /><meta name="title" property="og:title" content="ScalaRL: Temporal Difference Learning" /><meta name="og:site_name" content="ScalaRL" /><meta name="og:url" content="http://www.scalarl.com/" /><meta name="og:type" content="website" /><meta name="og:description" content="Reinforcement Learning in Scala." /><link rel="icon" type="image/png" href="/img/favicon.png" /><meta name="twitter:title" content="ScalaRL: Temporal Difference Learning" /><meta name="twitter:image" content="http://www.scalarl.com/img/poster.png" /><meta name="twitter:description" content="Reinforcement Learning in Scala." /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="@scalaRLProject" /><meta name="twitter:creator" content="@sritchie" /><link rel="icon" type="image/png" sizes="16x16" href="/img/favicon16x16.png" /><link rel="icon" type="image/png" sizes="24x24" href="/img/favicon24x24.png" /><link rel="icon" type="image/png" sizes="32x32" href="/img/favicon32x32.png" /><link rel="icon" type="image/png" sizes="48x48" href="/img/favicon48x48.png" /><link rel="icon" type="image/png" sizes="57x57" href="/img/favicon57x57.png" /><link rel="icon" type="image/png" sizes="60x60" href="/img/favicon60x60.png" /><link rel="icon" type="image/png" sizes="64x64" href="/img/favicon64x64.png" /><link rel="icon" type="image/png" sizes="70x70" href="/img/favicon70x70.png" /><link rel="icon" type="image/png" sizes="72x72" href="/img/favicon72x72.png" /><link rel="icon" type="image/png" sizes="76x76" href="/img/favicon76x76.png" /><link rel="icon" type="image/png" sizes="96x96" href="/img/favicon96x96.png" /><link rel="icon" type="image/png" sizes="114x114" href="/img/favicon114x114.png" /><link rel="icon" type="image/png" sizes="120x120" href="/img/favicon120x120.png" /><link rel="icon" type="image/png" sizes="128x128" href="/img/favicon128x128.png" /><link rel="icon" type="image/png" sizes="144x144" href="/img/favicon144x144.png" /><link rel="icon" type="image/png" sizes="150x150" href="/img/favicon150x150.png" /><link rel="icon" type="image/png" sizes="152x152" href="/img/favicon152x152.png" /><link rel="icon" type="image/png" sizes="196x196" href="/img/favicon196x196.png" /><link rel="icon" type="image/png" sizes="310x310" href="/img/favicon310x310.png" /><link rel="icon" type="image/png" sizes="310x150" href="/img/favicon310x150.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/style.css" /><link rel="stylesheet" href="/css/palette.css" /><link rel="stylesheet" href="/css/codemirror.css" /><script async="async">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-146772284-1' , 'auto');
+ga('send', 'pageview');
+      </script></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"><span>ScalaRL</span></div></a></li>      <li><a href="/course.html" class="">Functional RL in Scala</a></li> <li><a href="/course/tabular.html" class="">Tabular Methods</a> <ul class="sub_section"> <li><a href="/course/tabular/bandits.html" class="">Multi-armed Bandits</a></li> <li><a href="/course/tabular/finite_mdps.html" class="">Finite Markov Decision Processes</a></li> <li><a href="/course/tabular/dynamic_programming.html" class="">Dynamic Programming</a></li> <li><a href="/course/tabular/monte_carlo.html" class="">Monte Carlo Methods</a></li> <li><a href="/course/tabular/td_learning.html" class=" active ">Temporal Difference Learning</a></li> <li><a href="/course/tabular/n_step_bootstrapping.html" class="">n-step Bootstrapping</a></li> <li><a href="/course/tabular/tabular_methods.html" class="">Planning and Learning with Tabular Methods</a></li></ul></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li id="gh-eyes-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="sritchie" data-github-repo="scala-rl"><div class="content-wrapper"><section><h1 id="temporal-difference-learning">Temporal Difference Learning</h1>
+
+<h1 id="warning">WARNING!</h1>
+
+<p>Note - this is VERY EARLY DAYS! All of the files in the course with this warning are the raw, totally unprocessed notes that I generated during my first reading of “Reinforcement Learning: An Introduction”.</p>
+
+<p>I’ll be converting these into proper course sections with wonderful embedded code that you can try out. I’m not there yet, but I wanted to develop all of this in the open.</p>
+
+<p>Maybe you’ll find these notes interesting, but don’t expect anything special… yet!</p>
+
+<h1 id="notes">Notes</h1>
+
+<p>Woah, getting the good stuff in, finally on to chapter 6 of the book. Temporal-difference learning.</p>
+
+<p>So how did we proceed? Give me the overview again.</p>
+
+<ul>
+  <li>What if we want to go faster and take advantage of our other estimates… can we bootstrap up? Yes, we can, by walking through the game and updating as we go, instead of storing a monster trajectory.</li>
+  <li>First we deal with prediction, and the concept of the error introduced by doing this method…</li>
+  <li>Then we introduce some extensions. There is this idea of batch updating, which actually is quite nice.</li>
+  <li>Then we have expected Sarsa, the off-policy control version of this, which is sort of like value iteration.</li>
+  <li>Q-Learning and Sarsa, and DOUBLE sarsa, are both nice examples here.</li>
+  <li>Then we finally talk about after-states, which belongs here because it’s another example of looking forward and bootstrapping knowledge.</li>
+</ul>
+
+<h2 id="sketch-of-the-chapter">Sketch of the Chapter</h2>
+
+<p>This is the one central, novel idea to reinforcement learning, apparently! Novel because they didn’t take it from older stuff, older research in psychology and dynamic systems.</p>
+
+<p>I think that temporal difference and n-step are sort of the same… n-step is just more than a single step, which I think is the issue here.</p>
+
+<p>As usual, first we:</p>
+<ul>
+  <li>deal with the prediction problem for some arbitrary policy</li>
+  <li>then we talk about control… finding an optimal policy. Which is both improvement and prediction at once, of course.</li>
+  <li>MOSTLY the differences here between TD, DP and monte carlo methods are just differences in prediction. If you give me an episode I can go implement the various updates, and we’ll see what happens.</li>
+</ul>
+
+<h2 id="prediction">Prediction</h2>
+
+<p>Okay, so we start with a sketch of the monte carlo method… BUT with a constant step size for the update! that is not what was presented in the previous chapter. When they do the average they’re not using a constant step size.</p>
+
+<p>This new method, instead of working our way super far into the future, to the end of the episode… we only go a single step forward into the future. So of course we could use this on continuing tasks, if the state space is not so enormous.</p>
+
+<h2 id="td-error">TD Error</h2>
+
+<p>This is a concept they want us to keep talking about! Monte Carlo error is the big sum of it all. Exercise 6.1 talks about how to calculate the difference between the two in the case where you’re constantly updating the bullshit.</p>
+
+<p>The sarsa section has us calculating (in ex. 6.8) a version of this for on-policy TD control… a version of the errors for action-value instead of state-value.</p>
+
+<h3 id="advantages-of-td-prediction-methods">Advantages of TD Prediction Methods</h3>
+
+<p>Why is this better? We’re still model-less…</p>
+
+<p>Over Monte Carlo, it’s actually wonderful to be able to go online, in fully incremental fashion, and not to have to wait until the end of an episode.</p>
+
+<p>You could totally do a ton of monte carlo, and then switch back and forth, extending your horizon, shrinking it back, and track the error, right?</p>
+
+<p>AH, and the monte carlo methods in off-policy are stuck at the tail during training, as we talked about. Hard to deal with experimental methods.</p>
+
+<p>Apparently they converge too, so we’re good to go here. More discussion in chapter 9?
+Basically this is the way to go…</p>
+
+<h3 id="batch-updating-optimality-of-td0">Batch Updating (Optimality of TD(0))</h3>
+
+<p>Okay, well, since we’re only getting a SINGLE state update, and we’re bootstrapping, sometimes we want to milk the hell out of our examples by processing each batch of training data… by training on each example many times until our value estimates converge.</p>
+
+<p>Question about batch reinforcement learning: https://stats.stackexchange.com/questions/297708/batch-reinforcement-learning-algorithm-example</p>
+
+<p>But I don’t think this is quite what they’re proposing… I can go ahead when I’m done writing this, go back and answer that question more completely.</p>
+
+<p>one way would be to keep sampling episodes and updating.</p>
+
+<p>And maybe a paper? http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.229.787&amp;rep=rep1&amp;type=pdf</p>
+
+<p>WELLLLL actually we can just go to the python code to figure out what the hell is going on: https://github.com/ShangtongZhang/reinforcement-learning-an-introduction/blob/master/chapter06/random_walk.py#L132</p>
+
+<p>Yeah, they want you to first accumulate all of the potential returns, JUST the sum piece, from all of the various episodes - update the batch - then go back and do it all again.</p>
+
+<p>I wonder if there is any advantage to doing the actual bootstrapping thing, and <em>sampling with replacement</em> from all of our trials?</p>
+
+<p>Example 6.4 shows that you’re much better off going with TD(0), because with limited data, especially you get to learn from estimates of states you’ve already visited; you’re assuming that there is a markov process going on, so why not learn from that experience?</p>
+
+<p>Okay, now I get it. We end with a discussion of what is going on, why it’s better to get batch TD(0) than to do batch monte carlo. But I think that is extra credit, and not necessary for my goals.</p>
+
+<h4 id="go-into-exercise-67">Go into Exercise 6.7</h4>
+
+<p>Off-policy example here.</p>
+
+<h3 id="sarsa-on-policy-td-control">Sarsa: On-Policy TD Control</h3>
+
+<p>Not going to be that difficult, iirc. First we need to learn action-value, not state-value… which means you need to pick TWO actions to know the value of the state.</p>
+
+<p>S-A-R-S-A</p>
+
+<p>Pick your first action from the given state… get a reward and new state, and use your policy to pick the next action. Sarsa.</p>
+
+<p>Same trick as before required for epsilon-greedy, so that we explore all states.</p>
+
+<p>BOOM we can have an action-value version of the error from before!</p>
+
+<h3 id="q-learning---off-policy-td-control">Q-Learning - Off-policy TD Control</h3>
+
+<p>Okay, this shows up all over the place, this name, Q-Learning. What is it? What’s going on here?</p>
+
+<p>VERY similar to value iteration, page 82-83, where we’re just always updating the best policy… except we’re only using the best policy for the SECOND action choice, not for the first action choice.</p>
+
+<p>So it’s off-policy in that it’s learning for an optimal target… but you still have to make sure that the policy from which you’re sampling trajectories is soft.</p>
+
+<p>Algo is on page 131.</p>
+
+<h3 id="expected-sarsa">Expected Sarsa</h3>
+
+<p>Sarsa used the same policy to grab the next step. Q-learning takes the max. What about… using the expected value for the next one? This lets us get some bonus miles by moving deterministically in the same way that Sarsa moves in expectation. Great! We’re basically taking all of the updates at once, that we’d get from running Sarsa a bunch of times. Why not do the best you can?</p>
+
+<p>This eliminates the variance due to the random selection in Sarsa.</p>
+
+<blockquote>
+  <p>In these cliff walking results Expected Sarsa was used on-policy, but in general it might use a policy di↵erent from the target policy $\pi$ to generate behavior, in which case it becomes an on-policy algorithm. For example, suppose $\pi$ is the greedy policy while behavior is more exploratory; then Expected Sarsa is exactly Q-learning. In this sense Expected Sarsa subsumes and generalizes Q-learning while reliably improving over Sarsa. Except for the small additional computational cost, Expected Sarsa may completely dominate both of the other more-well-known TD control algorithms. (p. 134)</p>
+</blockquote>
+
+<p>Okay, fully badass, so good. These are nice illustrations of the good stuff… and it’s all going to become more clear when I start coding, here. There is a ton to do, a ton!</p>
+
+<h3 id="maximization-bias-and-double-learning">Maximization Bias and Double Learning</h3>
+
+<p>Monster maximization bias at hand, because each of the estimates is maximizing some random noise (at first, for example) to come up with their OWN estimates, and then we maximize across that… so we’re not really taking the average, and we get a big bias upward toward the max.</p>
+
+<p>Exercise 6.7 gives a nice example.</p>
+
+<p>Are there ways to avoid this? yes… of course!</p>
+
+<p>Okay, go into the double learning algorithm, analogous to Q-learning… there are so many algos in this book.</p>
+
+<p>The algo is laid out here… if there is a second parameter, we’re doing double q learning. https://github.com/ShangtongZhang/reinforcement-learning-an-introduction/blob/4d8928bb7538d81b818267c983f3fd004ffc9068/chapter06/maximization_bias.py#L69</p>
+
+<p>This is a way to learn TWO estimates and use them for each other… but then when we go to actually implement the behavior we want to average both.</p>
+
+<h2 id="games-afterstates-and-other-special-cases">Games, Afterstates and Other Special Cases</h2>
+
+<p>afterstate value function… we have to go back and look at tic-tac-toe, since there are multiple ways of getting to a particular state.</p>
+
+<p>Woah, is there some way to get THIS into my model? To store all of the states based on how they look… under rotation? Under symmetry or something?</p>
+
+<p>tic-tac-toe in the beginning was like this.</p>
+
+<p>OHHHHH I see now. We can look ahead a single time, and see what state the board is going to be in right after. We have this tricky thing where we have to wait for the other person to do their move, but we know what the board is going to look like after we do our move. That is interesting and different!</p>
+
+<p>Exercise 6.14 talks about after-states. I think that’s just a model where we can get back to states from different ways… so, if you have some way of uniquely identifying a state, of building your graph, you should do that. (See the previous paragraph. It’s not quite that simple.)</p>
+
+<h2 id="programming-exercises">Programming Exercises</h2>
+
+<ul>
+  <li>TD error calculation, running? Can we make an error combinator? See page 121 for examples here.</li>
+  <li>Monte Carlo error is the big one, the sum of it all.</li>
+  <li>Exercise 6.7 is an off-policy version of the TD(0) update… gotta do that!! It uses an importance sampling ratio, of course.</li>
+  <li>windy gridworld!</li>
+  <li>extensions to windy gridworld, using king’s moves and stochastic wind. Gotta do this too.</li>
+  <li>the batch version of the TD(0) and monte carlo, based on my new understanding.</li>
+  <li>The random walk task!</li>
+  <li>cliff-walking</li>
+  <li>make a DOUBLE value estimator that is using two internally! another combinator! Shouldn’t have to change any of the code…</li>
+</ul>
+</section><div class="edit-button"><a href="https://github.com/sritchie/scala-rl/edit/develop/docs/src/main/tut/course/tabular/td_learning.md" class="btn-sm btn-info">Help us improve this page</a></div></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({languages:['scala','java','bash']});
+hljs.initHighlighting();
+              </script><script src="/js/mathjax.js"></script><script>((window.gitter = {}).chat = {}).options = {
+room: 'ScalaRL/community'};</script><script src="https://sidecar.gitter.im/dist/sidecar.v1.js"></script><script src="/js/main.js"></script></body></html>
