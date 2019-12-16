@@ -213,11 +213,6 @@ lazy val docSettings = Seq(
   micrositeGithubOwner := "sritchie",
   micrositeGithubRepo := "scala-rl",
 
-  micrositeGithubToken := getEnvVar("GITHUB_TOKEN"),
-
-  // Enable down the road.
-  // micrositePushSiteWith := GitHub4s,
-
   micrositeAnalyticsToken := "UA-146772284-1",
 
   micrositeExtraMdFiles := Map(
@@ -253,20 +248,19 @@ lazy val docSettings = Seq(
 
   // Don't kill the cname redirect.
   excludeFilter in ghpagesCleanSite :=
-  new FileFilter{
-    def accept(f: File) = (ghpagesRepository.value / "CNAME").getCanonicalPath == f.getCanonicalPath
-  } || "versions.html",
+    new FileFilter{
+      def accept(f: File) = (ghpagesRepository.value / "CNAME").getCanonicalPath == f.getCanonicalPath
+    } || "versions.html",
 
   fork in tut := true,
   fork in (ScalaUnidoc, unidoc) := true,
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
     "-doc-source-url", "https://github.com/sritchie/scala-rl/tree/develop€{FILE_PATH}.scala",
     "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-    "-diagrams",
+    // "-diagrams", // Not working locally; wait until graphviz is reliable.
     "-doc-root-content", "scaladoc-root.txt"
   ),
-  git.remoteRepo := "git@github.com:sritchie/scala-rl.git",
-  includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md"
+  git.remoteRepo := "git@github.com:sritchie/scala-rl.git"
 )
 
 // Documentation is generated for projects defined in
