@@ -202,7 +202,7 @@ lazy val docSettings = Seq(
   micrositeDescription := "Reinforcement Learning in Scala.",
   micrositeAuthor := "Sam Ritchie",
   micrositeUrl := "http://www.scalarl.com",
-  micrositeDocumentationUrl := "/api/io/samritchie/rl/index.html",
+  micrositeDocumentationUrl := "/api/com/scalarl/index.html",
 
   micrositeHomepage := "http://www.scalarl.com/",
   micrositeOrganizationHomepage := "https://www.samritchie.io",
