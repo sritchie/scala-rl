@@ -1,0 +1,7 @@
+<a style="float:right" href="https://github.com/sritchie/scala-rl/blob/develop/scaladoc-root.txt">edit this text on github</a>
+<h2>ScalaRL</h2>
+This is the API documentation for the <a href="https://www.scalarl.com" target="_top">ScalaRL</a> functional reinforcement learning library.
+
+Further documentation for ScalaRL can be found at the <a href="https://www.scalarl.com" target="_top">documentation site</a>.
+
+Check out the <a href="com/scalarl/index.html">ScalaRL package list</a> for all the goods.

@@ -14,7 +14,8 @@ lazy val V = new {
   val rainier = "0.2.3-rc5-SNAPSHOT"
   val scala = "2.12.10"
   val scalacheck = "1.14.3"
-  val scalatest = "3.0.8"
+  val scalatest = "3.1.0"
+  val scalaTestPlus = "3.1.0.0"
   val util = "19.12.0"
 }
 
@@ -130,7 +131,7 @@ lazy val rl = Project(
   base = file("."))
   .settings(sharedSettings)
   .settings(noPublishSettings)
-  .aggregate(rlCore, rlBook, rlPlot)
+  .aggregate(rlCore, rlBook, rlPlot, rlWorld)
 
 def module(name: String) = {
   val id = "scala-rl-%s".format(name)
@@ -157,7 +158,8 @@ lazy val rlCore = module("core").settings(
     // Testing.
     "com.twitter" %% "algebird-test" % V.algebird % Test,
     "org.scalatest" %% "scalatest" % V.scalatest % Test,
-    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test
+    "org.scalacheck" %% "scalacheck" % V.scalacheck % Test,
+    "org.scalatestplus" %% "scalacheck-1-14" % V.scalaTestPlus % Test
   ) ++ Seq(compilerPlugin("org.typelevel" %% "kind-projector" % V.kindProjector)),
 )
 
@@ -183,14 +185,14 @@ lazy val rlBook = module("book").settings(
   ),
   initialCommands :=
     """
-import io.samritchie.rl._
+import com.scalarl._
 import com.stripe.rainier.sampler.RNG
 import com.stripe.rainier.compute.{Evaluator, Real}
 
 implicit val rng: RNG = RNG.default
 implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 """.stripMargin('|'),
-  mainClass in (Compile, run) := Some("io.samritchie.rl.book.Chapter2"),
+  mainClass in (Compile, run) := Some("scalarl.book.Chapter2"),
 ).dependsOn(rlCore, rlPlot, rlWorld)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
@@ -260,7 +262,8 @@ lazy val docSettings = Seq(
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
     "-doc-source-url", "https://github.com/sritchie/scala-rl/tree/develop€{FILE_PATH}.scala",
     "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-    "-diagrams"
+    "-diagrams",
+    "-doc-root-content", "scaladoc-root.txt"
   ),
   git.remoteRepo := "git@github.com:sritchie/scala-rl.git",
   includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md"
@@ -275,4 +278,4 @@ lazy val docs = project
   .settings(noPublishSettings)
   .settings(docSettings)
   .settings((scalacOptions in Tut) ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
-  .dependsOn(rlCore, rlPlot, rlBook)
+  .dependsOn(rlCore, rlPlot, rlBook, rlWorld)
