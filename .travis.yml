@@ -22,10 +22,10 @@ before_cache:
 before_install:
  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then bash scripts/decrypt-keys.sh; fi
  - export PATH=${PATH}:./vendor/bundle
- - gem update bundler
 
 install:
   - rvm use 2.6.0 --install --fuzzy
+  - gem update bundler
   - gem update --system
   - gem install sass
   - gem install jekyll -v 3.8.5
