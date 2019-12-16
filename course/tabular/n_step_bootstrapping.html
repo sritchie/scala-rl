@@ -1,0 +1,112 @@
+<html><head><title>ScalaRL: n-step Bootstrapping</title><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Sam Ritchie" /><meta name="description" content="Reinforcement Learning in Scala." /><meta name="og:image" content="/img/poster.png" /><meta name="image" property="og:image" content="/img/poster.png" /><meta name="og:title" content="ScalaRL: n-step Bootstrapping" /><meta name="title" property="og:title" content="ScalaRL: n-step Bootstrapping" /><meta name="og:site_name" content="ScalaRL" /><meta name="og:url" content="http://www.scalarl.com/" /><meta name="og:type" content="website" /><meta name="og:description" content="Reinforcement Learning in Scala." /><link rel="icon" type="image/png" href="/img/favicon.png" /><meta name="twitter:title" content="ScalaRL: n-step Bootstrapping" /><meta name="twitter:image" content="http://www.scalarl.com/img/poster.png" /><meta name="twitter:description" content="Reinforcement Learning in Scala." /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="@scalaRLProject" /><meta name="twitter:creator" content="@sritchie" /><link rel="icon" type="image/png" sizes="16x16" href="/img/favicon16x16.png" /><link rel="icon" type="image/png" sizes="24x24" href="/img/favicon24x24.png" /><link rel="icon" type="image/png" sizes="32x32" href="/img/favicon32x32.png" /><link rel="icon" type="image/png" sizes="48x48" href="/img/favicon48x48.png" /><link rel="icon" type="image/png" sizes="57x57" href="/img/favicon57x57.png" /><link rel="icon" type="image/png" sizes="60x60" href="/img/favicon60x60.png" /><link rel="icon" type="image/png" sizes="64x64" href="/img/favicon64x64.png" /><link rel="icon" type="image/png" sizes="70x70" href="/img/favicon70x70.png" /><link rel="icon" type="image/png" sizes="72x72" href="/img/favicon72x72.png" /><link rel="icon" type="image/png" sizes="76x76" href="/img/favicon76x76.png" /><link rel="icon" type="image/png" sizes="96x96" href="/img/favicon96x96.png" /><link rel="icon" type="image/png" sizes="114x114" href="/img/favicon114x114.png" /><link rel="icon" type="image/png" sizes="120x120" href="/img/favicon120x120.png" /><link rel="icon" type="image/png" sizes="128x128" href="/img/favicon128x128.png" /><link rel="icon" type="image/png" sizes="144x144" href="/img/favicon144x144.png" /><link rel="icon" type="image/png" sizes="150x150" href="/img/favicon150x150.png" /><link rel="icon" type="image/png" sizes="152x152" href="/img/favicon152x152.png" /><link rel="icon" type="image/png" sizes="196x196" href="/img/favicon196x196.png" /><link rel="icon" type="image/png" sizes="310x310" href="/img/favicon310x310.png" /><link rel="icon" type="image/png" sizes="310x150" href="/img/favicon310x150.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/style.css" /><link rel="stylesheet" href="/css/palette.css" /><link rel="stylesheet" href="/css/codemirror.css" /><script async="async">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-146772284-1' , 'auto');
+ga('send', 'pageview');
+      </script></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"><span>ScalaRL</span></div></a></li>      <li><a href="/course.html" class="">Functional RL in Scala</a></li> <li><a href="/course/tabular.html" class="">Tabular Methods</a> <ul class="sub_section"> <li><a href="/course/tabular/bandits.html" class="">Multi-armed Bandits</a></li> <li><a href="/course/tabular/finite_mdps.html" class="">Finite Markov Decision Processes</a></li> <li><a href="/course/tabular/dynamic_programming.html" class="">Dynamic Programming</a></li> <li><a href="/course/tabular/monte_carlo.html" class="">Monte Carlo Methods</a></li> <li><a href="/course/tabular/td_learning.html" class="">Temporal Difference Learning</a></li> <li><a href="/course/tabular/n_step_bootstrapping.html" class=" active ">n-step Bootstrapping</a></li> <li><a href="/course/tabular/tabular_methods.html" class="">Planning and Learning with Tabular Methods</a></li></ul></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li id="gh-eyes-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs"><a href="https://github.com/sritchie/scala-rl"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('ScalaRL Reinforcement Learning in Scala.');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="sritchie" data-github-repo="scala-rl"><div class="content-wrapper"><section><h1 id="n-step-bootstrapping">n-step Bootstrapping</h1>
+
+<h1 id="warning">WARNING!</h1>
+
+<p>Note - this is VERY EARLY DAYS! All of the files in the course with this warning are the raw, totally unprocessed notes that I generated during my first reading of “Reinforcement Learning: An Introduction”.</p>
+
+<p>I’ll be converting these into proper course sections with wonderful embedded code that you can try out. I’m not there yet, but I wanted to develop all of this in the open.</p>
+
+<p>Maybe you’ll find these notes interesting, but don’t expect anything special… yet!</p>
+
+<h1 id="notes">Notes</h1>
+
+<p>Really, this is the main thing we should be coding. And then we can specialize back to get everything else. Build up, as in the book, but I need to know where I’m building toward!</p>
+
+<p>These let us shift smoothly between the TD(0) method and the full-on, infinite step Monte Carlo methods. We hear another mention of eligibility traces… but I don’t know what that is, so let’s move on!</p>
+
+<p>n-step methods allow bootstrapping to occur very fast, to get online behavior, but also if we have time to start extending updates out into the future, to get the benefit of the long view.</p>
+
+<ul>
+  <li>Prediction first,</li>
+  <li>then control.</li>
+</ul>
+
+<p>We start with n-step Sarsa… but then we come up with some other methods that are in fact extensions of a grand unifying thing! That I want to go into.</p>
+
+<p>We sort of have to solve for THIS stuff… and then all of the previous work becomes a generalization. Well, sort of. Dynamic programming becomes a… is it a special case, still? I guess not since we don’t have the dynamics at play. But if we do then we can use them. That is what comes back in chapter 8.</p>
+
+<h2 id="chapter-sketch">Chapter Sketch</h2>
+
+<p>The individual chapters. What is up?</p>
+
+<h3 id="n-step-td-prediction">n-step TD Prediction</h3>
+
+<p>Nice picture of the backup diagrams, which I still don’t really get / like. What do we do if we want to extend beyond that first step? We need to keep playing a game, generating an episode, but as we play we can start passing info back.</p>
+
+<blockquote>
+  <p>For example, a two-step reward would be based on the first two rewards and the estimated value of the state two steps later. (p. 142)</p>
+</blockquote>
+
+<blockquote>
+  <p>The methods are still TD methods because they still change an earlier estimate based on how it differs from a later estimate. (p. 142)</p>
+</blockquote>
+
+<p>This still is a constant-alpha method; <em>BUT NOTE</em> that we are sneaking in an idea with the constant alpha thing!!! That is definitely NOT the only way to aggregate this stuff! That is just a way to privilege recent games. You can totally have different methods of aggregation.</p>
+
+<p>Then we look at the random walk task about show how different settings of alpha or n cause different overshoots. Thing to note is that an intermediate value of n worked nicely, halfway between monte carlo and TD.</p>
+
+<p>This is a state-value updater because the policy already decides what to do… it has some action, presumably, that it is going to take for everything. Or some chance of taking each action that it based on an action-value function that you assume someone else gave you. It definitely has knowledge of the actions, in any case.</p>
+
+<h3 id="n-step-sarsa">n-step Sarsa</h3>
+
+<p>Remember, to come up with a policy we need to switch from state-value to action-value. That way we can use the collection of action-values to modify the policy, potentially.
+We still need the guarantee that we’re possibly going to explore all states, so for on policy we need an $\epsilon\text{-greedy}$ method.</p>
+
+<p>Keep the action-value around then update.</p>
+
+<p>Expected sarsa is easy… just use the expected approximate values at the end.</p>
+
+<h3 id="n-step-off-policy-learning">n-step Off-Policy Learning</h3>
+
+<p>Woah, generalize again! Obviously I have to code this first, and then specialize it back to all of the previous stuff. Show how single state gives you bandits, for example.</p>
+
+<p>Note that our importance sampling ratio starts and ends one step later than if we were estimating the action-value.</p>
+
+<p>off-policy n-step expected sarsa too, here. just showing off.</p>
+
+<h3 id="per-decision-methods-with-control-variates">Per-decision methods with Control Variates</h3>
+
+<p>Research topic alert! Look into this more in the exercises, but this should just be a different aggregator. This is a way of saying, okay, my update is actually a weighted average of the training policy’s thing, what it learned, and then what the target policy ALREADY has.</p>
+
+<p>This is using importance sampling in place of alpha, I think? Think of a way to describe what is happening. But show again that it is just another aggregator.</p>
+
+<h3 id="off-policy-learning-without-importance-sampling---the-n-step-tree-backup-algo">Off policy learning WITHOUT importance sampling - the n-step tree backup algo</h3>
+
+<p>Is there a non-importance-sampling method that we can use for off-policy learning? We did this for the one-step case before… can we do this for the good stuff, the multi-step?</p>
+
+<p>You can get some budget and go chase promising stuff, unfolding as you go, if you have time.</p>
+
+<p>You’re sort of learning from your model. I like it, easy.</p>
+
+<h3 id="n-step-qsigma">n-step $Q(\sigma)$</h3>
+
+<p>Can we unify all of the algos we’ve already seen?</p>
+
+<p>yeah, this is what to actually code, since we can… show that the $\sigma$ parameter can be set anywhere from 0 to 1.</p>
+
+<h2 id="programming-exercises">Programming Exercises</h2>
+
+<ul>
+  <li>Note that when we do the constant alpha thing, that is just a particular way to aggregate. If we used $1 / n$ then we’d be doing a straight-up average. But you can weight different games differently, even, instead of going by time. The reason to weight games played more recently is that you’ve got more experience that went into choosing that trajectory.</li>
+  <li>Maybe when you average in the monoid you do a different thing - you weight by how many games you’ve played, instead of by alpha.</li>
+  <li>exercise 7.2… plug in the “sum of TD errors” thing from 7.1! That is actually a DIFFERENT way of propagating the information around. Implement this as an aggregator as well.</li>
+  <li>implement n-step sarsa</li>
+  <li>expected n-step sarsa</li>
+  <li>q-learning</li>
+  <li>Can we do a sliding window product? I think so right? Since products are just repeated addition? Well, that’s a nice extension.</li>
+  <li>exercise 7.10, implement the control variates thing.</li>
+  <li>off-policy without importance sampling… tree backup algo!</li>
+  <li>n-step q-sigma</li>
+</ul>
+</section><div class="edit-button"><a href="https://github.com/sritchie/scala-rl/edit/develop/docs/src/main/tut/course/tabular/n_step_bootstrapping.md" class="btn-sm btn-info">Help us improve this page</a></div></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({languages:['scala','java','bash']});
+hljs.initHighlighting();
+              </script><script src="/js/mathjax.js"></script><script>((window.gitter = {}).chat = {}).options = {
+room: 'ScalaRL/community'};</script><script src="https://sidecar.gitter.im/dist/sidecar.v1.js"></script><script src="/js/main.js"></script></body></html>
