@@ -160,7 +160,7 @@ object MonteCarlo {
           (agg.append(g, sars.reward), w * fn(sars))
       }
       .andThenPresent {
-        case (g, Weight(0.0)) => None
+        case (g, Weight.Zero) => None
         case pair             => Some(pair)
 
       }
@@ -179,5 +179,5 @@ object MonteCarlo {
   }
 
   // function that always returns a weight of 1.
-  def constant[Obs, A, R, M[_]]: SARS[Obs, A, R, M] => Weight = _ => Weight.one
+  def constant[Obs, A, R, M[_]]: SARS[Obs, A, R, M] => Weight = _ => Weight.One
 }
