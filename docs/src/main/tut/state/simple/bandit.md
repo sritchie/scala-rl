@@ -3,7 +3,7 @@ layout: docs
 title:  "Bandit"
 section: "state"
 source: "scala-rl-core/src/main/scala/io/samritchie/state/Bandit.scala"
-scaladoc: "#io.samritchie.rl.state.Bandit"
+scaladoc: "#scalarl.state.Bandit"
 ---
 
 # Bandit
