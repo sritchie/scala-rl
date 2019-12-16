@@ -45,7 +45,7 @@ case class WeightedAverage(weightSum: Weight, value: Double) {
     * @param that value to average into this instance
     * @return an instance representing the mean of this instance and `that`.
     */
-  def +(that: Double): WeightedAverage = plus(that, Weight.one)
+  def +(that: Double): WeightedAverage = plus(that, Weight.One)
 
   def plus(that: Double, weight: Weight): WeightedAverage =
     WeightedAverage(
@@ -93,7 +93,7 @@ object WeightedAverageGroup extends Group[WeightedAverage] with CommutativeGroup
           else (n * an + k * ak) / newCount
       }
 
-  override val zero: WeightedAverage = WeightedAverage(Weight.zero, 0.0)
+  override val zero: WeightedAverage = WeightedAverage(Weight.Zero, 0.0)
 
   override def isNonZero(av: WeightedAverage): Boolean = (av.value != 0L)
 
