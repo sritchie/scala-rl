@@ -5,7 +5,7 @@ import cats.Functor
 /**
   Chunk that you get back for playing an episode.
   */
-case class SARS[Obs, A, R, S[_]](
+final case class SARS[Obs, A, R, S[_]](
     state: State[Obs, A, R, S],
     action: A,
     reward: R,

@@ -221,7 +221,7 @@ object Chapter5 {
       ActionValueFn
         .mergeable[AgentView, Action, AveragedValue]
         .fold({ case (g, _) => AveragedValue(g) }, { av =>
-          (av.value, Weight.one)
+          (av.value, Weight.One)
         })
 
     val fn = updateFn[AgentView, Action, Double, (Double, Weight), Generator](
@@ -294,7 +294,7 @@ object Chapter5 {
           .appendMonoid[(Double, Weight), value.WeightedAverage] {
             case (wa, (g, newWeight)) => wa.plus(g, newWeight)
           }
-          .andThenPresent { case wa => (wa.value, Weight.one) }
+          .andThenPresent { case wa => (wa.value, Weight.One) }
       )
     ()
   }
