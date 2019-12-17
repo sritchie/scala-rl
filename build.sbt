@@ -11,7 +11,7 @@ lazy val V = new {
   val cats = "2.0.0"
   val evilplot = "0.7.0"
   val kindProjector = "0.10.3"
-  val rainier = "0.2.3-rc5-SNAPSHOT"
+  val rainier = "0.2.3"
   val scala = "2.12.10"
   val scalacheck = "1.14.3"
   val scalatest = "3.1.0"
@@ -143,11 +143,8 @@ def module(name: String) = {
 
 lazy val rlCore = module("core").settings(
   libraryDependencies ++= Seq(
-    // For the probability monad. TODO enable and kill
-    // scala-rl-core/lib jars once Avi does a release.
-
-    // "com.stripe" %% "rainier-cats" % V.rainier,
-    // "com.stripe" %% "rainier-core" % V.rainier,
+     "com.stripe" %% "rainier-cats" % V.rainier,
+     "com.stripe" %% "rainier-core" % V.rainier,
 
     // For the monoids and implementations.
     "com.twitter" %% "algebird-core" % V.algebird,
