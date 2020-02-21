@@ -145,10 +145,13 @@ object MonteCarlo {
       }
       ._1
 
+
   // generates a monoid aggregator that can handle weights! We'll need to pair
   // this with a value function that knows how to handle weights on the way in,
   // by keeping a count for each state, and handling the weight multiplication,
   // that sort of thing.
+  //
+  // TODO holy shit, I can use a running sum of the LOG of the weights...
   def weighted[Obs, A, R, G, M[_]](
       agg: MonoidAggregator[R, G, G],
       fn: SARS[Obs, A, R, M] => Weight

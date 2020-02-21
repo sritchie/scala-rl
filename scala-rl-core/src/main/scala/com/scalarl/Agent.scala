@@ -21,9 +21,10 @@
 
   TODO - Key questions:
   - Can I rethink the interface here? Can StateValueFn instances ONLY be
-    calculated for... rings where the weights add up to 1? "Affine combination"
+    calculated for... rings where the weights add up to 1? "Convex combination"
     is the key idea here... a linear combination where the set of scalars adds
-    to 1. (Read more about affine combinations here:
+    to 1. (An Affine combination is the same, but you can have negative
+    coefficients. Not what we need. Read more about affine combinations here:
     https://www.sciencedirect.com/topics/computer-science/affine-combination)
   - Does that mean that we have a StateValueFn of ONLY DOUBLES?
 

@@ -20,7 +20,7 @@ lazy val V = new {
 }
 
 lazy val docsSourcesAndProjects: Seq[ProjectReference] =
-  Seq(rlCore, rlPlot, rlBook)
+  Seq(rlCore, rlPlot, rlBook, rlWorld)
 
 val compilerOptions = Seq(
   "-unchecked",
