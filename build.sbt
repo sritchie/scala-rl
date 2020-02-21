@@ -15,7 +15,7 @@ lazy val V = new {
   val scala = "2.12.10"
   val scalacheck = "1.14.3"
   val scalatest = "3.1.0"
-  val scalaTestPlus = "3.1.0.1"
+  val scalaTestPlus = "3.1.1.1"
   val util = "19.12.0"
 }
 
