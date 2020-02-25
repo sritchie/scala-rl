@@ -8,7 +8,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 /* dependency versions */
 lazy val V = new {
   val algebird = "0.13.6"
-  val cats = "2.1.0"
+  val cats = "2.1.1"
   val evilplot = "0.7.0"
   val kindProjector = "0.10.3"
   val rainier = "0.2.3"
