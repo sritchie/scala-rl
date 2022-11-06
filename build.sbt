@@ -47,11 +47,11 @@ val sharedSettings = Seq(
   scalaVersion := V.scala,
 
   // Lets me C-c out of the running process.
-  cancelable in Global := true,
-  parallelExecution in Test := true,
-  scalafmtOnCompile in ThisBuild := true,
-  wartremoverErrors in (ThisBuild, compile) ++= unsafeWartsExcept(ignoredWarts),
-  unmanagedBase in Global := baseDirectory.value / "lib",
+  (Global / cancelable) := true,
+  (Test / parallelExecution) := true,
+  (ThisBuild / scalafmtOnCompile) := true,
+  (ThisBuild / compile / wartremoverErrors) ++= unsafeWartsExcept(ignoredWarts),
+  (Global / unmanagedBase) := baseDirectory.value / "lib",
   resolvers ++= Seq(
     Resolver.bintrayRepo("cibotech", "public")
   ),
@@ -64,15 +64,15 @@ val sharedSettings = Seq(
     "-language:existentials"),
 
 
-  scalacOptions in (Compile, console) --= consoleExclusions,
-  scalacOptions in (Test, console) --= consoleExclusions,
+  (Compile / console / scalacOptions) --= consoleExclusions,
+  (Test / console / scalacOptions) --= consoleExclusions,
 
   // Publishing options:
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   releaseVersionBump := sbtrelease.Version.Bump.Minor, // need to tweak based on mima results
   publishMavenStyle := true,
-  publishArtifact in Test := false,
+  (Test / publishArtifact) := false,
   pomIncludeRepository := { x => false },
 
   publishTo := Some(
@@ -189,7 +189,7 @@ import com.stripe.rainier.compute.{Evaluator, Real}
 implicit val rng: RNG = RNG.default
 implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 """.stripMargin('|'),
-  mainClass in (Compile, run) := Some("scalarl.book.Chapter2"),
+  (Compile / run / mainClass) := Some("scalarl.book.Chapter2"),
 ).dependsOn(rlCore, rlPlot, rlWorld)
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
@@ -237,23 +237,23 @@ lazy val docSettings = Seq(
     "white-color" -> "#FFFFFF"),
 
   autoAPIMappings := true,
-  unidocProjectFilter in (ScalaUnidoc, unidoc) :=
+  (ScalaUnidoc / unidoc / unidocProjectFilter) :=
     inProjects(docsSourcesAndProjects:_*),
   docsMappingsAPIDir := "api",
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), docsMappingsAPIDir),
+  addMappingsToSiteDir((ScalaUnidoc / packageDoc / mappings), docsMappingsAPIDir),
   ghpagesNoJekyll := false,
 
   // Don't kill the cname redirect.
-  excludeFilter in ghpagesCleanSite :=
+  (ghpagesCleanSite / excludeFilter) :=
     new FileFilter{
       def accept(f: File) = (ghpagesRepository.value / "CNAME").getCanonicalPath == f.getCanonicalPath
     } || "versions.html",
 
-  fork in tut := true,
-  fork in (ScalaUnidoc, unidoc) := true,
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
+  (tut / fork) := true,
+  (ScalaUnidoc / unidoc / fork) := true,
+  (ScalaUnidoc / unidoc / scalacOptions) ++= Seq(
     "-doc-source-url", "https://github.com/sritchie/scala-rl/tree/develop€{FILE_PATH}.scala",
-    "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
+    "-sourcepath", (LocalRootProject / baseDirectory).value.getAbsolutePath,
     // "-diagrams", // Not working locally; wait until graphviz is reliable.
     "-doc-root-content", "scaladoc-root.txt"
   ),
@@ -268,5 +268,5 @@ lazy val docs = project
   .settings(sharedSettings)
   .settings(noPublishSettings)
   .settings(docSettings)
-  .settings((scalacOptions in Tut) ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
+  .settings((Tut / scalacOptions) ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
   .dependsOn(rlCore, rlPlot, rlBook, rlWorld)
