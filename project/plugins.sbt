@@ -5,7 +5,7 @@ resolvers ++= Seq(
   )
 )
 
-addSbtPlugin("com.47deg"  % "sbt-microsites" % "0.9.7")
+addSbtPlugin("com.47deg" % "sbt-microsites" % "1.4.1")
 addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.2")
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.0.15")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.2")
