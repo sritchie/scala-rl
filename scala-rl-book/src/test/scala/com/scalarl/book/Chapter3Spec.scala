@@ -6,8 +6,7 @@ import com.scalarl.value.DecayState
 import com.scalarl.world.util.Grid
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
-  * And this is a placeholder for basic tests.
+/** And this is a placeholder for basic tests.
   */
 class Chapter3Spec extends AnyFunSuite {
   import Grid.{Move, Position}
@@ -103,15 +102,16 @@ class Chapter3Spec extends AnyFunSuite {
       zeroValue
     )
 
-    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Cat](
-      emptyFn,
-      stochasticConf.stochastic[Position, Move](_),
-      DecayState.bellmanFn(gamma),
-      Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
-      Chapter3.shouldStop _,
-      inPlace = true,
-      valueIteration = true
-    )
+    val (actual, _) =
+      Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Cat](
+        emptyFn,
+        stochasticConf.stochastic[Position, Move](_),
+        DecayState.bellmanFn(gamma),
+        Chapter3.gridConf.stateSweep.map(_.mapK(idToCat)),
+        Chapter3.shouldStop _,
+        inPlace = true,
+        valueIteration = true
+      )
     assert(Sweep.diffBelow(actual, expectedThreeFive, epsilon)(_.max(_)))
   }
 }

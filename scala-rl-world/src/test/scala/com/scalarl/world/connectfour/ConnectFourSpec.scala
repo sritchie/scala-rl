@@ -17,8 +17,7 @@ object ConnectFourSpec extends Properties("ConnectFour") with ConnectFourArb {
   }
 }
 
-/**
-  * And this is a placeholder for basic tests.
+/** And this is a placeholder for basic tests.
   */
 class ConnectFourTest extends org.scalatest.funsuite.AnyFunSuite {
   test("example.test") {
@@ -27,8 +26,7 @@ class ConnectFourTest extends org.scalatest.funsuite.AnyFunSuite {
   }
 }
 
-/**
-  * Generators and Arbitrary instances live below.
+/** Generators and Arbitrary instances live below.
   */
 trait ConnectFourGen {
   import Game._

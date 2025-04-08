@@ -1,5 +1,4 @@
-/**
-  Monadic Blackjack!
+/** Monadic Blackjack!
   */
 package com.scalarl
 package world
@@ -32,11 +31,9 @@ object Blackjack {
     case Rank.Number(n)                     => n
   }
 
-  /**
-    TODO - to make this solid, the Hand should actually maintain a sorted state,
-    so that we can use it as the key in a hashmap. It's fine for now, since this
-    state is actually going to get dropped down into a state viewable by a
-    policy.
+  /** TODO - to make this solid, the Hand should actually maintain a sorted state, so that we can
+    * use it as the key in a hashmap. It's fine for now, since this state is actually going to get
+    * dropped down into a state viewable by a policy.
     */
   case class Hand(showing: Seq[Card], hidden: Seq[Card]) {
     def takeCard(card: Card, isShowing: Boolean): Hand =
@@ -58,7 +55,8 @@ object Blackjack {
     val empty = Hand(Seq.empty, Seq.empty)
 
     def aceCount(cards: Seq[Card]): Int = cards.filter(_.rank == Rank.Ace).size
-    def maxPoints(cards: Seq[Card]): Int = cards.foldLeft(0)((acc, c) => acc + cardValue(c))
+    def maxPoints(cards: Seq[Card]): Int =
+      cards.foldLeft(0)((acc, c) => acc + cardValue(c))
 
     def score(cards: Seq[Card]): Int = {
       def loop(points: Int, acesLeft: Int): Int =
@@ -72,8 +70,7 @@ object Blackjack {
     }
   }
 
-  /**
-    This is the actual, full rich game.
+  /** This is the actual, full rich game.
     */
   case class Game(player: Hand, dealer: Hand) {
     def agentView: AgentView = AgentView(
@@ -114,8 +111,7 @@ object Blackjack {
     def stateM: M[Blackjack[M]] = gameGenerator(getCard).map(build(_))
   }
 
-  /**
-    This is what the agent is allowed to see.
+  /** This is what the agent is allowed to see.
     */
   case class AgentView(
       usableAce: Boolean,
@@ -123,10 +119,11 @@ object Blackjack {
       dealerSum: Int
   )
 
-  /**
-    Generate a simple fixed policy for an agent.
+  /** Generate a simple fixed policy for an agent.
     */
-  def policy[S[_]](f: AgentView => Action): Policy[AgentView, Action, Double, Id, S] =
+  def policy[S[_]](
+      f: AgentView => Action
+  ): Policy[AgentView, Action, Double, Id, S] =
     Policy.choose[AgentView, Action, Double, Id, S](s => f(s.observation))
 
   // TODO get the game below to use this as the "opponent" instead of manually
@@ -148,11 +145,11 @@ case class Dead[M[_]: Monad](game: Blackjack.Game) extends Blackjack[M] {
   override val dynamics = Map.empty
 }
 
-/**
-  So this is PROBABLY a place where I actually need the full state, so I can
-  track that the dealer has two cards, generated randomly.
+/** So this is PROBABLY a place where I actually need the full state, so I can track that the dealer
+  * has two cards, generated randomly.
   */
-case class Alive[M[_]: Monad](config: Blackjack.Config[M], game: Blackjack.Game) extends Blackjack[M] {
+case class Alive[M[_]: Monad](config: Blackjack.Config[M], game: Blackjack.Game)
+    extends Blackjack[M] {
   import Blackjack.{Action, Game, Hand, Result}
   import CardDeck.Card
 

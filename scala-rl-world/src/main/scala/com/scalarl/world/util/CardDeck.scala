@@ -1,5 +1,4 @@
-/**
-  Card deck, for card games.
+/** Card deck, for card games.
   */
 package com.scalarl
 package world
@@ -11,7 +10,8 @@ import com.scalarl.rainier.Categorical
 object CardDeck {
   sealed trait Rank extends Any with Product with Serializable
   object Rank {
-    val all: Vector[Rank] = Vector(Jack, King, Queen, Ace) ++ (2 to 10).map(Number(_))
+    val all: Vector[Rank] =
+      Vector(Jack, King, Queen, Ace) ++ (2 to 10).map(Number(_))
     final case object Jack extends Rank
     final case object Queen extends Rank
     final case object King extends Rank
@@ -47,10 +47,10 @@ object CardDeck {
       Ordering.by(card => (card.suit, card.rank))
   }
 
-  /**
-    Generates cards from an infinite stream, with replacement.
+  /** Generates cards from an infinite stream, with replacement.
     */
   val basic: Generator[Card] = Generator.vector(Card.all)
   val allCat: Cat[Card] = Categorical.seq(Card.all)
-  val heartsCat: Cat[Card] = Categorical.seq(Card.all.filter(_.suit == Suit.Hearts))
+  val heartsCat: Cat[Card] =
+    Categorical.seq(Card.all.filter(_.suit == Suit.Hearts))
 }

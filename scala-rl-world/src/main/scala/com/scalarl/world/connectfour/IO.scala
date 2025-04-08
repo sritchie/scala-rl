@@ -6,15 +6,13 @@ import scala.util.{Failure, Success, Try}
 object IO {
   import Game._
 
-  /**
-    * Return successful piece if it's possible to parse, failure
-    * otherwise.
+  /** Return successful piece if it's possible to parse, failure otherwise.
     */
   def getColumn(color: Color): Column = {
     println(s"Enter the column where you'd like to place your $color piece.")
-    try {
+    try
       StdIn.readLine("column> ").toInt
-    } catch {
+    catch {
       case e: NumberFormatException =>
         println("What you entered isn't a valid number. Try again.")
         println
@@ -22,8 +20,7 @@ object IO {
     }
   }
 
-  /**
-    * Gets the starting game color from the user.
+  /** Gets the starting game color from the user.
     */
   def initialColor: Color = {
     println("What color would like to go first? Red's the default.")
@@ -47,8 +44,7 @@ object IO {
     }
   }
 
-  /**
-    * Prints out the current board with some surrounding text.
+  /** Prints out the current board with some surrounding text.
     */
   def printBoardState(board: Board): Unit = {
     println("Current Board State:")
@@ -56,10 +52,8 @@ object IO {
     println
   }
 
-  /**
-    * Performs a turn and returns either a failure, if the move was
-    * invalid in some way, or a successful pair of the new board and
-    * the position updated by the move.
+  /** Performs a turn and returns either a failure, if the move was invalid in some way, or a
+    * successful pair of the new board and the position updated by the move.
     */
   def turn(board: Board, turnColor: Color): Try[(Board, Board.Position)] = {
     printBoardState(board)
@@ -67,10 +61,8 @@ object IO {
     board.tryMove(Move(column, turnColor))(board.performMove(_))
   }
 
-  /**
-    * Plays the game to completion, looping on every turn and
-    * alternating colors. The game ends if the board fills up or if
-    * one side wins.
+  /** Plays the game to completion, looping on every turn and alternating colors. The game ends if
+    * the board fills up or if one side wins.
     */
   def gameLoop(board: Board, turnColor: Color): Unit =
     turn(board, turnColor) match {

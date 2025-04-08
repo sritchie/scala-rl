@@ -3,111 +3,98 @@ package com.scalarl
 import com.twitter.algebird.{Aggregator, Monoid, MonoidAggregator, Semigroup}
 import com.scalarl.evaluate.ActionValue
 
-/**
-  Along with [[StateValueFn]], this is the main trait in tabular reinforcement
-  learning for tracking the value of an (observation, action) pair.
-
-  @tparam Obs Observation returned by the [[State]] instances tracked by
-  [[ActionValueFn]].
-  @tparam A Action type on the [[State]] instances tracked by [[ActionValueFn]].
-  @tparam T type of values tracked by [[ActionValueFn]].
+/** Along with [[StateValueFn]], this is the main trait in tabular reinforcement learning for
+  * tracking the value of an (observation, action) pair.
+  *
+  * @tparam Obs
+  *   Observation returned by the [[State]] instances tracked by [[ActionValueFn]].
+  * @tparam A
+  *   Action type on the [[State]] instances tracked by [[ActionValueFn]].
+  * @tparam T
+  *   type of values tracked by [[ActionValueFn]].
   */
 trait ActionValueFn[Obs, A, T] { self =>
 
-  /**
-    Returns an Iterable of all observations associated with some internally
-    tracked value T.
+  /** Returns an Iterable of all observations associated with some internally tracked value T.
     */
   def seenStates: Iterable[Obs]
 
-  /**
-    Returns an iterable of all actions available from the supplied observation
-    associated with any tracked value T.
+  /** Returns an iterable of all actions available from the supplied observation associated with any
+    * tracked value T.
     */
   def seen(obs: Obs): Iterable[A]
 
-  /**
-    Returns the stored value associated with the given obs, a pair.
+  /** Returns the stored value associated with the given obs, a pair.
     */
   def actionValue(obs: Obs, a: A): T
 
-  /**
-    Absorb a new value for the supplied obs, action pair. The behavior of this
-    function is implementation dependent; some might ignore the value, some
-    might merge it in to an existing set of values, some might completely
-    replace the stored state.
+  /** Absorb a new value for the supplied obs, action pair. The behavior of this function is
+    * implementation dependent; some might ignore the value, some might merge it in to an existing
+    * set of values, some might completely replace the stored state.
     */
   def update(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T]
 
-  /**
-    Transforms this [[ActionValueFn]] into a new instance that applies the
-    supplied `prepare` to all incoming values before they're learned, and
-    presents tracked T instances using the `present` fn before returning them
-    via [[actionValue]].
-
-    @tparam the type of value stored by the returned [[ActionValueFn]].
+  /** Transforms this [[ActionValueFn]] into a new instance that applies the supplied `prepare` to
+    * all incoming values before they're learned, and presents tracked T instances using the
+    * `present` fn before returning them via [[actionValue]].
+    *
+    * @tparam the
+    *   type of value stored by the returned [[ActionValueFn]].
     */
   def fold[U](prepare: U => T, present: T => U): ActionValueFn[Obs, A, U] =
     new ActionValueFn.Folded[Obs, A, T, U](self, prepare, present)
 
-  /**
-    Returns an [[ActionValueFn]] instance that uses the supplied semigroup T to
-    merge values into this current [[ActionValueFn]].
-
-    @param T Semigroup instance used to merge values.
+  /** Returns an [[ActionValueFn]] instance that uses the supplied semigroup T to merge values into
+    * this current [[ActionValueFn]].
+    *
+    * @param T
+    *   Semigroup instance used to merge values.
     */
   def mergeable(implicit T: Semigroup[T]): ActionValueFn[Obs, A, T] =
     new ActionValueFn.Mergeable(self)
 
-  /**
-    TODO fill in.
+  /** TODO fill in.
     */
   def toEvaluator[R, S[_]]: ActionValue[Obs, A, R, T, S] =
     ActionValue.fn(self)
 }
 
-/**
-  Constructors and classes associated with [[ActionValueFn]].
+/** Constructors and classes associated with [[ActionValueFn]].
   */
 object ActionValueFn {
 
-  /**
-    Returns an empty [[ActionValueFn]] backed by an immutable map.
+  /** Returns an empty [[ActionValueFn]] backed by an immutable map.
     */
   def empty[Obs, A, T]: ActionValueFn[Obs, A, Option[T]] =
     empty[Obs, A, Option[T]](None)
 
-  /**
-    Returns an empty [[ActionValueFn]] backed by an immutable map. The supplied
-    default value will be returned by [[ActionValueFn.actionValue]] for any
-    (obs, action) pair that's not been seen by the [[ActionValueFn]].
+  /** Returns an empty [[ActionValueFn]] backed by an immutable map. The supplied default value will
+    * be returned by [[ActionValueFn.actionValue]] for any (obs, action) pair that's not been seen
+    * by the [[ActionValueFn]].
     */
   def empty[Obs, A, T](default: T): ActionValueFn[Obs, A, T] =
     new Base(Map.empty[Obs, Map[A, T]], default)
 
-  /**
-    Returns an empty [[ActionValueFn]] backed by an immutable map that uses the
-    zero of the supplied Monoid as a default value, and merges new learned
-    values into the value in the underlying map using the Monoid's `plus`
-    function.
+  /** Returns an empty [[ActionValueFn]] backed by an immutable map that uses the zero of the
+    * supplied Monoid as a default value, and merges new learned values into the value in the
+    * underlying map using the Monoid's `plus` function.
     */
   def mergeable[Obs, A, T](implicit T: Monoid[T]): ActionValueFn[Obs, A, T] =
     mergeable(T.zero)
 
-  /**
-    Returns an empty [[ActionValueFn]] backed by an immutable map that uses the
-    supplied `default` as a default value, and merges new learned values into
-    the value in the underlying map using the Semigroup's `plus` function.
+  /** Returns an empty [[ActionValueFn]] backed by an immutable map that uses the supplied `default`
+    * as a default value, and merges new learned values into the value in the underlying map using
+    * the Semigroup's `plus` function.
     */
-  def mergeable[Obs, A, T](default: T)(implicit T: Semigroup[T]): ActionValueFn[Obs, A, T] =
+  def mergeable[Obs, A, T](default: T)(implicit
+      T: Semigroup[T]
+  ): ActionValueFn[Obs, A, T] =
     empty(default).mergeable
 
-  /**
-    Returns an [[ActionValueFn]] that:
-
-    - uses the supplied default as an initial value
-    - merges values in using the aggregator's semigroup
-    - prepares and presents using the aggregator's analogous functions
+  /** Returns an [[ActionValueFn]] that:
+    *
+    * \- uses the supplied default as an initial value \- merges values in using the aggregator's
+    * semigroup \- prepares and presents using the aggregator's analogous functions
     */
   def fromAggregator[Obs, A, T, U](
       default: T,
@@ -117,25 +104,23 @@ object ActionValueFn {
       .mergeable(agg.semigroup)
       .fold(agg.prepare, agg.present)
 
-  /**
-    Returns an [[ActionValueFn]] that:
-
-    - uses the MonoidAggregator's monoid.zero as an initial value
-    - merges values in using the aggregator's monoid
-    - prepares and presents using the aggregator's analogous functions
+  /** Returns an [[ActionValueFn]] that:
+    *
+    * \- uses the MonoidAggregator's monoid.zero as an initial value \- merges values in using the
+    * aggregator's monoid \- prepares and presents using the aggregator's analogous functions
     */
   def fromAggregator[Obs, A, T, U](
       agg: MonoidAggregator[U, T, U]
   ): ActionValueFn[Obs, A, U] =
     mergeable(agg.monoid).fold(agg.prepare, agg.present)
 
-  /**
-  Basic implementation of an [[ActionValueFn]] that stores any value supplied to
-  [[update]] in an internal immutable map.
-
-    @param m the immutable map used for storage.
-    @param default value returned by [[Base]] when queried for (obs, a) pairs it
-    hasn't yet seen.
+  /** Basic implementation of an [[ActionValueFn]] that stores any value supplied to [[update]] in
+    * an internal immutable map.
+    *
+    * @param m
+    *   the immutable map used for storage.
+    * @param default
+    *   value returned by [[Base]] when queried for (obs, a) pairs it hasn't yet seen.
     */
   class Base[Obs, A, T](
       m: Map[Obs, Map[A, T]],
@@ -151,9 +136,8 @@ object ActionValueFn {
     override def actionValue(obs: Obs, a: A): T =
       m.get(obs).flatMap(_.get(a)).getOrElse(default)
 
-    /**
-      @inheritdoc
-      This implementation replaces any existing value with no merge or logic.
+    /** @inheritdoc
+      * This implementation replaces any existing value with no merge or logic.
       */
     override def update(obs: Obs, action: A, value: T): Base[Obs, A, T] = {
       val newM =
@@ -163,12 +147,11 @@ object ActionValueFn {
     }
   }
 
-  /**
-    [[ActionValueFn]] implementation that implements a fold.
-
-    Any value supplied to [[update]] will be transformed first by prepare before
-    being passed to the base [[ActionValueFn]]. Any value retrieved by
-    [[actionValue]] will be passed to `present` before being returned.
+  /** [[ActionValueFn]] implementation that implements a fold.
+    *
+    * Any value supplied to [[update]] will be transformed first by prepare before being passed to
+    * the base [[ActionValueFn]]. Any value retrieved by [[actionValue]] will be passed to `present`
+    * before being returned.
     */
   class Folded[Obs, A, T, U](
       base: ActionValueFn[Obs, A, T],
@@ -177,15 +160,19 @@ object ActionValueFn {
   ) extends ActionValueFn[Obs, A, U] {
     override def seenStates: Iterable[Obs] = base.seenStates
     override def seen(obs: Obs): Iterable[A] = base.seen(obs)
-    override def actionValue(obs: Obs, a: A): U = present(base.actionValue(obs, a))
-    override def update(obs: Obs, action: A, value: U): ActionValueFn[Obs, A, U] =
+    override def actionValue(obs: Obs, a: A): U = present(
+      base.actionValue(obs, a)
+    )
+    override def update(
+        obs: Obs,
+        action: A,
+        value: U
+    ): ActionValueFn[Obs, A, U] =
       new Folded(base.update(obs, action, prepare(value)), prepare, present)
   }
 
-  /**
-    [[ActionValueFn]] implementation that merges values passed to [[update]] into
-    the value stored by the base [[ActionValueFn]] using the supplied
-    Semigroup's `plus` function.
+  /** [[ActionValueFn]] implementation that merges values passed to [[update]] into the value stored
+    * by the base [[ActionValueFn]] using the supplied Semigroup's `plus` function.
     */
   class Mergeable[Obs, A, T](
       base: ActionValueFn[Obs, A, T]
@@ -195,13 +182,16 @@ object ActionValueFn {
     override def seen(obs: Obs): Iterable[A] = base.seen(obs)
     override def actionValue(obs: Obs, a: A): T = base.actionValue(obs, a)
 
-    /**
-      @inheritdoc
-
-      This implementation replaces uses a Semigroup[T] to merge the supplied
-      value in to whatever value is stored in the underlying m.
+    /** @inheritdoc
+      *
+      * This implementation replaces uses a Semigroup[T] to merge the supplied value in to whatever
+      * value is stored in the underlying m.
       */
-    override def update(obs: Obs, action: A, value: T): ActionValueFn[Obs, A, T] = {
+    override def update(
+        obs: Obs,
+        action: A,
+        value: T
+    ): ActionValueFn[Obs, A, T] = {
       val merged = T.plus(actionValue(obs, action), value)
       new Mergeable(base.update(obs, action, merged))
     }

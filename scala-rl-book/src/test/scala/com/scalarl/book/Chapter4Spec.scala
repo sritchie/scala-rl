@@ -6,8 +6,7 @@ import com.scalarl.value.DecayState
 import com.scalarl.world.util.Grid
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
-  * And this is a placeholder for basic tests.
+/** And this is a placeholder for basic tests.
   */
 class Chapter4Spec extends AnyFunSuite {
   import Grid.{Move, Position}
@@ -48,15 +47,16 @@ class Chapter4Spec extends AnyFunSuite {
     // Empty value function to start.
     val emptyFn = StateValueFn.empty[Position, DecayState[Double]](zeroValue)
 
-    val (actual, _) = Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Cat](
-      emptyFn,
-      _ => Policy.random[Position, Move, Double, Cat],
-      DecayState.bellmanFn(gamma),
-      Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
-      Chapter4.shouldStop(_, _, _),
-      inPlace = true,
-      valueIteration = true
-    )
+    val (actual, _) =
+      Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Cat](
+        emptyFn,
+        _ => Policy.random[Position, Move, Double, Cat],
+        DecayState.bellmanFn(gamma),
+        Chapter4.gridConf.stateSweep.map(_.mapK(idToCat)),
+        Chapter4.shouldStop(_, _, _),
+        inPlace = true,
+        valueIteration = true
+      )
     assert(Sweep.diffBelow(actual, expectedFourOne, epsilon)(_.max(_)))
   }
 }

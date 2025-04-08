@@ -1,8 +1,7 @@
-/**
-  This chapter plays a couple of gridworld games. Current goal is to get this
-  all building, and printing nicely.
-
-  This chapter introduces the idea of the Markov Decision Process.
+/** This chapter plays a couple of gridworld games. Current goal is to get this all building, and
+  * printing nicely.
+  *
+  * This chapter introduces the idea of the Markov Decision Process.
   */
 package com.scalarl
 package book
@@ -36,11 +35,9 @@ object Chapter3 {
   def notConverging(iterations: Long, allowed: Long): Boolean =
     iterations >= allowed
 
-  /**
-    Note... this version, following the python code, checks that the sum of all
-    differences is less than epsilon. In the next chapter we use the max
-    function instead here to get this working, to check that the maximum delta
-    is less than epsilon.
+  /** Note... this version, following the python code, checks that the sum of all differences is
+    * less than epsilon. In the next chapter we use the max function instead here to get this
+    * working, to check that the maximum delta is less than epsilon.
     */
   def valueFunctionConverged[Obs, T: ToDouble](
       l: StateValueFn[Obs, T],
@@ -55,7 +52,10 @@ object Chapter3 {
     notConverging(iterations, allowedIterations) ||
       valueFunctionConverged(l, r)
 
-  def toTable(conf: GridWorld.Config, f: Position => Double): Iterable[Iterable[Double]] =
+  def toTable(
+      conf: GridWorld.Config,
+      f: Position => Double
+  ): Iterable[Iterable[Double]] =
     Grid
       .allStates(conf.bounds)
       .map(g => f(g.position))
@@ -71,14 +71,16 @@ object Chapter3 {
   ): Unit = {
     val (valueFn, iterations) = pair
     println(s"${title}:")
-    println(Tabulator.format(toTable(conf, p => ToDouble[T].apply(valueFn.stateValue(p)))))
+    println(
+      Tabulator.format(
+        toTable(conf, p => ToDouble[T].apply(valueFn.stateValue(p)))
+      )
+    )
     println(s"That took $iterations iterations, for the record.")
   }
 
-  /**
-    * This is Figure 3.2, with proper stopping conditions and
-    * everything. Lots of work to go.
-    *   */
+  /** This is Figure 3.2, with proper stopping conditions and everything. Lots of work to go.
+    */
   def threeTwo: (StateValueFn[Position, DecayState[Double]], Long) =
     Sweep.sweepUntil[Position, Move, Double, DecayState[Double], Cat, Id](
       emptyFn,
@@ -90,8 +92,7 @@ object Chapter3 {
       valueIteration = false
     )
 
-  /**
-    * This is Figure 3.5. This is currently working!
+  /** This is Figure 3.5. This is currently working!
     */
   def threeFive: (StateValueFn[Position, DecayState[Double]], Long) = {
     implicit val dm = DecayState.decayStateModule(gamma)
@@ -114,9 +115,7 @@ object Chapter3 {
     )
   }
 
-  /**
-    * This currently works, and displays rough tables for each of the required
-    * bits.
+  /** This currently works, and displays rough tables for each of the required bits.
     */
   def main(items: Array[String]): Unit = {
     printFigure(gridConf, threeTwo, "Figure 3.2")

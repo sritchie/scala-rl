@@ -1,14 +1,13 @@
-/**
-  Infinite variance world from Chapter 5. In this game, you can go left or
-  right; if you go left, you have some odds of winning or losing, and if you go
-  right you immediately lose.
+/** Infinite variance world from Chapter 5. In this game, you can go left or right; if you go left,
+  * you have some odds of winning or losing, and if you go right you immediately lose.
   */
 package com.scalarl
 package world
 
 import com.scalarl.rainier.Categorical
 
-sealed trait InfiniteVariance extends State[InfiniteVariance.View, InfiniteVariance.Move, Int, Cat] {
+sealed trait InfiniteVariance
+    extends State[InfiniteVariance.View, InfiniteVariance.Move, Int, Cat] {
   override val invalidMove = Categorical.pure((0, this))
 }
 

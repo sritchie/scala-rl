@@ -1,7 +1,5 @@
-/**
-  * Gridworld implementation, based on what we need from Chapter 3. I
-  * think this can get much more complicated, especially once
-  * observations come into the picture.
+/** Gridworld implementation, based on what we need from Chapter 3. I think this can get much more
+  * complicated, especially once observations come into the picture.
   */
 package com.scalarl
 package world
@@ -20,12 +18,10 @@ object GridWorld {
   case class Jumps(jumps: Map[Position, (Position, Double)]) {
     def get(p: Position): Option[(Position, Double)] = jumps.get(p)
 
-    /**
-      * TODO
+    /** TODO
       *
-      * - validate that there are no cycles!
-      * - validate that we're within the bounds for all endpoints!
-      *
+      *   - validate that there are no cycles!
+      *   - validate that we're within the bounds for all endpoints!
       */
     def validate(bounds: Bounds): Try[Jumps] = Success(this)
     def and(from: Position, to: Position, reward: Double): Jumps =
@@ -47,24 +43,29 @@ object GridWorld {
       copy(values = values.updated(position, value))
 
     def withTerminalState(position: Position, value: Double = default): Config =
-      copy(values = values.updated(position, value), terminalStates = terminalStates + position)
+      copy(
+        values = values.updated(position, value),
+        terminalStates = terminalStates + position
+      )
 
-    /**
-      * Build by projecting a row or column outside of the specified
-      * bounds onto the boundary.
+    /** Build by projecting a row or column outside of the specified bounds onto the boundary.
       */
     def buildConfined(start: Position): GridWorld =
       buildUnsafe(start.confine(bounds))
 
-    /**
-      * Build, assuming that everything is legit!
+    /** Build, assuming that everything is legit!
       */
     def buildUnsafe(start: Position): GridWorld =
-      GridWorld(Grid(start, bounds), default, penalty, jumps, values, terminalStates)
+      GridWorld(
+        Grid(start, bounds),
+        default,
+        penalty,
+        jumps,
+        values,
+        terminalStates
+      )
 
-    /**
-      * Returns a Try that's successful if supplied position is within
-      * bounds, false otherwise.
+    /** Returns a Try that's successful if supplied position is within bounds, false otherwise.
       */
     def build(start: Position): Try[GridWorld] =
       start.assertWithin(bounds).map(buildUnsafe(_))
@@ -76,10 +77,8 @@ object GridWorld {
   }
 }
 
-/**
-  * TODO - redo this to store dynamics ALL OVER, so we don't have to
-  * recalculate them? lazily build up the map... but don't REPLACE
-  * once it's there? That should slightly speed us up.
+/** TODO - redo this to store dynamics ALL OVER, so we don't have to recalculate them? lazily build
+  * up the map... but don't REPLACE once it's there? That should slightly speed us up.
   */
 case class GridWorld(
     grid: Grid,
@@ -103,13 +102,11 @@ case class GridWorld(
   private def positionValue(position: Position): Double =
     values.getOrElse(position, defaultReward)
 
-  /**
-    * This is the NON-monadic action, since we can do it
-    * immediately. The dynamics are where it all gets passed down to the user.
+  /** This is the NON-monadic action, since we can do it immediately. The dynamics are where it all
+    * gets passed down to the user.
     *
-    * There is still a wall, though! The user can't look ahead. If you
-    * CAN look ahead, and don't hide it behind a delay, then boom, we
-    * have the ability to do the checkers example.
+    * There is still a wall, though! The user can't look ahead. If you CAN look ahead, and don't
+    * hide it behind a delay, then boom, we have the ability to do the checkers example.
     */
   private def actNow(move: Move): (Double, GridWorld) =
     jumps.get(grid.position) match {

@@ -1,5 +1,4 @@
-/**
-  * A MapState is a particular kind of state.
+/** A MapState is a particular kind of state.
   *
   * TODO - maybe get a way to do observations in here?
   */
@@ -11,8 +10,7 @@ import cats.syntax.functor._
 import com.stripe.rainier.cats._
 import com.stripe.rainier.core.Generator
 
-/**
-  * MapState that doesn't evolve.
+/** MapState that doesn't evolve.
   */
 case class StaticMapState[A, R, S[_]: Functor](
     rewards: Map[A, S[R]],
@@ -23,8 +21,7 @@ case class StaticMapState[A, R, S[_]: Functor](
   override val invalidMove = penalty.map((_, this))
 }
 
-/**
-  * MDP with a single state.
+/** MDP with a single state.
   */
 case class MapState[Obs, A, R, S[_]: Functor](
     observation: Obs,
@@ -44,8 +41,8 @@ case class MapState[Obs, A, R, S[_]: Functor](
   }
 
   override val invalidMove = penalty.map((_, this))
-  override def dynamics = rewards.map {
-    case (a, g) => (a, g.map(r => (r, updateForA(a, r))))
+  override def dynamics = rewards.map { case (a, g) =>
+    (a, g.map(r => (r, updateForA(a, r))))
   }
 }
 
@@ -56,8 +53,7 @@ object MapState {
   ): Generator[Map[A, Generator[R]]] =
     gen.repeat(actions.size).map(actions.zip(_).toMap)
 
-  /**
-    * One of the two ways to construct a MapState.
+  /** One of the two ways to construct a MapState.
     */
   def static[A, R](
       actions: Set[A],
@@ -66,8 +62,7 @@ object MapState {
   ): Generator[StaticMapState[A, R, Generator]] =
     genMap(actions, gen).map(StaticMapState(_, penalty))
 
-  /**
-    * The second of two ways to construct a MapState.
+  /** The second of two ways to construct a MapState.
     */
   def updating[Obs, A, R](
       actions: Set[A],

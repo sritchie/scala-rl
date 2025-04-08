@@ -1,5 +1,4 @@
-/**
-  Attempts at sarsa and other algorithms.
+/** Attempts at sarsa and other algorithms.
   */
 package com.scalarl
 package book

@@ -4,25 +4,22 @@ package value
 import com.scalarl.algebra.Module
 import com.twitter.algebird.Group
 
-/**
-  * Exponential recency-weighted average. This is similar to a
-  * weighted average, but instead of weighting by the count, it uses a
-  * constant weighting factor.
-
-  TODO consider changing Numeric to ToDouble?
-
-  TODO there is some interesting thing going on here, where you're summing up
-  constantly weighted factors... and then in the importance weighting you're
-  doing the same thing, you just send in a different weight every time.
-
-  The time is a way of skipping big swathes and injecting zeros in, but it's
-  really the same.
-
-  You can maybe also think about this like you're just keeping track of some
-  weighted numerator, but, same thing, injecting more sum of the weights into
-  the denominator, but nothing, zeros, into the top.
-
-  That would be a nice thing to unify together.
+/** Exponential recency-weighted average. This is similar to a weighted average, but instead of
+  * weighting by the count, it uses a constant weighting factor.
+  *
+  * TODO consider changing Numeric to ToDouble?
+  *
+  * TODO there is some interesting thing going on here, where you're summing up constantly weighted
+  * factors... and then in the importance weighting you're doing the same thing, you just send in a
+  * different weight every time.
+  *
+  * The time is a way of skipping big swathes and injecting zeros in, but it's really the same.
+  *
+  * You can maybe also think about this like you're just keeping track of some weighted numerator,
+  * but, same thing, injecting more sum of the weights into the denominator, but nothing, zeros,
+  * into the top.
+  *
+  * That would be a nice thing to unify together.
   */
 case class ConstantStep(value: Double, time: Time) extends Ordered[ConstantStep] {
   import ConstantStep.{Alpha, Epsilon}
@@ -56,19 +53,24 @@ object ConstantStep {
   def buildAggregate[T](value: T)(implicit num: Numeric[T]): ConstantStep =
     buildAggregate(value, Time.Min)
 
-  def buildAggregate[T](value: T, time: Time)(implicit num: Numeric[T]): ConstantStep =
+  def buildAggregate[T](value: T, time: Time)(implicit
+      num: Numeric[T]
+  ): ConstantStep =
     ConstantStep(num.toDouble(value), time)
 
-  /**
-    * Rewards can only be assigned to time one tick in the future.
+  /** Rewards can only be assigned to time one tick in the future.
     */
-  def buildReward[T](reward: T, alpha: Alpha, time: Time)(implicit num: Numeric[T]): ConstantStep =
+  def buildReward[T](reward: T, alpha: Alpha, time: Time)(implicit
+      num: Numeric[T]
+  ): ConstantStep =
     ConstantStep(alpha * num.toDouble(reward), time.tick)
 
   def group(alpha: Alpha, eps: Epsilon): Group[ConstantStep] =
     new ConstantStepGroup(alpha, eps)
 
-  implicit def module(implicit G: Group[ConstantStep]): Module[Double, ConstantStep] =
+  implicit def module(implicit
+      G: Group[ConstantStep]
+  ): Module[Double, ConstantStep] =
     Module.from((d, cs) => ConstantStep(cs.value * d, cs.time))
 }
 
@@ -78,7 +80,7 @@ class ConstantStepGroup(
 ) extends Group[ConstantStep] {
   override val zero: ConstantStep = ConstantStep.zero
 
-  override def isNonZero(cs: ConstantStep) = (cs.value != 0L)
+  override def isNonZero(cs: ConstantStep) = cs.value != 0L
 
   override def negate(v: ConstantStep) = ConstantStep(-v.value, v.time)
 
@@ -92,23 +94,19 @@ class ConstantStepGroup(
     ConstantStep(a.value + b.value, t)
   }
 
-  /**
-    * Returns the value if the timestamp is less than the time of the
-    * supplied ConstantStep instance.
+  /** Returns the value if the timestamp is less than the time of the supplied ConstantStep
+    * instance.
     */
   def valueAsOf(v: ConstantStep, time: Time): Double =
     v.decayTo(time, alpha, eps).value
 
-  /**
-    * This assigns the reward at the current time, which forces the
-    * timestamp forward.
+  /** This assigns the reward at the current time, which forces the timestamp forward.
     *
     * If you didn't bump the time you could do this:
     *
     * modern + (reward * (alpha / (1.0 - alpha)))
     *
     * And force the alpha to be less than one.
-    *
     */
   def reward(v: ConstantStep, reward: Double, time: Time): ConstantStep = {
     val newTime = time.tick

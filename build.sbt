@@ -112,9 +112,7 @@ lazy val noPublishSettings = Seq(
   publishArtifact := false
 )
 
-/**
-  * This returns the previous jar I've released that is compatible
-  * with the current.
+/** This returns the previous jar I've released that is compatible with the current.
   */
 val noBinaryCompatCheck = Set[String]("core")
 
@@ -133,7 +131,9 @@ lazy val rl = Project(id = "scala-rl", base = file("."))
 def module(name: String) = {
   val id = "scala-rl-%s".format(name)
   Project(id = id, base = file(id))
-    .settings(sharedSettings ++ Seq(Keys.name := id, mimaPreviousArtifacts := previousVersion(name).toSet))
+    .settings(
+      sharedSettings ++ Seq(Keys.name := id, mimaPreviousArtifacts := previousVersion(name).toSet)
+    )
 }
 
 lazy val rlCore = module("core").settings(
@@ -192,7 +192,8 @@ implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
   )
   .dependsOn(rlCore, rlPlot, rlWorld)
 
-lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
+lazy val docsMappingsAPIDir =
+  settingKey[String]("Name of subdirectory in site target directory for api docs")
 
 lazy val docSettings = Seq(
   micrositeName := "ScalaRL",
@@ -217,7 +218,10 @@ lazy val docSettings = Seq(
       )
   ),
   micrositeEditButton := Some(
-    MicrositeEditButton("Help us improve this page", "/edit/develop/docs/src/main/tut/{{ page.path }}")
+    MicrositeEditButton(
+      "Help us improve this page",
+      "/edit/develop/docs/src/main/tut/{{ page.path }}"
+    )
   ),
   micrositeHighlightTheme := "atom-one-light",
   micrositePalette := Map(
@@ -239,7 +243,8 @@ lazy val docSettings = Seq(
   // Don't kill the cname redirect.
   excludeFilter in ghpagesCleanSite :=
     new FileFilter {
-      def accept(f: File) = (ghpagesRepository.value / "CNAME").getCanonicalPath == f.getCanonicalPath
+      def accept(f: File) =
+        (ghpagesRepository.value / "CNAME").getCanonicalPath == f.getCanonicalPath
     } || "versions.html",
   fork in tut := true,
   fork in (ScalaUnidoc, unidoc) := true,
@@ -263,5 +268,7 @@ lazy val docs = project
   .settings(sharedSettings)
   .settings(noPublishSettings)
   .settings(docSettings)
-  .settings((scalacOptions in Tut) ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
+  .settings(
+    (scalacOptions in Tut) ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code")))
+  )
   .dependsOn(rlCore, rlPlot, rlBook, rlWorld)

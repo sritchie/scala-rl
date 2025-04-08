@@ -1,6 +1,4 @@
-/**
-  * Grid-related utilities. I bet I could generate 1, 2, 3d grids,
-  * with custom moves between them...
+/** Grid-related utilities. I bet I could generate 1, 2, 3d grids, with custom moves between them...
   */
 package com.scalarl
 package world
@@ -23,9 +21,7 @@ object Grid {
     def up: Row = Row(value + 1)
     def down: Row = Row(value - 1)
 
-    /**
-      * Returns a row that's guaranteed to sit within the range
-      * specified by numColumns.
+    /** Returns a row that's guaranteed to sit within the range specified by numColumns.
       */
     def confine(numRows: Int): Row =
       Row(Util.confine(value, 0, numRows - 1))
@@ -46,9 +42,7 @@ object Grid {
     def left: Col = Col(value + 1)
     def right: Col = Col(value - 1)
 
-    /**
-      * Returns a column that's guaranteed to sit within the range
-      * specified by numColumns.
+    /** Returns a column that's guaranteed to sit within the range specified by numColumns.
       */
     def confine(numColumns: Int): Col =
       Col(Util.confine(value, 0, numColumns - 1))
@@ -94,14 +88,12 @@ object Grid {
   case class Bounds(numRows: Int, numColumns: Int) {
     def allPositions: Traversable[Position] =
       for {
-        r <- (0 until numRows)
-        c <- (0 until numColumns)
+        r <- 0 until numRows
+        c <- 0 until numColumns
       } yield Position.of(r, c)
   }
 
-  /**
-    * Produces a traversable instance containing all possible Grid
-    * states.
+  /** Produces a traversable instance containing all possible Grid states.
     */
   def allStates(bounds: Bounds): Traversable[Grid] =
     bounds.allPositions.map(Grid(_, bounds))
