@@ -44,11 +44,17 @@ trait State[Obs, A, @specialized(Int, Long, Float, Double) R, M[_]] { self =>
   def actions: Set[A] = dynamics.keySet
   def act(action: A): M[(R, This)] = dynamics.getOrElse(action, invalidMove)
 
-  /** Returns a list of possible actions to take from this state. To specify the terminal state,
-    * return an empty set.
-    */
   def isTerminal: Boolean = actions.isEmpty
 
+  /** Maps the observation type of this state to a new type.
+    *
+    * @param f
+    *   The function to transform the observation from type Obs to type P
+    * @param M
+    *   Evidence that M has a Functor instance
+    * @return
+    *   A new State with observations of type P but the same actions and rewards
+    */
   def mapObservation[P](
       f: Obs => P
   )(implicit M: Functor[M]): State[P, A, R, M] =
