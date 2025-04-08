@@ -5,7 +5,8 @@ import scala.{specialized => sp}
 
 /** Typeclass that encodes how some type A can be converted into a Double instance.
   */
-trait ToDouble[@sp(Int, Long, Float, Double) A] extends Any with Serializable { self =>
+trait ToDouble[@sp(Int, Long, Float, Double) A] extends Any with Serializable {
+  self =>
   def apply(a: A): Double
 
   def contramap[B](f: B => A): ToDouble[B] = new ToDouble[B] {
@@ -21,16 +22,17 @@ object ToDouble {
 
   /** Generates an instance of[[ToDouble]] from a pure function.
     */
-  @inline def instance[A](toDouble: A => Double): ToDouble[A] = new ToDouble[A] {
-    override def apply(a: A): Double = toDouble(a)
-  }
+  @inline def instance[A](toDouble: A => Double): ToDouble[A] =
+    new ToDouble[A] {
+      override def apply(a: A): Double = toDouble(a)
+    }
 
   /** The [[ToDouble]] instance for doubles uses the identity function.
     */
   implicit val fromDouble: ToDouble[Double] = instance(d => d)
 
-  /** Any type A that conforms to the Numeric typeclass can be converted to double via the toDouble method on
-    * that typeclass.
+  /** Any type A that conforms to the Numeric typeclass can be converted to double via the toDouble
+    * method on that typeclass.
     */
   implicit def numericToDouble[A](implicit N: Numeric[A]): ToDouble[A] =
     instance(N.toDouble(_))

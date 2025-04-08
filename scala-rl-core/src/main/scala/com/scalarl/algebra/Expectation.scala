@@ -3,8 +3,8 @@ package algebra
 
 import cats.Id
 
-/** This definitely works, but I need to think through how we're going to be able to return things like
-  * Futures, that have to communicate over the network. Does the value return type cover it?
+/** This definitely works, but I need to think through how we're going to be able to return things
+  * like Futures, that have to communicate over the network. Does the value return type cover it?
   *
   * NOTE the implementation is responsible for normalizing.
   */
@@ -21,7 +21,9 @@ object Expectation extends ExpectationImplicits {
 }
 
 trait ExpectationImplicits {
-  implicit def fromDecomposition[M[_]](implicit D: Decompose[M, Double]): Expectation[M] =
+  implicit def fromDecomposition[M[_]](implicit
+      D: Decompose[M, Double]
+  ): Expectation[M] =
     new Expectation[M] {
       def get[A, B](a: M[A])(f: A => B)(implicit M: Module[Double, B]): B =
         M.group.sum(

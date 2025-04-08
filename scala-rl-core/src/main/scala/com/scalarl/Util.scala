@@ -47,8 +47,8 @@ object Util {
       m.updated(k, f(k))
     }
 
-  /** Update the key in the supplied map using the function - the function handles both cases, when the item
-    * is there and when it's not.
+  /** Update the key in the supplied map using the function - the function handles both cases, when
+    * the item is there and when it's not.
     */
   def updateWith[K, V](m: Map[K, V], k: K)(f: Option[V] => V): Map[K, V] =
     m.updated(k, f(m.get(k)))
@@ -68,14 +68,16 @@ object Util {
       as.filter(a => Ordering[B].equiv(maxB, f(a)))
     }
 
-  def iterateM[M[_], A](n: Int)(a: A)(f: A => M[A])(implicit M: Monad[M]): M[A] =
+  def iterateM[M[_], A](
+      n: Int
+  )(a: A)(f: A => M[A])(implicit M: Monad[M]): M[A] =
     M.iterateWhileM((n, a)) { case (k, a) =>
       f(a).map((k - 1, _))
     }(_._1 > 0)
       .map(_._2)
 
-  /** A version of iterateUntilM that uses an aggregator to store the auxiliary results kicked out by the step
-    * function.
+  /** A version of iterateUntilM that uses an aggregator to store the auxiliary results kicked out
+    * by the step function.
     */
   def iterateUntilM[M[_], A, B, C, D](init: A, agg: MonoidAggregator[B, C, D])(
       f: A => M[(A, B)]
@@ -87,8 +89,8 @@ object Util {
     }(pair => p(pair._1))
       .map { case (a, c) => (a, agg.present(c)) }
 
-  /** A version of iterateUntilM that uses a Fold to store the auxiliary results kicked out by the step
-    * function.
+  /** A version of iterateUntilM that uses a Fold to store the auxiliary results kicked out by the
+    * step function.
     */
   def foldUntilM[M[_], A, B, C](init: A, fold: Fold[B, C])(
       f: A => M[(A, B)]
@@ -102,8 +104,8 @@ object Util {
       .map { case (a, c) => (a, foldState.end(c)) }
   }
 
-  /** And a helper function that will let me test this out with monoid aggregators, like the ones I wrote to
-    * walk trajectories.
+  /** And a helper function that will let me test this out with monoid aggregators, like the ones I
+    * wrote to walk trajectories.
     */
   def aggToFold[A, B, C](agg: MonoidAggregator[A, B, C]): Fold[A, C] =
     Fold.fold[B, A, C](
@@ -112,10 +114,13 @@ object Util {
       end = agg.present(_)
     )
 
-  /** A version of iterateWhileM that uses an aggregator to store the auxiliary results kicked out by the step
-    * function.
+  /** A version of iterateWhileM that uses an aggregator to store the auxiliary results kicked out
+    * by the step function.
     */
-  def iterateWhileM[M[_]: Monad, A, B, C, D](init: A, agg: MonoidAggregator[B, C, D])(
+  def iterateWhileM[M[_]: Monad, A, B, C, D](
+      init: A,
+      agg: MonoidAggregator[B, C, D]
+  )(
       f: A => M[(A, B)]
   )(p: A => Boolean): M[(A, D)] =
     iterateUntilM(init, agg)(f)(!p(_))
@@ -130,8 +135,8 @@ object Util {
       iterateUntilM(s, agg)(state.run(_))(p)
     }
 
-  /** Accumulates differences between the two for every A in the supplied sequence. The combine function is
-    * used to aggregate the differences.
+  /** Accumulates differences between the two for every A in the supplied sequence. The combine
+    * function is used to aggregate the differences.
     *
     * I recommend using max or +.
     */

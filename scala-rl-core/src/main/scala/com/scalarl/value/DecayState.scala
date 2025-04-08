@@ -5,8 +5,8 @@ import com.twitter.algebird.{Group, Ring, VectorSpace}
 import com.scalarl.algebra.{Expectation, Module, ToDouble}
 import com.scalarl.evaluate.StateValue
 
-/** This represents a value that's weighted as you move away from it. This is useful because we can KEEP
-  * GOING, and continue to weight it.
+/** This represents a value that's weighted as you move away from it. This is useful because we can
+  * KEEP GOING, and continue to weight it.
   */
 sealed trait DecayState[A] extends Product with Serializable {
   def toValue: DecayState.DecayedValue[A]
@@ -33,10 +33,18 @@ object DecayState {
   ) => StateValue[Obs, A, R, DecayState[R], S] = {
     val group = decayStateGroup[R](gamma)
     implicit val module = decayStateModule[R](gamma)
-    (f, p) => Evaluator.bellman[Obs, A, R, DecayState[R], M, S](f, p, Reward(_), group.plus(_, _))
+    (f, p) =>
+      Evaluator.bellman[Obs, A, R, DecayState[R], M, S](
+        f,
+        p,
+        Reward(_),
+        group.plus(_, _)
+      )
   }
 
-  def decayStateModule[A](gamma: Double)(implicit M: Module[Double, A]): Module[Double, DecayState[A]] = {
+  def decayStateModule[A](
+      gamma: Double
+  )(implicit M: Module[Double, A]): Module[Double, DecayState[A]] = {
     implicit val group: Group[DecayState[A]] = decayStateGroup(gamma)
     Module.from((r, d) =>
       d match {
@@ -59,7 +67,9 @@ object DecayState {
     )
   }
 
-  def decayStateGroup[A](gamma: Double)(implicit M: Module[Double, A]): Group[DecayState[A]] =
+  def decayStateGroup[A](
+      gamma: Double
+  )(implicit M: Module[Double, A]): Group[DecayState[A]] =
     new Group[DecayState[A]] {
       private val GA = M.group
       override val zero = DecayedValue(GA.zero)
@@ -68,9 +78,11 @@ object DecayState {
         case DecayedValue(a) => DecayedValue(GA.negate(a))
       }
       override def plus(l: DecayState[A], r: DecayState[A]) = (l, r) match {
-        case (Reward(a), Reward(b))             => Reward(GA.plus(a, b))
-        case (DecayedValue(a), Reward(b))       => DecayedValue(GA.plus(M.scale(gamma, a), b))
-        case (Reward(a), DecayedValue(b))       => DecayedValue(GA.plus(M.scale(gamma, b), a))
+        case (Reward(a), Reward(b)) => Reward(GA.plus(a, b))
+        case (DecayedValue(a), Reward(b)) =>
+          DecayedValue(GA.plus(M.scale(gamma, a), b))
+        case (Reward(a), DecayedValue(b)) =>
+          DecayedValue(GA.plus(M.scale(gamma, b), a))
         case (DecayedValue(a), DecayedValue(b)) => DecayedValue(GA.plus(a, b))
       }
     }

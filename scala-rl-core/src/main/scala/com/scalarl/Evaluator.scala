@@ -57,7 +57,10 @@ object Evaluator {
 
     def byPolicy[M[_]](
         policy: Policy[Obs, A, R, M, S]
-    )(implicit M: Expectation[M], MV: Module[Double, G]): FromAction[Obs, A, R, G, S, F] =
+    )(implicit
+        M: Expectation[M],
+        MV: Module[Double, G]
+    ): FromAction[Obs, A, R, G, S, F] =
       new FromAction[Obs, A, R, G, S, F](fn => f(fn.byPolicy(policy)))
   }
 
@@ -73,7 +76,10 @@ object Evaluator {
     def byStateValue(
         prepare: R => G,
         merge: (G, G) => G
-    )(implicit S: Expectation[S], MV: Module[Double, G]): FromState[Obs, A, R, G, S, F] =
+    )(implicit
+        S: Expectation[S],
+        MV: Module[Double, G]
+    ): FromState[Obs, A, R, G, S, F] =
       new FromState[Obs, A, R, G, S, F](fn => f(fn.byStateValue(prepare, merge)))
   }
 }

@@ -13,7 +13,9 @@ trait Decompose[M[_], R] extends Serializable {
 }
 
 object Decompose {
-  @inline final def apply[M[_], R](implicit W: Decompose[M, R]): Decompose[M, R] = W
+  @inline final def apply[M[_], R](implicit
+      W: Decompose[M, R]
+  ): Decompose[M, R] = W
 
   implicit def id[R](implicit R: Ring[R]): Decompose[Id, R] =
     new Decompose[Id, R] {

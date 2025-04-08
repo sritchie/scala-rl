@@ -5,8 +5,8 @@ import _root_.algebra.CommutativeGroup
 import com.twitter.algebird.Group
 import com.scalarl.algebra.Weight
 
-/** This is of course extremely similar to the averaged value implementation in Algebird... it just keeps
-  * track of a numerator AND denominator
+/** This is of course extremely similar to the averaged value implementation in Algebird... it just
+  * keeps track of a numerator AND denominator
   */
 case class WeightedAverage(weightSum: Weight, value: Double) {
 
@@ -18,8 +18,8 @@ case class WeightedAverage(weightSum: Weight, value: Double) {
     */
   def unary_- : WeightedAverage = copy(value = -value)
 
-  /** Averages this instance with the *opposite* of the supplied [[WeightedAverage]] instance, effectively
-    * subtracting out that instance's contribution to the mean.
+  /** Averages this instance with the *opposite* of the supplied [[WeightedAverage]] instance,
+    * effectively subtracting out that instance's contribution to the mean.
     *
     * @param r
     *   the instance to subtract
@@ -65,18 +65,24 @@ object WeightedAverage {
   */
 object WeightedAverageGroup extends Group[WeightedAverage] with CommutativeGroup[WeightedAverage] {
 
-  /** When combining averages, if the counts sizes are too close we should use a different algorithm. This
-    * constant defines how close the ratio of the smaller to the total count can be:
+  /** When combining averages, if the counts sizes are too close we should use a different
+    * algorithm. This constant defines how close the ratio of the smaller to the total count can be:
     */
   private val STABILITY_CONSTANT = 0.1
 
-  /** Given two streams of doubles (n, an) and (k, ak) of form (count, mean), calculates the mean of the
-    * combined stream.
+  /** Given two streams of doubles (n, an) and (k, ak) of form (count, mean), calculates the mean of
+    * the combined stream.
     *
-    * Uses a more stable online algorithm which should be suitable for large numbers of records similar to:
+    * Uses a more stable online algorithm which should be suitable for large numbers of records
+    * similar to:
     * http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
     */
-  private[scalarl] def getCombinedMean(n: Double, an: Double, k: Double, ak: Double): Double =
+  private[scalarl] def getCombinedMean(
+      n: Double,
+      an: Double,
+      k: Double,
+      ak: Double
+  ): Double =
     if (n < k) getCombinedMean(k, ak, n, an)
     else
       (n + k) match {
@@ -95,10 +101,12 @@ object WeightedAverageGroup extends Group[WeightedAverage] with CommutativeGroup
 
   override def negate(av: WeightedAverage): WeightedAverage = -av
 
-  /** Optimized implementation of [[plus]]. Uses internal mutation to combine the supplied [[WeightedAverage]]
-    * instances without creating intermediate objects.
+  /** Optimized implementation of [[plus]]. Uses internal mutation to combine the supplied
+    * [[WeightedAverage]] instances without creating intermediate objects.
     */
-  override def sumOption(iter: TraversableOnce[WeightedAverage]): Option[WeightedAverage] =
+  override def sumOption(
+      iter: TraversableOnce[WeightedAverage]
+  ): Option[WeightedAverage] =
     if (iter.isEmpty) None
     else {
       var weightSum = 0.0

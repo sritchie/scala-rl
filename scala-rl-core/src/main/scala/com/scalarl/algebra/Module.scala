@@ -14,7 +14,9 @@ object Module {
 
   implicit def ringModule[R: Ring]: Module[R, R] = from(Ring.times(_, _))
 
-  def from[R, G](scaleFn: (R, G) => G)(implicit R: Ring[R], G: Group[G]): Module[R, G] =
+  def from[R, G](
+      scaleFn: (R, G) => G
+  )(implicit R: Ring[R], G: Group[G]): Module[R, G] =
     new Module[R, G] {
       override def ring = R
       override def group = G
@@ -22,7 +24,10 @@ object Module {
         if (R.isNonZero(r)) scaleFn(r, g) else G.zero
     }
 
-  def fromVectorSpace[F, C[_]](implicit R: Ring[F], V: VectorSpace[F, C]): Module[F, C[F]] = {
+  def fromVectorSpace[F, C[_]](implicit
+      R: Ring[F],
+      V: VectorSpace[F, C]
+  ): Module[F, C[F]] = {
     implicit val g = V.group
     from[F, C[F]](V.scale(_, _))
   }

@@ -3,14 +3,15 @@ package plot
 
 /** Shamelessly copied from: http://stackoverflow.com/a/7542476
   *
-  * I modified this slightly to take Iterable instances instead of Seq instances; this still needs to be
-  * updated to handle more formatting options.
+  * I modified this slightly to take Iterable instances instead of Seq instances; this still needs
+  * to be updated to handle more formatting options.
   *
   * I'm using this to print tables for Gridworld.
   */
 object Tabulator {
 
-  def csv(table: Iterable[Iterable[Any]]): String = table.map(_.mkString(",")).mkString("\n")
+  def csv(table: Iterable[Iterable[Any]]): String =
+    table.map(_.mkString(",")).mkString("\n")
 
   def format(table: Iterable[Iterable[Any]]): String =
     if (table.isEmpty) ""

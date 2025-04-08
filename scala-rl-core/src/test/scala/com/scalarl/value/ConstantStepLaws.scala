@@ -35,7 +35,9 @@ class ConstantStepLaws extends AnyPropSpec with Checkers with ConstantStepArb {
     }
   })
 
-  property("Adding two instances together acts like a single instance with double rewards")(check {
+  property(
+    "Adding two instances together acts like a single instance with double rewards"
+  )(check {
     forAll { (rewards: List[Float]) =>
       val (acc, ts1) = fill(stepGroup, zero, rewards)
       val (doubleAcc, ts2) = fill(stepGroup, zero, rewards.map(_.toDouble * 2))
@@ -44,25 +46,32 @@ class ConstantStepLaws extends AnyPropSpec with Checkers with ConstantStepArb {
     }
   })
 
-  property("With an alpha of one, all weight's placed on the latest reward.")(check {
-    val oneMonoid = new ConstantStepGroup(Alpha(1.0), EPS)
+  property("With an alpha of one, all weight's placed on the latest reward.")(
+    check {
+      val oneMonoid = new ConstantStepGroup(Alpha(1.0), EPS)
 
-    forAll { (rewards: List[Int]) =>
-      val instances = rewards.scanLeft((zero, zero.time)) { case ((acc, ts), r) =>
-        (oneMonoid.reward(acc, r, ts), ts.tick)
-      }
+      forAll { (rewards: List[Int]) =>
+        val instances =
+          rewards.scanLeft((zero, zero.time)) { case ((acc, ts), r) =>
+            (oneMonoid.reward(acc, r, ts), ts.tick)
+          }
 
-      instances.tail.zip(rewards).forall { case ((acc, _), reward) =>
-        approxEq(EPS.toDouble)(acc.value, reward)
+        instances.tail.zip(rewards).forall { case ((acc, _), reward) =>
+          approxEq(EPS.toDouble)(acc.value, reward)
+        }
       }
     }
-  })
+  )
 
-  property("adding a reward works the same as adding an instance one tick later.")(check {
+  property(
+    "adding a reward works the same as adding an instance one tick later."
+  )(check {
     forAll { (cs: ConstantStep, reward: Double) =>
       approxEq(EPS.toDouble)(
         stepGroup.reward(cs, reward, cs.time).value,
-        stepGroup.plus(cs, ConstantStep.buildAggregate(alpha * reward, cs.time.tick)).value
+        stepGroup
+          .plus(cs, ConstantStep.buildAggregate(alpha * reward, cs.time.tick))
+          .value
       )
     }
   })
@@ -109,7 +118,12 @@ class ConstantStepTest extends org.scalatest.funsuite.AnyFunSuite {
     val stepTwo = stepGroup.reward(stepOne, r2, stepOne.time)
 
     assert(approxEq(EPS.toDouble)(stepOne.value, alpha * r1))
-    assert(approxEq(EPS.toDouble)(stepTwo.value, (alpha * r1) + alpha * (r2 - (alpha * r1))))
+    assert(
+      approxEq(EPS.toDouble)(
+        stepTwo.value,
+        (alpha * r1) + alpha * (r2 - (alpha * r1))
+      )
+    )
   }
 
   test("monoid works like the single-step version") {
@@ -122,7 +136,9 @@ class ConstantStepTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(approxEq(EPS.toDouble)(csAccumulator.value, simpleAcc))
   }
 
-  test("Adding an instance with (alpha * reward) one tick in the future equals a reward now.") {
+  test(
+    "Adding an instance with (alpha * reward) one tick in the future equals a reward now."
+  ) {
     val r: Double = 10.0
 
     val rewarded = stepGroup.reward(zero, r, zero.time)

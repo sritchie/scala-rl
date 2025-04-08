@@ -1,4 +1,5 @@
-/** Policy that accumulates via epsilon greedy. This is only still here because it knows how to learn.
+/** Policy that accumulates via epsilon greedy. This is only still here because it knows how to
+  * learn.
   */
 package com.scalarl
 package policy
@@ -66,8 +67,8 @@ object Greedy {
 
   /** Returns an incremental config.
     *
-    * TODO we also need a version that uses a constant step size, instead of sample averages. And maybe a
-    * version that uses exponential decay?
+    * TODO we also need a version that uses a constant step size, instead of sample averages. And
+    * maybe a version that uses exponential decay?
     */
   def incrementalConfig(
       epsilon: Double,

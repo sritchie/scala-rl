@@ -13,8 +13,8 @@ object Bandit {
 
   case class Arm(i: Int)
 
-  /** An "Arm" is something that takes you to a new state. We just happen to have only a single state here, so
-    * it always takes you back to a given "bandit" problem.
+  /** An "Arm" is something that takes you to a new state. We just happen to have only a single
+    * state here, so it always takes you back to a given "bandit" problem.
     */
   def arms(k: Int): Set[Arm] = (0 until k).map(Arm(_)).toSet
 
@@ -28,11 +28,11 @@ object Bandit {
     MapState.static(arms(nArms), penalty, gen)
   }
 
-  /** Returns a Generator that splits out states for each of the games to play. This generator evolves in a
-    * non-stationary way.
+  /** Returns a Generator that splits out states for each of the games to play. This generator
+    * evolves in a non-stationary way.
     *
-    * The set below is totally fucked... it's returning a SINGLE generator each time, not the good stuff that
-    * we need.
+    * The set below is totally fucked... it's returning a SINGLE generator each time, not the good
+    * stuff that we need.
     */
   def nonStationary(
       nArms: Int,

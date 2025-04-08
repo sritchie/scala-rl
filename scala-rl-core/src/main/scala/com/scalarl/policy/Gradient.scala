@@ -8,8 +8,8 @@ import com.twitter.algebird.{Aggregator, AveragedValue, Monoid, Semigroup}
 import com.scalarl.algebra.ToDouble
 import com.scalarl.rainier.Categorical
 
-/** This thing needs to track its average reward internally... then, if we have the gradient baseline set, use
-  * that thing to generate the notes.
+/** This thing needs to track its average reward internally... then, if we have the gradient
+  * baseline set, use that thing to generate the notes.
   *
   * T is the "average" type.
   */
@@ -80,22 +80,23 @@ object Gradient {
     }
 
     // implicit instances.
-    implicit def semigroup[T: Semigroup]: Semigroup[Item[T]] = new ItemSemigroup[T]
+    implicit def semigroup[T: Semigroup]: Semigroup[Item[T]] =
+      new ItemSemigroup[T]
     implicit def ord[T: Ordering]: Ordering[Item[T]] = Ordering.by(_.t)
     implicit def monoid[T: Monoid] = new ItemMonoid[T]
     implicit def itemToDouble[T]: ToDouble[Item[T]] = ToDouble.instance(_.q)
   }
 
-  /** Represents an action value AND some sort of accumulated value. The action value is something we get by
-    * aggregating a reward in some way.
+  /** Represents an action value AND some sort of accumulated value. The action value is something
+    * we get by aggregating a reward in some way.
     *
-    * You might just sum, which would be goofy; you might do some averaged value, or exponentially decaying
-    * average.
+    * You might just sum, which would be goofy; you might do some averaged value, or exponentially
+    * decaying average.
     *
     * The t is the reward aggregator. The q is the item that's getting updated in this funky way.
     *
-    * So how would you write a semigroup for this? You'd have to semigroup combine the T... what is the monoid
-    * on the q?
+    * So how would you write a semigroup for this? You'd have to semigroup combine the T... what is
+    * the monoid on the q?
     */
   case class Item[T](q: Double, t: T)
 
@@ -117,7 +118,10 @@ object Gradient {
 
   /** Hand-selected version that uses AveragedValue to accumulate internally.
     */
-  def incrementalConfig(stepSize: Double, initial: Double = 0.0): Config[Double, AveragedValue] =
+  def incrementalConfig(
+      stepSize: Double,
+      initial: Double = 0.0
+  ): Config[Double, AveragedValue] =
     Config(AveragedValue(initial), stepSize, AveragedValue(_), _ + _)
 
   /** Uses NO averaging baseline.

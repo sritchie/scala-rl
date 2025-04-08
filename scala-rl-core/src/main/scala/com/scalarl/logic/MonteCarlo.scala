@@ -23,31 +23,38 @@ object MonteCarlo {
   // paired with a note about whether or not that observation should trigger a
   // state update. This is primarily interesting for distinguishing between
   // first and every visit updates, or something in between.
-  type Trajectory[Obs, A, R, M[_]] = Iterator[(SARS[Obs, A, R, M], ShouldUpdateState)]
+  type Trajectory[Obs, A, R, M[_]] =
+    Iterator[(SARS[Obs, A, R, M], ShouldUpdateState)]
 
   // The T type here is type that's used to aggregate the trajectory.
-  type Tracker[Obs, A, R, T, M[_]] = MonoidAggregator[SARS[Obs, A, R, M], T, Trajectory[Obs, A, R, M]]
+  type Tracker[Obs, A, R, T, M[_]] =
+    MonoidAggregator[SARS[Obs, A, R, M], T, Trajectory[Obs, A, R, M]]
 
   object Tracker {
     // Use a frequency tracker to aggregate; this allows us to count backwards
     // from the end and figure out when the first time we saw a particular state
     // was.
-    type FirstVisit[Obs, A, R, M[_]] = Tracker[Obs, A, R, FrequencyTracker[SARS[Obs, A, R, M], Obs], M]
+    type FirstVisit[Obs, A, R, M[_]] =
+      Tracker[Obs, A, R, FrequencyTracker[SARS[Obs, A, R, M], Obs], M]
 
     // If we don't care we can accumulate the trajectory the state using a vector.
     //
     // This should be equivalent to using a frequency tracker but ignoring
     // whether or not we've seen the state.
-    type EveryVisit[Obs, A, R, M[_]] = Tracker[Obs, A, R, Vector[SARS[Obs, A, R, M]], M]
+    type EveryVisit[Obs, A, R, M[_]] =
+      Tracker[Obs, A, R, Vector[SARS[Obs, A, R, M]], M]
 
-    /** Returns a Tracker instance that will generate a trajectory where ShouldUpdateState is only true the
-      * first time in the trajectory a state is encountered.
+    /** Returns a Tracker instance that will generate a trajectory where ShouldUpdateState is only
+      * true the first time in the trajectory a state is encountered.
       */
     def firstVisit[Obs, A, R, M[_]]: FirstVisit[Obs, A, R, M] = {
-      implicit val m = FrequencyTracker.monoid[SARS[Obs, A, R, M], Obs](_.state.observation)
+      implicit val m =
+        FrequencyTracker.monoid[SARS[Obs, A, R, M], Obs](_.state.observation)
       Aggregator.appendMonoid(
         appnd = _ :+ _,
-        pres = _.reverseIterator.map { case (t, seen) => (t, ShouldUpdateState(seen == 0)) }
+        pres = _.reverseIterator.map { case (t, seen) =>
+          (t, ShouldUpdateState(seen == 0))
+        }
       )
     }
 
@@ -77,12 +84,14 @@ object MonteCarlo {
       m.play
     }(_.state.isTerminal)
 
-  /** So if you have G, your return... okay, this is a version that tracks the weights, but doesn't give you a
-    * nice way to push the weights back. What if we make the weight part of G? Try that in the next fn.
+  /** So if you have G, your return... okay, this is a version that tracks the weights, but doesn't
+    * give you a nice way to push the weights back. What if we make the weight part of G? Try that
+    * in the next fn.
     *
-    * This is a full monte carlo trajectory tracker that's able to do off-policy control. The behavior policy
-    * does NOT change at all, but that's okay, I guess. We're going to have to solve that now. Presumably if
-    * you're updating a value function at any point you could get a new agent.
+    * This is a full monte carlo trajectory tracker that's able to do off-policy control. The
+    * behavior policy does NOT change at all, but that's okay, I guess. We're going to have to solve
+    * that now. Presumably if you're updating a value function at any point you could get a new
+    * agent.
     */
   def processTrajectory[Obs, A, R, G, M[_]](
       trajectory: Trajectory[Obs, A, R, M],
@@ -114,8 +123,8 @@ object MonteCarlo {
     loop(trajectory, valueFn, agg.monoid.zero)
   }
 
-  /** This is a simpler version that doesn't do any weighting. This should be equivalent to the more difficult
-    * one above, with a constant weight of 1 for everything.
+  /** This is a simpler version that doesn't do any weighting. This should be equivalent to the more
+    * difficult one above, with a constant weight of 1 for everything.
     */
   def processTrajectorySimple[Obs, A, R, G, M[_]](
       trajectory: Trajectory[Obs, A, R, M],

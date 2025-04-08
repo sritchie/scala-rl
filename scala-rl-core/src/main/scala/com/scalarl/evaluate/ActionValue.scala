@@ -10,21 +10,29 @@ sealed trait ActionValue[Obs, A, R, G, S[_]] extends Product with Serializable {
 
   def evaluate(state: State[Obs, A, R, S], a: A): G
 
-  def greedyOptions(state: State[Obs, A, R, S])(implicit G: Ordering[G]): Set[A] =
+  def greedyOptions(state: State[Obs, A, R, S])(implicit
+      G: Ordering[G]
+  ): Set[A] =
     Util.allMaxBy[A, G](state.actions)(evaluate(state, _))
 
   def byPolicy[M[_]](
       policy: Policy[Obs, A, R, M, S]
-  )(implicit M: Expectation[M], MV: Module[Double, G]): StateValue[Obs, A, R, G, S] =
+  )(implicit
+      M: Expectation[M],
+      MV: Module[Double, G]
+  ): StateValue[Obs, A, R, G, S] =
     StateValue.ByPolicy(this, policy)
 }
 
 object ActionValue {
-  def fn[Obs, A, R, G, S[_]](f: ActionValueFn[Obs, A, G]): ActionValue[Obs, A, R, G, S] = Fn(f)
+  def fn[Obs, A, R, G, S[_]](
+      f: ActionValueFn[Obs, A, G]
+  ): ActionValue[Obs, A, R, G, S] = Fn(f)
 
   /** Evaluates the action's value directly.
     */
-  final case class Fn[Obs, A, R, G, S[_]](f: ActionValueFn[Obs, A, G]) extends ActionValue[Obs, A, R, G, S] {
+  final case class Fn[Obs, A, R, G, S[_]](f: ActionValueFn[Obs, A, G])
+      extends ActionValue[Obs, A, R, G, S] {
     def evaluate(state: State[Obs, A, R, S], a: A): G =
       f.actionValue(state.observation, a)
   }

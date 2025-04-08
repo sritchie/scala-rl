@@ -15,9 +15,9 @@ import com.scalarl.world.Bandit
 
 /** # Introduction to Chapter 2
   *
-  * This chapter is about Bandits. These are markov processes that know about a single state, really. The
-  * trick here is going to be getting the stuff that plays these particular states to be more general, and
-  * work with the same machinery that rolls states forward.
+  * This chapter is about Bandits. These are markov processes that know about a single state,
+  * really. The trick here is going to be getting the stuff that plays these particular states to be
+  * more general, and work with the same machinery that rolls states forward.
   *
   * What we REALLY NEED here is both the top and bottom graphs, getting it done.
   *
@@ -36,7 +36,9 @@ object Chapter2 {
 
   // Implementing it the way it does in the book.
   def average(s: Iterable[Double]): Double = {
-    val (sum, n) = s.foldLeft((0.0, 0)) { case ((sum, n), i) => (sum + i, n + 1) }
+    val (sum, n) = s.foldLeft((0.0, 0)) { case ((sum, n), i) =>
+      (sum + i, n + 1)
+    }
     sum / n
   }
 
@@ -61,7 +63,9 @@ object Chapter2 {
 
     val elapsed = Stopwatch.start()
     val rewardSeq = rewardSeqGen.get
-    println(s"Time to play $nRuns runs of $timeSteps time steps each: ${elapsed()}")
+    println(
+      s"Time to play $nRuns runs of $timeSteps time steps each: ${elapsed()}"
+    )
 
     rewardSeq
   }

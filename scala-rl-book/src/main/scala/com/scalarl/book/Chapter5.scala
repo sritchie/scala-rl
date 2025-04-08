@@ -1,5 +1,5 @@
-/** Monte Carlo methods. This will be tough... a second layer of aggregation as we move through episodes and
-  * aggregate across game.
+/** Monte Carlo methods. This will be tough... a second layer of aggregation as we move through
+  * episodes and aggregate across game.
   */
 package com.scalarl
 package book
@@ -36,14 +36,19 @@ object Chapter5 {
   // I need it in this form for off-policy sampling, etc... but to do the
   // stochastic thing I need to be able to get a generator out of it. Or some
   // monadic thing that does not let me get expected value.
-  def stickHighCat[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Cat, S] =
+  def stickHighCat[S[_]](
+      hitBelow: Int
+  ): Policy[AgentView, Action, Double, Cat, S] =
     stickHigh(hitBelow).mapK(Util.idToMonad[Cat])
 
   def random[M[_]]: Policy[AgentView, Action, Double, Cat, M] = Policy.random
 
-  /** Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
+  /** Is this appreciably slower? This is going to be useful, in any case, when I'm working with the
+    * tests.
     */
-  def limitedM[M[_]: Functor](state: M[Blackjack[M]]): M[State[AgentView, Action, Double, M]] =
+  def limitedM[M[_]: Functor](
+      state: M[Blackjack[M]]
+  ): M[State[AgentView, Action, Double, M]] =
     state.map(_.mapObservation(_.agentView).mapReward {
       case Result.Draw | Result.Pending => 0
       case Result.Win                   => 1
@@ -67,8 +72,10 @@ object Chapter5 {
       usableAce <- Generator.vector(Vector(true, false))
       total <- Generator.vector((11 to 21).toVector)
     } yield {
-      val card = CardDeck.Card(CardDeck.Suit.Spades, CardDeck.Rank.Number(total - 11))
-      val showing = if (usableAce) Seq(aceOfSpades, card) else Seq(five, six, card)
+      val card =
+        CardDeck.Card(CardDeck.Suit.Spades, CardDeck.Rank.Number(total - 11))
+      val showing =
+        if (usableAce) Seq(aceOfSpades, card) else Seq(five, six, card)
       Blackjack.Hand(
         showing,
         Seq.empty
@@ -118,8 +125,8 @@ object Chapter5 {
   // The good stuff!
   //
 
-  /** Obs, A, R, M make sense here. They have to line up with the state. So what is T? T is the type that you
-    * use to walk back along the trajectory.
+  /** Obs, A, R, M make sense here. They have to line up with the state. So what is T? T is the type
+    * that you use to walk back along the trajectory.
     *
     * If you have NO decay you want to supply a Double.
     *
@@ -167,15 +174,16 @@ object Chapter5 {
     loop
   }
 
-  /** This is the figure that explores the stickHigh strategy over a bunch of states, tracking what happens
-    * with a usable ace and with no usable ace.
+  /** This is the figure that explores the stickHigh strategy over a bunch of states, tracking what
+    * happens with a usable ace and with no usable ace.
     */
   def figureFiveOne(): Unit = {
     println("Hello, chapter 5!")
     println("Let's play blackjack!")
 
     // stick high policy from the book.
-    val policy = stickHigh[Generator](hitBelow = 20).mapK(Util.idToMonad[Generator])
+    val policy =
+      stickHigh[Generator](hitBelow = 20).mapK(Util.idToMonad[Generator])
 
     // This is a fine aggregator to use here since we're not accumulating
     // anything special along the trajectory.
@@ -221,7 +229,9 @@ object Chapter5 {
       limitedM(uniformStarts),
       // you could also use a gamma = 1 DecayState.
       MonteCarlo.weighted(Aggregator.fromMonoid[Double], MonteCarlo.constant),
-      vfn => new Greedy(vfn.toEvaluator[Double, Generator], 0.0).mapK(Categorical.catToGenerator)
+      vfn =>
+        new Greedy(vfn.toEvaluator[Double, Generator], 0.0)
+          .mapK(Categorical.catToGenerator)
     )
 
     val elapsed = Stopwatch.start()
@@ -235,8 +245,8 @@ object Chapter5 {
     ()
   }
 
-  /** this checks using the random policy to check the stickHigh behavior policy, and compares ordinary and
-    * weighted off-policy sampling.
+  /** this checks using the random policy to check the stickHigh behavior policy, and compares
+    * ordinary and weighted off-policy sampling.
     */
   def figureFiveThree(): Unit = {
     // start with a static hand, the same as they used to generate the graph.
@@ -272,7 +282,8 @@ object Chapter5 {
     val behavior = random[Generator].mapK(Categorical.catToGenerator)
 
     // then we're going to apply those results to the target policy.
-    val target = stickHigh[Generator](hitBelow = 20).mapK(Util.idToMonad[Generator])
+    val target =
+      stickHigh[Generator](hitBelow = 20).mapK(Util.idToMonad[Generator])
 
     // I think the trick is that we need to have two CATEGORICAL policies that
     // we can use to interact with the generator world.
@@ -290,8 +301,8 @@ object Chapter5 {
     ()
   }
 
-  /** this checks using the random policy to check the stickHigh behavior policy, and compares ordinary and
-    * weighted off-policy sampling.
+  /** this checks using the random policy to check the stickHigh behavior policy, and compares
+    * ordinary and weighted off-policy sampling.
     */
   def figureFiveFour(): Unit = {
     import InfiniteVariance.{Move, View}

@@ -26,8 +26,8 @@ object GamblersProblem {
   }
 }
 
-/** Gotta read more about what the hell is going on, but the key is that we have 100 possible states... for
-  * the value function.
+/** Gotta read more about what the hell is going on, but the key is that we have 100 possible
+  * states... for the value function.
   */
 case class GamblersProblem(
     config: GamblersProblem.Config,
@@ -45,10 +45,12 @@ case class GamblersProblem(
       Map.empty
     else
       Util.makeMapUnsafe(
-        (1 to math.min(amount.p, config.winningAmount.p - amount.p)).map(Amount(_))
+        (1 to math.min(amount.p, config.winningAmount.p - amount.p))
+          .map(Amount(_))
       ) { move =>
         config.headsDistribution.map { winningBet =>
-          val newAmount = if (winningBet) move.p + amount.p else move.p - amount.p
+          val newAmount =
+            if (winningBet) move.p + amount.p else move.p - amount.p
           val reward =
             if (newAmount == config.winningAmount.p)
               config.winningReward

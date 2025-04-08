@@ -13,8 +13,8 @@ import scala.collection.immutable.Queue
 /** A finite discrete distribution.
   *
   * @param pmfSeq
-  *   A map with keys corresponding to the possible outcomes and values corresponding to the probabilities of
-  *   those outcomes.
+  *   A map with keys corresponding to the possible outcomes and values corresponding to the
+  *   probabilities of those outcomes.
   */
 final case class Categorical[+T](pmfSeq: List[(T, Double)]) {
   def pmf[U >: T]: Map[U, Double] = pmfSeq.toMap
@@ -69,7 +69,8 @@ object Categorical extends CategoricalInstances {
     private def approxGamma(z: Double): Double = {
       val v = z + 1.0
       val w = v + (1.0 / ((12.0 * v) - (1.0 / (10.0 * v))))
-      (math.log(Math.PI * 2) / 2.0) - (math.log(v) / 2.0) + (v * (math.log(w) - 1.0)) - math.log(z)
+      (math.log(Math.PI * 2) / 2.0) - (math
+        .log(v) / 2.0) + (v * (math.log(w) - 1.0)) - math.log(z)
     }
 
     def logProbability(k: Int, lambda: Double): Double =
@@ -80,7 +81,9 @@ object Categorical extends CategoricalInstances {
   }
 
   def poisson(upperBound: Int, mean: Poisson.Lambda): Categorical[Int] =
-    normalize(Util.makeMapUnsafe(0 until upperBound)(Poisson.probability(_, mean.value)))
+    normalize(
+      Util.makeMapUnsafe(0 until upperBound)(Poisson.probability(_, mean.value))
+    )
 
   def boolean(p: Double): Categorical[Boolean] =
     Categorical(Map(true -> p, false -> (1.0 - p)))
@@ -116,7 +119,8 @@ object Categorical extends CategoricalInstances {
 
 trait CategoricalInstances {
   implicit val catMonad: Monad[Categorical] = CategoricalMonad
-  implicit def catMonoid[A: Monoid]: Monoid[Categorical[A]] = Applicative.monoid[Categorical, A]
+  implicit def catMonoid[A: Monoid]: Monoid[Categorical[A]] =
+    Applicative.monoid[Categorical, A]
   implicit def gen[T]: ToGenerator[Categorical[T], T] =
     new ToGenerator[Categorical[T], T] {
       def apply(c: Categorical[T]) = c.toRainier.generator
@@ -149,16 +153,26 @@ private[scalarl] object CategoricalMonad extends Monad[Categorical] {
       fb: Categorical[B]
   ): Categorical[(A, B)] = fa.zip(fb)
 
-  override def flatMap[A, B](fa: Categorical[A])(f: A => Categorical[B]): Categorical[B] =
+  override def flatMap[A, B](fa: Categorical[A])(
+      f: A => Categorical[B]
+  ): Categorical[B] =
     fa.flatMap(f)
 
-  def tailRecM[A, B](a: A)(f: A => Categorical[Either[A, B]]): Categorical[B] = {
+  def tailRecM[A, B](
+      a: A
+  )(f: A => Categorical[Either[A, B]]): Categorical[B] = {
     @tailrec
-    def run(acc: Map[B, Double], queue: Queue[(Either[A, B], Double)]): Map[B, Double] =
+    def run(
+        acc: Map[B, Double],
+        queue: Queue[(Either[A, B], Double)]
+    ): Map[B, Double] =
       queue.headOption match {
         case None => acc
         case Some((Left(a), v)) =>
-          run(acc, queue.drop(1) ++ f(a).pmfSeq.map { case (eab, d) => (eab, d * v) })
+          run(
+            acc,
+            queue.drop(1) ++ f(a).pmfSeq.map { case (eab, d) => (eab, d * v) }
+          )
         case Some((Right(b), v)) =>
           run(Util.mergeV(acc, b, v), queue.drop(1))
       }

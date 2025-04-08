@@ -1,5 +1,5 @@
-/** This chapter plays a couple of gridworld games. Current goal is to get this all building, and printing
-  * nicely.
+/** This chapter plays a couple of gridworld games. Current goal is to get this all building, and
+  * printing nicely.
   *
   * This chapter introduces the idea of the Markov Decision Process.
   */
@@ -35,9 +35,9 @@ object Chapter3 {
   def notConverging(iterations: Long, allowed: Long): Boolean =
     iterations >= allowed
 
-  /** Note... this version, following the python code, checks that the sum of all differences is less than
-    * epsilon. In the next chapter we use the max function instead here to get this working, to check that the
-    * maximum delta is less than epsilon.
+  /** Note... this version, following the python code, checks that the sum of all differences is
+    * less than epsilon. In the next chapter we use the max function instead here to get this
+    * working, to check that the maximum delta is less than epsilon.
     */
   def valueFunctionConverged[Obs, T: ToDouble](
       l: StateValueFn[Obs, T],
@@ -52,7 +52,10 @@ object Chapter3 {
     notConverging(iterations, allowedIterations) ||
       valueFunctionConverged(l, r)
 
-  def toTable(conf: GridWorld.Config, f: Position => Double): Iterable[Iterable[Double]] =
+  def toTable(
+      conf: GridWorld.Config,
+      f: Position => Double
+  ): Iterable[Iterable[Double]] =
     Grid
       .allStates(conf.bounds)
       .map(g => f(g.position))
@@ -68,7 +71,11 @@ object Chapter3 {
   ): Unit = {
     val (valueFn, iterations) = pair
     println(s"${title}:")
-    println(Tabulator.format(toTable(conf, p => ToDouble[T].apply(valueFn.stateValue(p)))))
+    println(
+      Tabulator.format(
+        toTable(conf, p => ToDouble[T].apply(valueFn.stateValue(p)))
+      )
+    )
     println(s"That took $iterations iterations, for the record.")
   }
 

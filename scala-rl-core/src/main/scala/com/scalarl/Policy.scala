@@ -9,38 +9,48 @@ import com.scalarl.rainier.Categorical
 
 import scala.language.higherKinds
 
-/** This is how agents actually choose what comes next. This is a stochastic policy. We have to to be able to
-  * match this up with a state that has the same monadic return type, but for now it's hardcoded.
+/** This is how agents actually choose what comes next. This is a stochastic policy. We have to to
+  * be able to match this up with a state that has the same monadic return type, but for now it's
+  * hardcoded.
   *
-  * A - Action Obs - the observation offered by this state. R - reward M - the monadic type offered by the
-  * policy. S - the monad for the state.
+  * A - Action Obs - the observation offered by this state. R - reward M - the monadic type offered
+  * by the policy. S - the monad for the state.
   */
-trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] { self =>
+trait Policy[Obs, A, @specialized(Int, Long, Float, Double) R, M[_], S[_]] {
+  self =>
   type This = Policy[Obs, A, R, M, S]
 
   def choose(state: State[Obs, A, R, S]): M[A]
   def learn(sars: SARS[Obs, A, R, S]): This = self
 
-  def contramapObservation[P](f: P => Obs)(implicit S: Functor[S]): Policy[P, A, R, M, S] =
+  def contramapObservation[P](
+      f: P => Obs
+  )(implicit S: Functor[S]): Policy[P, A, R, M, S] =
     new Policy[P, A, R, M, S] {
-      override def choose(state: State[P, A, R, S]) = self.choose(state.mapObservation(f))
+      override def choose(state: State[P, A, R, S]) =
+        self.choose(state.mapObservation(f))
       override def learn(sars: SARS[P, A, R, S]) =
         self.learn(sars.mapObservation(f)).contramapObservation(f)
     }
 
-  def contramapReward[T](f: T => R)(implicit S: Functor[S]): Policy[Obs, A, T, M, S] =
+  def contramapReward[T](
+      f: T => R
+  )(implicit S: Functor[S]): Policy[Obs, A, T, M, S] =
     new Policy[Obs, A, T, M, S] {
-      override def choose(state: State[Obs, A, T, S]) = self.choose(state.mapReward(f))
+      override def choose(state: State[Obs, A, T, S]) =
+        self.choose(state.mapReward(f))
       override def learn(sars: SARS[Obs, A, T, S]) =
         self.learn(sars.mapReward(f)).contramapReward(f)
     }
 
-  /** Just an idea to see if I can make stochastic deciders out of deterministic deciders. We'll see how this
-    * develops.
+  /** Just an idea to see if I can make stochastic deciders out of deterministic deciders. We'll see
+    * how this develops.
     */
   def mapK[N[_]](f: FunctionK[M, N]): Policy[Obs, A, R, N, S] =
     new Policy[Obs, A, R, N, S] { r =>
-      override def choose(state: State[Obs, A, R, S]): N[A] = f(self.choose(state))
+      override def choose(state: State[Obs, A, R, S]): N[A] = f(
+        self.choose(state)
+      )
       override def learn(
           sars: SARS[Obs, A, R, S]
       ): Policy[Obs, A, R, N, S] =

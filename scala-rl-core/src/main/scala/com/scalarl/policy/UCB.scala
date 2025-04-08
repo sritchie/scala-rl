@@ -27,8 +27,8 @@ case class UCB[Obs, A, R, T, S[_]](
         )
     )
 
-  /** learn here passes directly through to the ActionValueFn now, which is the new thing. Does this mean that
-    * we shouldn't learn at all? Should that get delegated to an agent?
+  /** learn here passes directly through to the ActionValueFn now, which is the new thing. Does this
+    * mean that we shouldn't learn at all? Should that get delegated to an agent?
     */
   override def learn(sars: SARS[Obs, A, R, S]): This =
     copy(
@@ -71,7 +71,8 @@ object UCB {
 
     // These are private and embedded in the config to make it easy to
     // share the fns without crossing the beams.
-    private[scalarl] def merge(choice: Choice[T], r: R) = choice.update(plus(_, prepare(r)))
+    private[scalarl] def merge(choice: Choice[T], r: R) =
+      choice.update(plus(_, prepare(r)))
     private[scalarl] def choice(r: R): Choice[T] =
       Choice.one(prepare(r), param)(present)
 
@@ -82,8 +83,8 @@ object UCB {
     */
   case class Param(c: Int) extends AnyVal
 
-  /** Needs documentation; this is a way of tracking how many times a particular thing was chosen along with
-    * its value.
+  /** Needs documentation; this is a way of tracking how many times a particular thing was chosen
+    * along with its value.
     */
   object Choice {
     // Classes...
@@ -93,18 +94,21 @@ object UCB {
     }
 
     // Monoid instance, not used for now but meaningful, I think.
-    class ChoiceMonoid[T](param: Param, toDouble: T => Double)(implicit T: Monoid[T])
-        extends ChoiceSemigroup[T]
+    class ChoiceMonoid[T](param: Param, toDouble: T => Double)(implicit
+        T: Monoid[T]
+    ) extends ChoiceSemigroup[T]
         with Monoid[Choice[T]] {
       override val zero: Choice[T] =
         Choice.zero[T](T.zero, param)(toDouble)
     }
 
     // implicit instances.
-    implicit def semigroup[T: Semigroup]: Semigroup[Choice[T]] = new ChoiceSemigroup[T]
+    implicit def semigroup[T: Semigroup]: Semigroup[Choice[T]] =
+      new ChoiceSemigroup[T]
     implicit def ord[T: Ordering]: Ordering[Choice[T]] = Ordering.by(_.t)
 
-    def monoid[T: Monoid](param: Param, toDouble: T => Double) = new ChoiceMonoid[T](param, toDouble)
+    def monoid[T: Monoid](param: Param, toDouble: T => Double) =
+      new ChoiceMonoid[T](param, toDouble)
 
     // constructors.
     def zero[T](initial: T, param: Param)(toDouble: T => Double): Choice[T] =
@@ -132,16 +136,17 @@ object UCB {
       if (visits <= 0) toDouble(t)
       else toDouble(t) + bonus(time)
 
-    def compare(other: Choice[T], time: Time): Int = (this.visits, other.visits) match {
-      case (0L, 0L) => 0
-      case (0L, _)  => 1
-      case (_, 0L)  => -1
-      case _ =>
-        Ordering[Double].compare(
-          totalValue(time),
-          other.totalValue(time)
-        )
-    }
+    def compare(other: Choice[T], time: Time): Int =
+      (this.visits, other.visits) match {
+        case (0L, 0L) => 0
+        case (0L, _)  => 1
+        case (_, 0L)  => -1
+        case _ =>
+          Ordering[Double].compare(
+            totalValue(time),
+            other.totalValue(time)
+          )
+      }
 
     // Only called if visits is > 0.
     private def bonus(time: Time): Double =
