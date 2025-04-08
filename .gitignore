@@ -57,3 +57,5 @@ images/
 docs/src/main/tut/contributing.md
 
 .ruby_version
+.vscode
+project
