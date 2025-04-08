@@ -1,5 +1,4 @@
-/**
-  Gambler's Problem! Chapter 4 again; this generates Figure 4.3.
+/** Gambler's Problem! Chapter 4 again; this generates Figure 4.3.
   */
 package com.scalarl
 package world
@@ -23,13 +22,12 @@ object GamblersProblem {
       GamblersProblem(this, startingAmount)
 
     def stateSweep: Traversable[GamblersProblem] =
-      for (amt <- (0 until winningAmount.p)) yield build(Amount(amt))
+      for (amt <- 0 until winningAmount.p) yield build(Amount(amt))
   }
 }
 
-/**
-  Gotta read more about what the hell is going on, but the key is that we have
-  100 possible states... for the value function.
+/** Gotta read more about what the hell is going on, but the key is that we have 100 possible states... for
+  * the value function.
   */
 case class GamblersProblem(
     config: GamblersProblem.Config,

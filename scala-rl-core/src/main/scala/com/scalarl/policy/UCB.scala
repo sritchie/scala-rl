@@ -1,5 +1,4 @@
-/**
-  * Policy that accumulates using the UCB algorithm.
+/** Policy that accumulates using the UCB algorithm.
   *
   * TODO should I make an Empty Choice option with a sealed trait?
   */
@@ -28,10 +27,8 @@ case class UCB[Obs, A, R, T, S[_]](
         )
     )
 
-  /**
-    learn here passes directly through to the ActionValueFn now, which is the
-    new thing. Does this mean that we shouldn't learn at all? Should that get
-    delegated to an agent?
+  /** learn here passes directly through to the ActionValueFn now, which is the new thing. Does this mean that
+    * we shouldn't learn at all? Should that get delegated to an agent?
     */
   override def learn(sars: SARS[Obs, A, R, S]): This =
     copy(
@@ -46,9 +43,7 @@ case class UCB[Obs, A, R, T, S[_]](
 
 object UCB {
 
-  /**
-    * Generates a Config instance from an algebird Aggregator and a
-    * UCB parameter.
+  /** Generates a Config instance from an algebird Aggregator and a UCB parameter.
     */
   def fromAggregator[R, T](
       initial: T,
@@ -65,8 +60,7 @@ object UCB {
       present: T => Double
   ) {
 
-    /**
-      * Returns a fresh policy instance using this config.
+    /** Returns a fresh policy instance using this config.
       */
     def policy[Obs, A, S[_]]: UCB[Obs, A, R, T, S] = {
       implicit val tMonoid: Monoid[T] = Monoid.from(initial)(plus)
@@ -84,14 +78,12 @@ object UCB {
     def initialChoice: Choice[T] = Choice.zero(initial, param)(present)
   }
 
-  /**
-    * Tunes how important the upper confidence bound business is.
+  /** Tunes how important the upper confidence bound business is.
     */
   case class Param(c: Int) extends AnyVal
 
-  /**
-    Needs documentation; this is a way of tracking how many times a particular
-    thing was chosen along with its value.
+  /** Needs documentation; this is a way of tracking how many times a particular thing was chosen along with
+    * its value.
     */
   object Choice {
     // Classes...
@@ -122,8 +114,7 @@ object UCB {
       Choice(t, 1L, param, toDouble)
   }
 
-  /**
-    * Tracks the info required for the UCB calculation.
+  /** Tracks the info required for the UCB calculation.
     */
   case class Choice[T](
       t: T,
@@ -132,8 +123,7 @@ object UCB {
       toDouble: T => Double
   ) {
 
-    /**
-      * Updates the contained value, increments the visits.
+    /** Updates the contained value, increments the visits.
       */
     def update(f: T => T): Choice[T] =
       copy(f(t), visits + 1, param, toDouble)

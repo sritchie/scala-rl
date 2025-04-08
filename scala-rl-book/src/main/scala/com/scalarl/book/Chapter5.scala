@@ -1,6 +1,5 @@
-/**
-  Monte Carlo methods. This will be tough... a second layer of aggregation as we
-  move through episodes and aggregate across game.
+/** Monte Carlo methods. This will be tough... a second layer of aggregation as we move through episodes and
+  * aggregate across game.
   */
 package com.scalarl
 package book
@@ -27,8 +26,7 @@ object Chapter5 {
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
 
-  /**
-    Simple blackjack policy for the demos below.
+  /** Simple blackjack policy for the demos below.
     */
   def stickHigh[S[_]](hitBelow: Int): Policy[AgentView, Action, Double, Id, S] =
     Blackjack.policy { s =>
@@ -43,8 +41,7 @@ object Chapter5 {
 
   def random[M[_]]: Policy[AgentView, Action, Double, Cat, M] = Policy.random
 
-  /**
-    Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
+  /** Is this appreciably slower? This is going to be useful, in any case, when I'm working with the tests.
     */
   def limitedM[M[_]: Functor](state: M[Blackjack[M]]): M[State[AgentView, Action, Double, M]] =
     state.map(_.mapObservation(_.agentView).mapReward {
@@ -121,15 +118,14 @@ object Chapter5 {
   // The good stuff!
   //
 
-  /**
-    Obs, A, R, M make sense here. They have to line up with the state. So what
-    is T? T is the type that you use to walk back along the trajectory.
-
-    If you have NO decay you want to supply a Double.
-
-    If you decay you need to supply a DecayState.
-
-    Then, internal to the value function, is the aggregation.
+  /** Obs, A, R, M make sense here. They have to line up with the state. So what is T? T is the type that you
+    * use to walk back along the trajectory.
+    *
+    * If you have NO decay you want to supply a Double.
+    *
+    * If you decay you need to supply a DecayState.
+    *
+    * Then, internal to the value function, is the aggregation.
     */
   def updateFn[Obs, A, R, G, M[_]: Monad](
       g: M[State[Obs, A, R, M]],
@@ -152,29 +148,27 @@ object Chapter5 {
       }
 
     def loop(vfn: ActionValueFn[Obs, A, G]) =
-      playGen(policyFn(vfn)).map {
-        case (_, trajectory) =>
-          // Here we process the trajectory backwards and get ourselves a new action
-          // value function. And that's it! The action value function work that I was
-          // doing with the bandits was really preparation for the next chapter, and
-          // shouldn't have taken up so much time here.
-          //
-          // I think from here... I should make sure that this plays correctly, then
-          // not worry too much about the actual charts. Once I get the abstraction
-          // fully locked down I can go build the charts in Python.
-          MonteCarlo.processTrajectory[Obs, A, R, G, M](
-            trajectory,
-            vfn,
-            agg
-          )
+      playGen(policyFn(vfn)).map { case (_, trajectory) =>
+        // Here we process the trajectory backwards and get ourselves a new action
+        // value function. And that's it! The action value function work that I was
+        // doing with the bandits was really preparation for the next chapter, and
+        // shouldn't have taken up so much time here.
+        //
+        // I think from here... I should make sure that this plays correctly, then
+        // not worry too much about the actual charts. Once I get the abstraction
+        // fully locked down I can go build the charts in Python.
+        MonteCarlo.processTrajectory[Obs, A, R, G, M](
+          trajectory,
+          vfn,
+          agg
+        )
       }
 
     loop
   }
 
-  /**
-    This is the figure that explores the stickHigh strategy over a bunch of
-    states, tracking what happens with a usable ace and with no usable ace.
+  /** This is the figure that explores the stickHigh strategy over a bunch of states, tracking what happens
+    * with a usable ace and with no usable ace.
     */
   def figureFiveOne(): Unit = {
     println("Hello, chapter 5!")
@@ -206,13 +200,11 @@ object Chapter5 {
     ()
   }
 
-  /**
-    This uses exploring starts to capture the optimal policy.
-
-    - go through a single round of the game, then
-    - update the policy to use the new function.
-
-    the policy gets updated on every play at the end of the trajectory walk;
+  /** This uses exploring starts to capture the optimal policy.
+    *
+    * \- go through a single round of the game, then \- update the policy to use the new function.
+    *
+    * the policy gets updated on every play at the end of the trajectory walk;
     */
   def figureFiveTwo(): Unit = {
     // This is a data structure that internally uses an AveragedValue... but
@@ -220,16 +212,16 @@ object Chapter5 {
     val base: ActionValueFn[AgentView, Action, (Double, Weight)] =
       ActionValueFn
         .mergeable[AgentView, Action, AveragedValue]
-        .fold({ case (g, _) => AveragedValue(g) }, { av =>
-          (av.value, Weight.One)
-        })
+        .fold(
+          { case (g, _) => AveragedValue(g) },
+          av => (av.value, Weight.One)
+        )
 
     val fn = updateFn[AgentView, Action, Double, (Double, Weight), Generator](
       limitedM(uniformStarts),
       // you could also use a gamma = 1 DecayState.
-      MonteCarlo.weighted(Aggregator.fromMonoid[Double], MonteCarlo.constant), { vfn =>
-        new Greedy(vfn.toEvaluator[Double, Generator], 0.0).mapK(Categorical.catToGenerator)
-      }
+      MonteCarlo.weighted(Aggregator.fromMonoid[Double], MonteCarlo.constant),
+      vfn => new Greedy(vfn.toEvaluator[Double, Generator], 0.0).mapK(Categorical.catToGenerator)
     )
 
     val elapsed = Stopwatch.start()
@@ -243,9 +235,8 @@ object Chapter5 {
     ()
   }
 
-  /**
-    this checks using the random policy to check the stickHigh behavior policy,
-    and compares ordinary and weighted off-policy sampling.
+  /** this checks using the random policy to check the stickHigh behavior policy, and compares ordinary and
+    * weighted off-policy sampling.
     */
   def figureFiveThree(): Unit = {
     // start with a static hand, the same as they used to generate the graph.
@@ -291,17 +282,16 @@ object Chapter5 {
     val weightedValueFn: ActionValueFn[AgentView, Action, (Double, Weight)] =
       ActionValueFn.fromAggregator(
         Aggregator
-          .appendMonoid[(Double, Weight), value.WeightedAverage] {
-            case (wa, (g, newWeight)) => wa.plus(g, newWeight)
+          .appendMonoid[(Double, Weight), value.WeightedAverage] { case (wa, (g, newWeight)) =>
+            wa.plus(g, newWeight)
           }
           .andThenPresent { case wa => (wa.value, Weight.One) }
       )
     ()
   }
 
-  /**
-    this checks using the random policy to check the stickHigh behavior policy,
-    and compares ordinary and weighted off-policy sampling.
+  /** this checks using the random policy to check the stickHigh behavior policy, and compares ordinary and
+    * weighted off-policy sampling.
     */
   def figureFiveFour(): Unit = {
     import InfiniteVariance.{Move, View}

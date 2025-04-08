@@ -1,12 +1,9 @@
-/**
-  * The good stuff. Plotting charts. Options were Plotly and
-  * Breeze-Viz... but then, those are both a little busted. So I
-  * decided to go with Evilplot.
+/** The good stuff. Plotting charts. Options were Plotly and Breeze-Viz... but then, those are both a little
+  * busted. So I decided to go with Evilplot.
   *
   * https://cibotech.github.io/evilplot/plot-catalog.html
   *
-  * Here's a great example of the kinds of things we can do with this
-  * plotting library:
+  * Here's a great example of the kinds of things we can do with this plotting library:
   *
   * https://www.cibotechnologies.com/about/blog/scalastan-and-evilplot-bayesian-statistics-meets-combinator-based-visualization/
   */
@@ -26,18 +23,16 @@ object Plot {
   // Example of a linechart, just testing it out.
   def lineChartSeq(pointSeq: (Seq[Double], String)*): Unit =
     lineChart(
-      pointSeq.map {
-        case (points, title) =>
-          (points.toList.zipWithIndex.map { case (a, i) => Point(i, a) }, title)
+      pointSeq.map { case (points, title) =>
+        (points.toList.zipWithIndex.map { case (a, i) => Point(i, a) }, title)
       }
     )
 
   def lineChart(data: Seq[(Seq[Point], String)]): Unit =
     displayPlot {
       Overlay(
-        data.map {
-          case (points, title) =>
-            LinePlot.series(points, title, RGB.random)
+        data.map { case (points, title) =>
+          LinePlot.series(points, title, RGB.random)
         }: _*
       ).xAxis()
         .yAxis()

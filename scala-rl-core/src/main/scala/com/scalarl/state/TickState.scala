@@ -1,5 +1,4 @@
-/**
-  * A TickState is limited in the number of ticks it can perform.
+/** A TickState is limited in the number of ticks it can perform.
   */
 package com.scalarl
 package state
@@ -8,9 +7,8 @@ import cats.Functor
 import cats.arrow.FunctionK
 import cats.syntax.functor._
 
-/**
-  * State that ends after a certain number of interactions. This is useful for
-  * turning a non-episodic into an episodic task.
+/** State that ends after a certain number of interactions. This is useful for turning a non-episodic into an
+  * episodic task.
   */
 case class TickState[Obs, A, R, S[_]: Functor](
     state: State[Obs, A, R, S],

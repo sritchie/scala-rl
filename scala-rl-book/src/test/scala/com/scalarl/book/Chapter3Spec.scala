@@ -6,8 +6,7 @@ import com.scalarl.value.DecayState
 import com.scalarl.world.util.Grid
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
-  * And this is a placeholder for basic tests.
+/** And this is a placeholder for basic tests.
   */
 class Chapter3Spec extends AnyFunSuite {
   import Grid.{Move, Position}

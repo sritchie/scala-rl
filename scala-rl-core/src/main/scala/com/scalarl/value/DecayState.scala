@@ -5,9 +5,8 @@ import com.twitter.algebird.{Group, Ring, VectorSpace}
 import com.scalarl.algebra.{Expectation, Module, ToDouble}
 import com.scalarl.evaluate.StateValue
 
-/**
-  This represents a value that's weighted as you move away from it. This is
-  useful because we can KEEP GOING, and continue to weight it.
+/** This represents a value that's weighted as you move away from it. This is useful because we can KEEP
+  * GOING, and continue to weight it.
   */
 sealed trait DecayState[A] extends Product with Serializable {
   def toValue: DecayState.DecayedValue[A]
@@ -24,8 +23,7 @@ object DecayState {
     override val toValue: DecayedValue[A] = this
   }
 
-  /**
-    Filling in.
+  /** Filling in.
     */
   def bellmanFn[Obs, A, R: DModule, T, M[_]: Expectation, S[_]: Expectation](
       gamma: Double

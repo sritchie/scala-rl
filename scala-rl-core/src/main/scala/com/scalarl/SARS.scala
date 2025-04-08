@@ -2,8 +2,7 @@ package com.scalarl
 
 import cats.Functor
 
-/**
-  Chunk that you get back for playing an episode.
+/** Chunk that you get back for playing an episode.
   */
 final case class SARS[Obs, A, R, S[_]](
     state: State[Obs, A, R, S],

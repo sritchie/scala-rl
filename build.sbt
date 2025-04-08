@@ -112,9 +112,7 @@ lazy val noPublishSettings = Seq(
   publishArtifact := false
 )
 
-/**
-  * This returns the previous jar I've released that is compatible
-  * with the current.
+/** This returns the previous jar I've released that is compatible with the current.
   */
 val noBinaryCompatCheck = Set[String]("core")
 

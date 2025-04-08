@@ -3,9 +3,8 @@ package util
 
 import com.twitter.algebird.Monoid
 
-/**
-    Aggregating thing that also keeps track of frequencies. The item will be
-    paired with a zero if this is the first time seeing it.
+/** Aggregating thing that also keeps track of frequencies. The item will be paired with a zero if this is the
+  * first time seeing it.
   */
 case class FrequencyTracker[A, B](items: Vector[(A, Int)], frequencies: Map[B, Int], f: A => B) {
   def :+(a: A): FrequencyTracker[A, B] = {

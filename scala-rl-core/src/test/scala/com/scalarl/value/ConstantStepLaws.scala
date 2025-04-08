@@ -17,9 +17,8 @@ class ConstantStepLaws extends AnyPropSpec with Checkers with ConstantStepArb {
 
   implicit val equiv: Equiv[ConstantStep] =
     Equiv.fromFunction { (l, r) =>
-      ((l.value == 0L) && (l.value == 0L)) || {
-        approxEq(EPS.toDouble)(l.value, r.value) && (l.time == r.time)
-      }
+      ((l.value == 0L) && (l.value == 0L)) ||
+      approxEq(EPS.toDouble)(l.value, r.value) && (l.time == r.time)
     }
 
   property("ConstantStep forms a commutative group")(check {
@@ -29,9 +28,8 @@ class ConstantStepLaws extends AnyPropSpec with Checkers with ConstantStepArb {
   property("ConstantStep's monoid works like the single-step version")(check {
     forAll { (rewards: List[Int]) =>
       val (csAccumulator, t) = fill(stepGroup, zero, rewards)
-      val simpleAcc = rewards.foldLeft(0.0) {
-        case (acc, reward) =>
-          acc + alpha * (reward - acc)
+      val simpleAcc = rewards.foldLeft(0.0) { case (acc, reward) =>
+        acc + alpha * (reward - acc)
       }
       approxEq(EPS.toDouble)(simpleAcc, csAccumulator.value)
     }
@@ -50,14 +48,12 @@ class ConstantStepLaws extends AnyPropSpec with Checkers with ConstantStepArb {
     val oneMonoid = new ConstantStepGroup(Alpha(1.0), EPS)
 
     forAll { (rewards: List[Int]) =>
-      val instances = rewards.scanLeft((zero, zero.time)) {
-        case ((acc, ts), r) =>
-          (oneMonoid.reward(acc, r, ts), ts.tick)
+      val instances = rewards.scanLeft((zero, zero.time)) { case ((acc, ts), r) =>
+        (oneMonoid.reward(acc, r, ts), ts.tick)
       }
 
-      instances.tail.zip(rewards).forall {
-        case ((acc, _), reward) =>
-          approxEq(EPS.toDouble)(acc.value, reward)
+      instances.tail.zip(rewards).forall { case ((acc, _), reward) =>
+        approxEq(EPS.toDouble)(acc.value, reward)
       }
     }
   })
@@ -95,9 +91,8 @@ object ConstantStepLaws {
       rewards: List[T]
   ): (ConstantStep, Time) =
     rewards
-      .foldLeft((init, init.time)) {
-        case ((acc, ts), r) =>
-          (monoid.reward(acc, implicitly[Numeric[T]].toDouble(r), ts), ts.tick)
+      .foldLeft((init, init.time)) { case ((acc, ts), r) =>
+        (monoid.reward(acc, implicitly[Numeric[T]].toDouble(r), ts), ts.tick)
       }
 }
 
@@ -120,9 +115,8 @@ class ConstantStepTest extends org.scalatest.funsuite.AnyFunSuite {
   test("monoid works like the single-step version") {
     val rewards = List[Double](10, 50, 40, 32, 1.0)
     val (csAccumulator, t) = ConstantStepLaws.fill(stepGroup, zero, rewards)
-    val simpleAcc = rewards.foldLeft(0.0) {
-      case (acc, reward) =>
-        acc + alpha * (reward - acc)
+    val simpleAcc = rewards.foldLeft(0.0) { case (acc, reward) =>
+      acc + alpha * (reward - acc)
     }
 
     assert(approxEq(EPS.toDouble)(csAccumulator.value, simpleAcc))
@@ -138,8 +132,7 @@ class ConstantStepTest extends org.scalatest.funsuite.AnyFunSuite {
   }
 }
 
-/**
-  * Generators and Arbitrary instances live below.
+/** Generators and Arbitrary instances live below.
   */
 trait ConstantStepGen {
   def genTime: Gen[Time] =

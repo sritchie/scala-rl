@@ -3,11 +3,9 @@ package algebra
 
 import com.twitter.algebird.{Group, Ring, VectorSpace}
 
-/**
-  * This class represents a module. For the required properties see:
+/** This class represents a module. For the required properties see:
   *
   * https://en.wikipedia.org/wiki/Module_(mathematics)
-  *
   */
 object Module {
   type DModule[T] = Module[Double, T]

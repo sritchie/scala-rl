@@ -10,11 +10,11 @@ import com.scalarl.algebra.ToDouble
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
 
-/**
-  * A finite discrete distribution.
+/** A finite discrete distribution.
   *
-  * @param pmfSeq A map with keys corresponding to the possible outcomes and
-  * values corresponding to the probabilities of those outcomes.
+  * @param pmfSeq
+  *   A map with keys corresponding to the possible outcomes and values corresponding to the probabilities of
+  *   those outcomes.
   */
 final case class Categorical[+T](pmfSeq: List[(T, Double)]) {
   def pmf[U >: T]: Map[U, Double] = pmfSeq.toMap
@@ -22,9 +22,8 @@ final case class Categorical[+T](pmfSeq: List[(T, Double)]) {
   def map[U](fn: T => U): Categorical[U] =
     Categorical(
       pmfSeq
-        .foldLeft(Map.empty[U, Double]) {
-          case (acc, (t, p)) =>
-            Util.mergeV(acc, fn(t), p)
+        .foldLeft(Map.empty[U, Double]) { case (acc, (t, p)) =>
+          Util.mergeV(acc, fn(t), p)
         }
         .toList
     )
@@ -35,9 +34,8 @@ final case class Categorical[+T](pmfSeq: List[(T, Double)]) {
         (t, p) <- pmfSeq
         (u, p2) <- fn(t).pmfSeq
       } yield (u, p * p2))
-        .foldLeft(Map.empty[U, Double]) {
-          case (acc, (u, p)) =>
-            Util.mergeV(acc, u, p)
+        .foldLeft(Map.empty[U, Double]) { case (acc, (u, p)) =>
+          Util.mergeV(acc, u, p)
         }
         .toList
     )
@@ -82,7 +80,7 @@ object Categorical extends CategoricalInstances {
   }
 
   def poisson(upperBound: Int, mean: Poisson.Lambda): Categorical[Int] =
-    normalize(Util.makeMapUnsafe((0 until upperBound))(Poisson.probability(_, mean.value)))
+    normalize(Util.makeMapUnsafe(0 until upperBound)(Poisson.probability(_, mean.value)))
 
   def boolean(p: Double): Categorical[Boolean] =
     Categorical(Map(true -> p, false -> (1.0 - p)))
@@ -90,7 +88,7 @@ object Categorical extends CategoricalInstances {
   def pure[A](a: A): Categorical[A] = Categorical(List((a, 1.0)))
 
   def normalize[T](pmf: Map[T, Double]): Categorical[T] = {
-    val total = (pmf.values.toList).sum
+    val total = pmf.values.toList.sum
     Categorical(pmf.map { case (t, p) => (t, p / total) })
   }
 
@@ -108,10 +106,9 @@ object Categorical extends CategoricalInstances {
     normalize(m.mapValues(math.exp(_)))
 
   def softmax[A: ToDouble](as: Set[A]): Categorical[A] = {
-    val (pmf, sum) = as.foldLeft((Map.empty[A, Double], 0.0)) {
-      case ((m, r), a) =>
-        val aExp = math.exp(ToDouble[A].apply(a))
-        (m.updated(a, aExp), r + aExp)
+    val (pmf, sum) = as.foldLeft((Map.empty[A, Double], 0.0)) { case ((m, r), a) =>
+      val aExp = math.exp(ToDouble[A].apply(a))
+      (m.updated(a, aExp), r + aExp)
     }
     normalize(pmf.mapValues(_ / sum))
   }

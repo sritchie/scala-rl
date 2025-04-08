@@ -1,5 +1,4 @@
-/**
-  Card deck, for card games.
+/** Card deck, for card games.
   */
 package com.scalarl
 package world
@@ -47,8 +46,7 @@ object CardDeck {
       Ordering.by(card => (card.suit, card.rank))
   }
 
-  /**
-    Generates cards from an infinite stream, with replacement.
+  /** Generates cards from an infinite stream, with replacement.
     */
   val basic: Generator[Card] = Generator.vector(Card.all)
   val allCat: Cat[Card] = Categorical.seq(Card.all)

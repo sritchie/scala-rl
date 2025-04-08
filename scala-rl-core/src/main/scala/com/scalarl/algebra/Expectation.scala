@@ -3,12 +3,10 @@ package algebra
 
 import cats.Id
 
-/**
-  This definitely works, but I need to think through how we're going to be able
-  to return things like Futures, that have to communicate over the network. Does
-  the value return type cover it?
-
-  NOTE the implementation is responsible for normalizing.
+/** This definitely works, but I need to think through how we're going to be able to return things like
+  * Futures, that have to communicate over the network. Does the value return type cover it?
+  *
+  * NOTE the implementation is responsible for normalizing.
   */
 trait Expectation[M[_]] {
   def get[A, B](a: M[A])(f: A => B)(implicit M: Module[Double, B]): B

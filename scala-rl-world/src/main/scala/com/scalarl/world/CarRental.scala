@@ -1,6 +1,5 @@
-/**
-  Car rental game based on what we have in Chapter 4. This generates Figure 4.2
-  and helps with the homework assignments there.
+/** Car rental game based on what we have in Chapter 4. This generates Figure 4.2 and helps with the homework
+  * assignments there.
   */
 package com.scalarl
 package world
@@ -59,8 +58,8 @@ object CarRental {
         toDistribution(aConfig.returns),
         toDistribution(bConfig.requests),
         toDistribution(bConfig.returns)
-      ).mapN {
-        case (a, b, c, d) => (Update(a, b), Update(c, d))
+      ).mapN { case (a, b, c, d) =>
+        (Update(a, b), Update(c, d))
       }
 
     def build(a: Inventory, b: Inventory): CarRental =
@@ -68,8 +67,8 @@ object CarRental {
 
     def stateSweep: Traversable[CarRental] =
       for {
-        a <- (0 to aConfig.maxCars)
-        b <- (0 to bConfig.maxCars)
+        a <- 0 to aConfig.maxCars
+        b <- 0 to bConfig.maxCars
       } yield build(Inventory(a, aConfig.maxCars), Inventory(b, bConfig.maxCars))
   }
 
@@ -92,32 +91,26 @@ case class CarRental(
 
   override val observation: InvPair = (a, b)
 
-  /**
-    Go through all possibilities...
-
-    FIRST move the cars.
-    THEN calculate the cost.
-
-    THEN do the Poisson update and factor in the amount of money back, plus
-    costs...
-
-    positive goes from a to b, negative goes from b to a.
-
-    TODO filter this so that we don't present moves that will more than
-    deplete some spot. Overloading is fine, since it gets the cars off the
-    board... I guess?
-
-    TODO I THINK we can only make this faster if we decide to use an Eval...
-    get an EvalT going for the monads, and define an expected value instance
-    there. But then the first person to go and iterate through will evaluate
-    everything.
+  /** Go through all possibilities...
+    *
+    * FIRST move the cars. THEN calculate the cost.
+    *
+    * THEN do the Poisson update and factor in the amount of money back, plus costs...
+    *
+    * positive goes from a to b, negative goes from b to a.
+    *
+    * TODO filter this so that we don't present moves that will more than deplete some spot. Overloading is
+    * fine, since it gets the cars off the board... I guess?
+    *
+    * TODO I THINK we can only make this faster if we decide to use an Eval... get an EvalT going for the
+    * monads, and define an expected value instance there. But then the first person to go and iterate through
+    * will evaluate everything.
     */
   override lazy val dynamics: Map[Move, Cat[(Double, CarRental)]] =
     Util.makeMapUnsafe(config.allMoves) { move =>
-      pmf.map {
-        case (aUpdate, bUpdate) =>
-          val (newA, newB, reward) = processAll(move, aUpdate, bUpdate)
-          (reward, copy(a = newA, b = newB))
+      pmf.map { case (aUpdate, bUpdate) =>
+        val (newA, newB, reward) = processAll(move, aUpdate, bUpdate)
+        (reward, copy(a = newA, b = newB))
       }
     }
   override val invalidMove = Categorical.pure((0.0, this))

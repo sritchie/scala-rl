@@ -13,29 +13,23 @@ import com.scalarl.policy.bandit.Greedy
 import com.scalarl.rainier.Categorical
 import com.scalarl.world.Bandit
 
-/**
-  # Introduction to Chapter 2
-
-  This chapter is about Bandits. These are markov processes that know about a
-  single state, really. The trick here is going to be getting the stuff that
-  plays these particular states to be more general, and work with the same
-  machinery that rolls states forward.
-
-
-  * What we REALLY NEED here is both the top and bottom graphs,
-  * getting it done.
+/** # Introduction to Chapter 2
+  *
+  * This chapter is about Bandits. These are markov processes that know about a single state, really. The
+  * trick here is going to be getting the stuff that plays these particular states to be more general, and
+  * work with the same machinery that rolls states forward.
+  *
+  * What we REALLY NEED here is both the top and bottom graphs, getting it done.
   *
   * The top graph is the average reward across GAMES per step.
   *
-  * So we really want to march them ALL forward and grab the average
-  * reward...
+  * So we really want to march them ALL forward and grab the average reward...
   */
 object Chapter2 {
   import Bandit.Arm
   import Episode.Moment
 
-  /**
-    * These are needed to actually call get on anything.
+  /** These are needed to actually call get on anything.
     */
   implicit val rng: RNG = RNG.default
   implicit val evaluator: Numeric[Real] = new Evaluator(Map.empty)
@@ -72,8 +66,7 @@ object Chapter2 {
     rewardSeq
   }
 
-  /**
-    * Generates the n-armed testbed.
+  /** Generates the n-armed testbed.
     */
   def nArmedTestbed(
       nArms: Int,
@@ -85,8 +78,7 @@ object Chapter2 {
       .map(mean => Normal(mean, stdDev).generator)
   )
 
-  /**
-    * Generates a non-stationary distribution.
+  /** Generates a non-stationary distribution.
     */
   def nonStationaryTestbed(
       nArms: Int,

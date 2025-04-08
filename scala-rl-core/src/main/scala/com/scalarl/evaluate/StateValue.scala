@@ -4,18 +4,15 @@ package evaluate
 import com.scalarl.algebra.{Expectation, Module}
 import Module.DModule
 
-/**
-    trait for evaluating a given state.
+/** trait for evaluating a given state.
   */
 sealed trait StateValue[Obs, A, R, G, S[_]] extends Product with Serializable {
 
-  /**
-    Returns an evaluation of the given state.
+  /** Returns an evaluation of the given state.
     */
   def evaluate(state: State[Obs, A, R, S]): G
 
-  /**
-      Upgrades to evaluate given... what is going on?
+  /** Upgrades to evaluate given... what is going on?
     */
   def byStateValue(
       prepare: R => G,
@@ -26,22 +23,19 @@ sealed trait StateValue[Obs, A, R, G, S[_]] extends Product with Serializable {
 
 object StateValue {
 
-  /**
-      Returns a basic evaluator that uses a given state value function.
+  /** Returns a basic evaluator that uses a given state value function.
     */
   def fn[Obs, A, R, G, S[_]](f: StateValueFn[Obs, G]): StateValue[Obs, A, R, G, S] = Fn(f)
 
-  /**
-    This evaluates the state's value directly.
+  /** This evaluates the state's value directly.
     */
   final case class Fn[Obs, A, R, G, S[_]](f: StateValueFn[Obs, G]) extends StateValue[Obs, A, R, G, S] {
     def evaluate(state: State[Obs, A, R, S]): G =
       f.stateValue(state.observation)
   }
 
-  /**
-    Evaluates the state's value by weighting evaluated action values by the
-    policy's chance of choosing each action.
+  /** Evaluates the state's value by weighting evaluated action values by the policy's chance of choosing each
+    * action.
     */
   final case class ByPolicy[Obs, A, R, G: DModule, M[_]: Expectation, S[_]](
       evaluator: ActionValue[Obs, A, R, G, S],

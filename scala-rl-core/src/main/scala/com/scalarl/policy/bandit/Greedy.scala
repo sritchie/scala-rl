@@ -1,6 +1,4 @@
-/**
-  * Policy that accumulates via epsilon greedy. This is only still here because
-  * it knows how to learn.
+/** Policy that accumulates via epsilon greedy. This is only still here because it knows how to learn.
   */
 package com.scalarl
 package policy
@@ -11,8 +9,8 @@ import com.twitter.algebird.{AveragedValue, Semigroup}
 import com.scalarl.rainier.Categorical
 import Util.Instances._
 
-/**
-  * @param epsilon number between 0 and 1.
+/** @param epsilon
+  *   number between 0 and 1.
   */
 case class Greedy[Obs, A, R, T: Ordering, S[_]](
     config: Greedy.Config[R, T],
@@ -66,13 +64,10 @@ object Greedy {
       Greedy(this, ActionValueFn.mergeable(initial))
   }
 
-  /**
-    * Returns an incremental config.
+  /** Returns an incremental config.
     *
-    * TODO we also need a version that uses a constant step size,
-    * instead of sample averages. And maybe a version that uses
-    * exponential decay?
-    *
+    * TODO we also need a version that uses a constant step size, instead of sample averages. And maybe a
+    * version that uses exponential decay?
     */
   def incrementalConfig(
       epsilon: Double,
