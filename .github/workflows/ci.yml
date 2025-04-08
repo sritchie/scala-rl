@@ -15,8 +15,9 @@ jobs:
           cache: "sbt"
           distribution: "temurin"
           java-version: 21
+      - uses: sbt/setup-sbt@v1
       - run: sbt "; scalafmtCheckAll; scalafmtSbtCheck"
-      
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -27,4 +28,3 @@ jobs:
           distribution: "temurin"
           java-version: 21
       - run: sbt test
-
