@@ -4,8 +4,10 @@ package algebra
 import cats.Id
 import com.twitter.algebird.Ring
 
-/** Another attempt at a better thing, here... but I don't know if this solves my problem of needing
-  * to compose up the stack,
+/** This is not currently used! Another attempt at a better thing, here... but I don't know if this
+  * solves my problem of needing to compose up the stack.
+  *
+  * I had a note about this in [[Agent]].
   */
 trait AffineCombination[M[_], R] {
   implicit def ring: Ring[R]
