@@ -22,4 +22,5 @@ object Weight {
 
   implicit val timesMonoid: Monoid[Weight] = Monoid.from(One)(_ * _)
   implicit val ord: Ordering[Weight] = Ordering.by(_.w)
+  implicit val toDouble: ToDouble[Weight] = ToDouble.instance(_.w)
 }

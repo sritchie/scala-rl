@@ -5,8 +5,8 @@
   *
   * The nodes are:
   *
-  * \- State nodes, with edges leading out to each possible action. \- Action nodes, with edges
-  * leading out to (reward, state) pairs.
+  *   - State nodes, with edges leading out to each possible action.
+  *   - Action nodes, with edges leading out to (reward, state) pairs.
   *
   * Policies are maps of State => Map[A, Weight]. I don't know that I have a policy that is NOT
   * that.
@@ -15,8 +15,8 @@
   *
   * So to get the value of an ACTION node you need either:
   *
-  * \- To track it directly, with an ActionValueFn, or \- to estimate it with some model of the
-  * dynamics of the system.
+  *   - To track it directly, with an ActionValueFn, or
+  *   - to estimate it with some model of the dynamics of the system.
   *
   * TODO - Key questions: \- Can I rethink the interface here? Can StateValueFn instances ONLY be
   * calculated for... rings where the weights add up to 1? "Affine combination" is the key idea

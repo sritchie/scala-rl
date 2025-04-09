@@ -24,7 +24,7 @@ object Grid {
     /** Returns a row that's guaranteed to sit within the range specified by numColumns.
       */
     def confine(numRows: Int): Row =
-      Row(Util.confine(value, 0, numRows - 1))
+      Row(Util.clamp(value, 0, numRows - 1))
 
     def isWithin(numRows: Int): Boolean = value >= 0 && value < numRows
     def assertWithin(numRows: Int): Try[Row] =
@@ -45,7 +45,7 @@ object Grid {
     /** Returns a column that's guaranteed to sit within the range specified by numColumns.
       */
     def confine(numColumns: Int): Col =
-      Col(Util.confine(value, 0, numColumns - 1))
+      Col(Util.clamp(value, 0, numColumns - 1))
 
     def isWithin(numColumns: Int): Boolean = value >= 0 && value < numColumns
     def assertWithin(numColumns: Int): Try[Col] =
