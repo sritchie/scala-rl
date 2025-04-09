@@ -12,7 +12,7 @@ object CarRental {
 
   case class Inventory(n: Int, maxN: Int) {
     def -(m: Move): Inventory = this + -m
-    def +(m: Move): Inventory = Inventory(Util.confine(n + m.n, 0, maxN), maxN)
+    def +(m: Move): Inventory = Inventory(Util.clamp(n + m.n, 0, maxN), maxN)
     def update(rentals: Move, returns: Move): Inventory =
       Inventory(
         math.min(n - rentals.n + returns.n, maxN),

@@ -10,7 +10,7 @@ import com.scalarl.algebra.ToDouble
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
 
-/** A finite discrete distribution.
+/** Identical to rainier's `Categorical`, except written with `Double` instead of `Real`.
   *
   * @param pmfSeq
   *   A map with keys corresponding to the possible outcomes and values corresponding to the
